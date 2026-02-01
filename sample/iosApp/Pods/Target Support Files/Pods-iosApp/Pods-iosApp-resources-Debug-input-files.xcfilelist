@@ -1,0 +1,5 @@
+${PODS_ROOT}/Target Support Files/Pods-iosApp/Pods-iosApp-resources.sh
+${PODS_ROOT}/../../src/commonMain/assets/ICON_GUIDE.md
+${PODS_ROOT}/../../src/commonMain/assets/common
+${PODS_ROOT}/../../src/commonMain/assets/image_adapter
+${PODS_ROOT}/../../src/commonMain/assets/MainTabPage

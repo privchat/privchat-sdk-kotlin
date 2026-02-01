@@ -1,0 +1,31 @@
+# Gradle
+.gradle/
+build/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+local.properties
+
+# Android 构建产物
+*.apk
+*.aab
+*.dex
+captures/
+.externalNativeBuild/
+.cxx/
+out/
+
+# Kotlin Multiplatform
+.kotlin/
+framework/
+shared/build/
+
+# JNI / UniFFI 生成的 native 库
+shared/src/androidMain/jniLibs/
+
+# Profiler
+*.hprof
+
+# macOS
+.DS_Store

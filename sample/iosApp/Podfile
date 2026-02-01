@@ -1,0 +1,22 @@
+
+target 'iosApp' do
+  use_frameworks!
+  platform :ios, '14.1'
+  pod 'OpenKuiklyIOSRender', '~> 2.13.0'
+  pod 'sample', :path => '..'
+  pod 'SDWebImage'
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      ldflags = config.build_settings['OTHER_LDFLAGS']
+      ldflags = ldflags.is_a?(String) ? ldflags.split(' ') : (ldflags || [])
+      ldflags.reject! { |f| f.to_s.include?('arclite') }
+      ldflags << '$(inherited)' unless ldflags.include?('$(inherited)')
+      config.build_settings['OTHER_LDFLAGS'] = ldflags
+      config.build_settings['ENABLE_BITCODE'] = 'NO'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '14.1'
+    end
+  end
+end

@@ -1,0 +1,29 @@
+PODS:
+  - OpenKuiklyIOSRender (2.13.0)
+  - sample (1.0)
+  - SDWebImage (5.21.5):
+    - SDWebImage/Core (= 5.21.5)
+  - SDWebImage/Core (5.21.5)
+
+DEPENDENCIES:
+  - OpenKuiklyIOSRender (~> 2.13.0)
+  - sample (from `..`)
+  - SDWebImage
+
+SPEC REPOS:
+  trunk:
+    - OpenKuiklyIOSRender
+    - SDWebImage
+
+EXTERNAL SOURCES:
+  sample:
+    :path: ".."
+
+SPEC CHECKSUMS:
+  OpenKuiklyIOSRender: 09da9c53357e330c338a57740608c08797bef1cb
+  sample: 47edcde0aa96d25354ac5afb2cb25093433b5965
+  SDWebImage: e9c98383c7572d713c1a0d7dd2783b10599b9838
+
+PODFILE CHECKSUM: f879fb5bba5de59e3a0f33a095ac7477b9a5a242
+
+COCOAPODS: 1.16.2
