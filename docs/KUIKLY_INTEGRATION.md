@@ -71,4 +71,5 @@ KuiklyRenderActivity.start(context, "PrivchatLoginPage", JSONObject())
 
 - **app 脚手架**：`../app/` — KuiklyUI 页面结构、`BasePager`、`MainTabPage`、`RouterPage`
 - **Android Sample**：`../privchat-sdk-android/sample/` — 4 页面 UI 与流程
-- **SAMPLE_FLOW**：`../privchat-sdk/docs/SAMPLE_FLOW.md` — 标准流程与 URL 解析
+- **privchat-rust API**：`../privchat-rust/docs/public-api-v2.md` — 新 SDK API 与流程
+- **privchat-rust 架构**：`../privchat-rust/docs/architecture-spec.md` — Actor / local-first / FFI 约束

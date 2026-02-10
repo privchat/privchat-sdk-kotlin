@@ -2,7 +2,9 @@
 target 'iosApp' do
   use_frameworks!
   platform :ios, '14.1'
-  pod 'OpenKuiklyIOSRender', '~> 2.13.0'
+  # 本地 KuiklyUI 便于联调：在 KuiklyUI/core-render-ios 里加 NSLog/断点即可在跑本 App 时看到
+  # 恢复远程：pod 'OpenKuiklyIOSRender', '~> 2.15.2'
+  pod 'OpenKuiklyIOSRender', :path => '../../../KuiklyUI'
   pod 'sample', :path => '..'
   pod 'SDWebImage'
 end
