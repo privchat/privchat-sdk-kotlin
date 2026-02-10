@@ -8,15 +8,12 @@ import com.tencent.kuikly.core.module.RouterModule
 import com.tencent.kuikly.core.nvi.serialization.json.JSONObject
 import com.tencent.kuikly.core.reactive.handler.observable
 import com.tencent.kuikly.core.reactive.handler.observableList
-import com.tencent.kuikly.core.timer.setTimeout
 import com.tencent.kuikly.core.views.*
 import io.privchat.sdk.kotlin.sample.base.BasePager
 import io.privchat.sdk.kotlin.sample.privchat.PrivchatClientHolder
 import io.privchat.sdk.kotlin.sample.theme.ThemeManager
 import io.privchat.sdk.dto.FriendEntry
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /**
  * 联系人列表页 - 整合 Privchat SDK getFriends
@@ -42,39 +39,33 @@ internal class FriendsPage : BasePager() {
         }
         loading = true
         errorMsg = ""
-        CoroutineScope(Dispatchers.Default).launch {
+        runBlocking {
             client.getFriends(100u, 0u)
                 .onSuccess { list ->
-                    setTimeout(pagerId, 0) {
-                        friends.clear()
-                        friends.addAll(list)
-                        loading = false
-                        errorMsg = ""
-                    }
+                    friends.clear()
+                    friends.addAll(list)
+                    loading = false
+                    errorMsg = ""
                 }
                 .onFailure { e ->
-                    setTimeout(pagerId, 0) {
-                        errorMsg = e.message ?: "加载失败"
-                        loading = false
-                    }
+                    errorMsg = e.message ?: "加载失败"
+                    loading = false
                 }
         }
     }
 
     private fun onFriendClick(f: FriendEntry) {
         val client = PrivchatClientHolder.client ?: return
-        CoroutineScope(Dispatchers.Default).launch {
+        runBlocking {
             client.getOrCreateDirectChannel(f.userId)
                 .onSuccess { result ->
-                    setTimeout(pagerId, 0) {
-                        val params = JSONObject().apply {
-                            put("channelId", result.channelId.toString())
-                            put("channelType", 1)
-                            put("channelName", f.nickname ?: f.username)
-                        }
-                        acquireModule<RouterModule>(RouterModule.MODULE_NAME)
-                            .openPage("DetailPage", params)
+                    val params = JSONObject().apply {
+                        put("channelId", result.channelId.toString())
+                        put("channelType", 1)
+                        put("channelName", f.nickname ?: f.username)
                     }
+                    acquireModule<RouterModule>(RouterModule.MODULE_NAME)
+                        .openPage("DetailPage", params)
                 }
         }
     }

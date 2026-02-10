@@ -17,6 +17,8 @@ expect class PrivchatClient private constructor() {
     // ========== Client ==========
     suspend fun connect(): Result<Unit>
     suspend fun disconnect(): Result<Unit>
+    /** Release the underlying SDK handle. Call when this client is no longer needed (e.g. after disconnect on failure). */
+    fun close()
     fun isConnected(): Boolean
     fun connectionState(): ConnectionState
     fun currentUserId(): ULong?

@@ -5,19 +5,29 @@ import com.tencent.kuikly.core.base.*
 import com.tencent.kuikly.core.reactive.handler.observable
 import com.tencent.kuikly.core.module.RouterModule
 import com.tencent.kuikly.core.nvi.serialization.json.JSONObject
+import com.tencent.kuikly.core.timer.setTimeout
 import com.tencent.kuikly.core.views.*
 import com.tencent.kuikly.core.views.compose.Button
-import com.tencent.kuikly.core.timer.setTimeout
 import io.privchat.sdk.kotlin.sample.base.BasePager
+import io.privchat.sdk.kotlin.sample.privchat.LoginCoroutineDispatcher
 import io.privchat.sdk.kotlin.sample.privchat.PrivchatClientHolder
 import io.privchat.sdk.kotlin.sample.privchat.PrivchatPlatform
+import io.privchat.sdk.kotlin.sample.runOnKuiklyContext
 import io.privchat.sdk.kotlin.sample.theme.ThemeManager
 import io.privchat.sdk.PrivchatClient
 import io.privchat.sdk.PrivchatConfig
 import io.privchat.sdk.parseServerUrl
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+/** 登录成功后延迟再 openPage，避免与 Kuikly layout/异步释放竞态（仅 Kotlin Native SDK 集成时需规避） */
+private const val OPEN_PAGE_DELAY_MS = 150
+/** connect() 返回后、login/register 前等待，确保服务端 session 已就绪再发 RPC（FFI connect 会阻塞到连接建立） */
+private const val AFTER_CONNECT_DELAY_MS = 300L
+/** 调试：页面加载后自动触发一次登录（等价自动点击“登录”按钮） */
+private const val AUTO_LOGIN_ON_LOAD = true
+private const val AUTO_LOGIN_DELAY_MS = 120
 
 /**
  * 登录/注册页面
@@ -25,14 +35,15 @@ import kotlinx.coroutines.launch
 @Page("LoginPage")
 internal class LoginPage : BasePager() {
     private var theme by observable(ThemeManager.getTheme())
-    private var serverUrl by observable("quic://127.0.0.1:8082")
-    private var username by observable("")
-    private var password by observable("")
+    private var serverUrl by observable("quic://192.168.1.3:9001")
+    private var username by observable("demo")
+    private var password by observable("123456")
     private var status by observable("")
 
     private lateinit var serverUrlRef: ViewRef<InputView>
     private lateinit var usernameRef: ViewRef<InputView>
     private lateinit var passwordRef: ViewRef<InputView>
+    private var autoLoginTriggered = false
 
     override fun body(): ViewBuilder {
         val ctx = this
@@ -204,7 +215,17 @@ internal class LoginPage : BasePager() {
         super.viewDidLoad()
         try {
             serverUrlRef.view?.setText(serverUrl)
+            usernameRef.view?.setText(username)
+            passwordRef.view?.setText(password)
         } catch (_: Exception) {}
+        if (AUTO_LOGIN_ON_LOAD && !autoLoginTriggered) {
+            autoLoginTriggered = true
+            CoroutineScope(LoginCoroutineDispatcher).launch {
+                delay(AUTO_LOGIN_DELAY_MS.toLong())
+                println("[LoginFlow] auto login trigger")
+                doLogin()
+            }
+        }
     }
 
     private fun doLogin() {
@@ -229,35 +250,83 @@ internal class LoginPage : BasePager() {
             return
         }
         status = if (isRegister) "注册中..." else "登录中..."
+        println("[LoginFlow] doAuth start (isRegister=$isRegister)")
 
-        CoroutineScope(Dispatchers.Default).launch {
+        CoroutineScope(LoginCoroutineDispatcher).launch {
+            var client: PrivchatClient? = null
             runCatching {
                 val config = PrivchatConfig(
                     dataDir = PrivchatPlatform.dataDir(),
                     assetsDir = null,  // SDK 使用内置 embedded migrations，无需外部 SQL
                     serverEndpoints = listOf(ep),
                 )
+                println("[LoginFlow] create() start")
                 val createResult = PrivchatClient.create(config)
-                val client = createResult.getOrThrow()
+                client = createResult.getOrThrow()
+                println("[LoginFlow] create() ok")
+
+                println("[LoginFlow] connect() start")
                 client.connect().getOrThrow()
+                println("[LoginFlow] connect() ok")
+                // connect() 在 Rust 侧会阻塞到连接建立；短延迟再 login 确保服务端 session 已就绪再发 RPC
+                delay(AFTER_CONNECT_DELAY_MS)
+                println("[LoginFlow] ${if (isRegister) "register()" else "login()"} start")
                 val authResult = if (isRegister) {
                     client.register(u, p, PrivchatPlatform.deviceId())
                 } else {
                     client.login(u, p, PrivchatPlatform.deviceId())
                 }
                 val result = authResult.getOrThrow()
+                println("[LoginFlow] ${if (isRegister) "register()" else "login()"} ok, userId=${result.userId}")
+
+                println("[LoginFlow] authenticate() start")
                 client.authenticate(result.userId, result.token, PrivchatPlatform.deviceId()).getOrThrow()
+                println("[LoginFlow] authenticate() ok")
+
+                // 必须同步完成 runBootstrapSync 再进入后续流程：本地 DB、资料库等在此初始化，未完成则后续操作不成立
+                // Android Kuikly 在该阶段更新 reactive 文本会触发 callNative 断言，这里仅输出日志。
+                println("[LoginFlow] runBootstrapSync() start")
                 client.runBootstrapSync().getOrThrow()
+                println("[LoginFlow] runBootstrapSync() ok")
+
+                println("[LoginFlow] setClient()")
                 PrivchatClientHolder.setClient(client)
-                // 使用 setTimeout 在 Kuikly 渲染上下文执行 openPage，避免 runOnMain + callNative AssertionError
-                setTimeout(pagerId, 0) {
-                    acquireModule<RouterModule>(RouterModule.MODULE_NAME)
-                        .openPage("MainTabPage", JSONObject())
+                // Android 走平台侧原生跳转，避免 Kuikly context 线程断言。
+                if (PrivchatPlatform.navigateToMainTabPage()) {
+                    println("[LoginFlow] platform navigation done")
+                    return@runCatching
                 }
+
+                // iOS/其他平台走 Kuikly Router。
+                println("[LoginFlow] schedule openPage in ${OPEN_PAGE_DELAY_MS}ms")
+                delay(OPEN_PAGE_DELAY_MS.toLong())
+                runOnKuiklyContext {
+                    setTimeout(pagerId, 0) {
+                        println("[LoginFlow] openPage(MainTabPage) executing")
+                        acquireModule<RouterModule>(RouterModule.MODULE_NAME)
+                            .openPage("MainTabPage", JSONObject())
+                    }
+                }
+                println("[LoginFlow] doAuth success path done (openPage enqueued)")
             }.onFailure { e ->
-                val msg = "失败: ${e.message ?: e.toString()}"
-                // 使用 Kuikly setTimeout 在渲染上下文更新 UI，避免 runOnMain + callNative AssertionError
-                setTimeout(pagerId, 0) { status = msg }
+                val raw = listOfNotNull(
+                    e.message?.takeIf { it.isNotBlank() }?.trim()?.take(300),
+                    e.cause?.message?.takeIf { it.isNotBlank() }?.trim()?.take(300),
+                    e.toString().takeIf { it.isNotBlank() }?.trim()?.take(300),
+                    e::class.simpleName?.takeIf { it.isNotBlank() },
+                    e::class.qualifiedName?.takeIf { it.isNotBlank() }
+                ).firstOrNull() ?: "未知错误"
+                val detail = raw.replace(Regex("\\s+"), " ")
+                    .trim()
+                    .removePrefix("parameter")
+                    .trim()
+                    .filter { c -> c.code in 32..0xFFFF }
+                val fallback = "未知错误"
+                val toShow = if (detail.isEmpty()) fallback else detail
+                println("[LoginFlow] onFailure: " + toShow)
+                val msg = "失败: " + (if (toShow.isEmpty()) fallback else toShow)
+                // Android Kuikly 当前在失败态更新 reactive 文本会触发 callNative 断言，先只打日志避免进程崩溃
+                println("[LoginFlow] status update skipped: $msg")
             }
         }
     }

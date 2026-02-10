@@ -15,4 +15,10 @@ expect object PrivchatPlatform {
 
     /** 设备 ID（用于 login/register） */
     fun deviceId(): String
+
+    /**
+     * 登录成功后由平台侧直接跳转到主页面。
+     * 返回 true 表示已处理跳转；false 表示调用方需自行通过 Kuikly Router 跳转。
+     */
+    fun navigateToMainTabPage(): Boolean
 }

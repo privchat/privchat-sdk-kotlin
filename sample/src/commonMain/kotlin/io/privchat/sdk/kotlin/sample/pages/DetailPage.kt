@@ -14,7 +14,6 @@ import com.tencent.kuikly.core.module.SharedPreferencesModule
 import com.tencent.kuikly.core.nvi.serialization.json.JSONObject
 import com.tencent.kuikly.core.reactive.handler.observable
 import com.tencent.kuikly.core.reactive.handler.observableList
-import com.tencent.kuikly.core.timer.setTimeout
 import com.tencent.kuikly.core.views.*
 import com.tencent.kuikly.core.views.compose.Button
 import io.privchat.sdk.kotlin.sample.base.BasePager
@@ -23,9 +22,7 @@ import io.privchat.sdk.kotlin.sample.theme.ThemeManager
 import io.privchat.sdk.kotlin.sample.util.TimeFormatter
 import io.privchat.sdk.dto.MessageEntry
 import io.privchat.sdk.dto.MessageStatus
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /**
  * 详情页面 - 展示内容详情或会话消息列表
@@ -110,28 +107,24 @@ internal class DetailPage : BasePager() {
         }
         messagesLoading = true
         messagesError = ""
-        CoroutineScope(Dispatchers.Default).launch {
+        runBlocking {
             client.getMessages(channelId, 50u, null)
                 .onSuccess { list ->
-                    setTimeout(pagerId, 0) {
-                        messages.clear()
-                        // 按 message.id 升序，最新消息在最下面
-                        messages.addAll(list.sortedBy { it.id })
-                        messagesLoading = false
-                        messagesError = ""
-                        // 布局完成后滚动到底部，消息是从下往上看的
-                        addTaskWhenPagerUpdateLayoutFinish {
-                            if (messages.isNotEmpty()) {
-                                messageListRef?.view?.scrollToPosition(messages.size - 1, animate = true)
-                            }
+                    messages.clear()
+                    // 按 message.id 升序，最新消息在最下面
+                    messages.addAll(list.sortedBy { it.id })
+                    messagesLoading = false
+                    messagesError = ""
+                    // 布局完成后滚动到底部，消息是从下往上看的
+                    addTaskWhenPagerUpdateLayoutFinish {
+                        if (messages.isNotEmpty()) {
+                            messageListRef?.view?.scrollToPosition(messages.size - 1, animate = true)
                         }
                     }
                 }
                 .onFailure { e ->
-                    setTimeout(pagerId, 0) {
-                        messagesError = e.message ?: "加载消息失败"
-                        messagesLoading = false
-                    }
+                    messagesError = e.message ?: "加载消息失败"
+                    messagesLoading = false
                 }
         }
     }
@@ -363,30 +356,26 @@ internal class DetailPage : BasePager() {
                                         if (txt.isEmpty()) return@click
                                         val client = PrivchatClientHolder.client
                                         if (client == null) return@click
-                                        CoroutineScope(Dispatchers.Default).launch {
+                                        runBlocking {
                                             client.sendText(ctx.channelId, ctx.channelType, txt)
                                                 .onSuccess { messageId ->
-                                                    setTimeout(ctx.pagerId, 0) {
-                                                        ctx.inputText = ""
-                                                        ctx.inputRef.view?.setText("")
-                                                        val uid = client.currentUserId() ?: 0uL
-                                                        val newMsg = MessageEntry(
-                                                            id = messageId,
-                                                            serverMessageId = messageId,
-                                                            channelId = ctx.channelId,
-                                                            channelType = ctx.channelType,
-                                                            fromUid = uid,
-                                                            content = txt,
-                                                            status = MessageStatus.Sent,
-                                                            timestamp = TimeFormatter.currentTimeMillis().toULong()
-                                                        )
-                                                        ctx.appendMessageAndScrollToBottom(newMsg)
-                                                    }
+                                                    ctx.inputText = ""
+                                                    ctx.inputRef.view?.setText("")
+                                                    val uid = client.currentUserId() ?: 0uL
+                                                    val newMsg = MessageEntry(
+                                                        id = messageId,
+                                                        serverMessageId = messageId,
+                                                        channelId = ctx.channelId,
+                                                        channelType = ctx.channelType,
+                                                        fromUid = uid,
+                                                        content = txt,
+                                                        status = MessageStatus.Sent,
+                                                        timestamp = TimeFormatter.currentTimeMillis().toULong()
+                                                    )
+                                                    ctx.appendMessageAndScrollToBottom(newMsg)
                                                 }
                                                 .onFailure { e ->
-                                                    setTimeout(ctx.pagerId, 0) {
-                                                        ctx.messagesError = e.message ?: "发送失败"
-                                                    }
+                                                    ctx.messagesError = e.message ?: "发送失败"
                                                 }
                                         }
                                     }
@@ -424,5 +413,3 @@ internal class DetailPage : BasePager() {
             }
         }
     }
-
-

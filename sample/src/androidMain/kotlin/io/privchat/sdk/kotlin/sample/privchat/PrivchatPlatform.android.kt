@@ -1,6 +1,7 @@
 package io.privchat.sdk.kotlin.sample.privchat
 
 import android.content.Context
+import android.content.Intent
 import java.io.File
 import java.util.UUID
 
@@ -28,5 +29,21 @@ actual object PrivchatPlatform {
             prefs.edit().putString("device_id", id).apply()
         }
         return id
+    }
+
+    actual fun navigateToMainTabPage(): Boolean {
+        val appCtx = ctx ?: return false
+        return runCatching {
+            val intent = Intent().apply {
+                setClassName(appCtx.packageName, "io.privchat.sdk.kotlin.sample.KuiklyRenderActivity")
+                putExtra("pageName", "MainTabPage")
+                putExtra("pageData", "{}")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+            }
+            appCtx.startActivity(intent)
+            true
+        }.getOrElse {
+            false
+        }
     }
 }

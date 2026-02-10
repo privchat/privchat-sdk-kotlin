@@ -8,16 +8,13 @@ import com.tencent.kuikly.core.module.RouterModule
 import com.tencent.kuikly.core.nvi.serialization.json.JSONObject
 import com.tencent.kuikly.core.reactive.handler.observable
 import com.tencent.kuikly.core.reactive.handler.observableList
-import com.tencent.kuikly.core.timer.setTimeout
 import com.tencent.kuikly.core.views.*
 import io.privchat.sdk.kotlin.sample.base.BasePager
 import io.privchat.sdk.kotlin.sample.privchat.PrivchatClientHolder
 import io.privchat.sdk.kotlin.sample.theme.ThemeManager
 import io.privchat.sdk.kotlin.sample.util.TimeFormatter
 import io.privchat.sdk.dto.ChannelListEntry
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /**
  * 会话列表页 - 整合 Privchat SDK getChannels
@@ -43,26 +40,21 @@ internal class SessionsPage : BasePager() {
         }
         loading = true
         errorMsg = ""
-        CoroutineScope(Dispatchers.Default).launch {
+        runBlocking {
             client.getChannels(50u, 0u)
                 .onSuccess { list ->
-                    // 排查会话重复：打日志看 SDK 返回的条数及每条 channelId/channelType
                     println("SessionsPage loadChannels: 收到 ${list.size} 条会话")
                     list.forEachIndexed { i, ch ->
                         println("SessionsPage [$i] channelId=${ch.channelId}, channelType=${ch.channelType}, name=${ch.name}")
                     }
-                    setTimeout(pagerId, 0) {
-                        channels.clear()
-                        channels.addAll(list)
-                        loading = false
-                        errorMsg = ""
-                    }
+                    channels.clear()
+                    channels.addAll(list)
+                    loading = false
+                    errorMsg = ""
                 }
                 .onFailure { e ->
-                    setTimeout(pagerId, 0) {
-                        errorMsg = e.message ?: "加载失败"
-                        loading = false
-                    }
+                    errorMsg = e.message ?: "加载失败"
+                    loading = false
                 }
         }
     }

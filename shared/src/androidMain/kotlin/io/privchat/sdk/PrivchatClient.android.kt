@@ -1,516 +1,1100 @@
 package io.privchat.sdk
 
-import android.util.Log
 import io.privchat.sdk.dto.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import io.privchat.ffi.PrivchatConfigBuilder
-import io.privchat.ffi.PrivchatException
-import io.privchat.ffi.PrivchatSdk
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.booleanOrNull
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.longOrNull
+import kotlinx.serialization.json.contentOrNull
+import uniffi.privchat_sdk_ffi.ConnectionState as CoreConnectionState
+import uniffi.privchat_sdk_ffi.FileQueueRef
+import uniffi.privchat_sdk_ffi.LoginResult
+import uniffi.privchat_sdk_ffi.NewMessage
+import uniffi.privchat_sdk_ffi.PresenceStatus
+import uniffi.privchat_sdk_ffi.PrivchatClient as CorePrivchatClient
+import uniffi.privchat_sdk_ffi.PrivchatConfig as CoreConfig
+import uniffi.privchat_sdk_ffi.PrivchatFfiException
+import uniffi.privchat_sdk_ffi.SendMessageOptionsInput
+import uniffi.privchat_sdk_ffi.ServerEndpoint as CoreEndpoint
+import uniffi.privchat_sdk_ffi.StoredChannel
+import uniffi.privchat_sdk_ffi.StoredFriend
+import uniffi.privchat_sdk_ffi.StoredGroup
+import uniffi.privchat_sdk_ffi.StoredGroupMember
+import uniffi.privchat_sdk_ffi.StoredMessage
+import uniffi.privchat_sdk_ffi.TransportProtocol as CoreProtocol
+import uniffi.privchat_sdk_ffi.TypingActionType
+import uniffi.privchat_sdk_ffi.sdkVersion
 
-private const val TAG_CHANNELS = "PrivchatGetChannels"
+private val json = Json { ignoreUnknownKeys = true }
 
-private inline fun <T> runCatchingSdk(block: () -> T): Result<T> = runCatching(block).fold(
-    onSuccess = { Result.success(it) },
-    onFailure = { Result.failure(if (it is PrivchatException) it.toSdkError() else it) }
-)
+actual fun parseServerUrl(url: String): ServerEndpoint? {
+    val regex = Regex("^(quic|wss|ws|tcp)://([^:/]+)(?::(\\d+))?(/.*)?$")
+    val match = regex.matchEntire(url) ?: return null
 
-actual fun parseServerUrl(url: String): ServerEndpoint? = runCatching {
-    val builder = PrivchatConfigBuilder()
-        .dataDir("/tmp")
-        .connectionTimeout(30u)
-        .heartbeatInterval(30u)
-        .debugMode(false)
-    val builderWithUrl = builder.serverUrl(url)  // serverUrl 返回新 builder，必须使用返回值
-    val config = builderWithUrl.build()
-    val e = config.serverConfig.endpoints.firstOrNull() ?: return@runCatching null
-    ServerEndpoint(
-        protocol = when (e.protocol) {
-            io.privchat.ffi.TransportProtocol.QUIC -> TransportProtocol.Quic
-            io.privchat.ffi.TransportProtocol.TCP -> TransportProtocol.Tcp
-            io.privchat.ffi.TransportProtocol.WEB_SOCKET -> TransportProtocol.WebSocket
-        },
-        host = e.host,
-        port = e.port.toInt(),
-        path = e.path,
-        useTls = e.useTls,
+    val scheme = match.groupValues[1]
+    val host = match.groupValues[2]
+    val portStr = match.groupValues[3]
+    val path = match.groupValues[4].takeIf { it.isNotEmpty() }
+
+    val protocol = when (scheme) {
+        "quic" -> TransportProtocol.Quic
+        "wss", "ws" -> TransportProtocol.WebSocket
+        "tcp" -> TransportProtocol.Tcp
+        else -> return null
+    }
+
+    val defaultPort = when (scheme) {
+        "quic" -> 9001
+        "wss" -> 443
+        "ws" -> 80
+        "tcp" -> 9000
+        else -> 9001
+    }
+
+    return ServerEndpoint(
+        protocol = protocol,
+        host = host,
+        port = portStr.toIntOrNull() ?: defaultPort,
+        path = path,
+        useTls = scheme == "wss",
     )
-}.getOrNull()
-
-private fun PrivchatException.toSdkError(): SdkError = when (this) {
-    is PrivchatException.Generic -> SdkError.Generic(msg)
-    is PrivchatException.Database -> SdkError.Database(msg)
-    is PrivchatException.Network -> SdkError.Network(msg, code)
-    is PrivchatException.Authentication -> SdkError.Authentication(reason)
-    is PrivchatException.InvalidParameter -> SdkError.InvalidParameter(field, msg)
-    is PrivchatException.Timeout -> SdkError.Timeout(timeoutSecs)
-    is PrivchatException.Disconnected -> SdkError.Disconnected
-    is PrivchatException.NotInitialized -> SdkError.NotInitialized
-}
-
-private fun SendMessageOptions.toFfi() = io.privchat.ffi.SendMessageOptions(
-    inReplyToMessageId = inReplyToMessageId,
-    mentions = mentions,
-    silent = silent,
-    extraJson = extraJson
-)
-
-private fun io.privchat.ffi.MessageEntry.toCommon() = io.privchat.sdk.dto.MessageEntry(
-    id = this.id,
-    serverMessageId = this.serverMessageId,
-    channelId = this.channelId,
-    channelType = this.channelType,
-    fromUid = this.fromUid,
-    content = this.content,
-    status = when (this.status) {
-        io.privchat.ffi.MessageStatus.PENDING -> io.privchat.sdk.dto.MessageStatus.Pending
-        io.privchat.ffi.MessageStatus.SENDING -> io.privchat.sdk.dto.MessageStatus.Sending
-        io.privchat.ffi.MessageStatus.SENT -> io.privchat.sdk.dto.MessageStatus.Sent
-        io.privchat.ffi.MessageStatus.FAILED -> io.privchat.sdk.dto.MessageStatus.Failed
-        io.privchat.ffi.MessageStatus.READ -> io.privchat.sdk.dto.MessageStatus.Read
-    },
-    timestamp = this.timestamp
-)
-
-private fun io.privchat.ffi.ChannelListEntry.toCommon() = io.privchat.sdk.dto.ChannelListEntry(
-    channelId = this.channelId,
-    channelType = this.channelType,
-    name = this.name,
-    lastTs = this.lastTs,
-    notifications = this.notifications,
-    messages = this.messages,
-    mentions = this.mentions,
-    markedUnread = this.markedUnread,
-    isFavourite = this.isFavourite,
-    isLowPriority = this.isLowPriority,
-    avatarUrl = this.avatarUrl,
-    isDm = this.isDm,
-    isEncrypted = this.isEncrypted,
-    memberCount = this.memberCount,
-    topic = this.topic,
-    latestEvent = this.latestEvent?.let { ev -> io.privchat.sdk.dto.LatestChannelEvent(ev.eventType, ev.content, ev.timestamp) }
-)
-
-private fun io.privchat.ffi.FriendEntry.toCommon() = io.privchat.sdk.dto.FriendEntry(
-    userId = this.userId,
-    username = this.username,
-    nickname = this.nickname,
-    avatarUrl = this.avatarUrl,
-    userType = this.userType,
-    status = this.status,
-    addedAt = this.addedAt,
-    remark = this.remark
-)
-
-private fun io.privchat.ffi.GroupEntry.toCommon() = io.privchat.sdk.dto.GroupEntry(
-    groupId = this.groupId,
-    name = this.name,
-    avatar = this.avatar,
-    ownerId = this.ownerId,
-    isDismissed = this.isDismissed,
-    createdAt = this.createdAt,
-    updatedAt = this.updatedAt
-)
-
-private fun io.privchat.ffi.GroupMemberEntry.toCommon() = io.privchat.sdk.dto.GroupMemberEntry(
-    userId = this.userId,
-    channelId = this.channelId,
-    channelType = this.channelType,
-    name = this.name,
-    remark = this.remark,
-    avatar = this.avatar,
-    role = this.role,
-    status = this.status,
-    inviteUserId = this.inviteUserId
-)
-
-private fun io.privchat.ffi.UserEntry.toCommon() = io.privchat.sdk.dto.UserEntry(
-    userId = this.userId,
-    username = this.username,
-    nickname = this.nickname,
-    avatarUrl = this.avatarUrl,
-    userType = this.userType,
-    isFriend = this.isFriend,
-    canSendMessage = this.canSendMessage,
-    searchSessionId = this.searchSessionId,
-    isOnline = this.isOnline
-)
-
-private fun io.privchat.ffi.FriendPendingEntry.toCommon() = io.privchat.sdk.dto.FriendPendingEntry(
-    fromUserId = this.fromUserId,
-    message = this.message,
-    createdAt = this.createdAt
-)
-
-private fun io.privchat.ffi.SyncStateEntry.toCommon() = io.privchat.sdk.dto.SyncStateEntry(
-    channelId = this.channelId,
-    channelType = this.channelType,
-    localPts = this.localPts,
-    serverPts = this.serverPts,
-    needsSync = this.needsSync,
-    lastSyncAt = this.lastSyncAt
-)
-
-private fun io.privchat.ffi.UnreadStats.toCommon() = io.privchat.sdk.dto.UnreadStats(
-    messages = this.messages,
-    notifications = this.notifications,
-    mentions = this.mentions
-)
-
-private fun io.privchat.ffi.LastReadPosition.toCommon() = io.privchat.sdk.dto.LastReadPosition(
-    serverMessageId = this.serverMessageId,
-    timestamp = this.timestamp
-)
-
-private fun io.privchat.ffi.PresenceEntry.toCommon() = io.privchat.sdk.dto.PresenceEntry(
-    userId = this.userId,
-    isOnline = this.isOnline,
-    lastSeen = this.lastSeen,
-    deviceType = this.deviceType
-)
-
-private fun io.privchat.ffi.ReactionChip.toCommon() = io.privchat.sdk.dto.ReactionChip(
-    emoji = this.emoji,
-    userIds = this.userIds,
-    count = this.count
-)
-
-private fun io.privchat.ffi.SeenByEntry.toCommon() = io.privchat.sdk.dto.SeenByEntry(
-    userId = this.userId,
-    readAt = this.readAt
-)
-
-private fun io.privchat.ffi.AttachmentInfo.toCommon() = io.privchat.sdk.dto.AttachmentInfo(
-    url = this.url,
-    mimeType = this.mimeType,
-    size = this.size,
-    thumbnailUrl = this.thumbnailUrl,
-    filename = this.filename,
-    fileId = this.fileId,
-    width = this.width,
-    height = this.height,
-    duration = this.duration
-)
-
-private fun io.privchat.sdk.dto.NotificationMode.toFfiMode() = when (this) {
-    io.privchat.sdk.dto.NotificationMode.All -> io.privchat.ffi.NotificationMode.ALL
-    io.privchat.sdk.dto.NotificationMode.Mentions -> io.privchat.ffi.NotificationMode.MENTIONS
-    io.privchat.sdk.dto.NotificationMode.None -> io.privchat.ffi.NotificationMode.NONE
 }
 
 actual class PrivchatClient private actual constructor() {
-    private val ffi: io.privchat.ffi.PrivchatSdk
+    private val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private var coreClient: CorePrivchatClient? = null
+    private var cachedConnectionState: ConnectionState = ConnectionState.Disconnected
+    private var cachedUserId: ULong? = null
+    private var videoHook: VideoProcessHook? = null
 
-    init {
-        ffi = Companion.pendingFfi ?: throw IllegalStateException("Use PrivchatClient.create()")
-        Companion.pendingFfi = null
-    }
-    actual suspend fun connect(): Result<Unit> = withContext(Dispatchers.IO) { runCatchingSdk { ffi.connect() } }
-    actual suspend fun disconnect(): Result<Unit> = withContext(Dispatchers.IO) { runCatchingSdk { ffi.disconnect() } }
-    actual fun isConnected(): Boolean = ffi.isConnected()
-    actual fun connectionState(): ConnectionState = ffi.connectionState().toCommon()
-    actual fun currentUserId(): ULong? = ffi.currentUserId()
-    actual suspend fun shutdown(): Result<Unit> = withContext(Dispatchers.IO) { runCatchingSdk { ffi.shutdown() } }
-
-    actual suspend fun register(username: String, password: String, deviceId: String): Result<AuthResult> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.register(username, password, deviceId).toCommon() } }
-    actual suspend fun login(username: String, password: String, deviceId: String): Result<AuthResult> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.login(username, password, deviceId).toCommon() } }
-    actual suspend fun authenticate(userId: ULong, token: String, deviceId: String): Result<Unit> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.authenticate(userId, token, deviceId) } }
-    actual suspend fun logout(): Result<Unit> = withContext(Dispatchers.IO) { runCatchingSdk { ffi.logout() } }
-
-    actual suspend fun sendText(channelId: ULong, channelType: Int, text: String): Result<ULong> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.sendMessage(text, channelId, channelType) } }
-    actual suspend fun sendText(channelId: ULong, channelType: Int, text: String, options: SendMessageOptions): Result<ULong> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.sendMessageWithOptions(text, channelId, options.toFfi()) } }
-    actual suspend fun sendMedia(channelId: ULong, filePath: String, options: SendMessageOptions?): Result<Pair<ULong, AttachmentInfo>> =
-        withContext(Dispatchers.IO) {
-            val opts = options?.toFfi() ?: io.privchat.ffi.SendMessageOptions(null, emptyList(), false, null)
-            runCatchingSdk {
-                val r = ffi.sendAttachmentFromPath(channelId, filePath, opts, null)
-                r.id to r.attachment.toCommon()
-            }
-        }
-    actual suspend fun retryMessage(messageId: ULong): Result<Unit> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.retryMessage(messageId) } }
-    actual suspend fun markAsRead(channelId: ULong, messageId: ULong): Result<Unit> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.markAsRead(channelId, messageId) } }
-    actual suspend fun markFullyReadAt(channelId: ULong, messageId: ULong): Result<Unit> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.markFullyReadAt(channelId, messageId) } }
-    actual suspend fun revokeMessage(messageId: ULong): Result<Unit> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.revokeMessage(messageId) } }
-    actual suspend fun editMessage(messageId: ULong, newContent: String): Result<Unit> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.editMessage(messageId, newContent) } }
-    actual suspend fun addReaction(messageId: ULong, emoji: String): Result<Unit> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.addReaction(messageId, emoji) } }
-    actual suspend fun removeReaction(messageId: ULong, emoji: String): Result<Unit> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.removeReaction(messageId, emoji) } }
-    actual suspend fun reactions(channelId: ULong, messageId: ULong): Result<List<ReactionChip>> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.reactions(channelId, messageId).map { it.toCommon() } } }
-    actual suspend fun reactionsBatch(channelId: ULong, messageIds: List<ULong>): Result<Map<ULong, List<ReactionChip>>> =
-        withContext(Dispatchers.IO) {
-            runCatchingSdk { ffi.reactionsBatch(channelId, messageIds).mapValues { (_, chips) -> chips.map { it.toCommon() } } }
-        }
-    actual suspend fun isEventReadBy(channelId: ULong, messageId: ULong, userId: ULong): Result<Boolean> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.isEventReadBy(channelId, messageId, userId) } }
-    actual suspend fun seenByForEvent(channelId: ULong, messageId: ULong, limit: UInt?): Result<List<SeenByEntry>> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.seenByForEvent(channelId, messageId, limit).map { it.toCommon() } } }
-    actual suspend fun searchMessages(query: String, channelId: String?): Result<List<MessageEntry>> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.searchMessages(query, channelId).map { it.toCommon() } } }
-
-    actual suspend fun getMessages(channelId: ULong, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.getMessageHistory(channelId, limit, beforeSeq).map { it.toCommon() } } }
-    actual suspend fun getMessageById(messageId: ULong): Result<MessageEntry?> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.getMessageById(messageId)?.toCommon() } }
-    actual suspend fun paginateBack(channelId: ULong, beforeSeq: ULong, limit: UInt): Result<List<MessageEntry>> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.paginateBack(channelId, beforeSeq, limit).map { it.toCommon() } } }
-    actual suspend fun paginateForward(channelId: ULong, afterSeq: ULong, limit: UInt): Result<List<MessageEntry>> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.paginateForward(channelId, afterSeq, limit).map { it.toCommon() } } }
-    actual suspend fun getChannels(limit: UInt, offset: UInt): Result<List<ChannelListEntry>> =
-        withContext(Dispatchers.IO) {
-            runCatchingSdk {
-                val raw = ffi.getChannels(limit, offset)
-                Log.d(TAG_CHANNELS, "[getChannels] SDK 返回会话数: ${raw.size}, limit=$limit, offset=$offset")
-                raw.forEachIndexed { i, ffiEntry ->
-                    Log.d(TAG_CHANNELS, "[getChannels] [$i] channelId=${ffiEntry.channelId}, channelType=${ffiEntry.channelType}, name=${ffiEntry.name}, messages(unread)=${ffiEntry.messages}")
-                }
-                raw.map { it.toCommon() }
-            }
-        }
-    actual suspend fun getFriends(limit: UInt?, offset: UInt?): Result<List<FriendEntry>> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.getFriends(limit, offset).map { it.toCommon() } } }
-    actual suspend fun getGroups(limit: UInt?, offset: UInt?): Result<List<GroupEntry>> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.getGroups(limit, offset).map { it.toCommon() } } }
-    actual suspend fun getGroupMembers(groupId: ULong, limit: UInt?, offset: UInt?): Result<List<GroupMemberEntry>> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.getGroupMembers(groupId, limit, offset).map { it.toCommon() } } }
-
-    actual suspend fun runBootstrapSync(): Result<Unit> = withContext(Dispatchers.IO) { runCatchingSdk { ffi.runBootstrapSync() } }
-    actual fun runBootstrapSyncInBackground() = ffi.runBootstrapSyncInBackground()
-    actual suspend fun isBootstrapCompleted(): Result<Boolean> = withContext(Dispatchers.IO) { runCatchingSdk { ffi.isBootstrapCompleted() } }
-    actual suspend fun syncEntities(type: String, scope: String?): Result<UInt> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.syncEntities(type, scope) } }
-    actual suspend fun syncChannel(channelId: ULong, channelType: UByte): Result<SyncStateEntry> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.syncChannel(channelId, channelType).toCommon() } }
-    actual suspend fun syncAllChannels(): Result<List<SyncStateEntry>> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.syncAllChannels().map { it.toCommon() } } }
-    actual suspend fun getChannelSyncState(channelId: ULong, channelType: UByte): Result<SyncStateEntry> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.getChannelSyncState(channelId, channelType).toCommon() } }
-    actual suspend fun needsSync(channelId: ULong, channelType: UByte): Result<Boolean> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.needsSync(channelId, channelType) } }
-    actual suspend fun startSupervisedSync(observer: SyncObserver): Result<Unit> =
-        withContext(Dispatchers.IO) {
-            runCatchingSdk {
-                val ffiObserver = object : io.privchat.ffi.SyncObserver {
-                    override fun onState(status: io.privchat.ffi.SyncStatus) {
-                        observer.onState(SyncStatus(
-                            phase = when (status.phase) {
-                                io.privchat.ffi.SyncPhase.IDLE -> SyncPhase.Idle
-                                io.privchat.ffi.SyncPhase.RUNNING -> SyncPhase.Running
-                                io.privchat.ffi.SyncPhase.BACKING_OFF -> SyncPhase.BackingOff
-                                io.privchat.ffi.SyncPhase.ERROR -> SyncPhase.Error
-                            },
-                            message = status.message
-                        ))
-                    }
-                }
-                ffi.startSupervisedSync(ffiObserver)
-            }
-        }
-    actual suspend fun stopSupervisedSync(): Result<Unit> = withContext(Dispatchers.IO) { runCatchingSdk { ffi.stopSupervisedSync() } }
-
-    actual suspend fun markChannelRead(channelId: ULong, channelType: Int): Result<Unit> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.markChannelRead(channelId, channelType) } }
-    actual suspend fun pinChannel(channelId: ULong, pin: Boolean): Result<Boolean> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.pinChannel(channelId, pin) } }
-    actual suspend fun hideChannel(channelId: ULong): Result<Boolean> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.hideChannel(channelId) } }
-    actual suspend fun muteChannel(channelId: ULong, muted: Boolean): Result<Boolean> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.muteChannel(channelId, muted) } }
-    actual suspend fun channelUnreadStats(channelId: ULong): Result<UnreadStats> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.channelUnreadStats(channelId).toCommon() } }
-    actual suspend fun ownLastRead(channelId: ULong): Result<LastReadPosition> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.ownLastRead(channelId).toCommon() } }
-    actual suspend fun setChannelNotificationMode(channelId: ULong, mode: NotificationMode): Result<Unit> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.setChannelNotificationMode(channelId, mode.toFfiMode()) } }
-    actual suspend fun getOrCreateDirectChannel(peerUserId: ULong): Result<GetOrCreateDirectChannelResult> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.getOrCreateDirectChannel(peerUserId, null, null).toCommon() } }
-
-    actual suspend fun searchUsers(query: String): Result<List<UserEntry>> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.searchUsers(query).map { it.toCommon() } } }
-    actual suspend fun sendFriendRequest(toUserId: ULong, remark: String?, searchSessionId: String?): Result<ULong> =
-        withContext(Dispatchers.IO) {
-            runCatchingSdk {
-                val json = ffi.sendFriendRequest(toUserId, remark, searchSessionId)
-                org.json.JSONObject(json).optLong("request_id", 0L).toULong()
-            }
-        }
-    actual suspend fun acceptFriendRequest(fromUserId: ULong): Result<ULong> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.acceptFriendRequest(fromUserId) } }
-    actual suspend fun rejectFriendRequest(fromUserId: ULong): Result<Boolean> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.rejectFriendRequest(fromUserId) } }
-    actual suspend fun deleteFriend(userId: ULong): Result<Boolean> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.deleteFriend(userId) } }
-    actual suspend fun listFriendPendingRequests(): Result<List<FriendPendingEntry>> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.listFriendPendingRequests().map { it.toCommon() } } }
-    actual suspend fun createGroup(name: String, memberIds: List<ULong>): Result<GroupCreateResult> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.createGroup(name, memberIds).toCommon() } }
-    actual suspend fun inviteToGroup(groupId: ULong, userIds: List<ULong>): Result<Boolean> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.inviteToGroup(groupId, userIds) } }
-    actual suspend fun removeGroupMember(groupId: ULong, userId: ULong): Result<Boolean> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.removeGroupMember(groupId, userId) } }
-    actual suspend fun leaveGroup(groupId: ULong): Result<Boolean> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.leaveGroup(groupId) } }
-    actual suspend fun joinGroupByQrcode(qrcode: String): Result<GroupQrCodeJoinResult> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.joinGroupByQrcode(qrcode, null, null).toCommon() } }
-
-    actual suspend fun subscribePresence(userIds: List<ULong>): Result<List<PresenceEntry>> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.subscribePresence(userIds).map { it.toCommon() } } }
-    actual fun unsubscribePresence(userIds: List<ULong>) { try { ffi.unsubscribePresence(userIds) } catch (_: Exception) {} }
-    actual fun getPresence(userId: ULong): PresenceEntry? = ffi.getPresence(userId)?.toCommon()
-    actual fun batchGetPresence(userIds: List<ULong>): List<PresenceEntry> = ffi.batchGetPresence(userIds).map { it.toCommon() }
-    actual suspend fun fetchPresence(userIds: List<ULong>): Result<List<PresenceEntry>> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.fetchPresence(userIds).map { it.toCommon() } } }
-    actual suspend fun sendTyping(channelId: ULong): Result<Unit> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.sendTyping(channelId) } }
-    actual suspend fun stopTyping(channelId: ULong): Result<Unit> =
-        withContext(Dispatchers.IO) { runCatchingSdk { ffi.stopTyping(channelId) } }
-
-    actual suspend fun sendAttachmentFromPath(channelId: ULong, path: String, options: SendMessageOptions?, progress: ProgressObserver?): Result<Pair<ULong, AttachmentInfo>> =
-        withContext(Dispatchers.IO) {
-            val opts = options?.toFfi() ?: io.privchat.ffi.SendMessageOptions(null, emptyList(), false, null)
-            val prog = progress?.let { p ->
-                object : io.privchat.ffi.ProgressObserver {
-                    override fun onProgress(current: ULong, total: ULong?) { p.onProgress(current, total) }
-                }
-            }
-            runCatchingSdk {
-                val r = ffi.sendAttachmentFromPath(channelId, path, opts, prog)
-                r.id to r.attachment.toCommon()
-            }
-        }
-    actual suspend fun sendAttachmentBytes(channelId: ULong, filename: String, mimeType: String, data: ByteArray, options: SendMessageOptions?, progress: ProgressObserver?): Result<Pair<ULong, AttachmentInfo>> =
-        withContext(Dispatchers.IO) {
-            val opts = options?.toFfi() ?: io.privchat.ffi.SendMessageOptions(null, emptyList(), false, null)
-            val prog = progress?.let { p ->
-                object : io.privchat.ffi.ProgressObserver {
-                    override fun onProgress(current: ULong, total: ULong?) { p.onProgress(current, total) }
-                }
-            }
-            runCatchingSdk {
-                val r = ffi.sendAttachmentBytes(channelId, filename, mimeType, data, opts, prog)
-                Pair<ULong, io.privchat.sdk.dto.AttachmentInfo>(r.id, r.attachment.toCommon())
-            }
-        }
-    actual suspend fun downloadAttachmentToCache(fileId: String, fileUrl: String, progress: ProgressObserver?): Result<String> =
-        withContext(Dispatchers.IO) {
-            val prog = progress?.let { p ->
-                object : io.privchat.ffi.ProgressObserver {
-                    override fun onProgress(current: ULong, total: ULong?) { p.onProgress(current, total) }
-                }
-            }
-            runCatchingSdk { ffi.downloadAttachmentToCache(fileId, fileUrl, prog) }
-        }
-    actual suspend fun downloadAttachmentToPath(fileUrl: String, outputPath: String, progress: ProgressObserver?): Result<Unit> =
-        withContext(Dispatchers.IO) {
-            val prog = progress?.let { p ->
-                object : io.privchat.ffi.ProgressObserver {
-                    override fun onProgress(current: ULong, total: ULong?) { p.onProgress(current, total) }
-                }
-            }
-            runCatchingSdk { ffi.downloadAttachmentToPath(fileUrl, outputPath, prog) }
-        }
-
-    actual fun setVideoProcessHook(hook: io.privchat.sdk.dto.VideoProcessHook?) {
-        val ffiHook: io.privchat.ffi.VideoProcessHook? = if (hook != null) {
-            val h = hook
-            object : io.privchat.ffi.VideoProcessHook {
-                override fun process(op: io.privchat.ffi.MediaProcessOp, sourcePath: String, metaPath: String, outputPath: String): Boolean {
-                    val opDto = when (op) {
-                        io.privchat.ffi.MediaProcessOp.THUMBNAIL -> io.privchat.sdk.dto.MediaProcessOp.Thumbnail
-                        io.privchat.ffi.MediaProcessOp.COMPRESS -> io.privchat.sdk.dto.MediaProcessOp.Compress
-                    }
-                    return h.process(opDto, sourcePath, metaPath, outputPath).getOrElse { e: Throwable ->
-                        throw io.privchat.ffi.PrivchatException.Generic(e.toString())
-                    }
-                }
-            }
-        } else null
-        ffi.setVideoProcessHook(ffiHook)
+    internal constructor(core: CorePrivchatClient) : this() {
+        this.coreClient = core
     }
 
-    actual fun removeVideoProcessHook() = ffi.removeVideoProcessHook()
+    private fun requireClient(): Result<CorePrivchatClient> {
+        val c = coreClient ?: return Result.failure(SdkError.NotInitialized)
+        return Result.success(c)
+    }
 
-    actual companion object {
-        @Volatile
-        internal var pendingFfi: io.privchat.ffi.PrivchatSdk? = null
+    actual suspend fun connect(): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("Connection failed") {
+            c.connect()
+            cachedConnectionState = ConnectionState.Connected
+        }
+    }
 
-        actual fun create(config: PrivchatConfig): Result<PrivchatClient> = runCatchingSdk {
-            var builder = PrivchatConfigBuilder()
-                .dataDir(config.dataDir)
-                .connectionTimeout(config.connectionTimeout)
-                .heartbeatInterval(config.heartbeatInterval)
-                .debugMode(config.debugMode)
-            config.assetsDir?.let { builder = builder.assetsDir(it) }
-            config.serverEndpoints.forEach { ep ->
-                builder = builder.serverEndpoint(
-                    io.privchat.ffi.ServerEndpoint(
-                        protocol = ep.protocol.toFfi(),
-                        host = ep.host,
-                        port = ep.port.toUShort(),
-                        path = ep.path,
-                        useTls = ep.useTls,
-                    )
+    actual suspend fun disconnect(): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("Disconnect failed") {
+            c.disconnect()
+            cachedConnectionState = ConnectionState.Disconnected
+        }
+    }
+
+    actual fun close() {
+        coreClient?.let { runCatching { it.destroy() } }
+        coreClient = null
+        backgroundScope.coroutineContext.cancel()
+        cachedConnectionState = ConnectionState.Disconnected
+        cachedUserId = null
+    }
+
+    actual fun isConnected(): Boolean = cachedConnectionState == ConnectionState.Connected
+
+    actual fun connectionState(): ConnectionState = cachedConnectionState
+
+    actual fun currentUserId(): ULong? = cachedUserId
+
+    actual suspend fun shutdown(): Result<Unit> =
+        requireClient().fold(
+            onSuccess = {
+                callAsync("Shutdown failed") {
+                    it.shutdown()
+                    cachedConnectionState = ConnectionState.Disconnected
+                    cachedUserId = null
+                }
+            },
+            onFailure = { Result.failure(it) },
+        )
+
+    actual suspend fun register(username: String, password: String, deviceId: String): Result<AuthResult> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val result = c.register(username, password, deviceId)
+            cachedUserId = result.userId
+            AuthResult(userId = result.userId, token = result.token)
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("Register failed", it)) },
+        )
+    }
+
+    actual suspend fun login(username: String, password: String, deviceId: String): Result<AuthResult> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            println("[FFI] login_future: enter")
+            val result = c.login(username, password, deviceId)
+            cachedUserId = result.userId
+            cachedConnectionState = ConnectionState.Connected
+            AuthResult(userId = result.userId, token = result.token)
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("Login failed", it)) },
+        )
+    }
+
+    actual suspend fun authenticate(userId: ULong, token: String, deviceId: String): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("Authenticate failed") {
+            c.authenticate(userId, token, deviceId)
+            cachedUserId = userId
+            cachedConnectionState = ConnectionState.Connected
+        }
+    }
+
+    actual suspend fun logout(): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("Logout failed") {
+            c.logout()
+            cachedUserId = null
+            cachedConnectionState = ConnectionState.Disconnected
+        }
+    }
+
+    actual suspend fun sendText(channelId: ULong, channelType: Int, text: String): Result<ULong> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
+        return runCatching { c.sendMessage(channelId, channelType, uid, text) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("sendText failed", it)) },
+        )
+    }
+
+    actual suspend fun sendText(channelId: ULong, channelType: Int, text: String, options: SendMessageOptions): Result<ULong> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
+        val input = NewMessage(
+            channelId = channelId,
+            channelType = channelType,
+            fromUid = uid,
+            messageType = 1,
+            content = text,
+            searchableWord = text,
+            setting = 0,
+            extra = options.extraJson ?: "{}",
+        )
+        val optionsJson = buildJsonObject {
+            this["in_reply_to_message_id"] = options.inReplyToMessageId
+            this["mentions"] = options.mentions
+            this["silent"] = options.silent
+            this["extra_json"] = options.extraJson
+        }
+        val typedOptions = SendMessageOptionsInput(optionsJson = optionsJson)
+        return runCatching { c.sendMessageWithOptions(input, typedOptions) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("sendText(options) failed", it)) },
+        )
+    }
+
+    actual suspend fun sendMedia(channelId: ULong, filePath: String, options: SendMessageOptions?): Result<Pair<ULong, AttachmentInfo>> {
+        return sendAttachmentFromPath(channelId, filePath, options, null)
+    }
+
+    actual suspend fun retryMessage(messageId: ULong): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("retryMessage failed") { c.retryMessage(messageId) }
+    }
+
+    actual suspend fun markAsRead(channelId: ULong, messageId: ULong): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("markAsRead failed") { c.markAsRead(channelId, messageId) }
+    }
+
+    actual suspend fun markFullyReadAt(channelId: ULong, messageId: ULong): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("markFullyReadAt failed") { c.markFullyReadAt(channelId, messageId) }
+    }
+
+    actual suspend fun revokeMessage(messageId: ULong): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        val channelId = runCatching { c.getMessageById(messageId)?.channelId ?: 0uL }.getOrDefault(0uL)
+        return callAsync("revokeMessage failed") { c.recallMessage(messageId, channelId) }
+    }
+
+    actual suspend fun editMessage(messageId: ULong, newContent: String): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("editMessage failed") { c.editMessage(messageId, newContent, 0) }
+    }
+
+    actual suspend fun addReaction(messageId: ULong, emoji: String): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("addReaction failed") { c.addReaction(messageId, null, emoji) }
+    }
+
+    actual suspend fun removeReaction(messageId: ULong, emoji: String): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("removeReaction failed") { c.removeReaction(messageId, emoji) }
+    }
+
+    actual suspend fun reactions(channelId: ULong, messageId: ULong): Result<List<ReactionChip>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            listMessageReactionsAsChips(c, messageId)
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("reactions failed", it)) },
+        )
+    }
+
+    actual suspend fun reactionsBatch(channelId: ULong, messageIds: List<ULong>): Result<Map<ULong, List<ReactionChip>>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            messageIds.associateWith { listMessageReactionsAsChips(c, it) }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("reactionsBatch failed", it)) },
+        )
+    }
+
+    actual suspend fun isEventReadBy(channelId: ULong, messageId: ULong, userId: ULong): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.isEventReadBy(messageId, userId) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("isEventReadBy failed", it)) },
+        )
+    }
+
+    actual suspend fun seenByForEvent(channelId: ULong, messageId: ULong, limit: UInt?): Result<List<SeenByEntry>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val entries = c.seenByForEvent(messageId)
+            val mapped = entries.map {
+                SeenByEntry(
+                    userId = it.userId,
+                    readAt = it.readAt?.toULongOrNull() ?: 0uL,
                 )
             }
-            config.fileApiBaseUrl?.let { builder = builder.fileApiBaseUrl(it) }
-            val ffiConfig = builder.build()
-            pendingFfi = PrivchatSdk(ffiConfig)
-            try {
-                PrivchatClient()
-            } finally {
-                pendingFfi = null
+            limit?.let { mapped.take(it.toInt()) } ?: mapped
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("seenByForEvent failed", it)) },
+        )
+    }
+
+    actual suspend fun searchMessages(query: String, channelId: String?): Result<List<MessageEntry>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val id = channelId?.toULongOrNull()
+            if (id != null) {
+                val channelType = resolveChannelType(c, id)
+                c.searchMessages(id, channelType, query).map { it.toCommonMessage() }
+            } else {
+                c.searchChannel(query).flatMap { ch ->
+                    c.searchMessages(ch.channelId, ch.channelType, query)
+                }.map { it.toCommonMessage() }
             }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("searchMessages failed", it)) },
+        )
+    }
+
+    actual suspend fun getMessages(channelId: ULong, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val channelType = resolveChannelType(c, channelId)
+            val offset = 0uL
+            val raw = c.getMessages(channelId, channelType, limit.toULong(), offset)
+            val filtered = beforeSeq?.let { seq -> raw.filter { it.messageId < seq } } ?: raw
+            filtered.map { it.toCommonMessage() }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("getMessages failed", it)) },
+        )
+    }
+
+    actual suspend fun getMessageById(messageId: ULong): Result<MessageEntry?> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.getMessageById(messageId)?.toCommonMessage() }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("getMessageById failed", it)) },
+        )
+    }
+
+    actual suspend fun paginateBack(channelId: ULong, beforeSeq: ULong, limit: UInt): Result<List<MessageEntry>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val channelType = resolveChannelType(c, channelId)
+            c.paginateBack(channelId, channelType, beforeSeq, limit.toULong()).map { it.toCommonMessage() }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("paginateBack failed", it)) },
+        )
+    }
+
+    actual suspend fun paginateForward(channelId: ULong, afterSeq: ULong, limit: UInt): Result<List<MessageEntry>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val channelType = resolveChannelType(c, channelId)
+            c.paginateForward(channelId, channelType, afterSeq, limit.toULong()).map { it.toCommonMessage() }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("paginateForward failed", it)) },
+        )
+    }
+
+    actual suspend fun getChannels(limit: UInt, offset: UInt): Result<List<ChannelListEntry>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.getChannels(limit.toULong(), offset.toULong()).map { it.toCommonChannel() }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("getChannels failed", it)) },
+        )
+    }
+
+    actual suspend fun getFriends(limit: UInt?, offset: UInt?): Result<List<FriendEntry>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val list = c.getFriends((limit ?: 200u).toULong(), (offset ?: 0u).toULong())
+            list.map { it.toCommonFriend() }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("getFriends failed", it)) },
+        )
+    }
+
+    actual suspend fun getGroups(limit: UInt?, offset: UInt?): Result<List<GroupEntry>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.getGroups((limit ?: 200u).toULong(), (offset ?: 0u).toULong()).map { it.toCommonGroup() }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("getGroups failed", it)) },
+        )
+    }
+
+    actual suspend fun getGroupMembers(groupId: ULong, limit: UInt?, offset: UInt?): Result<List<GroupMemberEntry>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.getGroupMembers(groupId, (limit ?: 200u).toULong(), (offset ?: 0u).toULong()).map { it.toCommonGroupMember() }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("getGroupMembers failed", it)) },
+        )
+    }
+
+    actual suspend fun runBootstrapSync(): Result<Unit> =
+        requireClient().fold(
+            onSuccess = { callAsync("runBootstrapSync failed") { it.runBootstrapSync() } },
+            onFailure = { Result.failure(it) },
+        )
+
+    actual fun runBootstrapSyncInBackground() {
+        backgroundScope.launch { runBootstrapSync() }
+    }
+
+    actual suspend fun isBootstrapCompleted(): Result<Boolean> =
+        requireClient().fold(
+            onSuccess = {
+                runCatching { it.isBootstrapCompleted() }.fold(
+                    onSuccess = { done -> Result.success(done) },
+                    onFailure = { e -> Result.failure(toSdkError("isBootstrapCompleted failed", e)) },
+                )
+            },
+            onFailure = { Result.failure(it) },
+        )
+
+    actual suspend fun syncEntities(type: String, scope: String?): Result<UInt> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.syncEntities(type, scope).toUInt() }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("syncEntities failed", it)) },
+        )
+    }
+
+    actual suspend fun syncChannel(channelId: ULong, channelType: UByte): Result<SyncStateEntry> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.syncChannel(channelId, channelType.toInt())
+            val state = c.getChannelSyncState(channelId, channelType.toInt())
+            SyncStateEntry(
+                channelId = state.channelId,
+                channelType = state.channelType,
+                localPts = state.unread.toULong(),
+                serverPts = state.unread.toULong(),
+                needsSync = state.unread > 0,
+                lastSyncAt = null,
+            )
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("syncChannel failed", it)) },
+        )
+    }
+
+    actual suspend fun syncAllChannels(): Result<List<SyncStateEntry>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.syncAllChannels()
+            c.getChannels(200u, 0u).map { channel ->
+                runCatching {
+                    val state = c.getChannelSyncState(channel.channelId, channel.channelType)
+                    SyncStateEntry(
+                        channelId = state.channelId,
+                        channelType = state.channelType,
+                        localPts = state.unread.toULong(),
+                        serverPts = state.unread.toULong(),
+                        needsSync = state.unread > 0,
+                        lastSyncAt = null,
+                    )
+                }
+                    .getOrElse {
+                        SyncStateEntry(
+                            channelId = channel.channelId,
+                            channelType = channel.channelType,
+                            localPts = 0uL,
+                            serverPts = 0uL,
+                            needsSync = false,
+                            lastSyncAt = null,
+                        )
+                    }
+            }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("syncAllChannels failed", it)) },
+        )
+    }
+
+    actual suspend fun getChannelSyncState(channelId: ULong, channelType: UByte): Result<SyncStateEntry> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val state = c.getChannelSyncState(channelId, channelType.toInt())
+            SyncStateEntry(
+                channelId = state.channelId,
+                channelType = state.channelType,
+                localPts = state.unread.toULong(),
+                serverPts = state.unread.toULong(),
+                needsSync = state.unread > 0,
+                lastSyncAt = null,
+            )
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("getChannelSyncState failed", it)) },
+        )
+    }
+
+    actual suspend fun needsSync(channelId: ULong, channelType: UByte): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.needsSync() }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("needsSync failed", it)) },
+        )
+    }
+
+    actual suspend fun startSupervisedSync(observer: SyncObserver): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.startSupervisedSync(5u)
+            observer.onState(SyncStatus(SyncPhase.Running, "started"))
+            Result.success(Unit)
+        }.getOrElse { Result.failure(toSdkError("startSupervisedSync failed", it)) }
+    }
+
+    actual suspend fun stopSupervisedSync(): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return try {
+            c.stopSupervisedSync()
+            Result.success(Unit)
+        } catch (t: Throwable) {
+            Result.failure(toSdkError("stopSupervisedSync failed", t))
+        }
+    }
+
+    actual suspend fun markChannelRead(channelId: ULong, channelType: Int): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("markChannelRead failed") { c.markChannelRead(channelId, channelType) }
+    }
+
+    actual suspend fun pinChannel(channelId: ULong, pin: Boolean): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.pinChannel(channelId, pin); true }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("pinChannel failed", it)) },
+        )
+    }
+
+    actual suspend fun hideChannel(channelId: ULong): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.hideChannel(channelId) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("hideChannel failed", it)) },
+        )
+    }
+
+    actual suspend fun muteChannel(channelId: ULong, muted: Boolean): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.muteChannel(channelId, muted) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("muteChannel failed", it)) },
+        )
+    }
+
+    actual suspend fun channelUnreadStats(channelId: ULong): Result<UnreadStats> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val channelType = resolveChannelType(c, channelId)
+            val messages = c.channelUnreadStats(channelId, channelType).toULong()
+            UnreadStats(messages = messages, notifications = messages, mentions = 0uL)
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("channelUnreadStats failed", it)) },
+        )
+    }
+
+    actual suspend fun ownLastRead(channelId: ULong): Result<LastReadPosition> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val id = c.ownLastRead(channelId)
+            LastReadPosition(serverMessageId = id, timestamp = null)
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("ownLastRead failed", it)) },
+        )
+    }
+
+    actual suspend fun setChannelNotificationMode(channelId: ULong, mode: NotificationMode): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("setChannelNotificationMode failed") {
+            val channelType = resolveChannelType(c, channelId)
+            val modeInt = when (mode) {
+                NotificationMode.All -> 0
+                NotificationMode.Mentions -> 1
+                NotificationMode.None -> 2
+            }
+            c.setChannelNotificationMode(channelId, channelType, modeInt)
+        }
+    }
+
+    actual suspend fun getOrCreateDirectChannel(peerUserId: ULong): Result<GetOrCreateDirectChannelResult> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val resp = c.getOrCreateDirectChannel(peerUserId)
+            GetOrCreateDirectChannelResult(
+                channelId = resp.channelId,
+                created = resp.created,
+            )
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("getOrCreateDirectChannel failed", it)) },
+        )
+    }
+
+    actual suspend fun searchUsers(query: String): Result<List<UserEntry>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.searchUsers(query).map {
+                UserEntry(
+                    userId = it.userId,
+                    username = it.username,
+                    nickname = it.nickname.takeIf { v -> v.isNotBlank() } ?: it.username,
+                    avatarUrl = it.avatarUrl,
+                    userType = it.userType.toShort(),
+                    isFriend = it.isFriend,
+                    canSendMessage = it.canSendMessage,
+                    searchSessionId = it.searchSessionId,
+                    isOnline = null,
+                )
+            }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("searchUsers failed", it)) },
+        )
+    }
+
+    actual suspend fun sendFriendRequest(toUserId: ULong, remark: String?, searchSessionId: String?): Result<ULong> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val resp = c.sendFriendRequest(toUserId, remark, "search", searchSessionId)
+            resp.userId
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("sendFriendRequest failed", it)) },
+        )
+    }
+
+    actual suspend fun acceptFriendRequest(fromUserId: ULong): Result<ULong> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.acceptFriendRequest(fromUserId, null)
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("acceptFriendRequest failed", it)) },
+        )
+    }
+
+    actual suspend fun rejectFriendRequest(fromUserId: ULong): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.rejectFriendRequest(fromUserId, null) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("rejectFriendRequest failed", it)) },
+        )
+    }
+
+    actual suspend fun deleteFriend(userId: ULong): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.deleteFriend(userId) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("deleteFriend failed", it)) },
+        )
+    }
+
+    actual suspend fun listFriendPendingRequests(): Result<List<FriendPendingEntry>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.getFriendPendingRequests().map {
+                FriendPendingEntry(
+                    fromUserId = it.fromUserId,
+                    message = it.message,
+                    createdAt = it.createdAt,
+                )
+            }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("listFriendPendingRequests failed", it)) },
+        )
+    }
+
+    actual suspend fun createGroup(name: String, memberIds: List<ULong>): Result<GroupCreateResult> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val obj = c.createGroup(name, null, memberIds)
+            GroupCreateResult(
+                groupId = obj.groupId,
+                name = obj.name,
+                description = obj.description,
+                memberCount = obj.memberCount,
+                createdAt = obj.createdAt,
+                creatorId = obj.creatorId,
+            )
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("createGroup failed", it)) },
+        )
+    }
+
+    actual suspend fun inviteToGroup(groupId: ULong, userIds: List<ULong>): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.inviteToGroup(groupId, userIds) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("inviteToGroup failed", it)) },
+        )
+    }
+
+    actual suspend fun removeGroupMember(groupId: ULong, userId: ULong): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.removeGroupMember(groupId, userId) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("removeGroupMember failed", it)) },
+        )
+    }
+
+    actual suspend fun leaveGroup(groupId: ULong): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.leaveGroup(groupId) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("leaveGroup failed", it)) },
+        )
+    }
+
+    actual suspend fun joinGroupByQrcode(qrcode: String): Result<GroupQrCodeJoinResult> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val obj = c.joinGroupByQrcode(qrcode)
+            GroupQrCodeJoinResult(
+                status = obj.status,
+                groupId = obj.groupId,
+                requestId = obj.requestId,
+                message = obj.message,
+                expiresAt = obj.expiresAt,
+                userId = obj.userId,
+                joinedAt = obj.joinedAt,
+            )
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("joinGroupByQrcode failed", it)) },
+        )
+    }
+
+    actual suspend fun subscribePresence(userIds: List<ULong>): Result<List<PresenceEntry>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.subscribePresence(userIds).map { it.toCommonPresence() } }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("subscribePresence failed", it)) },
+        )
+    }
+
+    actual fun unsubscribePresence(userIds: List<ULong>) {
+        coreClient?.let { runCatching { backgroundScope.launch { it.unsubscribePresence(userIds) } } }
+    }
+
+    actual fun getPresence(userId: ULong): PresenceEntry? = null
+
+    actual fun batchGetPresence(userIds: List<ULong>): List<PresenceEntry> = emptyList()
+
+    actual suspend fun fetchPresence(userIds: List<ULong>): Result<List<PresenceEntry>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.fetchPresence(userIds).map { it.toCommonPresence() } }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("fetchPresence failed", it)) },
+        )
+    }
+
+    actual suspend fun sendTyping(channelId: ULong): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        val channelType = runCatching { resolveChannelType(c, channelId) }.getOrDefault(1)
+        return callAsync("sendTyping failed") { c.sendTyping(channelId, channelType, true, TypingActionType.TYPING) }
+    }
+
+    actual suspend fun stopTyping(channelId: ULong): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        val channelType = runCatching { resolveChannelType(c, channelId) }.getOrDefault(1)
+        return callAsync("stopTyping failed") { c.sendTyping(channelId, channelType, false, TypingActionType.TYPING) }
+    }
+
+    actual suspend fun sendAttachmentFromPath(channelId: ULong, path: String, options: SendMessageOptions?, progress: ProgressObserver?): Result<Pair<ULong, AttachmentInfo>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
+        return runCatching {
+            val channelType = resolveChannelType(c, channelId)
+            val messageId = c.createLocalMessage(
+                NewMessage(
+                    channelId = channelId,
+                    channelType = channelType,
+                    fromUid = uid,
+                    messageType = 2,
+                    content = path,
+                    searchableWord = path,
+                    setting = 0,
+                    extra = options?.extraJson ?: "{}",
+                )
+            )
+            val routeKey = c.toClientEndpoint() ?: ""
+            val queueRef = c.sendAttachmentFromPath(messageId, routeKey, path)
+            progress?.onProgress(1uL, 1uL)
+            queueRef.messageId to AttachmentInfo(
+                url = path,
+                mimeType = "application/octet-stream",
+                size = 0uL,
+                thumbnailUrl = null,
+                filename = path.substringAfterLast('/'),
+                fileId = null,
+                width = null,
+                height = null,
+                duration = null,
+            )
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("sendAttachmentFromPath failed", it)) },
+        )
+    }
+
+    actual suspend fun sendAttachmentBytes(channelId: ULong, filename: String, mimeType: String, data: ByteArray, options: SendMessageOptions?, progress: ProgressObserver?): Result<Pair<ULong, AttachmentInfo>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
+        return runCatching {
+            val channelType = resolveChannelType(c, channelId)
+            val messageId = c.createLocalMessage(
+                NewMessage(
+                    channelId = channelId,
+                    channelType = channelType,
+                    fromUid = uid,
+                    messageType = 2,
+                    content = filename,
+                    searchableWord = filename,
+                    setting = 0,
+                    extra = options?.extraJson ?: "{}",
+                )
+            )
+            val routeKey = c.toClientEndpoint() ?: ""
+            val queueRef = c.sendAttachmentBytes(messageId, routeKey, data)
+            progress?.onProgress(data.size.toULong(), data.size.toULong())
+            queueRef.messageId to AttachmentInfo(
+                url = filename,
+                mimeType = mimeType,
+                size = data.size.toULong(),
+                thumbnailUrl = null,
+                filename = filename,
+                fileId = null,
+                width = null,
+                height = null,
+                duration = null,
+            )
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("sendAttachmentBytes failed", it)) },
+        )
+    }
+
+    actual suspend fun downloadAttachmentToCache(fileId: String, fileUrl: String, progress: ProgressObserver?): Result<String> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val path = c.downloadAttachmentToCache(fileUrl, fileId)
+            progress?.onProgress(1uL, 1uL)
+            path
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("downloadAttachmentToCache failed", it)) },
+        )
+    }
+
+    actual suspend fun downloadAttachmentToPath(fileUrl: String, outputPath: String, progress: ProgressObserver?): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.downloadAttachmentToPath(fileUrl, outputPath)
+            progress?.onProgress(1uL, 1uL)
+            Unit
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("downloadAttachmentToPath failed", it)) },
+        )
+    }
+
+    actual fun setVideoProcessHook(hook: VideoProcessHook?) {
+        videoHook = hook
+        val client = coreClient ?: return
+        runCatching { client.setVideoProcessHook() }
+    }
+
+    actual fun removeVideoProcessHook() {
+        videoHook = null
+    }
+
+    actual companion object {
+        actual fun create(config: PrivchatConfig): Result<PrivchatClient> {
+            if (config.serverEndpoints.isEmpty()) {
+                return Result.failure(SdkError.InvalidParameter("serverEndpoints", "At least one endpoint required"))
+            }
+
+            return try {
+                val coreConfig = CoreConfig(
+                    endpoints = config.serverEndpoints.map { it.toCore() },
+                    connectionTimeoutSecs = config.connectionTimeout,
+                    dataDir = config.dataDir,
+                )
+                val coreClient = CorePrivchatClient(coreConfig)
+                println("[FFI] PrivchatClient::new")
+                println("[SDK] Rust SDK version=${sdkVersion()}")
+                println("[SDK.iOS] create() ok")
+                Result.success(PrivchatClient(coreClient))
+            } catch (e: Throwable) {
+                Result.failure(toSdkErrorStatic("SDK create failed", e))
+            }
+        }
+
+        private fun ServerEndpoint.toCore(): CoreEndpoint = CoreEndpoint(
+            protocol = when (protocol) {
+                TransportProtocol.Quic -> CoreProtocol.QUIC
+                TransportProtocol.Tcp -> CoreProtocol.TCP
+                TransportProtocol.WebSocket -> CoreProtocol.WEB_SOCKET
+            },
+            host = host,
+            port = port.toUShort(),
+            path = path,
+            useTls = useTls,
+        )
+
+        private fun toSdkErrorStatic(prefix: String, t: Throwable): SdkError {
+            return when (t) {
+                is SdkError -> t
+                is PrivchatFfiException.SdkException -> SdkError.Generic("$prefix [${t.code}]: ${t.detail}")
+                else -> SdkError.Generic("$prefix: ${t.message ?: t::class.simpleName ?: "unknown"}")
+            }
+        }
+    }
+
+    private suspend inline fun callAsync(message: String, crossinline block: suspend () -> Unit): Result<Unit> {
+        return try {
+            block()
+            Result.success(Unit)
+        } catch (e: Throwable) {
+            Result.failure(toSdkError(message, e))
+        }
+    }
+
+    private suspend fun resolveChannelType(client: CorePrivchatClient, channelId: ULong): Int =
+        client.getChannelById(channelId)?.channelType ?: 1
+
+    private fun toSdkError(prefix: String, t: Throwable): SdkError {
+        return when (t) {
+            is SdkError -> t
+            is PrivchatFfiException.SdkException -> SdkError.Generic("$prefix [${t.code}]: ${t.detail}")
+            else -> SdkError.Generic("$prefix: ${t.message ?: t::class.simpleName ?: "unknown"}")
         }
     }
 }
 
-private fun TransportProtocol.toFfi() = when (this) {
-    TransportProtocol.Quic -> io.privchat.ffi.TransportProtocol.QUIC
-    TransportProtocol.Tcp -> io.privchat.ffi.TransportProtocol.TCP
-    TransportProtocol.WebSocket -> io.privchat.ffi.TransportProtocol.WEB_SOCKET
-}
-
-private fun io.privchat.ffi.ConnectionState.toCommon() = when (this) {
-    io.privchat.ffi.ConnectionState.DISCONNECTED -> ConnectionState.Disconnected
-    io.privchat.ffi.ConnectionState.CONNECTING -> ConnectionState.Connecting
-    io.privchat.ffi.ConnectionState.CONNECTED -> ConnectionState.Connected
-    io.privchat.ffi.ConnectionState.RECONNECTING -> ConnectionState.Reconnecting
-    io.privchat.ffi.ConnectionState.FAILED -> ConnectionState.Failed
-}
-
-private fun io.privchat.ffi.AuthResult.toCommon() = io.privchat.sdk.dto.AuthResult(userId = this.userId, token = this.token)
-
-private fun io.privchat.ffi.GroupCreateResult.toCommon() = io.privchat.sdk.dto.GroupCreateResult(
-    groupId = this.groupId,
-    name = this.name,
-    description = this.description,
-    memberCount = this.memberCount,
-    createdAt = this.createdAt,
-    creatorId = this.creatorId
-)
-
-private fun io.privchat.ffi.GroupQrCodeJoinResult.toCommon() = io.privchat.sdk.dto.GroupQrCodeJoinResult(
-    status = status,
-    groupId = groupId,
-    requestId = requestId,
-    message = message,
-    expiresAt = expiresAt,
-    userId = userId,
-    joinedAt = joinedAt
-)
-
-private fun io.privchat.ffi.GetOrCreateDirectChannelResult.toCommon() = io.privchat.sdk.dto.GetOrCreateDirectChannelResult(
+private fun StoredMessage.toCommonMessage() = MessageEntry(
+    id = messageId,
+    serverMessageId = serverMessageId,
     channelId = channelId,
-    created = created
+    channelType = channelType,
+    fromUid = fromUid,
+    content = content,
+    status = when (status) {
+        0 -> MessageStatus.Pending
+        1 -> MessageStatus.Sending
+        2 -> MessageStatus.Sent
+        3 -> MessageStatus.Failed
+        else -> MessageStatus.Read
+    },
+    timestamp = createdAt.toULong(),
 )
+
+private fun StoredChannel.toCommonChannel() = ChannelListEntry(
+    channelId = channelId,
+    channelType = channelType,
+    name = channelName,
+    lastTs = lastMsgTimestamp.toULong(),
+    notifications = unreadCount.coerceAtLeast(0).toUInt(),
+    messages = unreadCount.coerceAtLeast(0).toUInt(),
+    mentions = 0u,
+    markedUnread = unreadCount > 0,
+    isFavourite = top > 0,
+    isLowPriority = mute > 0,
+    avatarUrl = avatar.takeIf { it.isNotBlank() },
+    isDm = channelType == 1,
+    isEncrypted = false,
+    memberCount = 0u,
+    topic = channelRemark.takeIf { it.isNotBlank() },
+    latestEvent = lastMsgContent.takeIf { it.isNotBlank() }?.let {
+        LatestChannelEvent(
+            eventType = "message",
+            content = it,
+            timestamp = lastMsgTimestamp.toULong(),
+        )
+    },
+)
+
+private fun StoredFriend.toCommonFriend() = FriendEntry(
+    userId = userId,
+    username = userId.toString(),
+    nickname = null,
+    avatarUrl = null,
+    userType = 0,
+    status = "accepted",
+    addedAt = createdAt,
+    remark = tags,
+)
+
+private fun StoredGroup.toCommonGroup() = GroupEntry(
+    groupId = groupId,
+    name = name,
+    avatar = avatar,
+    ownerId = ownerId,
+    isDismissed = isDismissed,
+    createdAt = createdAt,
+    updatedAt = updatedAt,
+)
+
+private fun StoredGroupMember.toCommonGroupMember() = GroupMemberEntry(
+    userId = userId,
+    channelId = groupId,
+    channelType = 2,
+    name = alias ?: userId.toString(),
+    remark = alias ?: "",
+    avatar = "",
+    role = role,
+    status = status,
+    inviteUserId = 0uL,
+)
+
+private fun PresenceStatus.toCommonPresence() = PresenceEntry(
+    userId = userId,
+    isOnline = status.equals("online", ignoreCase = true),
+    lastSeen = lastSeen,
+    deviceType = onlineDevices.firstOrNull(),
+)
+
+private fun decodeSeenBy(raw: String, limit: UInt?): List<SeenByEntry> {
+    val arr = parseJsonObject(raw).array("items")
+        ?: parseJsonElement(raw).takeIf { it is JsonArray } as? JsonArray
+        ?: return emptyList()
+    val all = arr.mapNotNull { elem ->
+        val obj = elem as? JsonObject ?: return@mapNotNull null
+        SeenByEntry(
+            userId = obj.ulong("user_id") ?: obj.ulong("userId") ?: return@mapNotNull null,
+            readAt = obj.ulong("read_at") ?: obj.ulong("readAt") ?: 0uL,
+        )
+    }
+    return limit?.let { all.take(it.toInt()) } ?: all
+}
+
+private fun decodeSyncState(raw: String, channelId: ULong, channelType: Int): SyncStateEntry {
+    val obj = parseJsonObject(raw)
+    return SyncStateEntry(
+        channelId = obj.ulong("channel_id") ?: obj.ulong("channelId") ?: channelId,
+        channelType = (obj.long("channel_type") ?: obj.long("channelType") ?: channelType.toLong()).toInt(),
+        localPts = obj.ulong("local_pts") ?: obj.ulong("localPts") ?: 0uL,
+        serverPts = obj.ulong("server_pts") ?: obj.ulong("serverPts") ?: 0uL,
+        needsSync = obj.bool("needs_sync") ?: obj.bool("needsSync") ?: false,
+        lastSyncAt = obj.long("last_sync_at") ?: obj.long("lastSyncAt"),
+    )
+}
+
+private suspend fun listMessageReactionsAsChips(c: CorePrivchatClient, messageId: ULong): List<ReactionChip> {
+    val rows = c.listMessageReactions(messageId, 500uL, 0uL).filter { !it.isDeleted }
+    if (rows.isEmpty()) return emptyList()
+    return rows.groupBy { it.emoji }
+        .map { (emoji, group) ->
+            val userIds = group.map { it.uid }.distinct()
+            ReactionChip(
+                emoji = emoji,
+                userIds = userIds,
+                count = userIds.size.toULong(),
+            )
+        }
+}
+
+private fun parseJsonElement(raw: String): JsonElement? = runCatching { Json.parseToJsonElement(raw) }.getOrNull()
+
+private fun parseJsonObject(raw: String): JsonObject =
+    (parseJsonElement(raw) as? JsonObject) ?: JsonObject(emptyMap())
+
+private fun JsonObject.obj(key: String): JsonObject? = this[key] as? JsonObject
+private fun JsonObject.array(key: String): JsonArray? = this[key] as? JsonArray
+private fun JsonObject.prim(key: String): JsonPrimitive? = this[key] as? JsonPrimitive
+private fun JsonObject.string(key: String): String? = prim(key)?.contentOrNull
+private fun JsonObject.bool(key: String): Boolean? = prim(key)?.booleanOrNull
+private fun JsonObject.long(key: String): Long? = prim(key)?.longOrNull
+private fun JsonObject.uint(key: String): UInt? = prim(key)?.contentOrNull?.toUIntOrNull()
+private fun JsonObject.ulong(key: String): ULong? = prim(key)?.contentOrNull?.toULongOrNull()
+private fun JsonElement.asUlong(): ULong? = (this as? JsonPrimitive)?.contentOrNull?.toULongOrNull()
+
+private fun buildJsonObject(builder: MutableMap<String, JsonElement?>.() -> Unit): String {
+    val map = linkedMapOf<String, JsonElement?>().apply(builder)
+    val actual = map.mapNotNull { (k, v) -> if (v == null) null else k to v }.toMap()
+    return JsonObject(actual).toString()
+}
+
+private operator fun MutableMap<String, JsonElement?>.set(key: String, value: Any?) {
+    this[key] = when (value) {
+        null -> null
+        is String -> JsonPrimitive(value)
+        is Boolean -> JsonPrimitive(value)
+        is ULong -> JsonPrimitive(value.toString())
+        is UInt -> JsonPrimitive(value.toString())
+        is List<*> -> JsonArray(value.mapNotNull { it?.let { e -> JsonPrimitive(e.toString()) } })
+        else -> JsonPrimitive(value.toString())
+    }
+}

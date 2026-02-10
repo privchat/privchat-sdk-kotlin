@@ -26,4 +26,6 @@ actual object PrivchatPlatform {
         }
         return id
     }
+
+    actual fun navigateToMainTabPage(): Boolean = false
 }

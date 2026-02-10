@@ -5,6 +5,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
+    `maven-publish`
 }
 
 group = "io.privchat"
@@ -22,6 +23,10 @@ kotlin {
     androidTarget()
 
     // Apple 平台（iosMain 一等公民 + macOS）
+    // 配置 cinterop 链接 Rust FFI 静态库
+    val privchatFfiDefFile = file("src/nativeInterop/cinterop/privchat_sdk_ffi.def")
+    val uniffiRuntimeDefFile = file("src/nativeInterop/cinterop/uniffi_runtime.def")
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -32,6 +37,26 @@ kotlin {
         target.binaries.framework {
             baseName = "shared"
             isStatic = true
+        }
+
+        // 配置 cinterop 链接 privchat-ffi
+        target.compilations.getByName("main") {
+            cinterops {
+                create("privchat_sdk_ffi") {
+                    defFile(privchatFfiDefFile)
+                    packageName("privchat_sdk_ffi.cinterop")
+                    includeDirs {
+                        allHeaders(project.file("src/nativeInterop/cinterop"))
+                    }
+                }
+                create("uniffi_runtime") {
+                    defFile(uniffiRuntimeDefFile)
+                    packageName("uniffi_runtime.cinterop")
+                    includeDirs {
+                        allHeaders(project.file("src/nativeInterop/cinterop"))
+                    }
+                }
+            }
         }
     }
 
@@ -50,6 +75,10 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.coroutines.core)
+            implementation("org.jetbrains.kotlinx:atomicfu:0.25.0")
+            implementation("com.squareup.okio:okio:3.9.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
         }
         androidMain.dependencies {
             implementation("androidx.annotation:annotation:1.8.0")
@@ -68,13 +97,13 @@ android {
 
 // ========== Privchat FFI 配置 ==========
 val os = OperatingSystem.current()!!
-val privchatRustDir = rootProject.layout.projectDirectory.dir("../privchat-sdk/crates/privchat-ffi")
-val privchatSdkDir = rootProject.layout.projectDirectory.dir("../privchat-sdk")
-val privchatWorkspaceTargetDir = rootProject.layout.projectDirectory.dir("../privchat-sdk/target/release")
+val privchatRustDir = rootProject.layout.projectDirectory.dir("../privchat-rust/crates/privchat-sdk-ffi")
+val privchatSdkDir = rootProject.layout.projectDirectory.dir("../privchat-rust")
+val privchatWorkspaceTargetDir = rootProject.layout.projectDirectory.dir("../privchat-rust/target/release")
 val privchatHostLibName = when {
-    os.isMacOsX -> "libprivchat_ffi.dylib"
-    os.isWindows -> "privchat_ffi.dll"
-    else -> "libprivchat_ffi.so"
+    os.isMacOsX -> "libprivchat_sdk_ffi.dylib"
+    os.isWindows -> "privchat_sdk_ffi.dll"
+    else -> "libprivchat_sdk_ffi.so"
 }
 val privchatHostLibFile = privchatWorkspaceTargetDir.file(privchatHostLibName)
 val targetAbis = listOf("arm64-v8a", "x86_64")
@@ -104,28 +133,7 @@ val cargoBuildHost = tasks.register<CargoHostTask>("privchatCargoBuildHost") {
     jniOut.set(layout.buildDirectory.dir("nativeLibs/privchat"))
 }
 
-val uniffiAndroidOut = layout.buildDirectory.dir("generated/uniffi/privchat/androidMain/kotlin")
-val genUniFFIAndroid = tasks.register<GenerateUniFFITask>("genPrivchatUniFFIAndroid") {
-    dependsOn(cargoBuildHost)
-    libraryFile.set(privchatHostLibFile)
-    configFile.set(privchatRustDir.file("uniffi.android.toml"))
-    language.set("kotlin")
-    uniffiPath.set(providers.gradleProperty("uniffiBindgenPath").orElse("uniffi-bindgen"))
-    useFallbackCargo.set(providers.provider { true })
-    cargoBin.set(providers.provider { cargoPath })
-    vendoredManifest.set(privchatRustDir.file("uniffi-bindgen/Cargo.toml"))
-    outDir.set(uniffiAndroidOut)
-}
-
-kotlin {
-    sourceSets {
-        getByName("androidMain") {
-            kotlin.srcDir(uniffiAndroidOut)
-        }
-    }
-}
-
-tasks.named("preBuild") { dependsOn(genUniFFIAndroid, cargoBuildAndroid) }
+tasks.named("preBuild") { dependsOn(cargoBuildAndroid) }
 tasks.matching { it.name.contains("JniLibFolders") || (it.name.contains("merge") && it.name.contains("NativeLibs")) }
     .configureEach { dependsOn(cargoBuildAndroid) }
 
@@ -142,9 +150,9 @@ abstract class CargoHostTask @Inject constructor(private val execOps: org.gradle
         val rustDirFile = rustDir.get().asFile
         execOps.exec { workingDir = rustDirFile; commandLine(cargoBin.get(), "build", "--release") }
         val libName = when {
-            OperatingSystem.current().isMacOsX -> "libprivchat_ffi.dylib"
-            OperatingSystem.current().isWindows -> "privchat_ffi.dll"
-            else -> "libprivchat_ffi.so"
+            OperatingSystem.current().isMacOsX -> "libprivchat_sdk_ffi.dylib"
+            OperatingSystem.current().isWindows -> "privchat_sdk_ffi.dll"
+            else -> "libprivchat_sdk_ffi.so"
         }
         val libSource = rustDirFile.parentFile.parentFile.resolve("target/release/$libName")
         if (!libSource.exists()) throw GradleException("Library not found: $libSource")
@@ -178,31 +186,13 @@ abstract class CargoNdkTask @Inject constructor(private val execOps: org.gradle.
     }
 }
 
-@DisableCachingByDefault(because = "Runs external tool")
-abstract class GenerateUniFFITask @Inject constructor(private val execOps: org.gradle.process.ExecOperations) : DefaultTask() {
-    @get:InputFile abstract val libraryFile: RegularFileProperty
-    @get:Optional @get:InputFile abstract val configFile: RegularFileProperty
-    @get:Input abstract val language: Property<String>
-    @get:Input abstract val uniffiPath: Property<String>
-    @get:Input abstract val useFallbackCargo: Property<Boolean>
-    @get:Input abstract val cargoBin: Property<String>
-    @get:Optional @get:InputFile abstract val vendoredManifest: RegularFileProperty
-    @get:OutputDirectory abstract val outDir: DirectoryProperty
-
-    @TaskAction
-    fun run() {
-        val lib = libraryFile.get().asFile
-        val outDirFile = outDir.get().asFile
-        outDirFile.mkdirs()
-        val manifest = vendoredManifest.get().asFile
-        val cmd = mutableListOf(
-            cargoBin.get(), "run", "--release",
-            "--manifest-path", manifest.absolutePath,
-            "--bin", "uniffi-bindgen",
-            "--", "generate", "--library", lib.absolutePath,
-            "--language", language.get(), "--out-dir", outDirFile.absolutePath,
-            "--config", configFile.get().asFile.absolutePath
-        )
-        execOps.exec { workingDir = manifest.parentFile; commandLine(cmd) }
+// ========== Maven 发布（供其他项目依赖）==========
+// 发布到本地：./gradlew :shared:publishToMavenLocal
+// 其他项目：repositories { mavenLocal(); ... } 然后 implementation("io.privchat:shared:0.1.0")
+// artifactId 由 Gradle/KMP 按各平台自动生成，不要统一覆盖为同一 id
+publishing {
+    publications.withType<MavenPublication>().configureEach {
+        groupId = "io.privchat"
+        version = project.version.toString()
     }
 }

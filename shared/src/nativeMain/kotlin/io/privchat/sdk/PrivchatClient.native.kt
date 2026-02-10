@@ -887,6 +887,7 @@ actual class PrivchatClient private actual constructor() {
                 val coreConfig = CoreConfig(
                     endpoints = config.serverEndpoints.map { it.toCore() },
                     connectionTimeoutSecs = config.connectionTimeout,
+                    dataDir = config.dataDir,
                 )
                 val coreClient = CorePrivchatClient(coreConfig)
                 println("[FFI] PrivchatClient::new")

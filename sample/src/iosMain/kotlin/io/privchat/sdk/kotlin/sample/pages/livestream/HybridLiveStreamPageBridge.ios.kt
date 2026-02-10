@@ -1,5 +1,7 @@
 package io.privchat.sdk.kotlin.sample.pages.livestream
 
+import io.privchat.sdk.kotlin.sample.KuiklyContextScheduler
+
 /**
  * iOS 平台的 UI 更新调度实现
  * 
@@ -11,10 +13,12 @@ package io.privchat.sdk.kotlin.sample.pages.livestream
 private var iosScheduler: ((action: () -> Unit) -> Unit)? = null
 
 /**
- * 设置 iOS 调度器（从 Swift 层调用）
+ * 设置 iOS 调度器（从 Swift 层调用）。
+ * 同时写入 KuiklyContextScheduler，供 runOnKuiklyContext / LoginPage 等使用。
  */
 fun setIOSScheduler(scheduler: (action: () -> Unit) -> Unit) {
     iosScheduler = scheduler
+    KuiklyContextScheduler.scheduler = scheduler
 }
 
 /**
