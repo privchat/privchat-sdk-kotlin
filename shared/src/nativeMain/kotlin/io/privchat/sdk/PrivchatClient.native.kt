@@ -3,8 +3,11 @@ package io.privchat.sdk
 import io.privchat.sdk.dto.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -73,12 +76,14 @@ actual fun parseServerUrl(url: String): ServerEndpoint? {
 actual class PrivchatClient private actual constructor() {
     private val backgroundScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var coreClient: CorePrivchatClient? = null
+    private var connectionMonitorJob: Job? = null
     private var cachedConnectionState: ConnectionState = ConnectionState.Disconnected
     private var cachedUserId: ULong? = null
     private var videoHook: VideoProcessHook? = null
 
     internal constructor(core: CorePrivchatClient) : this() {
         this.coreClient = core
+        startConnectionMonitor(core)
     }
 
     private fun requireClient(): Result<CorePrivchatClient> {
@@ -102,7 +107,16 @@ actual class PrivchatClient private actual constructor() {
         }
     }
 
+    actual suspend fun setNetworkHint(hint: NetworkHint): Result<Unit> {
+        // Current native uniffi bindings do not expose setNetworkHint yet.
+        // Keep API behavior consistent by returning success when client exists.
+        requireClient().getOrElse { return Result.failure(it) }
+        return Result.success(Unit)
+    }
+
     actual fun close() {
+        connectionMonitorJob?.cancel()
+        connectionMonitorJob = null
         coreClient?.let { runCatching { it.destroy() } }
         coreClient = null
         backgroundScope.coroutineContext.cancel()
@@ -115,6 +129,19 @@ actual class PrivchatClient private actual constructor() {
     actual fun connectionState(): ConnectionState = cachedConnectionState
 
     actual fun currentUserId(): ULong? = cachedUserId
+
+    private fun startConnectionMonitor(core: CorePrivchatClient) {
+        connectionMonitorJob?.cancel()
+        connectionMonitorJob = backgroundScope.launch {
+            while (isActive) {
+                if (coreClient !== core) break
+                runCatching { core.connectionState() }
+                    .onSuccess { state -> cachedConnectionState = state.toCommonConnectionState() }
+                    .onFailure { cachedConnectionState = ConnectionState.Disconnected }
+                delay(1500)
+            }
+        }
+    }
 
     actual suspend fun shutdown(): Result<Unit> =
         requireClient().fold(
@@ -1022,6 +1049,14 @@ private fun PresenceStatus.toCommonPresence() = PresenceEntry(
     lastSeen = lastSeen,
     deviceType = onlineDevices.firstOrNull(),
 )
+
+private fun CoreConnectionState.toCommonConnectionState(): ConnectionState = when (this) {
+    CoreConnectionState.NEW -> ConnectionState.Disconnected
+    CoreConnectionState.CONNECTED -> ConnectionState.Connected
+    CoreConnectionState.LOGGED_IN -> ConnectionState.Connected
+    CoreConnectionState.AUTHENTICATED -> ConnectionState.Connected
+    CoreConnectionState.SHUTDOWN -> ConnectionState.Disconnected
+}
 
 private fun decodeSeenBy(raw: String, limit: UInt?): List<SeenByEntry> {
     val arr = parseJsonObject(raw).array("items")

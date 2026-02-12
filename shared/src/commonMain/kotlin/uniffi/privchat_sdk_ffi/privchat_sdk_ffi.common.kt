@@ -92,6 +92,8 @@ object NoPointer
 
 
 
+
+
 interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `acceptFriendRequest`(`fromUserId`: kotlin.ULong, `message`: kotlin.String?): kotlin.ULong
@@ -165,8 +167,6 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `createGroup`(`name`: kotlin.String, `description`: kotlin.String?, `memberIds`: List<kotlin.ULong>?): GroupCreateResult
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `createLocalMessage`(`input`: NewMessage): kotlin.ULong
-    
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `currentUserId`(): kotlin.ULong
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `dataDir`(): kotlin.String
     fun `debugMode`(): kotlin.Boolean
@@ -419,13 +419,13 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `qrcodeGenerate`(`qrType`: kotlin.String, `payload`: kotlin.String, `expireSeconds`: kotlin.ULong?): QrCodeGenerateView
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `qrcodeList`(`qrType`: kotlin.String?): QrCodeJsonView
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `qrcodeList`(`includeRevoked`: kotlin.Boolean?): QrCodeListView
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `qrcodeRefresh`(`qrKey`: kotlin.String, `expireSeconds`: kotlin.ULong?): QrCodeJsonView
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `qrcodeRefresh`(`qrType`: kotlin.String, `targetId`: kotlin.String): QrCodeRefreshView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `qrcodeResolve`(`qrKey`: kotlin.String, `token`: kotlin.String?): QrCodeResolveView
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `qrcodeRevoke`(`qrKey`: kotlin.String): QrCodeJsonView
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `qrcodeRevoke`(`qrKey`: kotlin.String): QrCodeRevokeView
     fun `queueConfig`(): QueueConfigView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `reactionStats`(`serverMessageId`: kotlin.ULong): MessageReactionStatsView
@@ -453,6 +453,8 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `removeGroupMember`(`groupId`: kotlin.ULong, `userId`: kotlin.ULong): kotlin.Boolean
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `removeReaction`(`serverMessageId`: kotlin.ULong, `emoji`: kotlin.String): kotlin.Boolean
+    
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `requireCurrentUserId`(): kotlin.ULong
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `resolveChannelIdByServerMessageId`(`serverMessageId`: kotlin.ULong): kotlin.ULong
     suspend fun `resolveChannelType`(`channelId`: kotlin.ULong): kotlin.Int
@@ -482,6 +484,8 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `sendFriendRequest`(`targetUserId`: kotlin.ULong, `message`: kotlin.String?, `source`: kotlin.String?, `sourceId`: kotlin.String?): FriendRequestResult
     
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `sendLocalMessageNow`(`input`: NewMessage): kotlin.ULong
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `sendMessage`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String): kotlin.ULong
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `sendMessageBlocking`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String): kotlin.ULong
@@ -509,6 +513,8 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setMessageRead`(`messageId`: kotlin.ULong, `channelId`: kotlin.ULong, `channelType`: kotlin.Int, `isRead`: kotlin.Boolean)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setMessageRevoke`(`messageId`: kotlin.ULong, `revoked`: kotlin.Boolean, `revoker`: kotlin.ULong?)
+    
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setNetworkHint`(`hint`: NetworkHint)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setUserSetting`(`key`: kotlin.String, `value`: kotlin.String)
     fun `setVideoProcessHook`()
@@ -594,11 +600,11 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `userId`(): kotlin.ULong?
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `userQrcodeGenerate`(`expireSeconds`: kotlin.ULong?): QrCodeJsonView
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `userQrcodeGenerate`(`expireSeconds`: kotlin.ULong?): UserQrCodeGenerateView
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `userQrcodeGet`(): QrCodeJsonView
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `userQrcodeGet`(): UserQrCodeGetView
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `userQrcodeRefresh`(`expireSeconds`: kotlin.ULong?): QrCodeJsonView
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `userQrcodeRefresh`(): QrCodeRefreshView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `userStoragePaths`(): UserStoragePaths
     
@@ -802,11 +808,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `createLocalMessage`(`input`: NewMessage) : kotlin.ULong
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `currentUserId`() : kotlin.ULong
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -1447,12 +1448,12 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `qrcodeList`(`qrType`: kotlin.String?) : QrCodeJsonView
+    override suspend fun `qrcodeList`(`includeRevoked`: kotlin.Boolean?) : QrCodeListView
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `qrcodeRefresh`(`qrKey`: kotlin.String, `expireSeconds`: kotlin.ULong?) : QrCodeJsonView
+    override suspend fun `qrcodeRefresh`(`qrType`: kotlin.String, `targetId`: kotlin.String) : QrCodeRefreshView
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -1462,7 +1463,7 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `qrcodeRevoke`(`qrKey`: kotlin.String) : QrCodeJsonView
+    override suspend fun `qrcodeRevoke`(`qrKey`: kotlin.String) : QrCodeRevokeView
 
     override fun `queueConfig`(): QueueConfigView
     
@@ -1532,6 +1533,11 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `removeReaction`(`serverMessageId`: kotlin.ULong, `emoji`: kotlin.String) : kotlin.Boolean
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `requireCurrentUserId`() : kotlin.ULong
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -1608,6 +1614,11 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `sendLocalMessageNow`(`input`: NewMessage) : kotlin.ULong
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `sendMessage`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String) : kotlin.ULong
 
     
@@ -1675,6 +1686,11 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `setMessageRevoke`(`messageId`: kotlin.ULong, `revoked`: kotlin.Boolean, `revoker`: kotlin.ULong?)
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `setNetworkHint`(`hint`: NetworkHint)
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -1893,17 +1909,17 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `userQrcodeGenerate`(`expireSeconds`: kotlin.ULong?) : QrCodeJsonView
+    override suspend fun `userQrcodeGenerate`(`expireSeconds`: kotlin.ULong?) : UserQrCodeGenerateView
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `userQrcodeGet`() : QrCodeJsonView
+    override suspend fun `userQrcodeGet`() : UserQrCodeGetView
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `userQrcodeRefresh`(`expireSeconds`: kotlin.ULong?) : QrCodeJsonView
+    override suspend fun `userQrcodeRefresh`() : QrCodeRefreshView
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -1943,7 +1959,7 @@ data class AccountPrivacyUpdateInput (
 
 
 data class AccountSearchResultView (
-    var `usersJson`: kotlin.String
+    var `users`: List<SearchUserEntry>
         , 
     var `total`: kotlin.ULong
         , 
@@ -1957,7 +1973,27 @@ data class AccountSearchResultView (
 
 
 data class AccountUserDetailView (
-    var `userJson`: kotlin.String
+    var `userId`: kotlin.ULong
+        , 
+    var `username`: kotlin.String
+        , 
+    var `nickname`: kotlin.String
+        , 
+    var `avatarUrl`: kotlin.String?
+         = null , 
+    var `phone`: kotlin.String?
+         = null , 
+    var `email`: kotlin.String?
+         = null , 
+    var `userType`: kotlin.Short
+        , 
+    var `isFriend`: kotlin.Boolean
+        , 
+    var `canSendMessage`: kotlin.Boolean
+        , 
+    var `sourceType`: kotlin.String
+        , 
+    var `sourceId`: kotlin.String
         
 ) {
     
@@ -2037,8 +2073,12 @@ data class BlacklistCheckResult (
 
 
 data class ChannelBroadcastCreateInput (
-    var `fieldsJson`: kotlin.String
-        
+    var `name`: kotlin.String
+        , 
+    var `description`: kotlin.String?
+         = null , 
+    var `avatarUrl`: kotlin.String?
+         = null 
 ) {
     
     companion object
@@ -2047,7 +2087,11 @@ data class ChannelBroadcastCreateInput (
 
 
 data class ChannelBroadcastCreateView (
-    var `responseJson`: kotlin.String
+    var `status`: kotlin.String
+        , 
+    var `action`: kotlin.String
+        , 
+    var `timestamp`: kotlin.String
         
 ) {
     
@@ -2057,8 +2101,10 @@ data class ChannelBroadcastCreateView (
 
 
 data class ChannelBroadcastListInput (
-    var `fieldsJson`: kotlin.String
-        
+    var `page`: kotlin.UInt?
+         = null , 
+    var `pageSize`: kotlin.UInt?
+         = null 
 ) {
     
     companion object
@@ -2067,7 +2113,11 @@ data class ChannelBroadcastListInput (
 
 
 data class ChannelBroadcastListView (
-    var `responseJson`: kotlin.String
+    var `status`: kotlin.String
+        , 
+    var `action`: kotlin.String
+        , 
+    var `timestamp`: kotlin.String
         
 ) {
     
@@ -2087,8 +2137,12 @@ data class ChannelBroadcastSubscribeInput (
 
 
 data class ChannelContentListInput (
-    var `fieldsJson`: kotlin.String
-        
+    var `channelId`: kotlin.ULong
+        , 
+    var `page`: kotlin.UInt?
+         = null , 
+    var `pageSize`: kotlin.UInt?
+         = null 
 ) {
     
     companion object
@@ -2097,7 +2151,11 @@ data class ChannelContentListInput (
 
 
 data class ChannelContentListView (
-    var `responseJson`: kotlin.String
+    var `status`: kotlin.String
+        , 
+    var `action`: kotlin.String
+        , 
+    var `timestamp`: kotlin.String
         
 ) {
     
@@ -2107,8 +2165,14 @@ data class ChannelContentListView (
 
 
 data class ChannelContentPublishInput (
-    var `fieldsJson`: kotlin.String
-        
+    var `channelId`: kotlin.ULong
+        , 
+    var `content`: kotlin.String
+        , 
+    var `title`: kotlin.String?
+         = null , 
+    var `contentType`: kotlin.String?
+         = null 
 ) {
     
     companion object
@@ -2117,7 +2181,11 @@ data class ChannelContentPublishInput (
 
 
 data class ChannelContentPublishView (
-    var `responseJson`: kotlin.String
+    var `status`: kotlin.String
+        , 
+    var `action`: kotlin.String
+        , 
+    var `timestamp`: kotlin.String
         
 ) {
     
@@ -2442,8 +2510,32 @@ data class GetDifferenceView (
 
 
 
+data class GroupApprovalItemView (
+    var `requestId`: kotlin.String
+        , 
+    var `userId`: kotlin.ULong
+        , 
+    var `inviterId`: kotlin.String?
+         = null , 
+    var `qrCodeId`: kotlin.String?
+         = null , 
+    var `message`: kotlin.String?
+         = null , 
+    var `createdAt`: kotlin.String
+        , 
+    var `expiresAt`: kotlin.String?
+         = null 
+) {
+    
+    companion object
+}
+
+
+
 data class GroupApprovalListView (
-    var `approvalsJson`: kotlin.String
+    var `groupId`: kotlin.String
+        , 
+    var `approvals`: List<GroupApprovalItemView>
         , 
     var `total`: kotlin.ULong
         
@@ -2543,7 +2635,17 @@ data class GroupMemberRemoteList (
 
 
 data class GroupMuteAllView (
-    var `responseJson`: kotlin.String
+    var `success`: kotlin.Boolean
+        , 
+    var `groupId`: kotlin.String
+        , 
+    var `allMuted`: kotlin.Boolean
+        , 
+    var `message`: kotlin.String
+        , 
+    var `operatorId`: kotlin.String
+        , 
+    var `updatedAt`: kotlin.String
         
 ) {
     
@@ -2625,7 +2727,23 @@ data class GroupSettingsUpdateInput (
 
 
 data class GroupSettingsView (
-    var `settingsJson`: kotlin.String
+    var `groupId`: kotlin.ULong
+        , 
+    var `joinNeedApproval`: kotlin.Boolean
+        , 
+    var `memberCanInvite`: kotlin.Boolean
+        , 
+    var `allMuted`: kotlin.Boolean
+        , 
+    var `maxMembers`: kotlin.ULong
+        , 
+    var `announcement`: kotlin.String?
+         = null , 
+    var `description`: kotlin.String?
+         = null , 
+    var `createdAt`: kotlin.String
+        , 
+    var `updatedAt`: kotlin.String
         
 ) {
     
@@ -2702,8 +2820,38 @@ data class MentionInput (
 
 
 
+data class MessageHistoryItemView (
+    var `messageId`: kotlin.ULong
+        , 
+    var `channelId`: kotlin.ULong
+        , 
+    var `senderId`: kotlin.ULong
+        , 
+    var `content`: kotlin.String
+        , 
+    var `messageType`: kotlin.String
+        , 
+    var `timestamp`: kotlin.String
+        , 
+    var `replyToMessageId`: kotlin.ULong?
+         = null , 
+    var `metadataJson`: kotlin.String?
+         = null , 
+    var `revoked`: kotlin.Boolean
+        , 
+    var `revokedAt`: kotlin.Long?
+         = null , 
+    var `revokedBy`: kotlin.ULong?
+         = null 
+) {
+    
+    companion object
+}
+
+
+
 data class MessageHistoryView (
-    var `messagesJson`: kotlin.String
+    var `messages`: List<MessageHistoryItemView>
         , 
     var `hasMore`: kotlin.Boolean
         
@@ -2714,8 +2862,24 @@ data class MessageHistoryView (
 
 
 
+data class MessageReactionEmojiUsersView (
+    var `emoji`: kotlin.String
+        , 
+    var `userIds`: List<kotlin.ULong>
+        
+) {
+    
+    companion object
+}
+
+
+
 data class MessageReactionListView (
-    var `reactionsJson`: kotlin.String
+    var `success`: kotlin.Boolean
+        , 
+    var `totalCount`: kotlin.ULong
+        , 
+    var `reactions`: List<MessageReactionEmojiUsersView>
         
 ) {
     
@@ -2725,7 +2889,11 @@ data class MessageReactionListView (
 
 
 data class MessageReactionStatsView (
-    var `statsJson`: kotlin.String
+    var `success`: kotlin.Boolean
+        , 
+    var `totalCount`: kotlin.ULong
+        , 
+    var `reactions`: List<MessageReactionEmojiUsersView>
         
 ) {
     
@@ -2735,7 +2903,7 @@ data class MessageReactionStatsView (
 
 
 data class MessageReadListView (
-    var `readersJson`: kotlin.String
+    var `readers`: List<MessageReadUserView>
         , 
     var `total`: kotlin.ULong
         
@@ -2751,6 +2919,24 @@ data class MessageReadStatsView (
         , 
     var `totalCount`: kotlin.UInt
         
+) {
+    
+    companion object
+}
+
+
+
+data class MessageReadUserView (
+    var `userId`: kotlin.ULong
+        , 
+    var `username`: kotlin.String?
+         = null , 
+    var `nickname`: kotlin.String?
+         = null , 
+    var `avatarUrl`: kotlin.String?
+         = null , 
+    var `readAt`: kotlin.String?
+         = null 
 ) {
     
     companion object
@@ -2825,7 +3011,23 @@ data class PresenceStatus (
 
 
 data class PrivacySettingsView (
-    var `settingsJson`: kotlin.String
+    var `userId`: kotlin.ULong
+        , 
+    var `allowAddByGroup`: kotlin.Boolean
+        , 
+    var `allowSearchByPhone`: kotlin.Boolean
+        , 
+    var `allowSearchByUsername`: kotlin.Boolean
+        , 
+    var `allowSearchByEmail`: kotlin.Boolean
+        , 
+    var `allowSearchByQrcode`: kotlin.Boolean
+        , 
+    var `allowViewByNonFriend`: kotlin.Boolean
+        , 
+    var `allowReceiveMessageFromNonFriend`: kotlin.Boolean
+        , 
+    var `updatedAt`: kotlin.String
         
 ) {
     
@@ -2849,8 +3051,12 @@ data class PrivchatConfig (
 
 
 data class ProfileUpdateInput (
-    var `fieldsJson`: kotlin.String
-        
+    var `displayName`: kotlin.String?
+         = null , 
+    var `avatarUrl`: kotlin.String?
+         = null , 
+    var `bio`: kotlin.String?
+         = null 
 ) {
     
     companion object
@@ -2859,7 +3065,37 @@ data class ProfileUpdateInput (
 
 
 data class ProfileView (
-    var `profileJson`: kotlin.String
+    var `status`: kotlin.String
+        , 
+    var `action`: kotlin.String
+        , 
+    var `timestamp`: kotlin.String
+        
+) {
+    
+    companion object
+}
+
+
+
+data class QrCodeEntryView (
+    var `qrKey`: kotlin.String
+        , 
+    var `qrCode`: kotlin.String
+        , 
+    var `qrType`: kotlin.String
+        , 
+    var `targetId`: kotlin.String
+        , 
+    var `createdAt`: kotlin.String
+        , 
+    var `expireAt`: kotlin.String?
+         = null , 
+    var `usedCount`: kotlin.UInt
+        , 
+    var `maxUsage`: kotlin.UInt?
+         = null , 
+    var `revoked`: kotlin.Boolean
         
 ) {
     
@@ -2892,8 +3128,26 @@ data class QrCodeGenerateView (
 
 
 
-data class QrCodeJsonView (
-    var `json`: kotlin.String
+data class QrCodeListView (
+    var `qrKeys`: List<QrCodeEntryView>
+        , 
+    var `total`: kotlin.ULong
+        
+) {
+    
+    companion object
+}
+
+
+
+data class QrCodeRefreshView (
+    var `oldQrKey`: kotlin.String
+        , 
+    var `newQrKey`: kotlin.String
+        , 
+    var `newQrCode`: kotlin.String
+        , 
+    var `revokedAt`: kotlin.String
         
 ) {
     
@@ -2917,6 +3171,20 @@ data class QrCodeResolveView (
          = null , 
     var `expireAt`: kotlin.String?
          = null 
+) {
+    
+    companion object
+}
+
+
+
+data class QrCodeRevokeView (
+    var `success`: kotlin.Boolean
+        , 
+    var `qrKey`: kotlin.String
+        , 
+    var `revokedAt`: kotlin.String
+        
 ) {
     
     companion object
@@ -2951,7 +3219,11 @@ data class QueueMessage (
 data class ReactionsBatchItemView (
     var `serverMessageId`: kotlin.ULong
         , 
-    var `reactionsJson`: kotlin.String
+    var `success`: kotlin.Boolean
+        , 
+    var `totalCount`: kotlin.ULong
+        , 
+    var `reactions`: List<MessageReactionEmojiUsersView>
         
 ) {
     
@@ -3076,6 +3348,30 @@ data class SessionSnapshot (
 
 
 
+data class StickerInfoView (
+    var `stickerId`: kotlin.String
+        , 
+    var `packageId`: kotlin.String
+        , 
+    var `imageUrl`: kotlin.String
+        , 
+    var `altText`: kotlin.String
+        , 
+    var `emoji`: kotlin.String?
+         = null , 
+    var `width`: kotlin.UInt
+        , 
+    var `height`: kotlin.UInt
+        , 
+    var `mimeType`: kotlin.String
+        
+) {
+    
+    companion object
+}
+
+
+
 data class StickerPackageDetailInput (
     var `packageId`: kotlin.String
         
@@ -3087,7 +3383,7 @@ data class StickerPackageDetailInput (
 
 
 data class StickerPackageDetailView (
-    var `responseJson`: kotlin.String
+    var `package`: StickerPackageInfoView
         
 ) {
     
@@ -3096,18 +3392,44 @@ data class StickerPackageDetailView (
 
 
 
-data class StickerPackageListInput (
-    var `fieldsJson`: kotlin.String
+data class StickerPackageInfoView (
+    var `packageId`: kotlin.String
+        , 
+    var `name`: kotlin.String
+        , 
+    var `thumbnailUrl`: kotlin.String
+        , 
+    var `author`: kotlin.String
+        , 
+    var `description`: kotlin.String
+        , 
+    var `stickerCount`: kotlin.ULong
+        , 
+    var `stickers`: List<StickerInfoView>
         
 ) {
     
+    companion object
+}
+
+
+
+class StickerPackageListInput {
+    override fun equals(other: Any?): Boolean {
+        return other is StickerPackageListInput
+    }
+
+    override fun hashCode(): Int {
+        return super.hashCode()
+    }
+
     companion object
 }
 
 
 
 data class StickerPackageListView (
-    var `responseJson`: kotlin.String
+    var `packages`: List<StickerPackageInfoView>
         
 ) {
     
@@ -3498,6 +3820,18 @@ data class SyncEntityItemView (
 
 
 
+data class SyncPayloadEntry (
+    var `key`: kotlin.String
+        , 
+    var `value`: kotlin.String
+        
+) {
+    
+    companion object
+}
+
+
+
 data class SyncSubmitInput (
     var `localMessageId`: kotlin.ULong
         , 
@@ -3509,7 +3843,7 @@ data class SyncSubmitInput (
         , 
     var `commandType`: kotlin.String
         , 
-    var `payloadJson`: kotlin.String
+    var `payloadEntries`: List<SyncPayloadEntry>
         , 
     var `clientTimestamp`: kotlin.Long
         , 
@@ -3848,6 +4182,36 @@ data class UpsertUserInput (
 
 
 
+data class UserQrCodeGenerateView (
+    var `qrKey`: kotlin.String
+        , 
+    var `qrCode`: kotlin.String
+        , 
+    var `createdAt`: kotlin.String
+        
+) {
+    
+    companion object
+}
+
+
+
+data class UserQrCodeGetView (
+    var `qrKey`: kotlin.String
+        , 
+    var `qrCode`: kotlin.String
+        , 
+    var `createdAt`: kotlin.String
+        , 
+    var `usedCount`: kotlin.UInt
+        
+) {
+    
+    companion object
+}
+
+
+
 data class UserSettingsView (
     var `settingsJson`: kotlin.String
         
@@ -3889,6 +4253,22 @@ enum class ConnectionState {
     LOGGED_IN,
     AUTHENTICATED,
     SHUTDOWN;
+    companion object
+}
+
+
+
+
+
+
+
+enum class NetworkHint {
+    
+    UNKNOWN,
+    OFFLINE,
+    WIFI,
+    CELLULAR,
+    ETHERNET;
     companion object
 }
 
@@ -4074,6 +4454,30 @@ enum class TypingActionType {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+expect fun `buildTime`(): kotlin.String
+    
+
+expect fun `gitSha`(): kotlin.String
+    
 
 expect fun `sdkVersion`(): kotlin.String
     

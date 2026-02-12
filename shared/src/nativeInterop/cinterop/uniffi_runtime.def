@@ -1,5 +1,5 @@
-headers = privchat_sdk_ffi.h
-headerFilter = privchat_sdk_ffi.h
+headers = privchat_sdk_ffi.h privchat_ffi_extra.h
+headerFilter = privchat_sdk_ffi.h privchat_ffi_extra.h
 
 package = uniffi_runtime.cinterop
 

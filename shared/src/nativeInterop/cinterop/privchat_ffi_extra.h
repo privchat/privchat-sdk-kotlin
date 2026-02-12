@@ -1,15 +1,7 @@
-// 补丁头：补充 Kotlin cinterop 需要但上游头可能缺失的声明。
+// Extra include hook for cinterop. Keep intentionally minimal.
 #ifndef PRIVCHAT_FFI_EXTRA_H
 #define PRIVCHAT_FFI_EXTRA_H
 
-#include "PrivchatSDKFFI.h"
+#include "privchat_sdk_ffi.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* PRIVCHAT_FFI_EXTRA_H */
+#endif  // PRIVCHAT_FFI_EXTRA_H

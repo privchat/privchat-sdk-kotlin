@@ -223,7 +223,9 @@ internal class LoginPage : BasePager() {
             CoroutineScope(LoginCoroutineDispatcher).launch {
                 delay(AUTO_LOGIN_DELAY_MS.toLong())
                 println("[LoginFlow] auto login trigger")
-                doLogin()
+                runOnKuiklyContext {
+                    doLogin()
+                }
             }
         }
     }

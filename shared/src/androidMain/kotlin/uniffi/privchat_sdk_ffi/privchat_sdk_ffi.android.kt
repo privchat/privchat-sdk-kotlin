@@ -662,6 +662,14 @@ import kotlinx.coroutines.withContext
 
 
 
+
+
+
+
+
+
+
+
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -777,8 +785,6 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_create_group(`ptr`: Pointer?,`name`: RustBufferByValue,`description`: RustBufferByValue,`memberIds`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_create_local_message(`ptr`: Pointer?,`input`: RustBufferByValue,
-    ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_current_user_id(`ptr`: Pointer?,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_data_dir(`ptr`: Pointer?,
     ): Long
@@ -1048,9 +1054,9 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_qrcode_generate(`ptr`: Pointer?,`qrType`: RustBufferByValue,`payload`: RustBufferByValue,`expireSeconds`: RustBufferByValue,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_qrcode_list(`ptr`: Pointer?,`qrType`: RustBufferByValue,
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_qrcode_list(`ptr`: Pointer?,`includeRevoked`: RustBufferByValue,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_qrcode_refresh(`ptr`: Pointer?,`qrKey`: RustBufferByValue,`expireSeconds`: RustBufferByValue,
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_qrcode_refresh(`ptr`: Pointer?,`qrType`: RustBufferByValue,`targetId`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_qrcode_resolve(`ptr`: Pointer?,`qrKey`: RustBufferByValue,`token`: RustBufferByValue,
     ): Long
@@ -1086,6 +1092,8 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_remove_reaction(`ptr`: Pointer?,`serverMessageId`: Long,`emoji`: RustBufferByValue,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_require_current_user_id(`ptr`: Pointer?,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_channel_id_by_server_message_id(`ptr`: Pointer?,`serverMessageId`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_channel_type(`ptr`: Pointer?,`channelId`: Long,
@@ -1116,6 +1124,8 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_friend_request(`ptr`: Pointer?,`targetUserId`: Long,`message`: RustBufferByValue,`source`: RustBufferByValue,`sourceId`: RustBufferByValue,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_local_message_now(`ptr`: Pointer?,`input`: RustBufferByValue,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_message(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`fromUid`: Long,`content`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_message_blocking(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`fromUid`: Long,`content`: RustBufferByValue,
@@ -1145,6 +1155,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_read(`ptr`: Pointer?,`messageId`: Long,`channelId`: Long,`channelType`: Int,`isRead`: Byte,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_revoke(`ptr`: Pointer?,`messageId`: Long,`revoked`: Byte,`revoker`: RustBufferByValue,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_network_hint(`ptr`: Pointer?,`hint`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_user_setting(`ptr`: Pointer?,`key`: RustBufferByValue,`value`: RustBufferByValue,
     ): Long
@@ -1244,10 +1256,14 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_get(`ptr`: Pointer?,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_refresh(`ptr`: Pointer?,`expireSeconds`: RustBufferByValue,
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_refresh(`ptr`: Pointer?,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_storage_paths(`ptr`: Pointer?,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_func_build_time(uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
+    fun uniffi_privchat_sdk_ffi_fn_func_git_sha(uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_func_sdk_version(uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
     fun ffi_privchat_sdk_ffi_rustbuffer_alloc(`size`: Long,uniffiCallStatus: UniffiRustCallStatus, 
@@ -1362,6 +1378,10 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_privchat_sdk_ffi_rust_future_complete_void(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus, 
     ): Unit
+    fun uniffi_privchat_sdk_ffi_checksum_func_build_time(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_func_git_sha(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_func_sdk_version(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_accept_friend_request(
@@ -1439,8 +1459,6 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_create_group(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_create_local_message(
-    ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_current_user_id(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_data_dir(
     ): Short
@@ -1748,6 +1766,8 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_remove_reaction(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_require_current_user_id(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_channel_id_by_server_message_id(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_channel_type(
@@ -1778,6 +1798,8 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_friend_request(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_local_message_now(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_message(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_message_blocking(
@@ -1807,6 +1829,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_read(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_revoke(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_network_hint(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_user_setting(
     ): Short
@@ -1918,15 +1942,23 @@ internal interface UniffiLib : Library {
 }
 
 private fun uniffiCheckContractApiVersion(lib: UniffiLib) {
-    // Temporary bypass: current MPP bindgen emits an older contract constant than
-    // the Rust scaffolding in privchat-rust. We validate via runtime behavior tests.
-    return
+    // Get the bindings contract version from our ComponentInterface
+    val bindings_contract_version = 30
+    // Get the scaffolding contract version by calling the into the dylib
+    val scaffolding_contract_version = lib.ffi_privchat_sdk_ffi_uniffi_contract_version()
+    if (bindings_contract_version != scaffolding_contract_version) {
+        throw RuntimeException("UniFFI contract version mismatch: try cleaning and rebuilding your project")
+    }
 }
 
 @Suppress("UNUSED_PARAMETER")
 private fun uniffiCheckApiChecksums(lib: UniffiLib) {
-    // Temporary bypass paired with contract bypass above.
-    return
+    if (lib.uniffi_privchat_sdk_ffi_checksum_func_build_time() != 39067.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_func_git_sha() != 18444.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
     if (lib.uniffi_privchat_sdk_ffi_checksum_func_sdk_version() != 13992.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
@@ -2042,9 +2074,6 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_create_local_message() != 22996.toShort()) {
-        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
-    }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_current_user_id() != 47069.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_data_dir() != 41966.toShort()) {
@@ -2449,16 +2478,16 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_qrcode_generate() != 40918.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_qrcode_list() != 15290.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_qrcode_list() != 31136.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_qrcode_refresh() != 607.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_qrcode_refresh() != 51235.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_qrcode_resolve() != 62090.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_qrcode_revoke() != 13884.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_qrcode_revoke() != 42513.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_queue_config() != 14619.toShort()) {
@@ -2506,6 +2535,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_remove_reaction() != 5979.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_require_current_user_id() != 29902.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_channel_id_by_server_message_id() != 37138.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
@@ -2551,6 +2583,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_friend_request() != 17853.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_local_message_now() != 10257.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_message() != 43945.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
@@ -2594,6 +2629,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_revoke() != 14148.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_network_hint() != 28817.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_user_setting() != 45137.toShort()) {
@@ -2737,13 +2775,13 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_id() != 38700.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_generate() != 45307.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_generate() != 10851.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_get() != 31892.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_get() != 49363.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_refresh() != 58794.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_refresh() != 6845.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_storage_paths() != 45492.toShort()) {
@@ -2755,6 +2793,8 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
 }
 
 // Public interface members begin here.
+
+
 
 
 
@@ -3655,28 +3695,6 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_create_local_message(
                 thisPtr,
                 FfiConverterTypeNewMessage.lower(`input`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_u64(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_u64(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_u64(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_u64(future) },
-        // lift function
-        { FfiConverterULong.lift(it!!) },
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `currentUserId`() : kotlin.ULong {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_current_user_id(
-                thisPtr,
-                
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_u64(future, callback, continuation)!! },
@@ -6476,12 +6494,12 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `qrcodeList`(`qrType`: kotlin.String?) : QrCodeJsonView {
+    actual override suspend fun `qrcodeList`(`includeRevoked`: kotlin.Boolean?) : QrCodeListView {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_qrcode_list(
                 thisPtr,
-                FfiConverterOptionalString.lower(`qrType`),
+                FfiConverterOptionalBoolean.lower(`includeRevoked`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -6489,7 +6507,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
-        { FfiConverterTypeQrCodeJsonView.lift(it!!) },
+        { FfiConverterTypeQrCodeListView.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -6498,12 +6516,12 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `qrcodeRefresh`(`qrKey`: kotlin.String, `expireSeconds`: kotlin.ULong?) : QrCodeJsonView {
+    actual override suspend fun `qrcodeRefresh`(`qrType`: kotlin.String, `targetId`: kotlin.String) : QrCodeRefreshView {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_qrcode_refresh(
                 thisPtr,
-                FfiConverterString.lower(`qrKey`),FfiConverterOptionalULong.lower(`expireSeconds`),
+                FfiConverterString.lower(`qrType`),FfiConverterString.lower(`targetId`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -6511,7 +6529,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
-        { FfiConverterTypeQrCodeJsonView.lift(it!!) },
+        { FfiConverterTypeQrCodeRefreshView.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -6542,7 +6560,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `qrcodeRevoke`(`qrKey`: kotlin.String) : QrCodeJsonView {
+    actual override suspend fun `qrcodeRevoke`(`qrKey`: kotlin.String) : QrCodeRevokeView {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_qrcode_revoke(
@@ -6555,7 +6573,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
-        { FfiConverterTypeQrCodeJsonView.lift(it!!) },
+        { FfiConverterTypeQrCodeRevokeView.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -6856,6 +6874,28 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_i8(future) },
         // lift function
         { FfiConverterBoolean.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `requireCurrentUserId`() : kotlin.ULong {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_require_current_user_id(
+                thisPtr,
+                
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_u64(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_u64(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_u64(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_u64(future) },
+        // lift function
+        { FfiConverterULong.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -7184,6 +7224,28 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `sendLocalMessageNow`(`input`: NewMessage) : kotlin.ULong {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_local_message_now(
+                thisPtr,
+                FfiConverterTypeNewMessage.lower(`input`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_u64(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_u64(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_u64(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_u64(future) },
+        // lift function
+        { FfiConverterULong.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `sendMessage`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String) : kotlin.ULong {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
@@ -7485,6 +7547,29 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_revoke(
                 thisPtr,
                 FfiConverterULong.lower(`messageId`),FfiConverterBoolean.lower(`revoked`),FfiConverterOptionalULong.lower(`revoker`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
+        // lift function
+        { Unit },
+        
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `setNetworkHint`(`hint`: NetworkHint) {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_network_hint(
+                thisPtr,
+                FfiConverterTypeNetworkHint.lower(`hint`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
@@ -8443,7 +8528,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `userQrcodeGenerate`(`expireSeconds`: kotlin.ULong?) : QrCodeJsonView {
+    actual override suspend fun `userQrcodeGenerate`(`expireSeconds`: kotlin.ULong?) : UserQrCodeGenerateView {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_generate(
@@ -8456,7 +8541,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
-        { FfiConverterTypeQrCodeJsonView.lift(it!!) },
+        { FfiConverterTypeUserQrCodeGenerateView.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -8465,7 +8550,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `userQrcodeGet`() : QrCodeJsonView {
+    actual override suspend fun `userQrcodeGet`() : UserQrCodeGetView {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_get(
@@ -8478,7 +8563,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
-        { FfiConverterTypeQrCodeJsonView.lift(it!!) },
+        { FfiConverterTypeUserQrCodeGetView.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -8487,12 +8572,12 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `userQrcodeRefresh`(`expireSeconds`: kotlin.ULong?) : QrCodeJsonView {
+    actual override suspend fun `userQrcodeRefresh`() : QrCodeRefreshView {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_refresh(
                 thisPtr,
-                FfiConverterOptionalULong.lower(`expireSeconds`),
+                
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -8500,7 +8585,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
-        { FfiConverterTypeQrCodeJsonView.lift(it!!) },
+        { FfiConverterTypeQrCodeRefreshView.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -8634,20 +8719,20 @@ object FfiConverterTypeAccountPrivacyUpdateInput: FfiConverterRustBuffer<Account
 object FfiConverterTypeAccountSearchResultView: FfiConverterRustBuffer<AccountSearchResultView> {
     override fun read(buf: ByteBuffer): AccountSearchResultView {
         return AccountSearchResultView(
-            FfiConverterString.read(buf),
+            FfiConverterSequenceTypeSearchUserEntry.read(buf),
             FfiConverterULong.read(buf),
             FfiConverterString.read(buf),
         )
     }
 
     override fun allocationSize(value: AccountSearchResultView) = (
-            FfiConverterString.allocationSize(value.`usersJson`) +
+            FfiConverterSequenceTypeSearchUserEntry.allocationSize(value.`users`) +
             FfiConverterULong.allocationSize(value.`total`) +
             FfiConverterString.allocationSize(value.`query`)
     )
 
     override fun write(value: AccountSearchResultView, buf: ByteBuffer) {
-            FfiConverterString.write(value.`usersJson`, buf)
+            FfiConverterSequenceTypeSearchUserEntry.write(value.`users`, buf)
             FfiConverterULong.write(value.`total`, buf)
             FfiConverterString.write(value.`query`, buf)
     }
@@ -8659,16 +8744,46 @@ object FfiConverterTypeAccountSearchResultView: FfiConverterRustBuffer<AccountSe
 object FfiConverterTypeAccountUserDetailView: FfiConverterRustBuffer<AccountUserDetailView> {
     override fun read(buf: ByteBuffer): AccountUserDetailView {
         return AccountUserDetailView(
+            FfiConverterULong.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterShort.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterString.read(buf),
             FfiConverterString.read(buf),
         )
     }
 
     override fun allocationSize(value: AccountUserDetailView) = (
-            FfiConverterString.allocationSize(value.`userJson`)
+            FfiConverterULong.allocationSize(value.`userId`) +
+            FfiConverterString.allocationSize(value.`username`) +
+            FfiConverterString.allocationSize(value.`nickname`) +
+            FfiConverterOptionalString.allocationSize(value.`avatarUrl`) +
+            FfiConverterOptionalString.allocationSize(value.`phone`) +
+            FfiConverterOptionalString.allocationSize(value.`email`) +
+            FfiConverterShort.allocationSize(value.`userType`) +
+            FfiConverterBoolean.allocationSize(value.`isFriend`) +
+            FfiConverterBoolean.allocationSize(value.`canSendMessage`) +
+            FfiConverterString.allocationSize(value.`sourceType`) +
+            FfiConverterString.allocationSize(value.`sourceId`)
     )
 
     override fun write(value: AccountUserDetailView, buf: ByteBuffer) {
-            FfiConverterString.write(value.`userJson`, buf)
+            FfiConverterULong.write(value.`userId`, buf)
+            FfiConverterString.write(value.`username`, buf)
+            FfiConverterString.write(value.`nickname`, buf)
+            FfiConverterOptionalString.write(value.`avatarUrl`, buf)
+            FfiConverterOptionalString.write(value.`phone`, buf)
+            FfiConverterOptionalString.write(value.`email`, buf)
+            FfiConverterShort.write(value.`userType`, buf)
+            FfiConverterBoolean.write(value.`isFriend`, buf)
+            FfiConverterBoolean.write(value.`canSendMessage`, buf)
+            FfiConverterString.write(value.`sourceType`, buf)
+            FfiConverterString.write(value.`sourceId`, buf)
     }
 }
 
@@ -8808,15 +8923,21 @@ object FfiConverterTypeChannelBroadcastCreateInput: FfiConverterRustBuffer<Chann
     override fun read(buf: ByteBuffer): ChannelBroadcastCreateInput {
         return ChannelBroadcastCreateInput(
             FfiConverterString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
         )
     }
 
     override fun allocationSize(value: ChannelBroadcastCreateInput) = (
-            FfiConverterString.allocationSize(value.`fieldsJson`)
+            FfiConverterString.allocationSize(value.`name`) +
+            FfiConverterOptionalString.allocationSize(value.`description`) +
+            FfiConverterOptionalString.allocationSize(value.`avatarUrl`)
     )
 
     override fun write(value: ChannelBroadcastCreateInput, buf: ByteBuffer) {
-            FfiConverterString.write(value.`fieldsJson`, buf)
+            FfiConverterString.write(value.`name`, buf)
+            FfiConverterOptionalString.write(value.`description`, buf)
+            FfiConverterOptionalString.write(value.`avatarUrl`, buf)
     }
 }
 
@@ -8827,15 +8948,21 @@ object FfiConverterTypeChannelBroadcastCreateView: FfiConverterRustBuffer<Channe
     override fun read(buf: ByteBuffer): ChannelBroadcastCreateView {
         return ChannelBroadcastCreateView(
             FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
         )
     }
 
     override fun allocationSize(value: ChannelBroadcastCreateView) = (
-            FfiConverterString.allocationSize(value.`responseJson`)
+            FfiConverterString.allocationSize(value.`status`) +
+            FfiConverterString.allocationSize(value.`action`) +
+            FfiConverterString.allocationSize(value.`timestamp`)
     )
 
     override fun write(value: ChannelBroadcastCreateView, buf: ByteBuffer) {
-            FfiConverterString.write(value.`responseJson`, buf)
+            FfiConverterString.write(value.`status`, buf)
+            FfiConverterString.write(value.`action`, buf)
+            FfiConverterString.write(value.`timestamp`, buf)
     }
 }
 
@@ -8845,16 +8972,19 @@ object FfiConverterTypeChannelBroadcastCreateView: FfiConverterRustBuffer<Channe
 object FfiConverterTypeChannelBroadcastListInput: FfiConverterRustBuffer<ChannelBroadcastListInput> {
     override fun read(buf: ByteBuffer): ChannelBroadcastListInput {
         return ChannelBroadcastListInput(
-            FfiConverterString.read(buf),
+            FfiConverterOptionalUInt.read(buf),
+            FfiConverterOptionalUInt.read(buf),
         )
     }
 
     override fun allocationSize(value: ChannelBroadcastListInput) = (
-            FfiConverterString.allocationSize(value.`fieldsJson`)
+            FfiConverterOptionalUInt.allocationSize(value.`page`) +
+            FfiConverterOptionalUInt.allocationSize(value.`pageSize`)
     )
 
     override fun write(value: ChannelBroadcastListInput, buf: ByteBuffer) {
-            FfiConverterString.write(value.`fieldsJson`, buf)
+            FfiConverterOptionalUInt.write(value.`page`, buf)
+            FfiConverterOptionalUInt.write(value.`pageSize`, buf)
     }
 }
 
@@ -8865,15 +8995,21 @@ object FfiConverterTypeChannelBroadcastListView: FfiConverterRustBuffer<ChannelB
     override fun read(buf: ByteBuffer): ChannelBroadcastListView {
         return ChannelBroadcastListView(
             FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
         )
     }
 
     override fun allocationSize(value: ChannelBroadcastListView) = (
-            FfiConverterString.allocationSize(value.`responseJson`)
+            FfiConverterString.allocationSize(value.`status`) +
+            FfiConverterString.allocationSize(value.`action`) +
+            FfiConverterString.allocationSize(value.`timestamp`)
     )
 
     override fun write(value: ChannelBroadcastListView, buf: ByteBuffer) {
-            FfiConverterString.write(value.`responseJson`, buf)
+            FfiConverterString.write(value.`status`, buf)
+            FfiConverterString.write(value.`action`, buf)
+            FfiConverterString.write(value.`timestamp`, buf)
     }
 }
 
@@ -8902,16 +9038,22 @@ object FfiConverterTypeChannelBroadcastSubscribeInput: FfiConverterRustBuffer<Ch
 object FfiConverterTypeChannelContentListInput: FfiConverterRustBuffer<ChannelContentListInput> {
     override fun read(buf: ByteBuffer): ChannelContentListInput {
         return ChannelContentListInput(
-            FfiConverterString.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterOptionalUInt.read(buf),
+            FfiConverterOptionalUInt.read(buf),
         )
     }
 
     override fun allocationSize(value: ChannelContentListInput) = (
-            FfiConverterString.allocationSize(value.`fieldsJson`)
+            FfiConverterULong.allocationSize(value.`channelId`) +
+            FfiConverterOptionalUInt.allocationSize(value.`page`) +
+            FfiConverterOptionalUInt.allocationSize(value.`pageSize`)
     )
 
     override fun write(value: ChannelContentListInput, buf: ByteBuffer) {
-            FfiConverterString.write(value.`fieldsJson`, buf)
+            FfiConverterULong.write(value.`channelId`, buf)
+            FfiConverterOptionalUInt.write(value.`page`, buf)
+            FfiConverterOptionalUInt.write(value.`pageSize`, buf)
     }
 }
 
@@ -8922,15 +9064,21 @@ object FfiConverterTypeChannelContentListView: FfiConverterRustBuffer<ChannelCon
     override fun read(buf: ByteBuffer): ChannelContentListView {
         return ChannelContentListView(
             FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
         )
     }
 
     override fun allocationSize(value: ChannelContentListView) = (
-            FfiConverterString.allocationSize(value.`responseJson`)
+            FfiConverterString.allocationSize(value.`status`) +
+            FfiConverterString.allocationSize(value.`action`) +
+            FfiConverterString.allocationSize(value.`timestamp`)
     )
 
     override fun write(value: ChannelContentListView, buf: ByteBuffer) {
-            FfiConverterString.write(value.`responseJson`, buf)
+            FfiConverterString.write(value.`status`, buf)
+            FfiConverterString.write(value.`action`, buf)
+            FfiConverterString.write(value.`timestamp`, buf)
     }
 }
 
@@ -8940,16 +9088,25 @@ object FfiConverterTypeChannelContentListView: FfiConverterRustBuffer<ChannelCon
 object FfiConverterTypeChannelContentPublishInput: FfiConverterRustBuffer<ChannelContentPublishInput> {
     override fun read(buf: ByteBuffer): ChannelContentPublishInput {
         return ChannelContentPublishInput(
+            FfiConverterULong.read(buf),
             FfiConverterString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
         )
     }
 
     override fun allocationSize(value: ChannelContentPublishInput) = (
-            FfiConverterString.allocationSize(value.`fieldsJson`)
+            FfiConverterULong.allocationSize(value.`channelId`) +
+            FfiConverterString.allocationSize(value.`content`) +
+            FfiConverterOptionalString.allocationSize(value.`title`) +
+            FfiConverterOptionalString.allocationSize(value.`contentType`)
     )
 
     override fun write(value: ChannelContentPublishInput, buf: ByteBuffer) {
-            FfiConverterString.write(value.`fieldsJson`, buf)
+            FfiConverterULong.write(value.`channelId`, buf)
+            FfiConverterString.write(value.`content`, buf)
+            FfiConverterOptionalString.write(value.`title`, buf)
+            FfiConverterOptionalString.write(value.`contentType`, buf)
     }
 }
 
@@ -8960,15 +9117,21 @@ object FfiConverterTypeChannelContentPublishView: FfiConverterRustBuffer<Channel
     override fun read(buf: ByteBuffer): ChannelContentPublishView {
         return ChannelContentPublishView(
             FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
         )
     }
 
     override fun allocationSize(value: ChannelContentPublishView) = (
-            FfiConverterString.allocationSize(value.`responseJson`)
+            FfiConverterString.allocationSize(value.`status`) +
+            FfiConverterString.allocationSize(value.`action`) +
+            FfiConverterString.allocationSize(value.`timestamp`)
     )
 
     override fun write(value: ChannelContentPublishView, buf: ByteBuffer) {
-            FfiConverterString.write(value.`responseJson`, buf)
+            FfiConverterString.write(value.`status`, buf)
+            FfiConverterString.write(value.`action`, buf)
+            FfiConverterString.write(value.`timestamp`, buf)
     }
 }
 
@@ -9525,21 +9688,61 @@ object FfiConverterTypeGetDifferenceView: FfiConverterRustBuffer<GetDifferenceVi
 
 
 
+object FfiConverterTypeGroupApprovalItemView: FfiConverterRustBuffer<GroupApprovalItemView> {
+    override fun read(buf: ByteBuffer): GroupApprovalItemView {
+        return GroupApprovalItemView(
+            FfiConverterString.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterOptionalString.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: GroupApprovalItemView) = (
+            FfiConverterString.allocationSize(value.`requestId`) +
+            FfiConverterULong.allocationSize(value.`userId`) +
+            FfiConverterOptionalString.allocationSize(value.`inviterId`) +
+            FfiConverterOptionalString.allocationSize(value.`qrCodeId`) +
+            FfiConverterOptionalString.allocationSize(value.`message`) +
+            FfiConverterString.allocationSize(value.`createdAt`) +
+            FfiConverterOptionalString.allocationSize(value.`expiresAt`)
+    )
+
+    override fun write(value: GroupApprovalItemView, buf: ByteBuffer) {
+            FfiConverterString.write(value.`requestId`, buf)
+            FfiConverterULong.write(value.`userId`, buf)
+            FfiConverterOptionalString.write(value.`inviterId`, buf)
+            FfiConverterOptionalString.write(value.`qrCodeId`, buf)
+            FfiConverterOptionalString.write(value.`message`, buf)
+            FfiConverterString.write(value.`createdAt`, buf)
+            FfiConverterOptionalString.write(value.`expiresAt`, buf)
+    }
+}
+
+
+
+
 object FfiConverterTypeGroupApprovalListView: FfiConverterRustBuffer<GroupApprovalListView> {
     override fun read(buf: ByteBuffer): GroupApprovalListView {
         return GroupApprovalListView(
             FfiConverterString.read(buf),
+            FfiConverterSequenceTypeGroupApprovalItemView.read(buf),
             FfiConverterULong.read(buf),
         )
     }
 
     override fun allocationSize(value: GroupApprovalListView) = (
-            FfiConverterString.allocationSize(value.`approvalsJson`) +
+            FfiConverterString.allocationSize(value.`groupId`) +
+            FfiConverterSequenceTypeGroupApprovalItemView.allocationSize(value.`approvals`) +
             FfiConverterULong.allocationSize(value.`total`)
     )
 
     override fun write(value: GroupApprovalListView, buf: ByteBuffer) {
-            FfiConverterString.write(value.`approvalsJson`, buf)
+            FfiConverterString.write(value.`groupId`, buf)
+            FfiConverterSequenceTypeGroupApprovalItemView.write(value.`approvals`, buf)
             FfiConverterULong.write(value.`total`, buf)
     }
 }
@@ -9698,16 +9901,31 @@ object FfiConverterTypeGroupMemberRemoteList: FfiConverterRustBuffer<GroupMember
 object FfiConverterTypeGroupMuteAllView: FfiConverterRustBuffer<GroupMuteAllView> {
     override fun read(buf: ByteBuffer): GroupMuteAllView {
         return GroupMuteAllView(
+            FfiConverterBoolean.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
             FfiConverterString.read(buf),
         )
     }
 
     override fun allocationSize(value: GroupMuteAllView) = (
-            FfiConverterString.allocationSize(value.`responseJson`)
+            FfiConverterBoolean.allocationSize(value.`success`) +
+            FfiConverterString.allocationSize(value.`groupId`) +
+            FfiConverterBoolean.allocationSize(value.`allMuted`) +
+            FfiConverterString.allocationSize(value.`message`) +
+            FfiConverterString.allocationSize(value.`operatorId`) +
+            FfiConverterString.allocationSize(value.`updatedAt`)
     )
 
     override fun write(value: GroupMuteAllView, buf: ByteBuffer) {
-            FfiConverterString.write(value.`responseJson`, buf)
+            FfiConverterBoolean.write(value.`success`, buf)
+            FfiConverterString.write(value.`groupId`, buf)
+            FfiConverterBoolean.write(value.`allMuted`, buf)
+            FfiConverterString.write(value.`message`, buf)
+            FfiConverterString.write(value.`operatorId`, buf)
+            FfiConverterString.write(value.`updatedAt`, buf)
     }
 }
 
@@ -9841,16 +10059,40 @@ object FfiConverterTypeGroupSettingsUpdateInput: FfiConverterRustBuffer<GroupSet
 object FfiConverterTypeGroupSettingsView: FfiConverterRustBuffer<GroupSettingsView> {
     override fun read(buf: ByteBuffer): GroupSettingsView {
         return GroupSettingsView(
+            FfiConverterULong.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterString.read(buf),
             FfiConverterString.read(buf),
         )
     }
 
     override fun allocationSize(value: GroupSettingsView) = (
-            FfiConverterString.allocationSize(value.`settingsJson`)
+            FfiConverterULong.allocationSize(value.`groupId`) +
+            FfiConverterBoolean.allocationSize(value.`joinNeedApproval`) +
+            FfiConverterBoolean.allocationSize(value.`memberCanInvite`) +
+            FfiConverterBoolean.allocationSize(value.`allMuted`) +
+            FfiConverterULong.allocationSize(value.`maxMembers`) +
+            FfiConverterOptionalString.allocationSize(value.`announcement`) +
+            FfiConverterOptionalString.allocationSize(value.`description`) +
+            FfiConverterString.allocationSize(value.`createdAt`) +
+            FfiConverterString.allocationSize(value.`updatedAt`)
     )
 
     override fun write(value: GroupSettingsView, buf: ByteBuffer) {
-            FfiConverterString.write(value.`settingsJson`, buf)
+            FfiConverterULong.write(value.`groupId`, buf)
+            FfiConverterBoolean.write(value.`joinNeedApproval`, buf)
+            FfiConverterBoolean.write(value.`memberCanInvite`, buf)
+            FfiConverterBoolean.write(value.`allMuted`, buf)
+            FfiConverterULong.write(value.`maxMembers`, buf)
+            FfiConverterOptionalString.write(value.`announcement`, buf)
+            FfiConverterOptionalString.write(value.`description`, buf)
+            FfiConverterString.write(value.`createdAt`, buf)
+            FfiConverterString.write(value.`updatedAt`, buf)
     }
 }
 
@@ -9975,22 +10217,93 @@ object FfiConverterTypeMentionInput: FfiConverterRustBuffer<MentionInput> {
 
 
 
+object FfiConverterTypeMessageHistoryItemView: FfiConverterRustBuffer<MessageHistoryItemView> {
+    override fun read(buf: ByteBuffer): MessageHistoryItemView {
+        return MessageHistoryItemView(
+            FfiConverterULong.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterOptionalULong.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterOptionalLong.read(buf),
+            FfiConverterOptionalULong.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: MessageHistoryItemView) = (
+            FfiConverterULong.allocationSize(value.`messageId`) +
+            FfiConverterULong.allocationSize(value.`channelId`) +
+            FfiConverterULong.allocationSize(value.`senderId`) +
+            FfiConverterString.allocationSize(value.`content`) +
+            FfiConverterString.allocationSize(value.`messageType`) +
+            FfiConverterString.allocationSize(value.`timestamp`) +
+            FfiConverterOptionalULong.allocationSize(value.`replyToMessageId`) +
+            FfiConverterOptionalString.allocationSize(value.`metadataJson`) +
+            FfiConverterBoolean.allocationSize(value.`revoked`) +
+            FfiConverterOptionalLong.allocationSize(value.`revokedAt`) +
+            FfiConverterOptionalULong.allocationSize(value.`revokedBy`)
+    )
+
+    override fun write(value: MessageHistoryItemView, buf: ByteBuffer) {
+            FfiConverterULong.write(value.`messageId`, buf)
+            FfiConverterULong.write(value.`channelId`, buf)
+            FfiConverterULong.write(value.`senderId`, buf)
+            FfiConverterString.write(value.`content`, buf)
+            FfiConverterString.write(value.`messageType`, buf)
+            FfiConverterString.write(value.`timestamp`, buf)
+            FfiConverterOptionalULong.write(value.`replyToMessageId`, buf)
+            FfiConverterOptionalString.write(value.`metadataJson`, buf)
+            FfiConverterBoolean.write(value.`revoked`, buf)
+            FfiConverterOptionalLong.write(value.`revokedAt`, buf)
+            FfiConverterOptionalULong.write(value.`revokedBy`, buf)
+    }
+}
+
+
+
+
 object FfiConverterTypeMessageHistoryView: FfiConverterRustBuffer<MessageHistoryView> {
     override fun read(buf: ByteBuffer): MessageHistoryView {
         return MessageHistoryView(
-            FfiConverterString.read(buf),
+            FfiConverterSequenceTypeMessageHistoryItemView.read(buf),
             FfiConverterBoolean.read(buf),
         )
     }
 
     override fun allocationSize(value: MessageHistoryView) = (
-            FfiConverterString.allocationSize(value.`messagesJson`) +
+            FfiConverterSequenceTypeMessageHistoryItemView.allocationSize(value.`messages`) +
             FfiConverterBoolean.allocationSize(value.`hasMore`)
     )
 
     override fun write(value: MessageHistoryView, buf: ByteBuffer) {
-            FfiConverterString.write(value.`messagesJson`, buf)
+            FfiConverterSequenceTypeMessageHistoryItemView.write(value.`messages`, buf)
             FfiConverterBoolean.write(value.`hasMore`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeMessageReactionEmojiUsersView: FfiConverterRustBuffer<MessageReactionEmojiUsersView> {
+    override fun read(buf: ByteBuffer): MessageReactionEmojiUsersView {
+        return MessageReactionEmojiUsersView(
+            FfiConverterString.read(buf),
+            FfiConverterSequenceULong.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: MessageReactionEmojiUsersView) = (
+            FfiConverterString.allocationSize(value.`emoji`) +
+            FfiConverterSequenceULong.allocationSize(value.`userIds`)
+    )
+
+    override fun write(value: MessageReactionEmojiUsersView, buf: ByteBuffer) {
+            FfiConverterString.write(value.`emoji`, buf)
+            FfiConverterSequenceULong.write(value.`userIds`, buf)
     }
 }
 
@@ -10000,16 +10313,22 @@ object FfiConverterTypeMessageHistoryView: FfiConverterRustBuffer<MessageHistory
 object FfiConverterTypeMessageReactionListView: FfiConverterRustBuffer<MessageReactionListView> {
     override fun read(buf: ByteBuffer): MessageReactionListView {
         return MessageReactionListView(
-            FfiConverterString.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterSequenceTypeMessageReactionEmojiUsersView.read(buf),
         )
     }
 
     override fun allocationSize(value: MessageReactionListView) = (
-            FfiConverterString.allocationSize(value.`reactionsJson`)
+            FfiConverterBoolean.allocationSize(value.`success`) +
+            FfiConverterULong.allocationSize(value.`totalCount`) +
+            FfiConverterSequenceTypeMessageReactionEmojiUsersView.allocationSize(value.`reactions`)
     )
 
     override fun write(value: MessageReactionListView, buf: ByteBuffer) {
-            FfiConverterString.write(value.`reactionsJson`, buf)
+            FfiConverterBoolean.write(value.`success`, buf)
+            FfiConverterULong.write(value.`totalCount`, buf)
+            FfiConverterSequenceTypeMessageReactionEmojiUsersView.write(value.`reactions`, buf)
     }
 }
 
@@ -10019,16 +10338,22 @@ object FfiConverterTypeMessageReactionListView: FfiConverterRustBuffer<MessageRe
 object FfiConverterTypeMessageReactionStatsView: FfiConverterRustBuffer<MessageReactionStatsView> {
     override fun read(buf: ByteBuffer): MessageReactionStatsView {
         return MessageReactionStatsView(
-            FfiConverterString.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterSequenceTypeMessageReactionEmojiUsersView.read(buf),
         )
     }
 
     override fun allocationSize(value: MessageReactionStatsView) = (
-            FfiConverterString.allocationSize(value.`statsJson`)
+            FfiConverterBoolean.allocationSize(value.`success`) +
+            FfiConverterULong.allocationSize(value.`totalCount`) +
+            FfiConverterSequenceTypeMessageReactionEmojiUsersView.allocationSize(value.`reactions`)
     )
 
     override fun write(value: MessageReactionStatsView, buf: ByteBuffer) {
-            FfiConverterString.write(value.`statsJson`, buf)
+            FfiConverterBoolean.write(value.`success`, buf)
+            FfiConverterULong.write(value.`totalCount`, buf)
+            FfiConverterSequenceTypeMessageReactionEmojiUsersView.write(value.`reactions`, buf)
     }
 }
 
@@ -10038,18 +10363,18 @@ object FfiConverterTypeMessageReactionStatsView: FfiConverterRustBuffer<MessageR
 object FfiConverterTypeMessageReadListView: FfiConverterRustBuffer<MessageReadListView> {
     override fun read(buf: ByteBuffer): MessageReadListView {
         return MessageReadListView(
-            FfiConverterString.read(buf),
+            FfiConverterSequenceTypeMessageReadUserView.read(buf),
             FfiConverterULong.read(buf),
         )
     }
 
     override fun allocationSize(value: MessageReadListView) = (
-            FfiConverterString.allocationSize(value.`readersJson`) +
+            FfiConverterSequenceTypeMessageReadUserView.allocationSize(value.`readers`) +
             FfiConverterULong.allocationSize(value.`total`)
     )
 
     override fun write(value: MessageReadListView, buf: ByteBuffer) {
-            FfiConverterString.write(value.`readersJson`, buf)
+            FfiConverterSequenceTypeMessageReadUserView.write(value.`readers`, buf)
             FfiConverterULong.write(value.`total`, buf)
     }
 }
@@ -10073,6 +10398,37 @@ object FfiConverterTypeMessageReadStatsView: FfiConverterRustBuffer<MessageReadS
     override fun write(value: MessageReadStatsView, buf: ByteBuffer) {
             FfiConverterUInt.write(value.`readCount`, buf)
             FfiConverterUInt.write(value.`totalCount`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeMessageReadUserView: FfiConverterRustBuffer<MessageReadUserView> {
+    override fun read(buf: ByteBuffer): MessageReadUserView {
+        return MessageReadUserView(
+            FfiConverterULong.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: MessageReadUserView) = (
+            FfiConverterULong.allocationSize(value.`userId`) +
+            FfiConverterOptionalString.allocationSize(value.`username`) +
+            FfiConverterOptionalString.allocationSize(value.`nickname`) +
+            FfiConverterOptionalString.allocationSize(value.`avatarUrl`) +
+            FfiConverterOptionalString.allocationSize(value.`readAt`)
+    )
+
+    override fun write(value: MessageReadUserView, buf: ByteBuffer) {
+            FfiConverterULong.write(value.`userId`, buf)
+            FfiConverterOptionalString.write(value.`username`, buf)
+            FfiConverterOptionalString.write(value.`nickname`, buf)
+            FfiConverterOptionalString.write(value.`avatarUrl`, buf)
+            FfiConverterOptionalString.write(value.`readAt`, buf)
     }
 }
 
@@ -10197,16 +10553,40 @@ object FfiConverterTypePresenceStatus: FfiConverterRustBuffer<PresenceStatus> {
 object FfiConverterTypePrivacySettingsView: FfiConverterRustBuffer<PrivacySettingsView> {
     override fun read(buf: ByteBuffer): PrivacySettingsView {
         return PrivacySettingsView(
+            FfiConverterULong.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterBoolean.read(buf),
             FfiConverterString.read(buf),
         )
     }
 
     override fun allocationSize(value: PrivacySettingsView) = (
-            FfiConverterString.allocationSize(value.`settingsJson`)
+            FfiConverterULong.allocationSize(value.`userId`) +
+            FfiConverterBoolean.allocationSize(value.`allowAddByGroup`) +
+            FfiConverterBoolean.allocationSize(value.`allowSearchByPhone`) +
+            FfiConverterBoolean.allocationSize(value.`allowSearchByUsername`) +
+            FfiConverterBoolean.allocationSize(value.`allowSearchByEmail`) +
+            FfiConverterBoolean.allocationSize(value.`allowSearchByQrcode`) +
+            FfiConverterBoolean.allocationSize(value.`allowViewByNonFriend`) +
+            FfiConverterBoolean.allocationSize(value.`allowReceiveMessageFromNonFriend`) +
+            FfiConverterString.allocationSize(value.`updatedAt`)
     )
 
     override fun write(value: PrivacySettingsView, buf: ByteBuffer) {
-            FfiConverterString.write(value.`settingsJson`, buf)
+            FfiConverterULong.write(value.`userId`, buf)
+            FfiConverterBoolean.write(value.`allowAddByGroup`, buf)
+            FfiConverterBoolean.write(value.`allowSearchByPhone`, buf)
+            FfiConverterBoolean.write(value.`allowSearchByUsername`, buf)
+            FfiConverterBoolean.write(value.`allowSearchByEmail`, buf)
+            FfiConverterBoolean.write(value.`allowSearchByQrcode`, buf)
+            FfiConverterBoolean.write(value.`allowViewByNonFriend`, buf)
+            FfiConverterBoolean.write(value.`allowReceiveMessageFromNonFriend`, buf)
+            FfiConverterString.write(value.`updatedAt`, buf)
     }
 }
 
@@ -10241,16 +10621,22 @@ object FfiConverterTypePrivchatConfig: FfiConverterRustBuffer<PrivchatConfig> {
 object FfiConverterTypeProfileUpdateInput: FfiConverterRustBuffer<ProfileUpdateInput> {
     override fun read(buf: ByteBuffer): ProfileUpdateInput {
         return ProfileUpdateInput(
-            FfiConverterString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
         )
     }
 
     override fun allocationSize(value: ProfileUpdateInput) = (
-            FfiConverterString.allocationSize(value.`fieldsJson`)
+            FfiConverterOptionalString.allocationSize(value.`displayName`) +
+            FfiConverterOptionalString.allocationSize(value.`avatarUrl`) +
+            FfiConverterOptionalString.allocationSize(value.`bio`)
     )
 
     override fun write(value: ProfileUpdateInput, buf: ByteBuffer) {
-            FfiConverterString.write(value.`fieldsJson`, buf)
+            FfiConverterOptionalString.write(value.`displayName`, buf)
+            FfiConverterOptionalString.write(value.`avatarUrl`, buf)
+            FfiConverterOptionalString.write(value.`bio`, buf)
     }
 }
 
@@ -10261,15 +10647,64 @@ object FfiConverterTypeProfileView: FfiConverterRustBuffer<ProfileView> {
     override fun read(buf: ByteBuffer): ProfileView {
         return ProfileView(
             FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
         )
     }
 
     override fun allocationSize(value: ProfileView) = (
-            FfiConverterString.allocationSize(value.`profileJson`)
+            FfiConverterString.allocationSize(value.`status`) +
+            FfiConverterString.allocationSize(value.`action`) +
+            FfiConverterString.allocationSize(value.`timestamp`)
     )
 
     override fun write(value: ProfileView, buf: ByteBuffer) {
-            FfiConverterString.write(value.`profileJson`, buf)
+            FfiConverterString.write(value.`status`, buf)
+            FfiConverterString.write(value.`action`, buf)
+            FfiConverterString.write(value.`timestamp`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeQrCodeEntryView: FfiConverterRustBuffer<QrCodeEntryView> {
+    override fun read(buf: ByteBuffer): QrCodeEntryView {
+        return QrCodeEntryView(
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterOptionalUInt.read(buf),
+            FfiConverterBoolean.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: QrCodeEntryView) = (
+            FfiConverterString.allocationSize(value.`qrKey`) +
+            FfiConverterString.allocationSize(value.`qrCode`) +
+            FfiConverterString.allocationSize(value.`qrType`) +
+            FfiConverterString.allocationSize(value.`targetId`) +
+            FfiConverterString.allocationSize(value.`createdAt`) +
+            FfiConverterOptionalString.allocationSize(value.`expireAt`) +
+            FfiConverterUInt.allocationSize(value.`usedCount`) +
+            FfiConverterOptionalUInt.allocationSize(value.`maxUsage`) +
+            FfiConverterBoolean.allocationSize(value.`revoked`)
+    )
+
+    override fun write(value: QrCodeEntryView, buf: ByteBuffer) {
+            FfiConverterString.write(value.`qrKey`, buf)
+            FfiConverterString.write(value.`qrCode`, buf)
+            FfiConverterString.write(value.`qrType`, buf)
+            FfiConverterString.write(value.`targetId`, buf)
+            FfiConverterString.write(value.`createdAt`, buf)
+            FfiConverterOptionalString.write(value.`expireAt`, buf)
+            FfiConverterUInt.write(value.`usedCount`, buf)
+            FfiConverterOptionalUInt.write(value.`maxUsage`, buf)
+            FfiConverterBoolean.write(value.`revoked`, buf)
     }
 }
 
@@ -10316,19 +10751,50 @@ object FfiConverterTypeQrCodeGenerateView: FfiConverterRustBuffer<QrCodeGenerate
 
 
 
-object FfiConverterTypeQrCodeJsonView: FfiConverterRustBuffer<QrCodeJsonView> {
-    override fun read(buf: ByteBuffer): QrCodeJsonView {
-        return QrCodeJsonView(
+object FfiConverterTypeQrCodeListView: FfiConverterRustBuffer<QrCodeListView> {
+    override fun read(buf: ByteBuffer): QrCodeListView {
+        return QrCodeListView(
+            FfiConverterSequenceTypeQrCodeEntryView.read(buf),
+            FfiConverterULong.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: QrCodeListView) = (
+            FfiConverterSequenceTypeQrCodeEntryView.allocationSize(value.`qrKeys`) +
+            FfiConverterULong.allocationSize(value.`total`)
+    )
+
+    override fun write(value: QrCodeListView, buf: ByteBuffer) {
+            FfiConverterSequenceTypeQrCodeEntryView.write(value.`qrKeys`, buf)
+            FfiConverterULong.write(value.`total`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeQrCodeRefreshView: FfiConverterRustBuffer<QrCodeRefreshView> {
+    override fun read(buf: ByteBuffer): QrCodeRefreshView {
+        return QrCodeRefreshView(
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
             FfiConverterString.read(buf),
         )
     }
 
-    override fun allocationSize(value: QrCodeJsonView) = (
-            FfiConverterString.allocationSize(value.`json`)
+    override fun allocationSize(value: QrCodeRefreshView) = (
+            FfiConverterString.allocationSize(value.`oldQrKey`) +
+            FfiConverterString.allocationSize(value.`newQrKey`) +
+            FfiConverterString.allocationSize(value.`newQrCode`) +
+            FfiConverterString.allocationSize(value.`revokedAt`)
     )
 
-    override fun write(value: QrCodeJsonView, buf: ByteBuffer) {
-            FfiConverterString.write(value.`json`, buf)
+    override fun write(value: QrCodeRefreshView, buf: ByteBuffer) {
+            FfiConverterString.write(value.`oldQrKey`, buf)
+            FfiConverterString.write(value.`newQrKey`, buf)
+            FfiConverterString.write(value.`newQrCode`, buf)
+            FfiConverterString.write(value.`revokedAt`, buf)
     }
 }
 
@@ -10366,6 +10832,31 @@ object FfiConverterTypeQrCodeResolveView: FfiConverterRustBuffer<QrCodeResolveVi
             FfiConverterUInt.write(value.`usedCount`, buf)
             FfiConverterOptionalUInt.write(value.`maxUsage`, buf)
             FfiConverterOptionalString.write(value.`expireAt`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeQrCodeRevokeView: FfiConverterRustBuffer<QrCodeRevokeView> {
+    override fun read(buf: ByteBuffer): QrCodeRevokeView {
+        return QrCodeRevokeView(
+            FfiConverterBoolean.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: QrCodeRevokeView) = (
+            FfiConverterBoolean.allocationSize(value.`success`) +
+            FfiConverterString.allocationSize(value.`qrKey`) +
+            FfiConverterString.allocationSize(value.`revokedAt`)
+    )
+
+    override fun write(value: QrCodeRevokeView, buf: ByteBuffer) {
+            FfiConverterBoolean.write(value.`success`, buf)
+            FfiConverterString.write(value.`qrKey`, buf)
+            FfiConverterString.write(value.`revokedAt`, buf)
     }
 }
 
@@ -10420,18 +10911,24 @@ object FfiConverterTypeReactionsBatchItemView: FfiConverterRustBuffer<ReactionsB
     override fun read(buf: ByteBuffer): ReactionsBatchItemView {
         return ReactionsBatchItemView(
             FfiConverterULong.read(buf),
-            FfiConverterString.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterSequenceTypeMessageReactionEmojiUsersView.read(buf),
         )
     }
 
     override fun allocationSize(value: ReactionsBatchItemView) = (
             FfiConverterULong.allocationSize(value.`serverMessageId`) +
-            FfiConverterString.allocationSize(value.`reactionsJson`)
+            FfiConverterBoolean.allocationSize(value.`success`) +
+            FfiConverterULong.allocationSize(value.`totalCount`) +
+            FfiConverterSequenceTypeMessageReactionEmojiUsersView.allocationSize(value.`reactions`)
     )
 
     override fun write(value: ReactionsBatchItemView, buf: ByteBuffer) {
             FfiConverterULong.write(value.`serverMessageId`, buf)
-            FfiConverterString.write(value.`reactionsJson`, buf)
+            FfiConverterBoolean.write(value.`success`, buf)
+            FfiConverterULong.write(value.`totalCount`, buf)
+            FfiConverterSequenceTypeMessageReactionEmojiUsersView.write(value.`reactions`, buf)
     }
 }
 
@@ -10644,6 +11141,46 @@ object FfiConverterTypeSessionSnapshot: FfiConverterRustBuffer<SessionSnapshot> 
 
 
 
+object FfiConverterTypeStickerInfoView: FfiConverterRustBuffer<StickerInfoView> {
+    override fun read(buf: ByteBuffer): StickerInfoView {
+        return StickerInfoView(
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterString.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: StickerInfoView) = (
+            FfiConverterString.allocationSize(value.`stickerId`) +
+            FfiConverterString.allocationSize(value.`packageId`) +
+            FfiConverterString.allocationSize(value.`imageUrl`) +
+            FfiConverterString.allocationSize(value.`altText`) +
+            FfiConverterOptionalString.allocationSize(value.`emoji`) +
+            FfiConverterUInt.allocationSize(value.`width`) +
+            FfiConverterUInt.allocationSize(value.`height`) +
+            FfiConverterString.allocationSize(value.`mimeType`)
+    )
+
+    override fun write(value: StickerInfoView, buf: ByteBuffer) {
+            FfiConverterString.write(value.`stickerId`, buf)
+            FfiConverterString.write(value.`packageId`, buf)
+            FfiConverterString.write(value.`imageUrl`, buf)
+            FfiConverterString.write(value.`altText`, buf)
+            FfiConverterOptionalString.write(value.`emoji`, buf)
+            FfiConverterUInt.write(value.`width`, buf)
+            FfiConverterUInt.write(value.`height`, buf)
+            FfiConverterString.write(value.`mimeType`, buf)
+    }
+}
+
+
+
+
 object FfiConverterTypeStickerPackageDetailInput: FfiConverterRustBuffer<StickerPackageDetailInput> {
     override fun read(buf: ByteBuffer): StickerPackageDetailInput {
         return StickerPackageDetailInput(
@@ -10666,16 +11203,53 @@ object FfiConverterTypeStickerPackageDetailInput: FfiConverterRustBuffer<Sticker
 object FfiConverterTypeStickerPackageDetailView: FfiConverterRustBuffer<StickerPackageDetailView> {
     override fun read(buf: ByteBuffer): StickerPackageDetailView {
         return StickerPackageDetailView(
-            FfiConverterString.read(buf),
+            FfiConverterTypeStickerPackageInfoView.read(buf),
         )
     }
 
     override fun allocationSize(value: StickerPackageDetailView) = (
-            FfiConverterString.allocationSize(value.`responseJson`)
+            FfiConverterTypeStickerPackageInfoView.allocationSize(value.`package`)
     )
 
     override fun write(value: StickerPackageDetailView, buf: ByteBuffer) {
-            FfiConverterString.write(value.`responseJson`, buf)
+            FfiConverterTypeStickerPackageInfoView.write(value.`package`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeStickerPackageInfoView: FfiConverterRustBuffer<StickerPackageInfoView> {
+    override fun read(buf: ByteBuffer): StickerPackageInfoView {
+        return StickerPackageInfoView(
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterSequenceTypeStickerInfoView.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: StickerPackageInfoView) = (
+            FfiConverterString.allocationSize(value.`packageId`) +
+            FfiConverterString.allocationSize(value.`name`) +
+            FfiConverterString.allocationSize(value.`thumbnailUrl`) +
+            FfiConverterString.allocationSize(value.`author`) +
+            FfiConverterString.allocationSize(value.`description`) +
+            FfiConverterULong.allocationSize(value.`stickerCount`) +
+            FfiConverterSequenceTypeStickerInfoView.allocationSize(value.`stickers`)
+    )
+
+    override fun write(value: StickerPackageInfoView, buf: ByteBuffer) {
+            FfiConverterString.write(value.`packageId`, buf)
+            FfiConverterString.write(value.`name`, buf)
+            FfiConverterString.write(value.`thumbnailUrl`, buf)
+            FfiConverterString.write(value.`author`, buf)
+            FfiConverterString.write(value.`description`, buf)
+            FfiConverterULong.write(value.`stickerCount`, buf)
+            FfiConverterSequenceTypeStickerInfoView.write(value.`stickers`, buf)
     }
 }
 
@@ -10684,17 +11258,12 @@ object FfiConverterTypeStickerPackageDetailView: FfiConverterRustBuffer<StickerP
 
 object FfiConverterTypeStickerPackageListInput: FfiConverterRustBuffer<StickerPackageListInput> {
     override fun read(buf: ByteBuffer): StickerPackageListInput {
-        return StickerPackageListInput(
-            FfiConverterString.read(buf),
-        )
+        return StickerPackageListInput()
     }
 
-    override fun allocationSize(value: StickerPackageListInput) = (
-            FfiConverterString.allocationSize(value.`fieldsJson`)
-    )
+    override fun allocationSize(value: StickerPackageListInput) = 0UL
 
     override fun write(value: StickerPackageListInput, buf: ByteBuffer) {
-            FfiConverterString.write(value.`fieldsJson`, buf)
     }
 }
 
@@ -10704,16 +11273,16 @@ object FfiConverterTypeStickerPackageListInput: FfiConverterRustBuffer<StickerPa
 object FfiConverterTypeStickerPackageListView: FfiConverterRustBuffer<StickerPackageListView> {
     override fun read(buf: ByteBuffer): StickerPackageListView {
         return StickerPackageListView(
-            FfiConverterString.read(buf),
+            FfiConverterSequenceTypeStickerPackageInfoView.read(buf),
         )
     }
 
     override fun allocationSize(value: StickerPackageListView) = (
-            FfiConverterString.allocationSize(value.`responseJson`)
+            FfiConverterSequenceTypeStickerPackageInfoView.allocationSize(value.`packages`)
     )
 
     override fun write(value: StickerPackageListView, buf: ByteBuffer) {
-            FfiConverterString.write(value.`responseJson`, buf)
+            FfiConverterSequenceTypeStickerPackageInfoView.write(value.`packages`, buf)
     }
 }
 
@@ -11353,6 +11922,28 @@ object FfiConverterTypeSyncEntityItemView: FfiConverterRustBuffer<SyncEntityItem
 
 
 
+object FfiConverterTypeSyncPayloadEntry: FfiConverterRustBuffer<SyncPayloadEntry> {
+    override fun read(buf: ByteBuffer): SyncPayloadEntry {
+        return SyncPayloadEntry(
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: SyncPayloadEntry) = (
+            FfiConverterString.allocationSize(value.`key`) +
+            FfiConverterString.allocationSize(value.`value`)
+    )
+
+    override fun write(value: SyncPayloadEntry, buf: ByteBuffer) {
+            FfiConverterString.write(value.`key`, buf)
+            FfiConverterString.write(value.`value`, buf)
+    }
+}
+
+
+
+
 object FfiConverterTypeSyncSubmitInput: FfiConverterRustBuffer<SyncSubmitInput> {
     override fun read(buf: ByteBuffer): SyncSubmitInput {
         return SyncSubmitInput(
@@ -11361,7 +11952,7 @@ object FfiConverterTypeSyncSubmitInput: FfiConverterRustBuffer<SyncSubmitInput> 
             FfiConverterUByte.read(buf),
             FfiConverterULong.read(buf),
             FfiConverterString.read(buf),
-            FfiConverterString.read(buf),
+            FfiConverterSequenceTypeSyncPayloadEntry.read(buf),
             FfiConverterLong.read(buf),
             FfiConverterOptionalString.read(buf),
         )
@@ -11373,7 +11964,7 @@ object FfiConverterTypeSyncSubmitInput: FfiConverterRustBuffer<SyncSubmitInput> 
             FfiConverterUByte.allocationSize(value.`channelType`) +
             FfiConverterULong.allocationSize(value.`lastPts`) +
             FfiConverterString.allocationSize(value.`commandType`) +
-            FfiConverterString.allocationSize(value.`payloadJson`) +
+            FfiConverterSequenceTypeSyncPayloadEntry.allocationSize(value.`payloadEntries`) +
             FfiConverterLong.allocationSize(value.`clientTimestamp`) +
             FfiConverterOptionalString.allocationSize(value.`deviceId`)
     )
@@ -11384,7 +11975,7 @@ object FfiConverterTypeSyncSubmitInput: FfiConverterRustBuffer<SyncSubmitInput> 
             FfiConverterUByte.write(value.`channelType`, buf)
             FfiConverterULong.write(value.`lastPts`, buf)
             FfiConverterString.write(value.`commandType`, buf)
-            FfiConverterString.write(value.`payloadJson`, buf)
+            FfiConverterSequenceTypeSyncPayloadEntry.write(value.`payloadEntries`, buf)
             FfiConverterLong.write(value.`clientTimestamp`, buf)
             FfiConverterOptionalString.write(value.`deviceId`, buf)
     }
@@ -11938,6 +12529,59 @@ object FfiConverterTypeUpsertUserInput: FfiConverterRustBuffer<UpsertUserInput> 
 
 
 
+object FfiConverterTypeUserQrCodeGenerateView: FfiConverterRustBuffer<UserQrCodeGenerateView> {
+    override fun read(buf: ByteBuffer): UserQrCodeGenerateView {
+        return UserQrCodeGenerateView(
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: UserQrCodeGenerateView) = (
+            FfiConverterString.allocationSize(value.`qrKey`) +
+            FfiConverterString.allocationSize(value.`qrCode`) +
+            FfiConverterString.allocationSize(value.`createdAt`)
+    )
+
+    override fun write(value: UserQrCodeGenerateView, buf: ByteBuffer) {
+            FfiConverterString.write(value.`qrKey`, buf)
+            FfiConverterString.write(value.`qrCode`, buf)
+            FfiConverterString.write(value.`createdAt`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeUserQrCodeGetView: FfiConverterRustBuffer<UserQrCodeGetView> {
+    override fun read(buf: ByteBuffer): UserQrCodeGetView {
+        return UserQrCodeGetView(
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterUInt.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: UserQrCodeGetView) = (
+            FfiConverterString.allocationSize(value.`qrKey`) +
+            FfiConverterString.allocationSize(value.`qrCode`) +
+            FfiConverterString.allocationSize(value.`createdAt`) +
+            FfiConverterUInt.allocationSize(value.`usedCount`)
+    )
+
+    override fun write(value: UserQrCodeGetView, buf: ByteBuffer) {
+            FfiConverterString.write(value.`qrKey`, buf)
+            FfiConverterString.write(value.`qrCode`, buf)
+            FfiConverterString.write(value.`createdAt`, buf)
+            FfiConverterUInt.write(value.`usedCount`, buf)
+    }
+}
+
+
+
+
 object FfiConverterTypeUserSettingsView: FfiConverterRustBuffer<UserSettingsView> {
     override fun read(buf: ByteBuffer): UserSettingsView {
         return UserSettingsView(
@@ -12005,6 +12649,26 @@ object FfiConverterTypeConnectionState: FfiConverterRustBuffer<ConnectionState> 
     override fun allocationSize(value: ConnectionState) = 4UL
 
     override fun write(value: ConnectionState, buf: ByteBuffer) {
+        buf.putInt(value.ordinal + 1)
+    }
+}
+
+
+
+
+
+
+
+object FfiConverterTypeNetworkHint: FfiConverterRustBuffer<NetworkHint> {
+    override fun read(buf: ByteBuffer) = try {
+        NetworkHint.values()[buf.getInt() - 1]
+    } catch (e: IndexOutOfBoundsException) {
+        throw RuntimeException("invalid enum value, something is very wrong!!", e)
+    }
+
+    override fun allocationSize(value: NetworkHint) = 4UL
+
+    override fun write(value: NetworkHint, buf: ByteBuffer) {
         buf.putInt(value.ordinal + 1)
     }
 }
@@ -12226,6 +12890,35 @@ public object FfiConverterOptionalULong: FfiConverterRustBuffer<kotlin.ULong?> {
         } else {
             buf.put(1)
             FfiConverterULong.write(value, buf)
+        }
+    }
+}
+
+
+
+
+public object FfiConverterOptionalLong: FfiConverterRustBuffer<kotlin.Long?> {
+    override fun read(buf: ByteBuffer): kotlin.Long? {
+        if (buf.get().toInt() == 0) {
+            return null
+        }
+        return FfiConverterLong.read(buf)
+    }
+
+    override fun allocationSize(value: kotlin.Long?): ULong {
+        if (value == null) {
+            return 1UL
+        } else {
+            return 1UL + FfiConverterLong.allocationSize(value)
+        }
+    }
+
+    override fun write(value: kotlin.Long?, buf: ByteBuffer) {
+        if (value == null) {
+            buf.put(0)
+        } else {
+            buf.put(1)
+            FfiConverterLong.write(value, buf)
         }
     }
 }
@@ -12839,6 +13532,31 @@ public object FfiConverterSequenceTypeGetDifferenceCommitView: FfiConverterRustB
 
 
 
+public object FfiConverterSequenceTypeGroupApprovalItemView: FfiConverterRustBuffer<List<GroupApprovalItemView>> {
+    override fun read(buf: ByteBuffer): List<GroupApprovalItemView> {
+        val len = buf.getInt()
+        return List<GroupApprovalItemView>(len) {
+            FfiConverterTypeGroupApprovalItemView.read(buf)
+        }
+    }
+
+    override fun allocationSize(value: List<GroupApprovalItemView>): ULong {
+        val sizeForLength = 4UL
+        val sizeForItems = value.map { FfiConverterTypeGroupApprovalItemView.allocationSize(it) }.sum()
+        return sizeForLength + sizeForItems
+    }
+
+    override fun write(value: List<GroupApprovalItemView>, buf: ByteBuffer) {
+        buf.putInt(value.size)
+        value.iterator().forEach {
+            FfiConverterTypeGroupApprovalItemView.write(it, buf)
+        }
+    }
+}
+
+
+
+
 public object FfiConverterSequenceTypeGroupMemberRemoteEntry: FfiConverterRustBuffer<List<GroupMemberRemoteEntry>> {
     override fun read(buf: ByteBuffer): List<GroupMemberRemoteEntry> {
         val len = buf.getInt()
@@ -12864,6 +13582,81 @@ public object FfiConverterSequenceTypeGroupMemberRemoteEntry: FfiConverterRustBu
 
 
 
+public object FfiConverterSequenceTypeMessageHistoryItemView: FfiConverterRustBuffer<List<MessageHistoryItemView>> {
+    override fun read(buf: ByteBuffer): List<MessageHistoryItemView> {
+        val len = buf.getInt()
+        return List<MessageHistoryItemView>(len) {
+            FfiConverterTypeMessageHistoryItemView.read(buf)
+        }
+    }
+
+    override fun allocationSize(value: List<MessageHistoryItemView>): ULong {
+        val sizeForLength = 4UL
+        val sizeForItems = value.map { FfiConverterTypeMessageHistoryItemView.allocationSize(it) }.sum()
+        return sizeForLength + sizeForItems
+    }
+
+    override fun write(value: List<MessageHistoryItemView>, buf: ByteBuffer) {
+        buf.putInt(value.size)
+        value.iterator().forEach {
+            FfiConverterTypeMessageHistoryItemView.write(it, buf)
+        }
+    }
+}
+
+
+
+
+public object FfiConverterSequenceTypeMessageReactionEmojiUsersView: FfiConverterRustBuffer<List<MessageReactionEmojiUsersView>> {
+    override fun read(buf: ByteBuffer): List<MessageReactionEmojiUsersView> {
+        val len = buf.getInt()
+        return List<MessageReactionEmojiUsersView>(len) {
+            FfiConverterTypeMessageReactionEmojiUsersView.read(buf)
+        }
+    }
+
+    override fun allocationSize(value: List<MessageReactionEmojiUsersView>): ULong {
+        val sizeForLength = 4UL
+        val sizeForItems = value.map { FfiConverterTypeMessageReactionEmojiUsersView.allocationSize(it) }.sum()
+        return sizeForLength + sizeForItems
+    }
+
+    override fun write(value: List<MessageReactionEmojiUsersView>, buf: ByteBuffer) {
+        buf.putInt(value.size)
+        value.iterator().forEach {
+            FfiConverterTypeMessageReactionEmojiUsersView.write(it, buf)
+        }
+    }
+}
+
+
+
+
+public object FfiConverterSequenceTypeMessageReadUserView: FfiConverterRustBuffer<List<MessageReadUserView>> {
+    override fun read(buf: ByteBuffer): List<MessageReadUserView> {
+        val len = buf.getInt()
+        return List<MessageReadUserView>(len) {
+            FfiConverterTypeMessageReadUserView.read(buf)
+        }
+    }
+
+    override fun allocationSize(value: List<MessageReadUserView>): ULong {
+        val sizeForLength = 4UL
+        val sizeForItems = value.map { FfiConverterTypeMessageReadUserView.allocationSize(it) }.sum()
+        return sizeForLength + sizeForItems
+    }
+
+    override fun write(value: List<MessageReadUserView>, buf: ByteBuffer) {
+        buf.putInt(value.size)
+        value.iterator().forEach {
+            FfiConverterTypeMessageReadUserView.write(it, buf)
+        }
+    }
+}
+
+
+
+
 public object FfiConverterSequenceTypePresenceStatus: FfiConverterRustBuffer<List<PresenceStatus>> {
     override fun read(buf: ByteBuffer): List<PresenceStatus> {
         val len = buf.getInt()
@@ -12882,6 +13675,31 @@ public object FfiConverterSequenceTypePresenceStatus: FfiConverterRustBuffer<Lis
         buf.putInt(value.size)
         value.iterator().forEach {
             FfiConverterTypePresenceStatus.write(it, buf)
+        }
+    }
+}
+
+
+
+
+public object FfiConverterSequenceTypeQrCodeEntryView: FfiConverterRustBuffer<List<QrCodeEntryView>> {
+    override fun read(buf: ByteBuffer): List<QrCodeEntryView> {
+        val len = buf.getInt()
+        return List<QrCodeEntryView>(len) {
+            FfiConverterTypeQrCodeEntryView.read(buf)
+        }
+    }
+
+    override fun allocationSize(value: List<QrCodeEntryView>): ULong {
+        val sizeForLength = 4UL
+        val sizeForItems = value.map { FfiConverterTypeQrCodeEntryView.allocationSize(it) }.sum()
+        return sizeForLength + sizeForItems
+    }
+
+    override fun write(value: List<QrCodeEntryView>, buf: ByteBuffer) {
+        buf.putInt(value.size)
+        value.iterator().forEach {
+            FfiConverterTypeQrCodeEntryView.write(it, buf)
         }
     }
 }
@@ -13032,6 +13850,56 @@ public object FfiConverterSequenceTypeServerEndpoint: FfiConverterRustBuffer<Lis
         buf.putInt(value.size)
         value.iterator().forEach {
             FfiConverterTypeServerEndpoint.write(it, buf)
+        }
+    }
+}
+
+
+
+
+public object FfiConverterSequenceTypeStickerInfoView: FfiConverterRustBuffer<List<StickerInfoView>> {
+    override fun read(buf: ByteBuffer): List<StickerInfoView> {
+        val len = buf.getInt()
+        return List<StickerInfoView>(len) {
+            FfiConverterTypeStickerInfoView.read(buf)
+        }
+    }
+
+    override fun allocationSize(value: List<StickerInfoView>): ULong {
+        val sizeForLength = 4UL
+        val sizeForItems = value.map { FfiConverterTypeStickerInfoView.allocationSize(it) }.sum()
+        return sizeForLength + sizeForItems
+    }
+
+    override fun write(value: List<StickerInfoView>, buf: ByteBuffer) {
+        buf.putInt(value.size)
+        value.iterator().forEach {
+            FfiConverterTypeStickerInfoView.write(it, buf)
+        }
+    }
+}
+
+
+
+
+public object FfiConverterSequenceTypeStickerPackageInfoView: FfiConverterRustBuffer<List<StickerPackageInfoView>> {
+    override fun read(buf: ByteBuffer): List<StickerPackageInfoView> {
+        val len = buf.getInt()
+        return List<StickerPackageInfoView>(len) {
+            FfiConverterTypeStickerPackageInfoView.read(buf)
+        }
+    }
+
+    override fun allocationSize(value: List<StickerPackageInfoView>): ULong {
+        val sizeForLength = 4UL
+        val sizeForItems = value.map { FfiConverterTypeStickerPackageInfoView.allocationSize(it) }.sum()
+        return sizeForLength + sizeForItems
+    }
+
+    override fun write(value: List<StickerPackageInfoView>, buf: ByteBuffer) {
+        buf.putInt(value.size)
+        value.iterator().forEach {
+            FfiConverterTypeStickerPackageInfoView.write(it, buf)
         }
     }
 }
@@ -13314,6 +14182,31 @@ public object FfiConverterSequenceTypeSyncEntityItemView: FfiConverterRustBuffer
 
 
 
+public object FfiConverterSequenceTypeSyncPayloadEntry: FfiConverterRustBuffer<List<SyncPayloadEntry>> {
+    override fun read(buf: ByteBuffer): List<SyncPayloadEntry> {
+        val len = buf.getInt()
+        return List<SyncPayloadEntry>(len) {
+            FfiConverterTypeSyncPayloadEntry.read(buf)
+        }
+    }
+
+    override fun allocationSize(value: List<SyncPayloadEntry>): ULong {
+        val sizeForLength = 4UL
+        val sizeForItems = value.map { FfiConverterTypeSyncPayloadEntry.allocationSize(it) }.sum()
+        return sizeForLength + sizeForItems
+    }
+
+    override fun write(value: List<SyncPayloadEntry>, buf: ByteBuffer) {
+        buf.putInt(value.size)
+        value.iterator().forEach {
+            FfiConverterTypeSyncPayloadEntry.write(it, buf)
+        }
+    }
+}
+
+
+
+
 public object FfiConverterSequenceTypeTypingChannelView: FfiConverterRustBuffer<List<TypingChannelView>> {
     override fun read(buf: ByteBuffer): List<TypingChannelView> {
         val len = buf.getInt()
@@ -13372,6 +14265,24 @@ public object FfiConverterSequenceTypeUnreadMentionCount: FfiConverterRustBuffer
 
 
 
+actual fun `buildTime`(): kotlin.String {
+            return FfiConverterString.lift(
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_func_build_time(
+        _status)!!
+}
+    )
+    }
+    
+actual fun `gitSha`(): kotlin.String {
+            return FfiConverterString.lift(
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_func_git_sha(
+        _status)!!
+}
+    )
+    }
+    
 actual fun `sdkVersion`(): kotlin.String {
             return FfiConverterString.lift(
     uniffiRustCall() { _status ->

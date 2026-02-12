@@ -29,3 +29,10 @@ shared/src/androidMain/jniLibs/
 
 # macOS
 .DS_Store
+
+# Local dev artifacts
+.gradle-home/
+.ios-derived-data/
+.repro-logs/
+sample/iosApp/iosApp.xcworkspace/xcuserdata/zoujiaqing.xcuserdatad/UserInterfaceState.xcuserstate
+sample/iosApp/iosApp.xcworkspace/xcuserdata/zoujiaqing.xcuserdatad/xcdebugger/
