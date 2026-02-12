@@ -423,6 +423,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_group_members(void
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_groups(void * ptr, int64_t limit, int64_t offset
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_local_accounts(void * ptr
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_message_reactions(void * ptr, int64_t messageId, int64_t limit, int64_t offset
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_messages(void * ptr, int64_t channelId, int32_t channelType, int64_t limit, int64_t offset
@@ -597,6 +599,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_channel_low_priorit
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_channel_notification_mode(void * ptr, int64_t channelId, int32_t channelType, int32_t mode
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_current_uid(void * ptr, RustBuffer uid
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_pinned(void * ptr, int64_t messageId, int8_t isPinned
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_read(void * ptr, int64_t messageId, int64_t channelId, int32_t channelType, int8_t isRead
@@ -706,6 +710,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_get(void * 
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_refresh(void * ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_storage_paths(void * ptr
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_wipe_current_user_full(void * ptr
 );
 RustBuffer uniffi_privchat_sdk_ffi_fn_func_build_time(UniffiRustCallStatus *_Nonnull out_status
     
@@ -1236,6 +1242,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_group_member
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_groups(void
     
 );
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_local_accounts(void
+    
+);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_message_reactions(void
     
 );
@@ -1497,6 +1506,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_channel_low_p
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_channel_notification_mode(void
     
 );
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_current_uid(void
+    
+);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_pinned(void
     
 );
@@ -1660,6 +1672,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_refre
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_storage_paths(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_wipe_current_user_full(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_constructor_privchatclient_new(void

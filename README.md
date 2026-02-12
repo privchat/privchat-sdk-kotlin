@@ -71,50 +71,78 @@ cd ../privchat-sdk-kotlin
 
 ## FFI 头文件与静态库生成方法（privchat-rust）
 
-修改 Rust 侧 `privchat-sdk-ffi` 接口（如新增/修改 FFI 方法）后，需更新 C 头文件并重新编译各平台 `.a`，Kotlin cinterop 才能正确解析并链接。
+修改 Rust 侧 `privchat-sdk-ffi` 接口（如新增/修改 FFI 方法）后，需要更新头文件并重新编译各目标 `.a`。
 
-**1. 修改 Rust 并本地编译通过**
+下面提供两种方式（二选一）：
+
+- 方式 A：标准 UniFFI 命令（官方 `uniffi-bindgen`）
+- 方式 B：KMP bindgen（`uniffi-kotlin-multiplatform-bindings`，一并刷新 Kotlin 生成代码）
+
+### 方式 A：标准 UniFFI（官方）
+
+适用：你只想走标准 UniFFI 头文件生成链路。
 
 ```bash
+# 1) 编译 host dylib
 cd ../privchat-rust
 cargo build -p privchat-sdk-ffi --release
-```
 
-**2. 重新生成 C 头文件（Swift 绑定目录）**
-
-头文件路径：`privchat-rust/crates/privchat-sdk-ffi/bindings/swift/PrivchatSDKFFI.h`。  
-**注意**：若升级了 UniFFI（例如从 0.31 切到 main），必须重新执行本步骤并重新编译各 target 的 `libprivchat_sdk_ffi.a`，否则 iOS 可能 EXC_BAD_ACCESS。  
-若 UniFFI 未为新增的同步方法生成 C 声明，需在该头文件中**手动**添加对应声明（例如 `void uniffi_privchat_ffi_fn_method_privchatsdk_xxx(...RustCallStatus *_Nonnull out_status);`）。
-
-```bash
-cd privchat-rust/crates/privchat-sdk-ffi
+# 2) 生成 Swift/C 头（标准 UniFFI 命令）
+cd crates/privchat-sdk-ffi
 cargo run --manifest-path uniffi-bindgen/Cargo.toml --release -- \
   generate ../../target/release/libprivchat_sdk_ffi.dylib \
   --language swift --out-dir bindings/swift --config uniffi.toml
+
+# 3) 编译目标静态库（按需）
+cd ../../
+cargo build -p privchat-sdk-ffi --release --target aarch64-apple-ios-sim
+cargo build -p privchat-sdk-ffi --release --target aarch64-apple-ios
 ```
 
-**3. 为各 Apple 目标编译静态库 `.a`**
+### 方式 B：KMP bindgen（推荐在 FFI 接口有变更时使用）
 
-cinterop 的 `libraryPaths` 指向 `privchat-rust/target/<target>/release/`，需为用到的目标各编一份 `libprivchat_sdk_ffi.a`：
+适用：Rust FFI 方法/类型有改动，需要同步刷新 `shared/src/**/uniffi/privchat_sdk_ffi/*` 和 cinterop 头文件。
 
 ```bash
-cd privchat-rust
-cargo build -p privchat-sdk-ffi --release --target aarch64-apple-ios-sim   # iOS 模拟器 (M1)
-cargo build -p privchat-sdk-ffi --release --target aarch64-apple-ios        # 真机
-cargo build -p privchat-sdk-ffi --release --target x86_64-apple-ios         # Intel 模拟器（按需）
-cargo build -p privchat-sdk-ffi --release --target aarch64-apple-darwin     # macOS ARM（按需）
-cargo build -p privchat-sdk-ffi --release --target x86_64-apple-darwin      # macOS x64（按需）
+# 1) 编译 host dylib
+cd ../privchat-rust
+cargo build -p privchat-sdk-ffi --release
+
+# 2) 用 KMP bindgen 生成 Kotlin + cinterop 产物
+KMP_BINDGEN=../uniffi-kotlin-multiplatform-bindings/target/release/uniffi-bindgen-kotlin-multiplatform
+OUT_DIR=$(mktemp -d /tmp/privchat-uniffi-gen-XXXXXX)
+
+"$KMP_BINDGEN" \
+  --library \
+  --crate privchat_sdk_ffi \
+  --config ../privchat-rust/crates/privchat-sdk-ffi/uniffi.toml \
+  --out-dir "$OUT_DIR" \
+  ../privchat-rust/target/release/libprivchat_sdk_ffi.dylib
+
+# 3) 覆盖到 privchat-sdk-kotlin
+install -m 0644 "$OUT_DIR/commonMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.common.kt" \
+  shared/src/commonMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.common.kt
+install -m 0644 "$OUT_DIR/nativeMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.native.kt" \
+  shared/src/nativeMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.native.kt
+install -m 0644 "$OUT_DIR/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt" \
+  shared/src/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt
+install -m 0644 "$OUT_DIR/nativeInterop/cinterop/headers/privchat_sdk_ffi/privchat_sdk_ffi.h" \
+  shared/src/nativeInterop/cinterop/privchat_sdk_ffi.h
+
+# 4) 编译目标静态库（按需）
+cargo build -p privchat-sdk-ffi --release --target aarch64-apple-ios-sim
+cargo build -p privchat-sdk-ffi --release --target aarch64-apple-ios
 ```
 
-**4. 再编 Kotlin / 跑应用**
+### 验证
 
 ```bash
-cd privchat-sdk-kotlin
-./gradlew :shared:compileKotlinIosSimulatorArm64   # 仅 iOS 模拟器
-# 或在包含本库的工程（如 privchat-ui）中执行对应 app 的 iOS 编译与运行
+cd ../privchat-sdk-kotlin
+./gradlew :shared:compileKotlinIosSimulatorArm64
+./gradlew :shared:compileDebugKotlinAndroid
 ```
 
-说明：本项目**不产出 XCFramework**，各平台使用 `privchat_sdk_ffi.def` 中的 `libraryPaths` 直接链接上述 `target/<triple>/release/libprivchat_sdk_ffi.a`。
+说明：本项目**不产出 XCFramework**，各平台使用 `privchat_sdk_ffi.def` 中的 `libraryPaths` 直接链接 `target/<triple>/release/libprivchat_sdk_ffi.a`。
 
 ## Sample
 
