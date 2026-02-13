@@ -1,14 +1,18 @@
 package io.privchat.sdk
 
+import android.util.Log
 import io.privchat.sdk.dto.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -108,10 +112,10 @@ actual class PrivchatClient private actual constructor() {
     }
 
     actual suspend fun setNetworkHint(hint: NetworkHint): Result<Unit> {
-        // FFI bindings may not expose network hint on all generated targets yet.
-        // Keep API stable on Android and treat it as a no-op when unsupported.
-        requireClient().getOrElse { return Result.failure(it) }
-        return Result.success(Unit)
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("setNetworkHint failed") {
+            c.setNetworkHint(hint.toCoreNetworkHint())
+        }
     }
 
     actual fun close() {
@@ -155,6 +159,35 @@ actual class PrivchatClient private actual constructor() {
             onFailure = { Result.failure(it) },
         )
 
+    actual suspend fun nextEvent(timeoutMs: ULong): Result<SdkEventEnvelope?> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val raw = c.rpcCall("__sdk.next_event_json", """{"timeout_ms":$timeoutMs}""")
+            if (raw == "null") null else parseSdkEventEnvelope(raw)
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("nextEvent failed", it)) },
+        )
+    }
+
+    actual suspend fun recentEvents(limit: ULong): Result<List<SdkEventEnvelope>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val raw = c.rpcCall("__sdk.recent_events_json", """{"limit":$limit}""")
+            parseSdkEventEnvelopeList(raw)
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("recentEvents failed", it)) },
+        )
+    }
+
+    actual fun observeEvents(timeoutMs: ULong): Flow<SdkEventEnvelope> = flow {
+        while (currentCoroutineContext().isActive) {
+            val next = nextEvent(timeoutMs).getOrElse { throw it }
+            if (next != null) emit(next)
+        }
+    }
+
     actual suspend fun register(username: String, password: String, deviceId: String): Result<AuthResult> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
@@ -188,6 +221,20 @@ actual class PrivchatClient private actual constructor() {
             cachedUserId = userId
             cachedConnectionState = ConnectionState.Connected
         }
+    }
+
+    actual suspend fun restoreLocalSession(): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val snapshot = c.sessionSnapshot() ?: return@runCatching false
+            c.authenticate(snapshot.userId, snapshot.token, snapshot.deviceId)
+            cachedUserId = snapshot.userId
+            cachedConnectionState = ConnectionState.Connected
+            true
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("restoreLocalSession failed", it)) },
+        )
     }
 
     actual suspend fun logout(): Result<Unit> {
@@ -381,10 +428,49 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun listLocalAccounts(): Result<List<LocalAccountInfo>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.listLocalAccounts().map {
+                LocalAccountInfo(
+                    uid = it.uid,
+                    createdAt = it.createdAt,
+                    lastLoginAt = it.lastLoginAt,
+                    isActive = it.isActive,
+                )
+            }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("listLocalAccounts failed", it)) },
+        )
+    }
+
+    actual suspend fun setCurrentUid(uid: String): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("setCurrentUid failed") {
+            c.setCurrentUid(uid)
+            cachedUserId = uid.toULongOrNull()
+        }
+    }
+
     actual suspend fun getChannels(limit: UInt, offset: UInt): Result<List<ChannelListEntry>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
-            c.getChannels(limit.toULong(), offset.toULong()).map { it.toCommonChannel() }
+            val raw = c.getChannels(limit.toULong(), offset.toULong())
+            raw.forEachIndexed { idx, ch ->
+                Log.i(
+                    "PrivchatClient",
+                    "[DBG][rawChannel][$idx] id=${ch.channelId} type=${ch.channelType} channelName='${ch.channelName}' remark='${ch.channelRemark}' unread=${ch.unreadCount}"
+                )
+            }
+            raw.map { it.toCommonChannel() }.also { mapped ->
+                mapped.forEachIndexed { idx, ch ->
+                    Log.i(
+                        "PrivchatClient",
+                        "[DBG][mappedChannel][$idx] id=${ch.channelId} type=${ch.channelType} isDm=${ch.isDm} name='${ch.name}'"
+                    )
+                }
+            }
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("getChannels failed", it)) },
@@ -900,7 +986,9 @@ actual class PrivchatClient private actual constructor() {
     actual fun setVideoProcessHook(hook: VideoProcessHook?) {
         videoHook = hook
         val client = coreClient ?: return
-        runCatching { client.setVideoProcessHook() }
+        backgroundScope.launch {
+            runCatching { client.setVideoProcessHook() }
+        }
     }
 
     actual fun removeVideoProcessHook() {
@@ -944,7 +1032,7 @@ actual class PrivchatClient private actual constructor() {
         private fun toSdkErrorStatic(prefix: String, t: Throwable): SdkError {
             return when (t) {
                 is SdkError -> t
-                is PrivchatFfiException.SdkException -> SdkError.Generic("$prefix [${t.code}]: ${t.detail}")
+                is PrivchatFfiException.SdkException -> mapFfiCodeToSdkError(prefix, t.code.toUInt(), t.detail)
                 else -> SdkError.Generic("$prefix: ${t.message ?: t::class.simpleName ?: "unknown"}")
             }
         }
@@ -965,8 +1053,25 @@ actual class PrivchatClient private actual constructor() {
     private fun toSdkError(prefix: String, t: Throwable): SdkError {
         return when (t) {
             is SdkError -> t
-            is PrivchatFfiException.SdkException -> SdkError.Generic("$prefix [${t.code}]: ${t.detail}")
+            is PrivchatFfiException.SdkException -> mapFfiCodeToSdkError(prefix, t.code.toUInt(), t.detail)
             else -> SdkError.Generic("$prefix: ${t.message ?: t::class.simpleName ?: "unknown"}")
+        }
+    }
+}
+
+private fun mapFfiCodeToSdkError(prefix: String, code: UInt, detail: String): SdkError = when (code) {
+    SdkErrorCodes.NETWORK_DISCONNECTED,
+    SdkErrorCodes.SHUTDOWN -> SdkError.Disconnected
+    SdkErrorCodes.TRANSPORT_FAILURE -> SdkError.Network("$prefix: $detail", code.toInt())
+    SdkErrorCodes.STORAGE_FAILURE -> SdkError.Database("$prefix: $detail")
+    SdkErrorCodes.AUTH_FAILURE -> SdkError.Authentication("$prefix: $detail")
+    SdkErrorCodes.INVALID_STATE -> SdkError.InvalidParameter("state", "$prefix: $detail")
+    else -> {
+        when (SdkErrorCodes.domain(code)) {
+            SdkErrorCodes.DOMAIN_TRANSPORT -> SdkError.Network("$prefix: $detail", code.toInt())
+            SdkErrorCodes.DOMAIN_STORAGE -> SdkError.Database("$prefix: $detail")
+            SdkErrorCodes.DOMAIN_AUTH -> SdkError.Authentication("$prefix: $detail")
+            else -> SdkError.Generic("$prefix [${code.toString(16)}]: $detail")
         }
     }
 }
@@ -1059,6 +1164,54 @@ private fun CoreConnectionState.toCommonConnectionState(): ConnectionState = whe
     CoreConnectionState.LOGGED_IN -> ConnectionState.Connected
     CoreConnectionState.AUTHENTICATED -> ConnectionState.Connected
     CoreConnectionState.SHUTDOWN -> ConnectionState.Disconnected
+}
+
+private fun NetworkHint.toCoreNetworkHint(): uniffi.privchat_sdk_ffi.NetworkHint = when (this) {
+    NetworkHint.Unknown -> uniffi.privchat_sdk_ffi.NetworkHint.UNKNOWN
+    NetworkHint.Offline -> uniffi.privchat_sdk_ffi.NetworkHint.OFFLINE
+    NetworkHint.Wifi -> uniffi.privchat_sdk_ffi.NetworkHint.WIFI
+    NetworkHint.Cellular -> uniffi.privchat_sdk_ffi.NetworkHint.CELLULAR
+    NetworkHint.Ethernet -> uniffi.privchat_sdk_ffi.NetworkHint.ETHERNET
+}
+
+private fun parseSdkEventEnvelope(raw: String): SdkEventEnvelope {
+    val obj = parseJsonObject(raw)
+    val eventObj = obj.obj("event") ?: JsonObject(emptyMap())
+    return SdkEventEnvelope(
+        sequenceId = obj.ulong("sequence_id") ?: obj.ulong("sequenceId") ?: 0uL,
+        timestampMs = obj.long("timestamp_ms") ?: obj.long("timestampMs") ?: 0L,
+        event = SdkEventPayload(
+            type = eventObj.string("type") ?: "unknown",
+            fromState = eventObj.string("from_state") ?: eventObj.string("fromState"),
+            toState = eventObj.string("to_state") ?: eventObj.string("toState"),
+            fromNetworkHint = eventObj.string("from_network_hint") ?: eventObj.string("fromNetworkHint"),
+            toNetworkHint = eventObj.string("to_network_hint") ?: eventObj.string("toNetworkHint"),
+            userId = eventObj.ulong("user_id") ?: eventObj.ulong("userId"),
+            entityType = eventObj.string("entity_type") ?: eventObj.string("entityType"),
+            entityId = eventObj.string("entity_id") ?: eventObj.string("entityId"),
+            scope = eventObj.string("scope"),
+            deleted = eventObj.bool("deleted"),
+            channelId = eventObj.ulong("channel_id") ?: eventObj.ulong("channelId"),
+            channelType = (eventObj.long("channel_type") ?: eventObj.long("channelType"))?.toInt(),
+            messageId = eventObj.ulong("message_id") ?: eventObj.ulong("messageId"),
+            reason = eventObj.string("reason"),
+            status = eventObj.long("status")?.toInt(),
+            serverMessageId = eventObj.ulong("server_message_id") ?: eventObj.ulong("serverMessageId"),
+            isRead = eventObj.bool("is_read") ?: eventObj.bool("isRead"),
+            isTyping = eventObj.bool("is_typing") ?: eventObj.bool("isTyping"),
+            kind = eventObj.string("kind"),
+            action = eventObj.string("action"),
+            queueIndex = eventObj.ulong("queue_index") ?: eventObj.ulong("queueIndex"),
+            queued = eventObj.ulong("queued"),
+            applied = eventObj.ulong("applied"),
+            droppedDuplicates = eventObj.ulong("dropped_duplicates") ?: eventObj.ulong("droppedDuplicates"),
+        ),
+    )
+}
+
+private fun parseSdkEventEnvelopeList(raw: String): List<SdkEventEnvelope> {
+    val arr = parseJsonElement(raw) as? JsonArray ?: return emptyList()
+    return arr.map { parseSdkEventEnvelope(it.toString()) }
 }
 
 private fun decodeSeenBy(raw: String, limit: UInt?): List<SeenByEntry> {

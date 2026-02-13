@@ -27,5 +27,11 @@ actual object PrivchatPlatform {
         return id
     }
 
+    actual fun localAccountUids(): List<String> = emptyList()
+
+    actual fun setCurrentUid(uid: String): Boolean = false
+
+    actual fun currentUid(): String? = null
+
     actual fun navigateToMainTabPage(): Boolean = false
 }

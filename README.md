@@ -69,6 +69,30 @@ cd ../privchat-sdk-kotlin
 ./gradlew :shared:compileKotlinMingwX64   # Windows Desktop
 ```
 
+## 日常脚本（推荐固定流程）
+
+修改 Rust FFI（UDL/ffi 导出）后，统一使用下面顺序：
+
+```bash
+cd /Users/zoujiaqing/projects/privchat/privchat-sdk-kotlin
+source ~/.zshrc
+./scripts/regenerate-uniffi.sh
+./build-ios.sh
+./scripts/gate-smoke.sh
+```
+
+- `scripts/regenerate-uniffi.sh`：生成 UniFFI 绑定、刷新头文件并做 Kotlin 编译校验（失败自动回滚生成文件）。
+- `build-ios.sh`：构建 iOS 所需 Rust 静态库并同步 iOS framework。
+- `scripts/gate-smoke.sh`：执行 Rust + Kotlin(Android/iOS shared) 门禁编译检查。
+
+如果只改 Kotlin 业务代码（未改 Rust FFI），可直接执行：
+
+```bash
+cd /Users/zoujiaqing/projects/privchat/privchat-sdk-kotlin
+source ~/.zshrc
+./scripts/gate-smoke.sh
+```
+
 ## FFI 头文件与静态库生成方法（privchat-rust）
 
 修改 Rust 侧 `privchat-sdk-ffi` 接口（如新增/修改 FFI 方法）后，需要更新头文件并重新编译各目标 `.a`。
@@ -99,39 +123,23 @@ cargo build -p privchat-sdk-ffi --release --target aarch64-apple-ios-sim
 cargo build -p privchat-sdk-ffi --release --target aarch64-apple-ios
 ```
 
-### 方式 B：KMP bindgen（推荐在 FFI 接口有变更时使用）
+### 方式 B：KMP bindgen（推荐）
 
-适用：Rust FFI 方法/类型有改动，需要同步刷新 `shared/src/**/uniffi/privchat_sdk_ffi/*` 和 cinterop 头文件。
+适用：Rust FFI 方法/类型有改动，需要同步刷新 `shared/src/**/uniffi/privchat_sdk_ffi/*` 与 cinterop 头文件。
+
+优先使用脚本（一键生成+安装+编译校验）：
 
 ```bash
-# 1) 编译 host dylib
-cd ../privchat-rust
-cargo build -p privchat-sdk-ffi --release
+cd ../privchat-sdk-kotlin
+./scripts/regenerate-uniffi.sh
+```
 
-# 2) 用 KMP bindgen 生成 Kotlin + cinterop 产物
-KMP_BINDGEN=../uniffi-kotlin-multiplatform-bindings/target/release/uniffi-bindgen-kotlin-multiplatform
-OUT_DIR=$(mktemp -d /tmp/privchat-uniffi-gen-XXXXXX)
+脚本会在编译校验失败时自动回滚生成文件，避免把不可编译产物写入工作区。
 
-"$KMP_BINDGEN" \
-  --library \
-  --crate privchat_sdk_ffi \
-  --config ../privchat-rust/crates/privchat-sdk-ffi/uniffi.toml \
-  --out-dir "$OUT_DIR" \
-  ../privchat-rust/target/release/libprivchat_sdk_ffi.dylib
+可选：如果 `uniffi-bindgen-kotlin-multiplatform` 不在默认路径，先指定：
 
-# 3) 覆盖到 privchat-sdk-kotlin
-install -m 0644 "$OUT_DIR/commonMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.common.kt" \
-  shared/src/commonMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.common.kt
-install -m 0644 "$OUT_DIR/nativeMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.native.kt" \
-  shared/src/nativeMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.native.kt
-install -m 0644 "$OUT_DIR/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt" \
-  shared/src/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt
-install -m 0644 "$OUT_DIR/nativeInterop/cinterop/headers/privchat_sdk_ffi/privchat_sdk_ffi.h" \
-  shared/src/nativeInterop/cinterop/privchat_sdk_ffi.h
-
-# 4) 编译目标静态库（按需）
-cargo build -p privchat-sdk-ffi --release --target aarch64-apple-ios-sim
-cargo build -p privchat-sdk-ffi --release --target aarch64-apple-ios
+```bash
+KMP_BINDGEN=/abs/path/to/uniffi-bindgen-kotlin-multiplatform ./scripts/regenerate-uniffi.sh
 ```
 
 ### 验证
@@ -143,6 +151,7 @@ cd ../privchat-sdk-kotlin
 ```
 
 说明：本项目**不产出 XCFramework**，各平台使用 `privchat_sdk_ffi.def` 中的 `libraryPaths` 直接链接 `target/<triple>/release/libprivchat_sdk_ffi.a`。
+请不要手动编辑 `shared/src/**/uniffi/privchat_sdk_ffi/*`，统一通过 `scripts/regenerate-uniffi.sh` 刷新。
 
 ## Sample
 

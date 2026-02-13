@@ -220,3 +220,57 @@ pages/
 
 所有示例代码都在 `sample/src/commonMain/kotlin/io/privchat/sdk/kotlin/sample/pages/` 目录下，你可以直接参考和修改。
 
+## 新 FFI API 调用示例（账号本地目录能力）
+
+以下示例对应 Rust 新增的本地账号接口：
+- `listLocalAccounts()`
+- `wipeCurrentUserFull()`
+
+建议放在 `SettingPage` 的按钮事件中调用。
+
+```kotlin
+import io.privchat.sdk.kotlin.sample.privchat.PrivchatClientHolder
+import io.privchat.sdk.kotlin.sample.privchat.PrivchatMainDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+
+private fun debugListLocalAccounts() {
+    val client = PrivchatClientHolder.client ?: return
+    CoroutineScope(PrivchatMainDispatcher.main).launch {
+        val result = client.listLocalAccounts()
+        result.onSuccess { accounts ->
+            accounts.forEach {
+                println(
+                    "[local-account] uid=${it.uid} active=${it.isActive} " +
+                        "createdAt=${it.createdAt} lastLoginAt=${it.lastLoginAt}"
+                )
+            }
+        }.onFailure { e ->
+            println("[local-account] list failed: ${e.message}")
+        }
+    }
+}
+```
+
+```kotlin
+import io.privchat.sdk.kotlin.sample.privchat.PrivchatClientHolder
+import io.privchat.sdk.kotlin.sample.privchat.PrivchatMainDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+
+private fun debugWipeCurrentUserFull() {
+    val client = PrivchatClientHolder.client ?: return
+    CoroutineScope(PrivchatMainDispatcher.main).launch {
+        val result = client.wipeCurrentUserFull()
+        result.onSuccess {
+            // 清理 sample 侧持有引用
+            PrivchatClientHolder.clear()
+            println("[local-account] wipe current user success")
+        }.onFailure { e ->
+            println("[local-account] wipe current user failed: ${e.message}")
+        }
+    }
+}
+```
+
+如果你当前 `shared` 绑定代码里还没有这两个方法，先同步/刷新一次 rust->uniffi->kotlin 生成产物，再把上面的片段粘到页面按钮事件即可。

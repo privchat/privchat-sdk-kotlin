@@ -1,6 +1,7 @@
 package io.privchat.sdk
 
 import io.privchat.sdk.dto.*
+import kotlinx.coroutines.flow.Flow
 
 /**
  * 解析服务器 URL 为 ServerEndpoint（使用 SDK 内置解析逻辑）
@@ -24,11 +25,15 @@ expect class PrivchatClient private constructor() {
     fun connectionState(): ConnectionState
     fun currentUserId(): ULong?
     suspend fun shutdown(): Result<Unit>
+    suspend fun nextEvent(timeoutMs: ULong = 1000u): Result<SdkEventEnvelope?>
+    suspend fun recentEvents(limit: ULong = 100u): Result<List<SdkEventEnvelope>>
+    fun observeEvents(timeoutMs: ULong = 1000u): Flow<SdkEventEnvelope>
 
     // ========== Auth ==========
     suspend fun register(username: String, password: String, deviceId: String): Result<AuthResult>
     suspend fun login(username: String, password: String, deviceId: String): Result<AuthResult>
     suspend fun authenticate(userId: ULong, token: String, deviceId: String): Result<Unit>
+    suspend fun restoreLocalSession(): Result<Boolean>
     suspend fun logout(): Result<Unit>
 
     // ========== Messaging ==========
@@ -53,6 +58,8 @@ expect class PrivchatClient private constructor() {
     suspend fun getMessageById(messageId: ULong): Result<MessageEntry?>
     suspend fun paginateBack(channelId: ULong, beforeSeq: ULong, limit: UInt): Result<List<MessageEntry>>
     suspend fun paginateForward(channelId: ULong, afterSeq: ULong, limit: UInt): Result<List<MessageEntry>>
+    suspend fun listLocalAccounts(): Result<List<LocalAccountInfo>>
+    suspend fun setCurrentUid(uid: String): Result<Unit>
     suspend fun getChannels(limit: UInt, offset: UInt): Result<List<ChannelListEntry>>
     suspend fun getFriends(limit: UInt?, offset: UInt?): Result<List<FriendEntry>>
     suspend fun getGroups(limit: UInt?, offset: UInt?): Result<List<GroupEntry>>

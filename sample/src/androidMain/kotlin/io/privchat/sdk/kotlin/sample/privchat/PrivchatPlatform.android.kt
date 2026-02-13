@@ -31,6 +31,36 @@ actual object PrivchatPlatform {
         return id
     }
 
+    actual fun localAccountUids(): List<String> {
+        val usersDir = File(dataDir(), "users")
+        if (!usersDir.exists() || !usersDir.isDirectory) return emptyList()
+        return usersDir.listFiles()
+            ?.asSequence()
+            ?.filter { it.isDirectory }
+            ?.map { it.name }
+            ?.sorted()
+            ?.toList()
+            ?: emptyList()
+    }
+
+    actual fun setCurrentUid(uid: String): Boolean {
+        if (uid.isBlank()) return false
+        return runCatching {
+            val f = File(dataDir(), "current_user")
+            f.parentFile?.mkdirs()
+            f.writeText(uid)
+            true
+        }.getOrDefault(false)
+    }
+
+    actual fun currentUid(): String? {
+        return runCatching {
+            val f = File(dataDir(), "current_user")
+            if (!f.exists() || !f.isFile) return null
+            f.readText().trim().ifBlank { null }
+        }.getOrNull()
+    }
+
     actual fun navigateToMainTabPage(): Boolean {
         val appCtx = ctx ?: return false
         return runCatching {

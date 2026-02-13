@@ -15,6 +15,7 @@ import com.tencent.kuikly.core.views.View
 import io.privchat.sdk.kotlin.sample.base.BasePager
 import io.privchat.sdk.kotlin.sample.lang.LangManager
 import io.privchat.sdk.kotlin.sample.lang.MultiLingualPager
+import io.privchat.sdk.kotlin.sample.privchat.PrivchatClientHolder
 import io.privchat.sdk.kotlin.sample.theme.ThemeManager
 
 /**
@@ -128,6 +129,23 @@ internal class ProfilePage : MultiLingualPager() {
                             }
                         }
                     }
+
+                    SettingItem {
+                        attr {
+                            title = "切换账号"
+                            showArrow = true
+                        }
+                        event {
+                            click {
+                                val pageData = JSONObject()
+                                PrivchatClientHolder.client?.currentUserId()?.let {
+                                    pageData.put("current_uid", it.toString())
+                                }
+                                getPager().acquireModule<RouterModule>(RouterModule.MODULE_NAME)
+                                    .openPage("SwitchAccountPage", pageData)
+                            }
+                        }
+                    }
                     
                     // 分割线
                     View {
@@ -223,4 +241,3 @@ internal fun ViewContainer<*, *>.SettingItem(init: SettingItem.() -> Unit) {
 internal fun ViewContainer<*, *>.ProfilePage(init: ProfilePage.() -> Unit) {
     addChild(ProfilePage(), init)
 }
-

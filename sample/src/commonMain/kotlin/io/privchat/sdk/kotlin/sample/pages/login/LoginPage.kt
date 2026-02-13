@@ -26,24 +26,34 @@ private const val OPEN_PAGE_DELAY_MS = 150
 /** connect() 返回后、login/register 前等待，确保服务端 session 已就绪再发 RPC（FFI connect 会阻塞到连接建立） */
 private const val AFTER_CONNECT_DELAY_MS = 300L
 /** 调试：页面加载后自动触发一次登录（等价自动点击“登录”按钮） */
-private const val AUTO_LOGIN_ON_LOAD = true
+private const val AUTO_LOGIN_ON_LOAD = false
 private const val AUTO_LOGIN_DELAY_MS = 120
+private const val AUTO_RESTORE_DELAY_MS = 80L
 
 /**
  * 登录/注册页面
  */
 @Page("LoginPage")
 internal class LoginPage : BasePager() {
+    private companion object {
+        const val PARAM_SHOW_ACCOUNTS = "show_accounts"
+        const val PARAM_CURRENT_UID = "current_uid"
+        const val PARAM_FORCE_LOGIN_FORM = "force_login_form"
+    }
+
     private var theme by observable(ThemeManager.getTheme())
     private var serverUrl by observable("quic://192.168.1.3:9001")
     private var username by observable("demo")
     private var password by observable("123456")
     private var status by observable("")
+    private var localAccountUids by observable(listOf<String>())
+    private var showLoginForm by observable(true)
 
     private lateinit var serverUrlRef: ViewRef<InputView>
     private lateinit var usernameRef: ViewRef<InputView>
     private lateinit var passwordRef: ViewRef<InputView>
     private var autoLoginTriggered = false
+    private var autoRestoreTriggered = false
 
     override fun body(): ViewBuilder {
         val ctx = this
@@ -75,124 +85,179 @@ internal class LoginPage : BasePager() {
                 }
             }
 
-            View {
-                attr {
-                    margin(24f)
-                    flexDirectionColumn()
-                }
+            if (ctx.localAccountUids.isNotEmpty() && !ctx.showLoginForm) {
                 View {
                     attr {
-                        height(48f)
-                        flexDirectionRow()
-                        backgroundColor(Color.WHITE)
-                        borderRadius(8f)
+                        margin(24f)
+                        flexDirectionColumn()
                     }
-                    Input {
-                        ref { ctx.serverUrlRef = it }
+                    Text {
                         attr {
-                            flex(1f)
-                            fontSize(15f)
-                            marginLeft(12f)
-                            marginRight(12f)
+                            text("选择账号快速进入")
+                            fontSize(14f)
+                            marginBottom(12f)
                             color(ctx.theme.colors.feedContentText)
-                            placeholder("服务器地址")
-                            placeholderColor(Color(0xFF999999))
-                        }
-                        event {
-                            textDidChange { ctx.serverUrl = it.text }
                         }
                     }
-                }
-
-                View {
-                    attr {
-                        height(48f)
-                        marginTop(16f)
-                        flexDirectionRow()
-                        backgroundColor(Color.WHITE)
-                        borderRadius(8f)
-                    }
-                    Input {
-                        ref { ctx.usernameRef = it }
-                        attr {
-                            flex(1f)
-                            fontSize(15f)
-                            marginLeft(12f)
-                            marginRight(12f)
-                            color(ctx.theme.colors.feedContentText)
-                            placeholder("账号")
-                            placeholderColor(Color(0xFF999999))
-                        }
-                        event {
-                            textDidChange { ctx.username = it.text }
-                        }
-                    }
-                }
-
-                View {
-                    attr {
-                        height(48f)
-                        marginTop(16f)
-                        flexDirectionRow()
-                        backgroundColor(Color.WHITE)
-                        borderRadius(8f)
-                    }
-                    Input {
-                        ref { ctx.passwordRef = it }
-                        attr {
-                            flex(1f)
-                            fontSize(15f)
-                            marginLeft(12f)
-                            marginRight(12f)
-                            color(ctx.theme.colors.feedContentText)
-                            placeholder("密码")
-                            placeholderColor(Color(0xFF999999))
-                        }
-                        event {
-                            textDidChange { ctx.password = it.text }
-                        }
-                    }
-                }
-
-                View {
-                    attr {
-                        flexDirectionRow()
-                        marginTop(24f)
-                    }
-                    Button {
-                        attr {
-                            flex(1f)
-                            height(48f)
-                            borderRadius(8f)
-                            backgroundColor(Color(0xFF23D3FD))
-                            titleAttr {
-                                text("登录")
-                                fontSize(16f)
-                                color(Color.WHITE)
+                    for (uid in ctx.localAccountUids) {
+                        Button {
+                            attr {
+                                height(44f)
+                                marginTop(8f)
+                                borderRadius(8f)
+                                backgroundColor(Color.WHITE)
+                                titleAttr {
+                                    text("账号 $uid")
+                                    fontSize(15f)
+                                    color(ctx.theme.colors.feedContentText)
+                                }
                             }
-                        }
-                        event {
-                            click {
-                                ctx.doLogin()
+                            event {
+                                click {
+                                    ctx.doQuickEnter(uid)
+                                }
                             }
                         }
                     }
-                    View { attr { width(12f) } }
                     Button {
                         attr {
-                            flex(1f)
-                            height(48f)
+                            height(44f)
+                            marginTop(16f)
                             borderRadius(8f)
                             backgroundColor(Color(0xFFF0F0F0))
                             titleAttr {
-                                text("注册")
-                                fontSize(16f)
+                                text("添加账户")
+                                fontSize(15f)
                                 color(ctx.theme.colors.feedContentText)
                             }
                         }
                         event {
                             click {
-                                ctx.doRegister()
+                                ctx.showLoginForm = true
+                            }
+                        }
+                    }
+                }
+            } else {
+                View {
+                    attr {
+                        margin(24f)
+                        flexDirectionColumn()
+                    }
+                    View {
+                        attr {
+                            height(48f)
+                            flexDirectionRow()
+                            backgroundColor(Color.WHITE)
+                            borderRadius(8f)
+                        }
+                        Input {
+                            ref { ctx.serverUrlRef = it }
+                            attr {
+                                flex(1f)
+                                fontSize(15f)
+                                marginLeft(12f)
+                                marginRight(12f)
+                                color(ctx.theme.colors.feedContentText)
+                                placeholder("服务器地址")
+                                placeholderColor(Color(0xFF999999))
+                            }
+                            event {
+                                textDidChange { ctx.serverUrl = it.text }
+                            }
+                        }
+                    }
+
+                    View {
+                        attr {
+                            height(48f)
+                            marginTop(16f)
+                            flexDirectionRow()
+                            backgroundColor(Color.WHITE)
+                            borderRadius(8f)
+                        }
+                        Input {
+                            ref { ctx.usernameRef = it }
+                            attr {
+                                flex(1f)
+                                fontSize(15f)
+                                marginLeft(12f)
+                                marginRight(12f)
+                                color(ctx.theme.colors.feedContentText)
+                                placeholder("账号")
+                                placeholderColor(Color(0xFF999999))
+                            }
+                            event {
+                                textDidChange { ctx.username = it.text }
+                            }
+                        }
+                    }
+
+                    View {
+                        attr {
+                            height(48f)
+                            marginTop(16f)
+                            flexDirectionRow()
+                            backgroundColor(Color.WHITE)
+                            borderRadius(8f)
+                        }
+                        Input {
+                            ref { ctx.passwordRef = it }
+                            attr {
+                                flex(1f)
+                                fontSize(15f)
+                                marginLeft(12f)
+                                marginRight(12f)
+                                color(ctx.theme.colors.feedContentText)
+                                placeholder("密码")
+                                placeholderColor(Color(0xFF999999))
+                            }
+                            event {
+                                textDidChange { ctx.password = it.text }
+                            }
+                        }
+                    }
+
+                    View {
+                        attr {
+                            flexDirectionRow()
+                            marginTop(24f)
+                        }
+                        Button {
+                            attr {
+                                flex(1f)
+                                height(48f)
+                                borderRadius(8f)
+                                backgroundColor(Color(0xFF23D3FD))
+                                titleAttr {
+                                    text("登录")
+                                    fontSize(16f)
+                                    color(Color.WHITE)
+                                }
+                            }
+                            event {
+                                click {
+                                    ctx.doLogin()
+                                }
+                            }
+                        }
+                        View { attr { width(12f) } }
+                        Button {
+                            attr {
+                                flex(1f)
+                                height(48f)
+                                borderRadius(8f)
+                                backgroundColor(Color(0xFFF0F0F0))
+                                titleAttr {
+                                    text("注册")
+                                    fontSize(16f)
+                                    color(ctx.theme.colors.feedContentText)
+                                }
+                            }
+                            event {
+                                click {
+                                    ctx.doRegister()
+                                }
                             }
                         }
                     }
@@ -213,11 +278,33 @@ internal class LoginPage : BasePager() {
 
     override fun viewDidLoad() {
         super.viewDidLoad()
+        refreshLocalAccounts()
+        val forceShowAccounts = pagerData.params.optInt(PARAM_SHOW_ACCOUNTS, 0) == 1
+        val forceLoginForm = pagerData.params.optInt(PARAM_FORCE_LOGIN_FORM, 0) == 1
+        showLoginForm = when {
+            forceLoginForm -> true
+            forceShowAccounts -> false
+            else -> localAccountUids.isEmpty()
+        }
         try {
             serverUrlRef.view?.setText(serverUrl)
             usernameRef.view?.setText(username)
             passwordRef.view?.setText(password)
         } catch (_: Exception) {}
+        val shouldTryAutoRestore = !forceShowAccounts && !forceLoginForm
+        if (shouldTryAutoRestore && !autoRestoreTriggered) {
+            autoRestoreTriggered = true
+            CoroutineScope(LoginCoroutineDispatcher).launch {
+                delay(AUTO_RESTORE_DELAY_MS)
+                val preferredUid = PrivchatPlatform.currentUid()?.trim().orEmpty()
+                val uid = if (preferredUid.isNotEmpty()) preferredUid else localAccountUids.firstOrNull().orEmpty()
+                if (uid.isNotEmpty()) {
+                    runOnKuiklyContext {
+                        doQuickEnter(uid, silentUi = true)
+                    }
+                }
+            }
+        }
         if (AUTO_LOGIN_ON_LOAD && !autoLoginTriggered) {
             autoLoginTriggered = true
             CoroutineScope(LoginCoroutineDispatcher).launch {
@@ -236,6 +323,74 @@ internal class LoginPage : BasePager() {
 
     private fun doRegister() {
         doAuth(isRegister = true)
+    }
+
+    private fun refreshLocalAccounts() {
+        val fromDisk = PrivchatPlatform.localAccountUids().filter { it.isNotBlank() }
+        val currentUid = pagerData.params.optString(PARAM_CURRENT_UID).trim()
+        localAccountUids = if (currentUid.isNotEmpty() && fromDisk.none { it == currentUid }) {
+            listOf(currentUid) + fromDisk
+        } else {
+            fromDisk
+        }
+    }
+
+    private fun doQuickEnter(uid: String, silentUi: Boolean = false) {
+        val url = serverUrl.trim()
+        val ep = parseServerUrl(url)
+        if (ep == null) {
+            if (!silentUi) {
+                status = "服务器地址格式错误（支持 quic://、wss://、ws://、tcp://）"
+            }
+            return
+        }
+        if (!PrivchatPlatform.setCurrentUid(uid)) {
+            if (!silentUi) {
+                status = "切换账号失败：无法设置 current_user"
+            }
+            return
+        }
+        if (!silentUi) {
+            status = "账号 $uid 进入中..."
+        }
+        CoroutineScope(LoginCoroutineDispatcher).launch {
+            var client: PrivchatClient? = null
+            runCatching {
+                val config = PrivchatConfig(
+                    dataDir = PrivchatPlatform.dataDir(),
+                    assetsDir = null,
+                    serverEndpoints = listOf(ep),
+                )
+                val createResult = PrivchatClient.create(config)
+                client = createResult.getOrThrow()
+                client.connect().getOrThrow()
+                delay(AFTER_CONNECT_DELAY_MS)
+                val restored = client.restoreLocalSession().getOrThrow()
+                if (!restored) error("本地会话不存在，请使用添加账户登录")
+                client.runBootstrapSync().getOrThrow()
+                PrivchatClientHolder.setClient(client)
+                if (PrivchatPlatform.navigateToMainTabPage()) {
+                    return@runCatching
+                }
+                delay(OPEN_PAGE_DELAY_MS.toLong())
+                runOnKuiklyContext {
+                    setTimeout(pagerId, 0) {
+                        acquireModule<RouterModule>(RouterModule.MODULE_NAME)
+                            .openPage("MainTabPage", JSONObject())
+                    }
+                }
+            }.onFailure { e ->
+                val msg = e.message?.ifBlank { null } ?: "未知错误"
+                if (!silentUi) {
+                    status = "失败: $msg"
+                }
+                runCatching { client?.close() }
+                refreshLocalAccounts()
+                if (!silentUi) {
+                    showLoginForm = true
+                }
+            }
+        }
     }
 
     private fun doAuth(isRegister: Boolean) {
@@ -284,6 +439,7 @@ internal class LoginPage : BasePager() {
                 println("[LoginFlow] authenticate() start")
                 client.authenticate(result.userId, result.token, PrivchatPlatform.deviceId()).getOrThrow()
                 println("[LoginFlow] authenticate() ok")
+                PrivchatPlatform.setCurrentUid(result.userId.toString())
 
                 // 必须同步完成 runBootstrapSync 再进入后续流程：本地 DB、资料库等在此初始化，未完成则后续操作不成立
                 // Android Kuikly 在该阶段更新 reactive 文本会触发 callNative 断言，这里仅输出日志。
@@ -293,6 +449,8 @@ internal class LoginPage : BasePager() {
 
                 println("[LoginFlow] setClient()")
                 PrivchatClientHolder.setClient(client)
+                refreshLocalAccounts()
+                showLoginForm = localAccountUids.isEmpty()
                 // Android 走平台侧原生跳转，避免 Kuikly context 线程断言。
                 if (PrivchatPlatform.navigateToMainTabPage()) {
                     println("[LoginFlow] platform navigation done")

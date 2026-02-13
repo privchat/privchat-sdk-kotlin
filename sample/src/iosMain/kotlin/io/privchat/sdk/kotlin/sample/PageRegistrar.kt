@@ -6,6 +6,7 @@ import io.privchat.sdk.kotlin.sample.pages.MainTabPage
 import io.privchat.sdk.kotlin.sample.pages.friend.FriendsPage
 import io.privchat.sdk.kotlin.sample.pages.login.LoginPage
 import io.privchat.sdk.kotlin.sample.pages.profile.ProfilePage
+import io.privchat.sdk.kotlin.sample.pages.profile.SwitchAccountPage
 import io.privchat.sdk.kotlin.sample.pages.session.SessionsPage
 
 /**
@@ -18,6 +19,7 @@ object PageRegistrar {
         PagerManager.registerPageRouter("SessionsPage") { SessionsPage() }
         PagerManager.registerPageRouter("FriendsPage") { FriendsPage() }
         PagerManager.registerPageRouter("ProfilePage") { ProfilePage() }
+        PagerManager.registerPageRouter("SwitchAccountPage") { SwitchAccountPage() }
         PagerManager.registerPageRouter("DetailPage") { DetailPage() }
         PagerManager.registerPageRouter("router") { RouterPage() }
     }
