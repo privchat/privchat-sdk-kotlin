@@ -38,6 +38,7 @@ import uniffi.privchat_sdk_ffi.StoredFriend
 import uniffi.privchat_sdk_ffi.StoredGroup
 import uniffi.privchat_sdk_ffi.StoredGroupMember
 import uniffi.privchat_sdk_ffi.StoredMessage
+import uniffi.privchat_sdk_ffi.StoredUser
 import uniffi.privchat_sdk_ffi.TransportProtocol as CoreProtocol
 import uniffi.privchat_sdk_ffi.TypingActionType
 import uniffi.privchat_sdk_ffi.sdkVersion
@@ -227,6 +228,10 @@ actual class PrivchatClient private actual constructor() {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
             val snapshot = c.sessionSnapshot() ?: return@runCatching false
+            val state = c.connectionState()
+            if (state == CoreConnectionState.NEW || state == CoreConnectionState.SHUTDOWN) {
+                c.connect()
+            }
             c.authenticate(snapshot.userId, snapshot.token, snapshot.deviceId)
             cachedUserId = snapshot.userId
             cachedConnectionState = ConnectionState.Connected
@@ -398,6 +403,19 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun getMessagesByType(channelId: ULong, channelType: Int, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val offset = 0uL
+            val raw = c.getMessages(channelId, channelType, limit.toULong(), offset)
+            val filtered = beforeSeq?.let { seq -> raw.filter { it.messageId < seq } } ?: raw
+            filtered.map { it.toCommonMessage() }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("getMessagesByType failed", it)) },
+        )
+    }
+
     actual suspend fun getMessageById(messageId: ULong): Result<MessageEntry?> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching { c.getMessageById(messageId)?.toCommonMessage() }.fold(
@@ -481,7 +499,13 @@ actual class PrivchatClient private actual constructor() {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
             val list = c.getFriends((limit ?: 200u).toULong(), (offset ?: 0u).toULong())
-            list.map { it.toCommonFriend() }
+            val ids = list.map { it.userId }.distinct()
+            val userMap = if (ids.isNotEmpty()) {
+                c.listUsersByIds(ids).associateBy { it.userId }
+            } else {
+                emptyMap()
+            }
+            list.map { it.toCommonFriend(userMap[it.userId]) }
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("getFriends failed", it)) },
@@ -732,6 +756,16 @@ actual class PrivchatClient private actual constructor() {
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("searchUsers failed", it)) },
+        )
+    }
+
+    actual suspend fun listUsersByIds(userIds: List<ULong>): Result<List<UserEntry>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            if (userIds.isEmpty()) emptyList() else c.listUsersByIds(userIds).map { it.toCommonUser() }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("listUsersByIds failed", it)) },
         )
     }
 
@@ -1118,15 +1152,27 @@ private fun StoredChannel.toCommonChannel() = ChannelListEntry(
     },
 )
 
-private fun StoredFriend.toCommonFriend() = FriendEntry(
+private fun StoredFriend.toCommonFriend(user: StoredUser?) = FriendEntry(
     userId = userId,
-    username = userId.toString(),
-    nickname = null,
-    avatarUrl = null,
-    userType = 0,
+    username = user?.username?.takeIf { it.isNotBlank() } ?: userId.toString(),
+    nickname = user?.nickname?.takeIf { it.isNotBlank() },
+    avatarUrl = user?.avatar?.takeIf { it.isNotBlank() },
+    userType = (user?.userType ?: 0).toShort(),
     status = "accepted",
     addedAt = createdAt,
-    remark = tags,
+    remark = user?.alias?.takeIf { it.isNotBlank() } ?: tags,
+)
+
+private fun StoredUser.toCommonUser() = UserEntry(
+    userId = userId,
+    username = username?.takeIf { it.isNotBlank() } ?: userId.toString(),
+    nickname = nickname?.takeIf { it.isNotBlank() },
+    avatarUrl = avatar?.takeIf { it.isNotBlank() },
+    userType = userType.toShort(),
+    isFriend = false,
+    canSendMessage = true,
+    searchSessionId = null,
+    isOnline = null,
 )
 
 private fun StoredGroup.toCommonGroup() = GroupEntry(

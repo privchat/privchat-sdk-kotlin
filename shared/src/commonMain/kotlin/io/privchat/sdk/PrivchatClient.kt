@@ -55,6 +55,7 @@ expect class PrivchatClient private constructor() {
 
     // ========== Storage ==========
     suspend fun getMessages(channelId: ULong, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>>
+    suspend fun getMessagesByType(channelId: ULong, channelType: Int, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>>
     suspend fun getMessageById(messageId: ULong): Result<MessageEntry?>
     suspend fun paginateBack(channelId: ULong, beforeSeq: ULong, limit: UInt): Result<List<MessageEntry>>
     suspend fun paginateForward(channelId: ULong, afterSeq: ULong, limit: UInt): Result<List<MessageEntry>>
@@ -89,6 +90,7 @@ expect class PrivchatClient private constructor() {
 
     // ========== Friends & Groups ==========
     suspend fun searchUsers(query: String): Result<List<UserEntry>>
+    suspend fun listUsersByIds(userIds: List<ULong>): Result<List<UserEntry>>
     suspend fun sendFriendRequest(toUserId: ULong, remark: String?, searchSessionId: String?): Result<ULong>
     suspend fun acceptFriendRequest(fromUserId: ULong): Result<ULong>
     suspend fun rejectFriendRequest(fromUserId: ULong): Result<Boolean>
