@@ -153,6 +153,24 @@ cd ../privchat-sdk-kotlin
 说明：本项目**不产出 XCFramework**，各平台使用 `privchat_sdk_ffi.def` 中的 `libraryPaths` 直接链接 `target/<triple>/release/libprivchat_sdk_ffi.a`。
 请不要手动编辑 `shared/src/**/uniffi/privchat_sdk_ffi/*`，统一通过 `scripts/regenerate-uniffi.sh` 刷新。
 
+### UniFFI contract version 修正
+
+当前 `uniffi-bindgen-kotlin-multiplatform`（v0.4.3）内置的 `uniffi_bindgen` 版本为 **0.28.3**，生成的 binding 代码中 `bindings_contract_version = 26`。而 `privchat-rust` 使用的 `uniffi` 版本为 **0.31.0**，其 scaffolding 返回的 contract version 为 **30**。
+
+每次通过 `regenerate-uniffi.sh` 重新生成 binding 后，需要手动修正 Android binding 中的版本号，否则运行时会报 `UniFFI contract version mismatch` 错误：
+
+```
+shared/src/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt
+```
+
+搜索 `bindings_contract_version = 26`，改为：
+
+```kotlin
+val bindings_contract_version = 30
+```
+
+后续如果升级 `uniffi-bindgen-kotlin-multiplatform` 使其内置的 `uniffi_bindgen` 版本与 Rust 侧一致，则无需此手动修正。
+
 ## Sample
 
 ```bash

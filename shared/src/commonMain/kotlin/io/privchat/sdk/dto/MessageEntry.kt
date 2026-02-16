@@ -7,6 +7,7 @@ enum class MessageStatus { Pending, Sending, Sent, Failed, Read }
 data class MessageEntry(
     val id: ULong,
     val serverMessageId: ULong?,
+    val localMessageId: ULong?,
     val channelId: ULong,
     val channelType: Int,
     val fromUid: ULong,

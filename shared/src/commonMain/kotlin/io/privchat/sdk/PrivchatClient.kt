@@ -37,8 +37,10 @@ expect class PrivchatClient private constructor() {
     suspend fun logout(): Result<Unit>
 
     // ========== Messaging ==========
+    fun generateLocalMessageId(): Result<ULong>
     suspend fun sendText(channelId: ULong, channelType: Int, text: String): Result<ULong>
     suspend fun sendText(channelId: ULong, channelType: Int, text: String, options: SendMessageOptions): Result<ULong>
+    suspend fun sendTextWithLocalId(channelId: ULong, channelType: Int, text: String, localMessageId: ULong): Result<ULong>
     suspend fun sendMedia(channelId: ULong, filePath: String, options: SendMessageOptions?): Result<Pair<ULong, AttachmentInfo>>
     suspend fun retryMessage(messageId: ULong): Result<Unit>
     suspend fun markAsRead(channelId: ULong, messageId: ULong): Result<Unit>

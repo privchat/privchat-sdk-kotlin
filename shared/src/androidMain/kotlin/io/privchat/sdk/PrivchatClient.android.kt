@@ -251,12 +251,29 @@ actual class PrivchatClient private actual constructor() {
         }
     }
 
+    actual fun generateLocalMessageId(): Result<ULong> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.generateLocalMessageId() }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("generateLocalMessageId failed", it)) },
+        )
+    }
+
     actual suspend fun sendText(channelId: ULong, channelType: Int, text: String): Result<ULong> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
-        return runCatching { c.sendMessage(channelId, channelType, uid, text) }.fold(
+        return runCatching { c.enqueueText(channelId, channelType, uid, text) }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("sendText failed", it)) },
+        )
+    }
+
+    actual suspend fun sendTextWithLocalId(channelId: ULong, channelType: Int, text: String, localMessageId: ULong): Result<ULong> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
+        return runCatching { c.enqueueTextWithLocalId(channelId, channelType, uid, text, localMessageId) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("sendTextWithLocalId failed", it)) },
         )
     }
 
@@ -1020,8 +1037,19 @@ actual class PrivchatClient private actual constructor() {
     actual fun setVideoProcessHook(hook: VideoProcessHook?) {
         videoHook = hook
         val client = coreClient ?: return
+        val coreHook = if (hook != null) {
+            object : uniffi.privchat_sdk_ffi.VideoProcessHook {
+                override fun process(op: uniffi.privchat_sdk_ffi.MediaProcessOp, sourcePath: String, metaPath: String, outputPath: String): Boolean {
+                    val dtoOp = when (op) {
+                        uniffi.privchat_sdk_ffi.MediaProcessOp.THUMBNAIL -> MediaProcessOp.Thumbnail
+                        uniffi.privchat_sdk_ffi.MediaProcessOp.COMPRESS -> MediaProcessOp.Compress
+                    }
+                    return hook.process(dtoOp, sourcePath, metaPath, outputPath).getOrDefault(false)
+                }
+            }
+        } else null
         backgroundScope.launch {
-            runCatching { client.setVideoProcessHook() }
+            runCatching { client.setVideoProcessHook(coreHook) }
         }
     }
 
@@ -1113,6 +1141,7 @@ private fun mapFfiCodeToSdkError(prefix: String, code: UInt, detail: String): Sd
 private fun StoredMessage.toCommonMessage() = MessageEntry(
     id = messageId,
     serverMessageId = serverMessageId,
+    localMessageId = localMessageId,
     channelId = channelId,
     channelType = channelType,
     fromUid = fromUid,

@@ -191,11 +191,15 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `editMessageBlocking`(`messageId`: kotlin.ULong, `content`: kotlin.String, `editedAt`: kotlin.Int)
     
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `enqueueLocalMessage`(`input`: NewMessage): kotlin.ULong
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `enqueueOutboundFile`(`messageId`: kotlin.ULong, `routeKey`: kotlin.String, `payload`: kotlin.ByteArray): FileQueueRef
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `enqueueOutboundMessage`(`messageId`: kotlin.ULong, `payload`: kotlin.ByteArray): kotlin.ULong
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `enqueueText`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String): kotlin.ULong
+    
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `enqueueTextWithLocalId`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String, `localMessageId`: kotlin.ULong?): kotlin.ULong
     fun `enterBackground`()
     fun `enterForeground`()
     
@@ -212,6 +216,8 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `fileRequestUploadTokenRemote`(`payload`: FileRequestUploadTokenInput): FileRequestUploadTokenView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `fileUploadCallbackRemote`(`payload`: FileUploadCallbackInput): kotlin.Boolean
+    
+        @Throws(PrivchatFfiException::class)fun `generateLocalMessageId`(): kotlin.ULong
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getAllUnreadMentionCounts`(`userId`: kotlin.ULong): List<UnreadMentionCount>
     
@@ -331,6 +337,8 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `kvPut`(`key`: kotlin.String, `value`: kotlin.ByteArray)
     
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `kvScanPrefix`(`prefix`: kotlin.String): List<KeyValueEntry>
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `leaveChannel`(`channelId`: kotlin.ULong): kotlin.Boolean
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `leaveGroup`(`groupId`: kotlin.ULong): kotlin.Boolean
@@ -394,10 +402,19 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `muteChannel`(`channelId`: kotlin.ULong, `muted`: kotlin.Boolean): kotlin.Boolean
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `needsSync`(): kotlin.Boolean
+    fun `networkEventsSince`(`sequenceId`: kotlin.ULong, `limit`: kotlin.ULong): List<SequencedSdkEvent>
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `nextEvent`(`timeoutMs`: kotlin.ULong): SdkEvent?
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `nextEventEnvelope`(`timeoutMs`: kotlin.ULong): SequencedSdkEvent?
+    
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `nextNetworkEvent`(`timeoutMs`: kotlin.ULong): SdkEvent?
+    
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `nextNetworkEventEnvelope`(`timeoutMs`: kotlin.ULong): SequencedSdkEvent?
+    
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `nextTimelineEvent`(`timeoutMs`: kotlin.ULong): SdkEvent?
+    
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `nextTimelineEventEnvelope`(`timeoutMs`: kotlin.ULong): SequencedSdkEvent?
     fun `onAppBackground`()
     fun `onAppForeground`()
     fun `onConnectionStateChanged`()
@@ -440,6 +457,10 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `recallMessageBlocking`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong): kotlin.Boolean
     fun `recentEvents`(`limit`: kotlin.ULong): List<SequencedSdkEvent>
+    fun `recentNetworkEvents`(`limit`: kotlin.ULong): List<SequencedSdkEvent>
+    fun `recentNetworkPlainEvents`(`limit`: kotlin.ULong): List<SdkEvent>
+    fun `recentTimelineEvents`(`limit`: kotlin.ULong): List<SequencedSdkEvent>
+    fun `recentTimelinePlainEvents`(`limit`: kotlin.ULong): List<SdkEvent>
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `recordMention`(`input`: MentionInput): kotlin.ULong
     
@@ -455,6 +476,8 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `removeGroupMember`(`groupId`: kotlin.ULong, `userId`: kotlin.ULong): kotlin.Boolean
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `removeReaction`(`serverMessageId`: kotlin.ULong, `emoji`: kotlin.String): kotlin.Boolean
+    
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `removeVideoProcessHook`()
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `requireCurrentUserId`(): kotlin.ULong
     
@@ -521,7 +544,8 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setNetworkHint`(`hint`: NetworkHint)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setUserSetting`(`key`: kotlin.String, `value`: kotlin.String)
-    fun `setVideoProcessHook`()
+    
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setVideoProcessHook`(`hook`: VideoProcessHook?)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `shutdown`()
     
@@ -566,6 +590,7 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `syncMessagesInBackground`()
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `syncSubmitRemote`(`payload`: SyncSubmitInput): SyncSubmitView
+    fun `timelineEventsSince`(`sequenceId`: kotlin.ULong, `limit`: kotlin.ULong): List<SequencedSdkEvent>
     fun `timezoneHours`(): kotlin.Int
     fun `timezoneLocal`(): kotlin.String
     fun `timezoneMinutes`(): kotlin.Int
@@ -876,6 +901,11 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `enqueueLocalMessage`(`input`: NewMessage) : kotlin.ULong
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `enqueueOutboundFile`(`messageId`: kotlin.ULong, `routeKey`: kotlin.String, `payload`: kotlin.ByteArray) : FileQueueRef
 
     
@@ -887,6 +917,11 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `enqueueText`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String) : kotlin.ULong
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `enqueueTextWithLocalId`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String, `localMessageId`: kotlin.ULong?) : kotlin.ULong
 
     override fun `enterBackground`()
     
@@ -930,6 +965,10 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `fileUploadCallbackRemote`(`payload`: FileUploadCallbackInput) : kotlin.Boolean
+
+    
+    @Throws(PrivchatFfiException::class)override fun `generateLocalMessageId`(): kotlin.ULong
+    
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -1231,6 +1270,11 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `kvScanPrefix`(`prefix`: kotlin.String) : List<KeyValueEntry>
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `leaveChannel`(`channelId`: kotlin.ULong) : kotlin.Boolean
 
     
@@ -1388,6 +1432,9 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `needsSync`() : kotlin.Boolean
 
+    override fun `networkEventsSince`(`sequenceId`: kotlin.ULong, `limit`: kotlin.ULong): List<SequencedSdkEvent>
+    
+
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
@@ -1397,6 +1444,26 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `nextEventEnvelope`(`timeoutMs`: kotlin.ULong) : SequencedSdkEvent?
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `nextNetworkEvent`(`timeoutMs`: kotlin.ULong) : SdkEvent?
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `nextNetworkEventEnvelope`(`timeoutMs`: kotlin.ULong) : SequencedSdkEvent?
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `nextTimelineEvent`(`timeoutMs`: kotlin.ULong) : SdkEvent?
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `nextTimelineEventEnvelope`(`timeoutMs`: kotlin.ULong) : SequencedSdkEvent?
 
     override fun `onAppBackground`()
     
@@ -1507,6 +1574,18 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override fun `recentEvents`(`limit`: kotlin.ULong): List<SequencedSdkEvent>
     
 
+    override fun `recentNetworkEvents`(`limit`: kotlin.ULong): List<SequencedSdkEvent>
+    
+
+    override fun `recentNetworkPlainEvents`(`limit`: kotlin.ULong): List<SdkEvent>
+    
+
+    override fun `recentTimelineEvents`(`limit`: kotlin.ULong): List<SequencedSdkEvent>
+    
+
+    override fun `recentTimelinePlainEvents`(`limit`: kotlin.ULong): List<SdkEvent>
+    
+
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
@@ -1544,6 +1623,11 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `removeReaction`(`serverMessageId`: kotlin.ULong, `emoji`: kotlin.String) : kotlin.Boolean
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `removeVideoProcessHook`()
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -1713,8 +1797,10 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `setUserSetting`(`key`: kotlin.String, `value`: kotlin.String)
 
-    override fun `setVideoProcessHook`()
     
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `setVideoProcessHook`(`hook`: VideoProcessHook?)
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -1826,6 +1912,9 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `syncSubmitRemote`(`payload`: SyncSubmitInput) : SyncSubmitView
+
+    override fun `timelineEventsSince`(`sequenceId`: kotlin.ULong, `limit`: kotlin.ULong): List<SequencedSdkEvent>
+    
 
     override fun `timezoneHours`(): kotlin.Int
     
@@ -2801,6 +2890,18 @@ data class HttpClientConfigView (
 
 
 
+data class KeyValueEntry (
+    var `key`: kotlin.String
+        , 
+    var `value`: kotlin.ByteArray
+        
+) {
+    
+    companion object
+}
+
+
+
 data class LocalAccountSummary (
     var `uid`: kotlin.String
         , 
@@ -3656,6 +3757,8 @@ data class StoredMessage (
         , 
     var `serverMessageId`: kotlin.ULong?
          = null , 
+    var `localMessageId`: kotlin.ULong?
+         = null , 
     var `channelId`: kotlin.ULong
         , 
     var `channelType`: kotlin.Int
@@ -4299,6 +4402,19 @@ enum class ConnectionState {
 
 
 
+enum class MediaProcessOp {
+    
+    THUMBNAIL,
+    COMPRESS;
+    companion object
+}
+
+
+
+
+
+
+
 enum class NetworkHint {
     
     UNKNOWN,
@@ -4349,6 +4465,88 @@ sealed class SdkEvent {
         
     }
     
+    
+    data class SyncEntitiesApplied(
+        val `entityType`: kotlin.String  , 
+        val `scope`: kotlin.String?  = null  , 
+        val `queued`: kotlin.ULong  , 
+        val `applied`: kotlin.ULong  , 
+        val `droppedDuplicates`: kotlin.ULong  ) : SdkEvent() {
+        
+    }
+    
+    
+    data class SyncEntityChanged(
+        val `entityType`: kotlin.String  , 
+        val `entityId`: kotlin.String  , 
+        val `deleted`: kotlin.Boolean  ) : SdkEvent() {
+        
+    }
+    
+    
+    data class SyncChannelApplied(
+        val `channelId`: kotlin.ULong  , 
+        val `channelType`: kotlin.Int  , 
+        val `applied`: kotlin.ULong  ) : SdkEvent() {
+        
+    }
+    
+    
+    data class SyncAllChannelsApplied(
+        val `applied`: kotlin.ULong  ) : SdkEvent() {
+        
+    }
+    
+    
+    data class NetworkHintChanged(
+        val `from`: NetworkHint  , 
+        val `to`: NetworkHint  ) : SdkEvent() {
+        
+    }
+    
+    
+    data class OutboundQueueUpdated(
+        val `kind`: kotlin.String  , 
+        val `action`: kotlin.String  , 
+        val `messageId`: kotlin.ULong?  = null  , 
+        val `queueIndex`: kotlin.ULong?  = null  ) : SdkEvent() {
+        
+    }
+    
+    
+    data class TimelineUpdated(
+        val `channelId`: kotlin.ULong  , 
+        val `channelType`: kotlin.Int  , 
+        val `messageId`: kotlin.ULong  , 
+        val `reason`: kotlin.String  ) : SdkEvent() {
+        
+    }
+    
+    
+    data class ReadReceiptUpdated(
+        val `channelId`: kotlin.ULong  , 
+        val `channelType`: kotlin.Int  , 
+        val `messageId`: kotlin.ULong  , 
+        val `isRead`: kotlin.Boolean  ) : SdkEvent() {
+        
+    }
+    
+    
+    data class MessageSendStatusChanged(
+        val `messageId`: kotlin.ULong  , 
+        val `status`: kotlin.Int  , 
+        val `serverMessageId`: kotlin.ULong?  = null  ) : SdkEvent() {
+        
+    }
+    
+    
+    data class TypingSent(
+        val `channelId`: kotlin.ULong  , 
+        val `channelType`: kotlin.Int  , 
+        val `isTyping`: kotlin.Boolean  ) : SdkEvent() {
+        
+    }
+    
     @kotlinx.serialization.Serializable
     object ShutdownStarted : SdkEvent() 
     
@@ -4389,6 +4587,24 @@ enum class TypingActionType {
     CHOOSING_STICKER;
     companion object
 }
+
+
+
+
+
+
+
+interface VideoProcessHook {
+    
+        @Throws(PrivchatFfiException::class)fun `process`(`op`: MediaProcessOp, `sourcePath`: kotlin.String, `metaPath`: kotlin.String, `outputPath`: kotlin.String): kotlin.Boolean
+    
+    companion object
+}
+
+
+
+
+
 
 
 

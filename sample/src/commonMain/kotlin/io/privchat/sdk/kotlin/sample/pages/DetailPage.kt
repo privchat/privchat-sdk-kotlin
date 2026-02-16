@@ -33,25 +33,25 @@ internal class DetailPage : BasePager() {
 
     private var detailTitle: String = ""
     private var detailId: Int = 0
-    
+
     // 会话模式参数
     private var channelId: ULong = 0uL
     private var channelType: Int = 0
     private var channelName: String = ""
     private var isChatMode: Boolean = false
-    
+
     // 消息列表
     private var messages by observableList<MessageEntry>()
     private var messagesLoading by observable(false)
     private var messagesError by observable("")
-    
+
     // 发送输入框
     private var inputText by observable("")
     private lateinit var inputRef: ViewRef<InputView>
-    
+
     // 消息列表引用，用于加载后滚动到底部
     private var messageListRef: ViewRef<ListView<*, *>>? = null
-    
+
     // 主题
     private var theme by observable(ThemeManager.getTheme())
     private lateinit var themeEventCallbackRef: CallbackRef
@@ -60,23 +60,23 @@ internal class DetailPage : BasePager() {
 
     override fun created() {
         super.created()
-        
+
         spModule = acquireModule(SharedPreferencesModule.MODULE_NAME)
         notifyModule = acquireModule(NotifyModule.MODULE_NAME)
-        
+
         val colorTheme = spModule.getString(ThemeManager.PREF_KEY_COLOR)
             .takeUnless { it.isEmpty() } ?: "light"
         ThemeManager.changeColorScheme(colorTheme)
         theme = ThemeManager.getTheme()
-        
+
         themeEventCallbackRef = notifyModule.addNotify(ThemeManager.SKIN_CHANGED_EVENT) { _ ->
             theme = ThemeManager.getTheme()
         }
-        
+
         // 从页面参数中获取数据
         detailId = pageData.params.optInt("id", 0)
         detailTitle = pageData.params.optString("title", "")
-        
+
         // 会话模式：channelId + channelType + channelName
         val chIdStr = pageData.params.optString("channelId", "")
         if (chIdStr.isNotEmpty()) {
@@ -86,19 +86,19 @@ internal class DetailPage : BasePager() {
             isChatMode = channelId > 0uL
         }
     }
-    
+
     override fun viewDidLoad() {
         super.viewDidLoad()
         if (isChatMode) {
             loadMessages()
         }
     }
-    
+
     override fun pageWillDestroy() {
         super.pageWillDestroy()
         notifyModule.removeNotify(ThemeManager.SKIN_CHANGED_EVENT, themeEventCallbackRef)
     }
-    
+
     private fun loadMessages() {
         val client = PrivchatClientHolder.client
         if (client == null) {
@@ -128,7 +128,7 @@ internal class DetailPage : BasePager() {
                 }
         }
     }
-    
+
     /** 去重追加单条消息并滚动到底部（发送后使用，避免整表重载导致往上跳） */
     private fun appendMessageAndScrollToBottom(newMsg: MessageEntry) {
         if (messages.any { it.id == newMsg.id }) return
@@ -145,7 +145,7 @@ internal class DetailPage : BasePager() {
             attr {
                 backgroundColor(ctx.theme.colors.background)
             }
-            
+
             // 导航栏
             View {
                 attr {
@@ -159,7 +159,7 @@ internal class DetailPage : BasePager() {
                         alignItemsCenter()
                         borderBottom(Border(0.5f, BorderStyle.SOLID, ctx.theme.colors.feedContentDivider))
                     }
-                    
+
                     // 返回按钮
                     View {
                         attr {
@@ -180,7 +180,7 @@ internal class DetailPage : BasePager() {
                             }
                         }
                     }
-                    
+
                     // 标题
                     Text {
                         attr {
@@ -192,7 +192,7 @@ internal class DetailPage : BasePager() {
                             textAlignCenter()
                         }
                     }
-                    
+
                     // 占位（保持标题居中）
                     View {
                         attr {
@@ -201,14 +201,14 @@ internal class DetailPage : BasePager() {
                     }
                 }
             }
-            
+
             // 内容区域
             View {
                 attr {
                     flex(1f)
                     flexDirectionColumn()
                 }
-                
+
                 vif({ ctx.isChatMode }) {
                     // 会话模式：消息列表
                     vif({ ctx.messagesLoading }) {
@@ -365,6 +365,7 @@ internal class DetailPage : BasePager() {
                                                     val newMsg = MessageEntry(
                                                         id = messageId,
                                                         serverMessageId = messageId,
+                                                        localMessageId = null,
                                                         channelId = ctx.channelId,
                                                         channelType = ctx.channelType,
                                                         fromUid = uid,
