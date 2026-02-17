@@ -106,7 +106,7 @@ val privchatHostLibName = when {
     else -> "libprivchat_sdk_ffi.so"
 }
 val privchatHostLibFile = privchatWorkspaceTargetDir.file(privchatHostLibName)
-val targetAbis = listOf("arm64-v8a", "x86_64")
+val targetAbis = listOf("arm64-v8a")
 val localProps = Properties()
 rootProject.file("local.properties").takeIf { it.exists() }?.reader()?.use { localProps.load(it) }
 val ndkDirPath = localProps.getProperty("ndk.dir") ?: run {
