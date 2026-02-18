@@ -7,7 +7,7 @@ Kotlin 多平台统一 SDK，当前架构为：
 
 底层统一依赖 `privchat-rust`（`privchat-sdk` + `privchat-sdk-ffi`），通过 UniFFI + cinterop 绑定。
 
-产物：`com.netonstream.privchat:shared:0.1.0`
+产物：`com.netonstream.privchat:sdk:0.1.0`
 
 ## 在其他项目中使用
 
@@ -16,28 +16,32 @@ Kotlin 多平台统一 SDK，当前架构为：
 1. 在本仓库根目录先构建 Rust FFI，再发布 Kotlin 库到本地 Maven：
    ```bash
    cd ../privchat-rust && cargo build -p privchat-sdk-ffi --release
-   cd ../privchat-sdk-kotlin && ./gradlew :shared:publishToMavenLocal
+   cd ../privchat-sdk-kotlin && ./gradlew :sdk:publishToMavenLocal
    ```
 2. 在你的项目里添加本地 Maven 仓库并依赖：
    ```kotlin
    // settings.gradle.kts 或 build.gradle.kts
    repositories { mavenLocal(); google(); mavenCentral() }
-   dependencies { implementation("com.netonstream.privchat:shared:0.1.0") }
+   dependencies { implementation("com.netonstream.privchat:sdk:0.1.0") }
    ```
 
 **方式二：作为本地子项目（需保留整仓目录结构）**
 
 1. 将本仓库克隆或 submodule 到你的项目旁（或子目录），保证 `privchat-rust` 与 `privchat-sdk-kotlin` 同级。
-2. 在你的项目 `settings.gradle.kts` 里 include 本仓库的 shared 模块，例如：
+2. 在你的项目 `settings.gradle.kts` 里 include 本仓库的 sdk 模块，例如：
    ```kotlin
-   includeBuild("../msgtrans-rust/privchat-sdk-kotlin")  // 或 include 子模块
+   includeBuild("../privchat-sdk-kotlin") {
+       dependencySubstitution {
+           substitute(module("com.netonstream.privchat:sdk")).using(project(":sdk"))
+       }
+   }
    ```
-   或把 `privchat-sdk-kotlin` 作为复合构建 / 子项目引入，然后：
+   然后在依赖中使用：
    ```kotlin
-   implementation(project(":privchat-sdk-kotlin:shared"))
+   implementation("com.netonstream.privchat:sdk")
    ```
 
-说明：`shared` 构建依赖同仓库内的 `privchat-rust`，不能仅拷贝 `privchat-sdk-kotlin` 单目录独立构建。
+说明：`sdk` 构建依赖同仓库内的 `privchat-rust`，不能仅拷贝 `privchat-sdk-kotlin` 单目录独立构建。
 
 ## 技术栈
 
@@ -60,13 +64,13 @@ Kotlin 多平台统一 SDK，当前架构为：
 cd ../privchat-rust
 cargo build -p privchat-sdk-ffi --release
 
-# 构建 shared 模块（按需）
+# 构建 sdk 模块（按需）
 cd ../privchat-sdk-kotlin
-./gradlew :shared:assembleDebug           # Android
-./gradlew :shared:compileKotlinIosArm64   # iOS
-./gradlew :shared:compileKotlinMacosArm64 # macOS
-./gradlew :shared:compileKotlinLinuxX64   # Linux Desktop
-./gradlew :shared:compileKotlinMingwX64   # Windows Desktop
+./gradlew :sdk:assembleDebug           # Android
+./gradlew :sdk:compileKotlinIosArm64   # iOS
+./gradlew :sdk:compileKotlinMacosArm64 # macOS
+./gradlew :sdk:compileKotlinLinuxX64   # Linux Desktop
+./gradlew :sdk:compileKotlinMingwX64   # Windows Desktop
 ```
 
 ## 日常脚本（推荐固定流程）
@@ -146,12 +150,12 @@ KMP_BINDGEN=/abs/path/to/uniffi-bindgen-kotlin-multiplatform ./scripts/regenerat
 
 ```bash
 cd ../privchat-sdk-kotlin
-./gradlew :shared:compileKotlinIosSimulatorArm64
-./gradlew :shared:compileDebugKotlinAndroid
+./gradlew :sdk:compileKotlinIosSimulatorArm64
+./gradlew :sdk:compileDebugKotlinAndroid
 ```
 
 说明：本项目**不产出 XCFramework**，各平台使用 `privchat_sdk_ffi.def` 中的 `libraryPaths` 直接链接 `target/<triple>/release/libprivchat_sdk_ffi.a`。
-请不要手动编辑 `shared/src/**/uniffi/privchat_sdk_ffi/*`，统一通过 `scripts/regenerate-uniffi.sh` 刷新。
+请不要手动编辑 `sdk/src/**/uniffi/privchat_sdk_ffi/*`，统一通过 `scripts/regenerate-uniffi.sh` 刷新。
 
 ### UniFFI contract version 修正
 
@@ -160,7 +164,7 @@ cd ../privchat-sdk-kotlin
 每次通过 `regenerate-uniffi.sh` 重新生成 binding 后，需要手动修正 Android binding 中的版本号，否则运行时会报 `UniFFI contract version mismatch` 错误：
 
 ```
-shared/src/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt
+sdk/src/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt
 ```
 
 搜索 `bindings_contract_version = 26`，改为：
@@ -183,7 +187,7 @@ val bindings_contract_version = 30
 ## 使用
 
 ```kotlin
-import om.netonstream.privchat.sdk.*
+import com.netonstream.privchat.sdk.*
 
 val config = PrivchatConfig(
     dataDir = "/path/to/data",
