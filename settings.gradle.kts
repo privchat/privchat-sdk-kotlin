@@ -19,7 +19,7 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "privchat-sdk-kotlin"
-include(":shared")
+include(":sdk")
 include(":sample")
 include(":sample-androidApp")
 project(":sample-androidApp").projectDir = file("sample/androidApp")

@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "io.privchat.sdk.kotlin.sample"
+    namespace = "om.netonstream.privchat.sdk.kotlin.sample"
     compileSdk = 34
     buildFeatures {
         buildConfig = true
     }
     defaultConfig {
-        applicationId = "io.privchat.sdk.kotlin.sample"
+        applicationId = "om.netonstream.privchat.sdk.kotlin.sample"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

@@ -24,7 +24,7 @@ implementation(project(":privchat-sdk-kotlin:shared"))
 或通过 Maven 依赖（若已发布）：
 
 ```kotlin
-implementation("io.privchat:sdk-kotlin:0.1.0")
+implementation("com.netonstream.privchat:sdk-kotlin:0.1.0")
 ```
 
 ### 2. 创建 KuiklyUI 页面

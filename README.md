@@ -7,7 +7,7 @@ Kotlin 多平台统一 SDK，当前架构为：
 
 底层统一依赖 `privchat-rust`（`privchat-sdk` + `privchat-sdk-ffi`），通过 UniFFI + cinterop 绑定。
 
-产物：`io.privchat:shared:0.1.0`
+产物：`com.netonstream.privchat:shared:0.1.0`
 
 ## 在其他项目中使用
 
@@ -22,7 +22,7 @@ Kotlin 多平台统一 SDK，当前架构为：
    ```kotlin
    // settings.gradle.kts 或 build.gradle.kts
    repositories { mavenLocal(); google(); mavenCentral() }
-   dependencies { implementation("io.privchat:shared:0.1.0") }
+   dependencies { implementation("com.netonstream.privchat:shared:0.1.0") }
    ```
 
 **方式二：作为本地子项目（需保留整仓目录结构）**
@@ -183,7 +183,7 @@ val bindings_contract_version = 30
 ## 使用
 
 ```kotlin
-import io.privchat.sdk.*
+import om.netonstream.privchat.sdk.*
 
 val config = PrivchatConfig(
     dataDir = "/path/to/data",

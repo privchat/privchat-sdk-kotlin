@@ -42,10 +42,10 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(project(":shared"))
+                implementation(project(":sdk"))
                 implementation("com.tencent.kuikly-open:core:${Version.getKuiklyVersion()}")
                 implementation("com.tencent.kuikly-open:core-annotations:${Version.getKuiklyVersion()}")
-                
+
                 // Coroutines
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
             }
@@ -82,7 +82,7 @@ kotlin {
     }
 }
 
-group = "io.privchat.sdk.kotlin.sample"
+group = "om.netonstream.privchat.sdk.kotlin.sample"
 version = System.getenv("kuiklyBizVersion") ?: "1.0.0"
 
 publishing {
@@ -111,7 +111,7 @@ dependencies {
 }
 
 android {
-    namespace = "io.privchat.sdk.kotlin.sample.shared"
+    namespace = "om.netonstream.privchat.sdk.kotlin.sample.shared"
     compileSdk = 34
     defaultConfig {
         minSdk = 21
