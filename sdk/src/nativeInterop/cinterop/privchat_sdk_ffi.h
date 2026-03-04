@@ -672,6 +672,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_stop_typing(void * ptr,
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_storage(void * ptr
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_channel(void * ptr, int64_t channelId, int8_t channelType, RustBuffer token
+);
 int8_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_events(void * ptr, UniffiRustCallStatus *_Nonnull out_status
 );
 int8_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_network_status(void * ptr, UniffiRustCallStatus *_Nonnull out_status
@@ -709,6 +711,8 @@ int32_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_timezone_minutes(void *
 int32_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_timezone_seconds(void * ptr, UniffiRustCallStatus *_Nonnull out_status
 );
 RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_to_client_endpoint(void * ptr, UniffiRustCallStatus *_Nonnull out_status
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_unsubscribe_channel(void * ptr, int64_t channelId, int8_t channelType
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_unsubscribe_presence(void * ptr, RustBuffer userIds
 );
@@ -1643,6 +1647,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_stop_typing(void
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_storage(void
     
 );
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_channel(void
+    
+);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_events(void
     
 );
@@ -1698,6 +1705,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_timezone_seconds(
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_to_client_endpoint(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unsubscribe_channel(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unsubscribe_presence(void

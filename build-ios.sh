@@ -8,7 +8,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-PRIVCHAT_SDK="${PRIVCHAT_SDK:-$(cd "$SCRIPT_DIR/../privchat-rust" 2>/dev/null && pwd)}"
+PRIVCHAT_SDK="${PRIVCHAT_SDK:-$(cd "$SCRIPT_DIR/../privchat-sdk" 2>/dev/null && pwd)}"
 SKIP_RUST=false
 FULL=false
 WITH_DEVICE=false
@@ -40,8 +40,8 @@ for arg in "$@"; do
 done
 
 if [ -z "$PRIVCHAT_SDK" ] || [ ! -d "$PRIVCHAT_SDK" ]; then
-  echo "错误: 未找到 privchat-rust 目录（当前查找: $SCRIPT_DIR/../privchat-rust）"
-  echo "可设置环境变量: PRIVCHAT_SDK=/path/to/privchat-rust"
+  echo "错误: 未找到 privchat-sdk 目录（当前查找: $SCRIPT_DIR/../privchat-sdk）"
+  echo "可设置环境变量: PRIVCHAT_SDK=/path/to/privchat-sdk"
   exit 1
 fi
 
@@ -59,6 +59,7 @@ FRAMEWORK_BIN="$SCRIPT_DIR/sample/build/cocoapods/framework/sample.framework/sam
 SWIFT_BINDINGS_DIR="$PRIVCHAT_SDK/crates/privchat-sdk-ffi/bindings/swift"
 SWIFT_FFI_HEADER="$SWIFT_BINDINGS_DIR/PrivchatSDKFFI.h"
 KMP_BINDGEN_BIN="${KMP_BINDGEN_BIN:-$SCRIPT_DIR/../uniffi-kotlin-multiplatform-bindings/target/release/uniffi-bindgen-kotlin-multiplatform}"
+UNIFFI_CONTRACT_VERSION="${UNIFFI_CONTRACT_VERSION:-30}"
 
 if [ -n "${JAVA_HOME:-}" ] && [ ! -d "$JAVA_HOME" ]; then
   if command -v /usr/libexec/java_home >/dev/null 2>&1; then
@@ -129,6 +130,9 @@ else
           "$SCRIPT_DIR/shared/src/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt"
         install -m 0644 "$KMP_OUT_DIR/nativeInterop/cinterop/headers/privchat_sdk_ffi/privchat_sdk_ffi.h" \
           "$SCRIPT_DIR/shared/src/nativeInterop/cinterop/privchat_sdk_ffi.h"
+        echo "修正 Android UniFFI contract version -> $UNIFFI_CONTRACT_VERSION"
+        perl -0777 -i -pe "s/val bindings_contract_version = \\d+/val bindings_contract_version = ${UNIFFI_CONTRACT_VERSION}/g" \
+          "$SCRIPT_DIR/shared/src/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt"
       else
         echo "警告: 未找到 KMP bindgen 可执行文件，跳过 native/common 绑定刷新: $KMP_BINDGEN_BIN"
       fi

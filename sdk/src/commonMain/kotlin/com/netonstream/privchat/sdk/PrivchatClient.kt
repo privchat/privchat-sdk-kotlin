@@ -33,6 +33,8 @@ expect class PrivchatClient private constructor() {
     suspend fun register(username: String, password: String, deviceId: String): Result<AuthResult>
     suspend fun login(username: String, password: String, deviceId: String): Result<AuthResult>
     suspend fun authenticate(userId: ULong, token: String, deviceId: String): Result<Unit>
+    suspend fun updateProfile(displayName: String?, avatarUrl: String? = null, bio: String? = null): Result<Unit>
+    suspend fun updateDevicePushState(deviceId: String, apnsArmed: Boolean, pushToken: String?): Result<Unit>
     suspend fun restoreLocalSession(): Result<Boolean>
     suspend fun logout(): Result<Unit>
 
@@ -112,6 +114,10 @@ expect class PrivchatClient private constructor() {
     suspend fun fetchPresence(userIds: List<ULong>): Result<List<PresenceEntry>>
     suspend fun sendTyping(channelId: ULong): Result<Unit>
     suspend fun stopTyping(channelId: ULong): Result<Unit>
+
+    // ========== Channel Event Subscription ==========
+    suspend fun subscribeChannel(channelId: ULong, channelType: UByte, token: String? = null): Result<Unit>
+    suspend fun unsubscribeChannel(channelId: ULong, channelType: UByte): Result<Unit>
 
     // ========== File ==========
     suspend fun sendAttachmentFromPath(channelId: ULong, path: String, options: SendMessageOptions?, progress: ProgressObserver?): Result<Pair<ULong, AttachmentInfo>>

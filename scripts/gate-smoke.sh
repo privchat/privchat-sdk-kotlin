@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/../.." && pwd)"
-RUST_DIR="$ROOT_DIR/privchat-rust"
+RUST_DIR="$ROOT_DIR/privchat-sdk"
 KOTLIN_DIR="$ROOT_DIR/privchat-sdk-kotlin"
 
 if [[ -f "$HOME/.zshrc" ]]; then

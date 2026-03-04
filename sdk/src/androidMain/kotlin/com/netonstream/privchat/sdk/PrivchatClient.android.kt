@@ -41,6 +41,7 @@ import uniffi.privchat_sdk_ffi.StoredMessage
 import uniffi.privchat_sdk_ffi.StoredUser
 import uniffi.privchat_sdk_ffi.TransportProtocol as CoreProtocol
 import uniffi.privchat_sdk_ffi.TypingActionType
+import uniffi.privchat_sdk_ffi.SdkEvent as CoreSdkEvent
 import uniffi.privchat_sdk_ffi.sdkVersion
 
 private val json = Json { ignoreUnknownKeys = true }
@@ -163,8 +164,12 @@ actual class PrivchatClient private actual constructor() {
     actual suspend fun nextEvent(timeoutMs: ULong): Result<SdkEventEnvelope?> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
-            val raw = c.rpcCall("__sdk.next_event_json", """{"timeout_ms":$timeoutMs}""")
-            if (raw == "null") null else parseSdkEventEnvelope(raw)
+            val envelope = c.nextEventEnvelope(timeoutMs) ?: return@runCatching null
+            SdkEventEnvelope(
+                sequenceId = envelope.sequenceId,
+                timestampMs = envelope.timestampMs,
+                event = mapSdkEvent(envelope.event),
+            )
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("nextEvent failed", it)) },
@@ -174,8 +179,13 @@ actual class PrivchatClient private actual constructor() {
     actual suspend fun recentEvents(limit: ULong): Result<List<SdkEventEnvelope>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
-            val raw = c.rpcCall("__sdk.recent_events_json", """{"limit":$limit}""")
-            parseSdkEventEnvelopeList(raw)
+            c.recentEvents(limit).map { envelope ->
+                SdkEventEnvelope(
+                    sequenceId = envelope.sequenceId,
+                    timestampMs = envelope.timestampMs,
+                    event = mapSdkEvent(envelope.event),
+                )
+            }
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("recentEvents failed", it)) },
@@ -221,6 +231,30 @@ actual class PrivchatClient private actual constructor() {
             c.authenticate(userId, token, deviceId)
             cachedUserId = userId
             cachedConnectionState = ConnectionState.Connected
+        }
+    }
+
+    actual suspend fun updateProfile(displayName: String?, avatarUrl: String?, bio: String?): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("updateProfile failed") {
+            c.updateProfile(
+                uniffi.privchat_sdk_ffi.ProfileUpdateInput(
+                    displayName = displayName,
+                    avatarUrl = avatarUrl,
+                    bio = bio,
+                )
+            )
+        }
+    }
+
+    actual suspend fun updateDevicePushState(
+        deviceId: String,
+        apnsArmed: Boolean,
+        pushToken: String?,
+    ): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("updateDevicePushState failed") {
+            c.updateDevicePushState(deviceId, apnsArmed, pushToken)
         }
     }
 
@@ -936,6 +970,16 @@ actual class PrivchatClient private actual constructor() {
         return callAsync("stopTyping failed") { c.sendTyping(channelId, channelType, false, TypingActionType.TYPING) }
     }
 
+    actual suspend fun subscribeChannel(channelId: ULong, channelType: UByte, token: String?): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("subscribeChannel failed") { c.subscribeChannel(channelId, channelType, token) }
+    }
+
+    actual suspend fun unsubscribeChannel(channelId: ULong, channelType: UByte): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("unsubscribeChannel failed") { c.unsubscribeChannel(channelId, channelType) }
+    }
+
     actual suspend fun sendAttachmentFromPath(channelId: ULong, path: String, options: SendMessageOptions?, progress: ProgressObserver?): Result<Pair<ULong, AttachmentInfo>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
@@ -1249,46 +1293,6 @@ private fun NetworkHint.toCoreNetworkHint(): uniffi.privchat_sdk_ffi.NetworkHint
     NetworkHint.Ethernet -> uniffi.privchat_sdk_ffi.NetworkHint.ETHERNET
 }
 
-private fun parseSdkEventEnvelope(raw: String): SdkEventEnvelope {
-    val obj = parseJsonObject(raw)
-    val eventObj = obj.obj("event") ?: JsonObject(emptyMap())
-    return SdkEventEnvelope(
-        sequenceId = obj.ulong("sequence_id") ?: obj.ulong("sequenceId") ?: 0uL,
-        timestampMs = obj.long("timestamp_ms") ?: obj.long("timestampMs") ?: 0L,
-        event = SdkEventPayload(
-            type = eventObj.string("type") ?: "unknown",
-            fromState = eventObj.string("from_state") ?: eventObj.string("fromState"),
-            toState = eventObj.string("to_state") ?: eventObj.string("toState"),
-            fromNetworkHint = eventObj.string("from_network_hint") ?: eventObj.string("fromNetworkHint"),
-            toNetworkHint = eventObj.string("to_network_hint") ?: eventObj.string("toNetworkHint"),
-            userId = eventObj.ulong("user_id") ?: eventObj.ulong("userId"),
-            entityType = eventObj.string("entity_type") ?: eventObj.string("entityType"),
-            entityId = eventObj.string("entity_id") ?: eventObj.string("entityId"),
-            scope = eventObj.string("scope"),
-            deleted = eventObj.bool("deleted"),
-            channelId = eventObj.ulong("channel_id") ?: eventObj.ulong("channelId"),
-            channelType = (eventObj.long("channel_type") ?: eventObj.long("channelType"))?.toInt(),
-            messageId = eventObj.ulong("message_id") ?: eventObj.ulong("messageId"),
-            reason = eventObj.string("reason"),
-            status = eventObj.long("status")?.toInt(),
-            serverMessageId = eventObj.ulong("server_message_id") ?: eventObj.ulong("serverMessageId"),
-            isRead = eventObj.bool("is_read") ?: eventObj.bool("isRead"),
-            isTyping = eventObj.bool("is_typing") ?: eventObj.bool("isTyping"),
-            kind = eventObj.string("kind"),
-            action = eventObj.string("action"),
-            queueIndex = eventObj.ulong("queue_index") ?: eventObj.ulong("queueIndex"),
-            queued = eventObj.ulong("queued"),
-            applied = eventObj.ulong("applied"),
-            droppedDuplicates = eventObj.ulong("dropped_duplicates") ?: eventObj.ulong("droppedDuplicates"),
-        ),
-    )
-}
-
-private fun parseSdkEventEnvelopeList(raw: String): List<SdkEventEnvelope> {
-    val arr = parseJsonElement(raw) as? JsonArray ?: return emptyList()
-    return arr.map { parseSdkEventEnvelope(it.toString()) }
-}
-
 private fun decodeSeenBy(raw: String, limit: UInt?): List<SeenByEntry> {
     val arr = parseJsonObject(raw).array("items")
         ?: parseJsonElement(raw).takeIf { it is JsonArray } as? JsonArray
@@ -1360,4 +1364,89 @@ private operator fun MutableMap<String, JsonElement?>.set(key: String, value: An
         is List<*> -> JsonArray(value.mapNotNull { it?.let { e -> JsonPrimitive(e.toString()) } })
         else -> JsonPrimitive(value.toString())
     }
+}
+
+private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
+    is CoreSdkEvent.ConnectionStateChanged -> SdkEventPayload(
+        type = "connection_state_changed",
+        fromState = event.from.name,
+        toState = event.to.name,
+    )
+    is CoreSdkEvent.BootstrapCompleted -> SdkEventPayload(
+        type = "bootstrap_completed",
+        userId = event.userId,
+    )
+    is CoreSdkEvent.SyncEntitiesApplied -> SdkEventPayload(
+        type = "sync_entities_applied",
+        entityType = event.entityType,
+        scope = event.scope,
+        queued = event.queued,
+        applied = event.applied,
+        droppedDuplicates = event.droppedDuplicates,
+    )
+    is CoreSdkEvent.SyncEntityChanged -> SdkEventPayload(
+        type = "sync_entity_changed",
+        entityType = event.entityType,
+        entityId = event.entityId,
+        deleted = event.deleted,
+    )
+    is CoreSdkEvent.SyncChannelApplied -> SdkEventPayload(
+        type = "sync_channel_applied",
+        channelId = event.channelId,
+        channelType = event.channelType,
+        applied = event.applied,
+    )
+    is CoreSdkEvent.SyncAllChannelsApplied -> SdkEventPayload(
+        type = "sync_all_channels_applied",
+        applied = event.applied,
+    )
+    is CoreSdkEvent.NetworkHintChanged -> SdkEventPayload(
+        type = "network_hint_changed",
+        fromNetworkHint = event.from.name,
+        toNetworkHint = event.to.name,
+    )
+    is CoreSdkEvent.OutboundQueueUpdated -> SdkEventPayload(
+        type = "outbound_queue_updated",
+        kind = event.kind,
+        action = event.action,
+        messageId = event.messageId,
+        queueIndex = event.queueIndex,
+    )
+    is CoreSdkEvent.TimelineUpdated -> SdkEventPayload(
+        type = "timeline_updated",
+        channelId = event.channelId,
+        channelType = event.channelType,
+        messageId = event.messageId,
+        reason = event.reason,
+    )
+    is CoreSdkEvent.ReadReceiptUpdated -> SdkEventPayload(
+        type = "read_receipt_updated",
+        channelId = event.channelId,
+        channelType = event.channelType,
+        messageId = event.messageId,
+        isRead = event.isRead,
+    )
+    is CoreSdkEvent.MessageSendStatusChanged -> SdkEventPayload(
+        type = "message_send_status_changed",
+        messageId = event.messageId,
+        status = event.status,
+        serverMessageId = event.serverMessageId,
+    )
+    is CoreSdkEvent.TypingSent -> SdkEventPayload(
+        type = "typing_sent",
+        channelId = event.channelId,
+        channelType = event.channelType,
+        isTyping = event.isTyping,
+    )
+    is CoreSdkEvent.SubscriptionMessageReceived -> SdkEventPayload(
+        type = "subscription_message_received",
+        channelId = event.channelId,
+        topic = event.topic,
+        payload = event.payload,
+        publisher = event.publisher,
+        serverMessageId = event.serverMessageId,
+        timestamp = event.timestamp,
+    )
+    CoreSdkEvent.ShutdownStarted -> SdkEventPayload(type = "shutdown_started")
+    CoreSdkEvent.ShutdownCompleted -> SdkEventPayload(type = "shutdown_completed")
 }

@@ -566,6 +566,13 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `stopTyping`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `storage`(): UserStoragePaths
+    
+    /**
+     * 订阅频道事件（进入聊天页面时调用，接收 typing / presence 等状态事件）
+     * channel_type: 0=Private, 1=Group, 2=Room
+     * token: 可选，Room 类型订阅时传入业务 API 签发的 ticket（JWT）
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `subscribeChannel`(`channelId`: kotlin.ULong, `channelType`: kotlin.UByte, `token`: kotlin.String?)
     fun `subscribeEvents`(): kotlin.Boolean
     fun `subscribeNetworkStatus`(): kotlin.Boolean
     
@@ -596,6 +603,12 @@ interface PrivchatClientInterface {
     fun `timezoneMinutes`(): kotlin.Int
     fun `timezoneSeconds`(): kotlin.Int
     fun `toClientEndpoint`(): kotlin.String?
+    
+    /**
+     * 取消订阅频道事件（离开聊天页面时调用）
+     * channel_type: 0=Private, 1=Group, 2=Room
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `unsubscribeChannel`(`channelId`: kotlin.ULong, `channelType`: kotlin.UByte)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `unsubscribePresence`(`userIds`: List<kotlin.ULong>)
     
@@ -1852,6 +1865,16 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `storage`() : UserStoragePaths
 
+    
+    /**
+     * 订阅频道事件（进入聊天页面时调用，接收 typing / presence 等状态事件）
+     * channel_type: 0=Private, 1=Group, 2=Room
+     * token: 可选，Room 类型订阅时传入业务 API 签发的 ticket（JWT）
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `subscribeChannel`(`channelId`: kotlin.ULong, `channelType`: kotlin.UByte, `token`: kotlin.String?)
+
     override fun `subscribeEvents`(): kotlin.Boolean
     
 
@@ -1930,6 +1953,15 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
 
     override fun `toClientEndpoint`(): kotlin.String?
     
+
+    
+    /**
+     * 取消订阅频道事件（离开聊天页面时调用）
+     * channel_type: 0=Private, 1=Group, 2=Room
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `unsubscribeChannel`(`channelId`: kotlin.ULong, `channelType`: kotlin.UByte)
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -4544,6 +4576,17 @@ sealed class SdkEvent {
         val `channelId`: kotlin.ULong  , 
         val `channelType`: kotlin.Int  , 
         val `isTyping`: kotlin.Boolean  ) : SdkEvent() {
+        
+    }
+    
+    
+    data class SubscriptionMessageReceived(
+        val `channelId`: kotlin.ULong  , 
+        val `topic`: kotlin.String?  = null  , 
+        val `payload`: kotlin.ByteArray  , 
+        val `publisher`: kotlin.String?  = null  , 
+        val `serverMessageId`: kotlin.ULong?  = null  , 
+        val `timestamp`: kotlin.ULong  ) : SdkEvent() {
         
     }
     

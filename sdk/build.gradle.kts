@@ -60,9 +60,9 @@ kotlin {
         }
     }
 
-    // Desktop Native（Kotlin/Native，无 JVM）
-    linuxX64()
-    mingwX64()
+    // Desktop Native 暂不启用（缺少 cinterop FFI 绑定）
+    // linuxX64()
+    // mingwX64()
 
     targets.all {
         compilations.all {
@@ -97,9 +97,9 @@ android {
 
 // ========== Privchat FFI 配置 ==========
 val os = OperatingSystem.current()!!
-val privchatRustDir = rootProject.layout.projectDirectory.dir("../privchat-rust/crates/privchat-sdk-ffi")
-val privchatSdkDir = rootProject.layout.projectDirectory.dir("../privchat-rust")
-val privchatWorkspaceTargetDir = rootProject.layout.projectDirectory.dir("../privchat-rust/target/release")
+val privchatRustDir = rootProject.layout.projectDirectory.dir("../privchat-sdk/crates/privchat-sdk-ffi")
+val privchatSdkDir = rootProject.layout.projectDirectory.dir("../privchat-sdk")
+val privchatWorkspaceTargetDir = rootProject.layout.projectDirectory.dir("../privchat-sdk/target/release")
 val privchatHostLibName = when {
     os.isMacOsX -> "libprivchat_sdk_ffi.dylib"
     os.isWindows -> "privchat_sdk_ffi.dll"

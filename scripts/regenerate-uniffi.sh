@@ -2,9 +2,11 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-RUST_DIR="${ROOT_DIR}/../privchat-rust"
+RUST_DIR="${ROOT_DIR}/../privchat-sdk"
 KMP_BINDGEN_DEFAULT="${ROOT_DIR}/../uniffi-kotlin-multiplatform-bindings/target/release/uniffi-bindgen-kotlin-multiplatform"
 KMP_BINDGEN="${KMP_BINDGEN:-$KMP_BINDGEN_DEFAULT}"
+UNIFFI_CONTRACT_VERSION="${UNIFFI_CONTRACT_VERSION:-30}"
+ANDROID_BINDING_FILE="sdk/src/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt"
 
 if [[ ! -x "$KMP_BINDGEN" ]]; then
   echo "[regen] missing bindgen binary: $KMP_BINDGEN"
@@ -28,10 +30,10 @@ echo "[regen] generate bindings -> $OUT_DIR"
 echo "[regen] install generated kotlin/headers"
 cd "$ROOT_DIR"
 FILES=(
-  "shared/src/commonMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.common.kt"
-  "shared/src/nativeMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.native.kt"
-  "shared/src/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt"
-  "shared/src/nativeInterop/cinterop/privchat_sdk_ffi.h"
+  "sdk/src/commonMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.common.kt"
+  "sdk/src/nativeMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.native.kt"
+  "sdk/src/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt"
+  "sdk/src/nativeInterop/cinterop/privchat_sdk_ffi.h"
 )
 BACKUP_DIR="$(mktemp -d /tmp/privchat-uniffi-backup-XXXXXX)"
 for f in "${FILES[@]}"; do
@@ -39,23 +41,27 @@ for f in "${FILES[@]}"; do
 done
 
 restore_backup() {
-  cp "$BACKUP_DIR/privchat_sdk_ffi.common.kt" "shared/src/commonMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.common.kt"
-  cp "$BACKUP_DIR/privchat_sdk_ffi.native.kt" "shared/src/nativeMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.native.kt"
-  cp "$BACKUP_DIR/privchat_sdk_ffi.android.kt" "shared/src/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt"
-  cp "$BACKUP_DIR/privchat_sdk_ffi.h" "shared/src/nativeInterop/cinterop/privchat_sdk_ffi.h"
+  cp "$BACKUP_DIR/privchat_sdk_ffi.common.kt" "sdk/src/commonMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.common.kt"
+  cp "$BACKUP_DIR/privchat_sdk_ffi.native.kt" "sdk/src/nativeMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.native.kt"
+  cp "$BACKUP_DIR/privchat_sdk_ffi.android.kt" "sdk/src/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt"
+  cp "$BACKUP_DIR/privchat_sdk_ffi.h" "sdk/src/nativeInterop/cinterop/privchat_sdk_ffi.h"
 }
 
 install -m 0644 "$OUT_DIR/commonMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.common.kt" \
-  "shared/src/commonMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.common.kt"
+  "sdk/src/commonMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.common.kt"
 install -m 0644 "$OUT_DIR/nativeMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.native.kt" \
-  "shared/src/nativeMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.native.kt"
+  "sdk/src/nativeMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.native.kt"
 install -m 0644 "$OUT_DIR/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt" \
-  "shared/src/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt"
+  "$ANDROID_BINDING_FILE"
 install -m 0644 "$OUT_DIR/nativeInterop/cinterop/headers/privchat_sdk_ffi/privchat_sdk_ffi.h" \
-  "shared/src/nativeInterop/cinterop/privchat_sdk_ffi.h"
+  "sdk/src/nativeInterop/cinterop/privchat_sdk_ffi.h"
+
+echo "[regen] patch android UniFFI contract version -> $UNIFFI_CONTRACT_VERSION"
+perl -0777 -i -pe "s/val bindings_contract_version = \\d+/val bindings_contract_version = ${UNIFFI_CONTRACT_VERSION}/g" \
+  "$ANDROID_BINDING_FILE"
 
 echo "[regen] verify kotlin compile"
-if ! ./gradlew :shared:compileDebugKotlinAndroid :shared:compileKotlinIosSimulatorArm64 --no-daemon; then
+if ! ./gradlew :sdk:compileDebugKotlinAndroid :sdk:compileKotlinIosSimulatorArm64 --no-daemon; then
   echo "[regen] generated bindings do not compile with current runtime/templates, rolling back"
   restore_backup
   exit 1

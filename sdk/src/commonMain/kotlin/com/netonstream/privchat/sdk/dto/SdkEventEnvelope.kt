@@ -31,4 +31,8 @@ data class SdkEventPayload(
     val queued: ULong? = null,
     val applied: ULong? = null,
     val droppedDuplicates: ULong? = null,
+    val topic: String? = null,
+    val publisher: String? = null,
+    val payload: ByteArray? = null,
+    val timestamp: ULong? = null,
 )

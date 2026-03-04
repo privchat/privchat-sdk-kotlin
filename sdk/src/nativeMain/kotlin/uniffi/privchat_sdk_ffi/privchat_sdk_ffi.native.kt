@@ -789,6 +789,10 @@ get() = useContents { `uniffiFree`/* test  Any? */}
 
 
 
+
+
+
+
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -1315,6 +1319,8 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_storage(`ptr`: Pointer?,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_channel(`ptr`: Pointer?,`channelId`: Long,`channelType`: Byte,`token`: RustBufferByValue,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_events(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
     ): Byte
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_network_status(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
@@ -1353,6 +1359,8 @@ internal interface UniffiLib {
     ): Int
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_to_client_endpoint(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_unsubscribe_channel(`ptr`: Pointer?,`channelId`: Long,`channelType`: Byte,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_unsubscribe_presence(`ptr`: Pointer?,`userIds`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_device_push_state(`ptr`: Pointer?,`deviceId`: RustBufferByValue,`apnsArmed`: Byte,`pushToken`: RustBufferByValue,
@@ -2027,6 +2035,8 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_storage(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_channel(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_events(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_network_status(
@@ -2064,6 +2074,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_timezone_seconds(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_to_client_endpoint(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unsubscribe_channel(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unsubscribe_presence(
     ): Short
@@ -3141,6 +3153,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_storage(`ptr`?.inner,)as Long
     
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_channel(`ptr`: Pointer?,`channelId`: Long,`channelType`: Byte,`token`: RustBufferByValue,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_channel(`ptr`?.inner,`channelId`,`channelType`,`token` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
+    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_events(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
     ): Byte
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_events(`ptr`?.inner,uniffiCallStatus.reinterpret(), )as Byte
@@ -3216,6 +3232,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_to_client_endpoint(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_to_client_endpoint(`ptr`?.inner,uniffiCallStatus.reinterpret(), )as RustBufferByValue
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_unsubscribe_channel(`ptr`: Pointer?,`channelId`: Long,`channelType`: Byte,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_unsubscribe_channel(`ptr`?.inner,`channelId`,`channelType`,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_unsubscribe_presence(`ptr`: Pointer?,`userIds`: RustBufferByValue,
     ): Long
@@ -4565,6 +4585,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_storage()as Short
     
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_channel(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_channel()as Short
+    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_events(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_events()as Short
@@ -4640,6 +4664,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_to_client_endpoint(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_to_client_endpoint()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unsubscribe_channel(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unsubscribe_channel()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unsubscribe_presence(
     ): Short
@@ -10299,6 +10327,34 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
+    
+    /**
+     * 订阅频道事件（进入聊天页面时调用，接收 typing / presence 等状态事件）
+     * channel_type: 0=Private, 1=Group, 2=Room
+     * token: 可选，Room 类型订阅时传入业务 API 签发的 ticket（JWT）
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `subscribeChannel`(`channelId`: kotlin.ULong, `channelType`: kotlin.UByte, `token`: kotlin.String?) {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_channel(
+                thisPtr,
+                FfiConverterULong.lower(`channelId`),FfiConverterUByte.lower(`channelType`),FfiConverterOptionalString.lower(`token`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
+        // lift function
+        { Unit },
+        
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
     actual override fun `subscribeEvents`(): kotlin.Boolean {
             return FfiConverterBoolean.lift(
     callWithPointer {
@@ -10638,6 +10694,33 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
     
+
+    
+    /**
+     * 取消订阅频道事件（离开聊天页面时调用）
+     * channel_type: 0=Private, 1=Group, 2=Room
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `unsubscribeChannel`(`channelId`: kotlin.ULong, `channelType`: kotlin.UByte) {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_unsubscribe_channel(
+                thisPtr,
+                FfiConverterULong.lower(`channelId`),FfiConverterUByte.lower(`channelType`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
+        // lift function
+        { Unit },
+        
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -15406,8 +15489,16 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterInt.read(buf),
                 FfiConverterBoolean.read(buf),
                 )
-            13 -> SdkEvent.ShutdownStarted
-            14 -> SdkEvent.ShutdownCompleted
+            13 -> SdkEvent.SubscriptionMessageReceived(
+                FfiConverterULong.read(buf),
+                FfiConverterOptionalString.read(buf),
+                FfiConverterByteArray.read(buf),
+                FfiConverterOptionalString.read(buf),
+                FfiConverterOptionalULong.read(buf),
+                FfiConverterULong.read(buf),
+                )
+            14 -> SdkEvent.ShutdownStarted
+            15 -> SdkEvent.ShutdownCompleted
             else -> throw RuntimeException("invalid enum value, something is very wrong!!")
         }
     }
@@ -15520,6 +15611,18 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 + FfiConverterBoolean.allocationSize(value.`isTyping`)
             )
         }
+        is SdkEvent.SubscriptionMessageReceived -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterULong.allocationSize(value.`channelId`)
+                + FfiConverterOptionalString.allocationSize(value.`topic`)
+                + FfiConverterByteArray.allocationSize(value.`payload`)
+                + FfiConverterOptionalString.allocationSize(value.`publisher`)
+                + FfiConverterOptionalULong.allocationSize(value.`serverMessageId`)
+                + FfiConverterULong.allocationSize(value.`timestamp`)
+            )
+        }
         is SdkEvent.ShutdownStarted -> {
             // Add the size for the Int that specifies the variant plus the size needed for all fields
             (
@@ -15619,12 +15722,22 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterBoolean.write(value.`isTyping`, buf)
                 Unit
             }
-            is SdkEvent.ShutdownStarted -> {
+            is SdkEvent.SubscriptionMessageReceived -> {
                 buf.putInt(13)
+                FfiConverterULong.write(value.`channelId`, buf)
+                FfiConverterOptionalString.write(value.`topic`, buf)
+                FfiConverterByteArray.write(value.`payload`, buf)
+                FfiConverterOptionalString.write(value.`publisher`, buf)
+                FfiConverterOptionalULong.write(value.`serverMessageId`, buf)
+                FfiConverterULong.write(value.`timestamp`, buf)
+                Unit
+            }
+            is SdkEvent.ShutdownStarted -> {
+                buf.putInt(14)
                 Unit
             }
             is SdkEvent.ShutdownCompleted -> {
-                buf.putInt(14)
+                buf.putInt(15)
                 Unit
             }
         }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }

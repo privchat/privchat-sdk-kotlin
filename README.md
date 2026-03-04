@@ -5,7 +5,7 @@ Kotlin 多平台统一 SDK，当前架构为：
 - `androidMain`：Android 实现
 - `nativeMain`：Native 实现（iOS/macOS/Linux/Windows 共用一套 actual）
 
-底层统一依赖 `privchat-rust`（`privchat-sdk` + `privchat-sdk-ffi`），通过 UniFFI + cinterop 绑定。
+底层统一依赖 `privchat-sdk`（`privchat-sdk` + `privchat-sdk-ffi`），通过 UniFFI + cinterop 绑定。
 
 产物：`com.netonstream.privchat:sdk:0.1.0`
 
@@ -15,7 +15,7 @@ Kotlin 多平台统一 SDK，当前架构为：
 
 1. 在本仓库根目录先构建 Rust FFI，再发布 Kotlin 库到本地 Maven：
    ```bash
-   cd ../privchat-rust && cargo build -p privchat-sdk-ffi --release
+   cd ../privchat-sdk && cargo build -p privchat-sdk-ffi --release
    cd ../privchat-sdk-kotlin && ./gradlew :sdk:publishToMavenLocal
    ```
 2. 在你的项目里添加本地 Maven 仓库并依赖：
@@ -27,7 +27,7 @@ Kotlin 多平台统一 SDK，当前架构为：
 
 **方式二：作为本地子项目（需保留整仓目录结构）**
 
-1. 将本仓库克隆或 submodule 到你的项目旁（或子目录），保证 `privchat-rust` 与 `privchat-sdk-kotlin` 同级。
+1. 将本仓库克隆或 submodule 到你的项目旁（或子目录），保证 `privchat-sdk` 与 `privchat-sdk-kotlin` 同级。
 2. 在你的项目 `settings.gradle.kts` 里 include 本仓库的 sdk 模块，例如：
    ```kotlin
    includeBuild("../privchat-sdk-kotlin") {
@@ -41,7 +41,7 @@ Kotlin 多平台统一 SDK，当前架构为：
    implementation("com.netonstream.privchat:sdk")
    ```
 
-说明：`sdk` 构建依赖同仓库内的 `privchat-rust`，不能仅拷贝 `privchat-sdk-kotlin` 单目录独立构建。
+说明：`sdk` 构建依赖同仓库内的 `privchat-sdk`，不能仅拷贝 `privchat-sdk-kotlin` 单目录独立构建。
 
 ## 技术栈
 
@@ -60,8 +60,8 @@ Kotlin 多平台统一 SDK，当前架构为：
 ## 构建
 
 ```bash
-# 确保 privchat-rust FFI 已构建
-cd ../privchat-rust
+# 确保 privchat-sdk FFI 已构建
+cd ../privchat-sdk
 cargo build -p privchat-sdk-ffi --release
 
 # 构建 sdk 模块（按需）
@@ -97,7 +97,7 @@ source ~/.zshrc
 ./scripts/gate-smoke.sh
 ```
 
-## FFI 头文件与静态库生成方法（privchat-rust）
+## FFI 头文件与静态库生成方法（privchat-sdk）
 
 修改 Rust 侧 `privchat-sdk-ffi` 接口（如新增/修改 FFI 方法）后，需要更新头文件并重新编译各目标 `.a`。
 
@@ -112,7 +112,7 @@ source ~/.zshrc
 
 ```bash
 # 1) 编译 host dylib
-cd ../privchat-rust
+cd ../privchat-sdk
 cargo build -p privchat-sdk-ffi --release
 
 # 2) 生成 Swift/C 头（标准 UniFFI 命令）
@@ -159,21 +159,15 @@ cd ../privchat-sdk-kotlin
 
 ### UniFFI contract version 修正
 
-当前 `uniffi-bindgen-kotlin-multiplatform`（v0.4.3）内置的 `uniffi_bindgen` 版本为 **0.28.3**，生成的 binding 代码中 `bindings_contract_version = 26`。而 `privchat-rust` 使用的 `uniffi` 版本为 **0.31.0**，其 scaffolding 返回的 contract version 为 **30**。
+当前 `uniffi-bindgen-kotlin-multiplatform`（v0.4.3）内置的 `uniffi_bindgen` 版本为 **0.28.3**，生成的 Android binding 默认 `bindings_contract_version = 26`；而 `privchat-sdk`（`uniffi = 0.31.0`）的 scaffolding contract version 为 **30**。
 
-每次通过 `regenerate-uniffi.sh` 重新生成 binding 后，需要手动修正 Android binding 中的版本号，否则运行时会报 `UniFFI contract version mismatch` 错误：
+`scripts/regenerate-uniffi.sh` 和 `build-ios.sh` 已内置自动修正逻辑，会在生成后把 Android binding 中的 `bindings_contract_version` 覆盖为 `30`，避免运行时 `UniFFI contract version mismatch`。
 
+如需调整该值，可在执行脚本时覆盖：
+
+```bash
+UNIFFI_CONTRACT_VERSION=30 ./scripts/regenerate-uniffi.sh
 ```
-sdk/src/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt
-```
-
-搜索 `bindings_contract_version = 26`，改为：
-
-```kotlin
-val bindings_contract_version = 30
-```
-
-后续如果升级 `uniffi-bindgen-kotlin-multiplatform` 使其内置的 `uniffi_bindgen` 版本与 Rust 侧一致，则无需此手动修正。
 
 ## Sample
 
@@ -191,7 +185,7 @@ import com.netonstream.privchat.sdk.*
 
 val config = PrivchatConfig(
     dataDir = "/path/to/data",
-    assetsDir = "/path/to/privchat-rust/assets",
+    assetsDir = "/path/to/privchat-sdk/assets",
     serverEndpoints = listOf(
         ServerEndpoint(
             protocol = TransportProtocol.WebSocket,
@@ -210,7 +204,7 @@ client.runBootstrapSync()
 
 ## API 契约
 
-遵循 `privchat-rust` 的公开 API 约束与迁移文档（见 `../privchat-rust/docs/public-api-v2.md`、`../privchat-rust/docs/architecture-spec.md`），与 privchat-sdk-android / privchat-sdk-swift 保持一致。
+遵循 `privchat-sdk` 的公开 API 约束与迁移文档（见 `../privchat-sdk/docs/public-api-v2.md`、`../privchat-sdk/docs/architecture-spec.md`），与 privchat-sdk-android / privchat-sdk-swift 保持一致。
 
 ## 约束
 
