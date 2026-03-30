@@ -789,10 +789,6 @@ get() = useContents { `uniffiFree`/* test  Any? */}
 
 
 
-
-
-
-
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -1111,17 +1107,15 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_all_mentions_read(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`userId`: Long,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_as_read(`ptr`: Pointer?,`channelId`: Long,`serverMessageId`: Long,
-    ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_as_read_blocking(`ptr`: Pointer?,`channelId`: Long,`serverMessageId`: Long,
-    ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_channel_read(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,
-    ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_fully_read_at(`ptr`: Pointer?,`channelId`: Long,`serverMessageId`: Long,
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_fully_read_at(`ptr`: Pointer?,`channelId`: Long,`readPts`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_mention_read(`ptr`: Pointer?,`messageId`: Long,`userId`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_message_sent(`ptr`: Pointer?,`messageId`: Long,`serverMessageId`: Long,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_read_to_pts(`ptr`: Pointer?,`channelId`: Long,`readPts`: Long,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_read_to_pts_blocking(`ptr`: Pointer?,`channelId`: Long,`readPts`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_reminder_done(`ptr`: Pointer?,`reminderId`: Long,`done`: Byte,
     ): Long
@@ -1286,8 +1280,6 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_current_uid(`ptr`: Pointer?,`uid`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_pinned(`ptr`: Pointer?,`messageId`: Long,`isPinned`: Byte,
-    ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_read(`ptr`: Pointer?,`messageId`: Long,`channelId`: Long,`channelType`: Int,`isRead`: Byte,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_revoke(`ptr`: Pointer?,`messageId`: Long,`revoked`: Byte,`revoker`: RustBufferByValue,
     ): Long
@@ -1827,17 +1819,15 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_all_mentions_read(
     ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_as_read(
-    ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_as_read_blocking(
-    ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_channel_read(
-    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_fully_read_at(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_mention_read(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_message_sent(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_read_to_pts(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_read_to_pts_blocking(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_reminder_done(
     ): Short
@@ -2002,8 +1992,6 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_current_uid(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_pinned(
-    ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_read(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_revoke(
     ): Short
@@ -2737,21 +2725,9 @@ internal class UniffiLibInstance: UniffiLib {
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_all_mentions_read(`ptr`?.inner,`channelId`,`channelType`,`userId`,)as Long
     
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_as_read(`ptr`: Pointer?,`channelId`: Long,`serverMessageId`: Long,
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_fully_read_at(`ptr`: Pointer?,`channelId`: Long,`readPts`: Long,
     ): Long
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_as_read(`ptr`?.inner,`channelId`,`serverMessageId`,)as Long
-    
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_as_read_blocking(`ptr`: Pointer?,`channelId`: Long,`serverMessageId`: Long,
-    ): Long
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_as_read_blocking(`ptr`?.inner,`channelId`,`serverMessageId`,)as Long
-    
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_channel_read(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,
-    ): Long
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_channel_read(`ptr`?.inner,`channelId`,`channelType`,)as Long
-    
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_fully_read_at(`ptr`: Pointer?,`channelId`: Long,`serverMessageId`: Long,
-    ): Long
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_fully_read_at(`ptr`?.inner,`channelId`,`serverMessageId`,)as Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_fully_read_at(`ptr`?.inner,`channelId`,`readPts`,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_mention_read(`ptr`: Pointer?,`messageId`: Long,`userId`: Long,
     ): Long
@@ -2760,6 +2736,14 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_message_sent(`ptr`: Pointer?,`messageId`: Long,`serverMessageId`: Long,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_message_sent(`ptr`?.inner,`messageId`,`serverMessageId`,)as Long
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_read_to_pts(`ptr`: Pointer?,`channelId`: Long,`readPts`: Long,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_read_to_pts(`ptr`?.inner,`channelId`,`readPts`,)as Long
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_read_to_pts_blocking(`ptr`: Pointer?,`channelId`: Long,`readPts`: Long,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_read_to_pts_blocking(`ptr`?.inner,`channelId`,`readPts`,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_reminder_done(`ptr`: Pointer?,`reminderId`: Long,`done`: Byte,
     ): Long
@@ -3088,10 +3072,6 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_pinned(`ptr`: Pointer?,`messageId`: Long,`isPinned`: Byte,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_pinned(`ptr`?.inner,`messageId`,`isPinned`,)as Long
-    
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_read(`ptr`: Pointer?,`messageId`: Long,`channelId`: Long,`channelType`: Int,`isRead`: Byte,
-    ): Long
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_read(`ptr`?.inner,`messageId`,`channelId`,`channelType`,`isRead`,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_revoke(`ptr`: Pointer?,`messageId`: Long,`revoked`: Byte,`revoker`: RustBufferByValue,
     ): Long
@@ -4169,18 +4149,6 @@ internal class UniffiLibInstance: UniffiLib {
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_all_mentions_read()as Short
     
-    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_as_read(
-    ): Short
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_as_read()as Short
-    
-    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_as_read_blocking(
-    ): Short
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_as_read_blocking()as Short
-    
-    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_channel_read(
-    ): Short
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_channel_read()as Short
-    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_fully_read_at(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_fully_read_at()as Short
@@ -4192,6 +4160,14 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_message_sent(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_message_sent()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_read_to_pts(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_read_to_pts()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_read_to_pts_blocking(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_read_to_pts_blocking()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_reminder_done(
     ): Short
@@ -4520,10 +4496,6 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_pinned(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_pinned()as Short
-    
-    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_read(
-    ): Short
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_read()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_revoke(
     ): Short
@@ -8227,87 +8199,20 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `markAsRead`(`channelId`: kotlin.ULong, `serverMessageId`: kotlin.ULong) : kotlin.Boolean {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_as_read(
-                thisPtr,
-                FfiConverterULong.lower(`channelId`),FfiConverterULong.lower(`serverMessageId`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_i8(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_i8(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_i8(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_i8(future) },
-        // lift function
-        { FfiConverterBoolean.lift(it!!) },
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `markAsReadBlocking`(`channelId`: kotlin.ULong, `serverMessageId`: kotlin.ULong) : kotlin.Boolean {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_as_read_blocking(
-                thisPtr,
-                FfiConverterULong.lower(`channelId`),FfiConverterULong.lower(`serverMessageId`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_i8(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_i8(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_i8(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_i8(future) },
-        // lift function
-        { FfiConverterBoolean.lift(it!!) },
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `markChannelRead`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_channel_read(
-                thisPtr,
-                FfiConverterULong.lower(`channelId`),FfiConverterInt.lower(`channelType`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
-        // lift function
-        { Unit },
-        
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `markFullyReadAt`(`channelId`: kotlin.ULong, `serverMessageId`: kotlin.ULong) : kotlin.Boolean {
+    actual override suspend fun `markFullyReadAt`(`channelId`: kotlin.ULong, `readPts`: kotlin.ULong) : kotlin.ULong {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_fully_read_at(
                 thisPtr,
-                FfiConverterULong.lower(`channelId`),FfiConverterULong.lower(`serverMessageId`),
+                FfiConverterULong.lower(`channelId`),FfiConverterULong.lower(`readPts`),
             )!!
         },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_i8(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_i8(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_i8(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_i8(future) },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_u64(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_u64(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_u64(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_u64(future) },
         // lift function
-        { FfiConverterBoolean.lift(it!!) },
+        { FfiConverterULong.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -8354,6 +8259,50 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         // lift function
         { Unit },
         
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `markReadToPts`(`channelId`: kotlin.ULong, `readPts`: kotlin.ULong) : kotlin.ULong {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_read_to_pts(
+                thisPtr,
+                FfiConverterULong.lower(`channelId`),FfiConverterULong.lower(`readPts`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_u64(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_u64(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_u64(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_u64(future) },
+        // lift function
+        { FfiConverterULong.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `markReadToPtsBlocking`(`channelId`: kotlin.ULong, `readPts`: kotlin.ULong) : kotlin.ULong {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_read_to_pts_blocking(
+                thisPtr,
+                FfiConverterULong.lower(`channelId`),FfiConverterULong.lower(`readPts`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_u64(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_u64(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_u64(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_u64(future) },
+        // lift function
+        { FfiConverterULong.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -9983,29 +9932,6 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_pinned(
                 thisPtr,
                 FfiConverterULong.lower(`messageId`),FfiConverterBoolean.lower(`isPinned`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
-        // lift function
-        { Unit },
-        
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `setMessageRead`(`messageId`: kotlin.ULong, `channelId`: kotlin.ULong, `channelType`: kotlin.Int, `isRead`: kotlin.Boolean) {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_read(
-                thisPtr,
-                FfiConverterULong.lower(`messageId`),FfiConverterULong.lower(`channelId`),FfiConverterInt.lower(`channelType`),FfiConverterBoolean.lower(`isRead`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
@@ -15473,23 +15399,17 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterULong.read(buf),
                 FfiConverterString.read(buf),
                 )
-            10 -> SdkEvent.ReadReceiptUpdated(
-                FfiConverterULong.read(buf),
-                FfiConverterInt.read(buf),
-                FfiConverterULong.read(buf),
-                FfiConverterBoolean.read(buf),
-                )
-            11 -> SdkEvent.MessageSendStatusChanged(
+            10 -> SdkEvent.MessageSendStatusChanged(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterOptionalULong.read(buf),
                 )
-            12 -> SdkEvent.TypingSent(
+            11 -> SdkEvent.TypingSent(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterBoolean.read(buf),
                 )
-            13 -> SdkEvent.SubscriptionMessageReceived(
+            12 -> SdkEvent.SubscriptionMessageReceived(
                 FfiConverterULong.read(buf),
                 FfiConverterOptionalString.read(buf),
                 FfiConverterByteArray.read(buf),
@@ -15497,8 +15417,8 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterOptionalULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            14 -> SdkEvent.ShutdownStarted
-            15 -> SdkEvent.ShutdownCompleted
+            13 -> SdkEvent.ShutdownStarted
+            14 -> SdkEvent.ShutdownCompleted
             else -> throw RuntimeException("invalid enum value, something is very wrong!!")
         }
     }
@@ -15581,16 +15501,6 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 + FfiConverterInt.allocationSize(value.`channelType`)
                 + FfiConverterULong.allocationSize(value.`messageId`)
                 + FfiConverterString.allocationSize(value.`reason`)
-            )
-        }
-        is SdkEvent.ReadReceiptUpdated -> {
-            // Add the size for the Int that specifies the variant plus the size needed for all fields
-            (
-                4UL
-                + FfiConverterULong.allocationSize(value.`channelId`)
-                + FfiConverterInt.allocationSize(value.`channelType`)
-                + FfiConverterULong.allocationSize(value.`messageId`)
-                + FfiConverterBoolean.allocationSize(value.`isRead`)
             )
         }
         is SdkEvent.MessageSendStatusChanged -> {
@@ -15700,30 +15610,22 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterString.write(value.`reason`, buf)
                 Unit
             }
-            is SdkEvent.ReadReceiptUpdated -> {
-                buf.putInt(10)
-                FfiConverterULong.write(value.`channelId`, buf)
-                FfiConverterInt.write(value.`channelType`, buf)
-                FfiConverterULong.write(value.`messageId`, buf)
-                FfiConverterBoolean.write(value.`isRead`, buf)
-                Unit
-            }
             is SdkEvent.MessageSendStatusChanged -> {
-                buf.putInt(11)
+                buf.putInt(10)
                 FfiConverterULong.write(value.`messageId`, buf)
                 FfiConverterInt.write(value.`status`, buf)
                 FfiConverterOptionalULong.write(value.`serverMessageId`, buf)
                 Unit
             }
             is SdkEvent.TypingSent -> {
-                buf.putInt(12)
+                buf.putInt(11)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterInt.write(value.`channelType`, buf)
                 FfiConverterBoolean.write(value.`isTyping`, buf)
                 Unit
             }
             is SdkEvent.SubscriptionMessageReceived -> {
-                buf.putInt(13)
+                buf.putInt(12)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterOptionalString.write(value.`topic`, buf)
                 FfiConverterByteArray.write(value.`payload`, buf)
@@ -15733,11 +15635,11 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.ShutdownStarted -> {
-                buf.putInt(14)
+                buf.putInt(13)
                 Unit
             }
             is SdkEvent.ShutdownCompleted -> {
-                buf.putInt(15)
+                buf.putInt(14)
                 Unit
             }
         }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }

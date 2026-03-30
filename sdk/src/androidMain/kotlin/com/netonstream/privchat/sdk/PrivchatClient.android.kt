@@ -25,6 +25,7 @@ import kotlinx.serialization.json.longOrNull
 import kotlinx.serialization.json.contentOrNull
 import uniffi.privchat_sdk_ffi.ConnectionState as CoreConnectionState
 import uniffi.privchat_sdk_ffi.FileQueueRef
+import uniffi.privchat_sdk_ffi.GetChannelPtsInput
 import uniffi.privchat_sdk_ffi.LoginResult
 import uniffi.privchat_sdk_ffi.NewMessage
 import uniffi.privchat_sdk_ffi.PresenceStatus
@@ -346,14 +347,29 @@ actual class PrivchatClient private actual constructor() {
         return callAsync("retryMessage failed") { c.retryMessage(messageId) }
     }
 
-    actual suspend fun markAsRead(channelId: ULong, messageId: ULong): Result<Unit> {
+    actual suspend fun markReadToPts(channelId: ULong, readPts: ULong): Result<ULong> {
         val c = requireClient().getOrElse { return Result.failure(it) }
-        return callAsync("markAsRead failed") { c.markAsRead(channelId, messageId) }
+        return runCatching {
+            val raw = c.rpcCall(
+                "message/status/read_pts",
+                buildJsonObject {
+                    this["channel_id"] = channelId
+                    this["read_pts"] = readPts
+                }
+            )
+            parseReadPtsAck(raw, readPts)
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("markReadToPts failed", it)) },
+        )
+    }
+
+    actual suspend fun markAsRead(channelId: ULong, messageId: ULong): Result<Unit> {
+        return markReadToPts(channelId, messageId).map { Unit }
     }
 
     actual suspend fun markFullyReadAt(channelId: ULong, messageId: ULong): Result<Unit> {
-        val c = requireClient().getOrElse { return Result.failure(it) }
-        return callAsync("markFullyReadAt failed") { c.markFullyReadAt(channelId, messageId) }
+        return markReadToPts(channelId, messageId).map { Unit }
     }
 
     actual suspend fun revokeMessage(messageId: ULong): Result<Unit> {
@@ -682,6 +698,21 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun getChannelCurrentPts(channelId: ULong, channelType: UByte): Result<ULong> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.syncGetChannelPtsRemote(
+                GetChannelPtsInput(
+                    channelId = channelId,
+                    channelType = channelType,
+                )
+            ).currentPts
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("getChannelCurrentPts failed", it)) },
+        )
+    }
+
     actual suspend fun needsSync(channelId: ULong, channelType: UByte): Result<Boolean> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching { c.needsSync() }.fold(
@@ -711,7 +742,16 @@ actual class PrivchatClient private actual constructor() {
 
     actual suspend fun markChannelRead(channelId: ULong, channelType: Int): Result<Unit> {
         val c = requireClient().getOrElse { return Result.failure(it) }
-        return callAsync("markChannelRead failed") { c.markChannelRead(channelId, channelType) }
+        return runCatching {
+            val serverPts = c.syncGetChannelPtsRemote(
+                GetChannelPtsInput(channelId = channelId, channelType = channelType.toUByte())
+            ).currentPts
+            markReadToPts(channelId, serverPts).getOrThrow()
+            Unit
+        }.fold(
+            onSuccess = { Result.success(Unit) },
+            onFailure = { Result.failure(toSdkError("markChannelRead failed", it)) },
+        )
     }
 
     actual suspend fun pinChannel(channelId: ULong, pin: Boolean): Result<Boolean> {
@@ -1419,13 +1459,6 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         messageId = event.messageId,
         reason = event.reason,
     )
-    is CoreSdkEvent.ReadReceiptUpdated -> SdkEventPayload(
-        type = "read_receipt_updated",
-        channelId = event.channelId,
-        channelType = event.channelType,
-        messageId = event.messageId,
-        isRead = event.isRead,
-    )
     is CoreSdkEvent.MessageSendStatusChanged -> SdkEventPayload(
         type = "message_send_status_changed",
         messageId = event.messageId,
@@ -1449,4 +1482,13 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
     )
     CoreSdkEvent.ShutdownStarted -> SdkEventPayload(type = "shutdown_started")
     CoreSdkEvent.ShutdownCompleted -> SdkEventPayload(type = "shutdown_completed")
+    else -> SdkEventPayload(type = "unknown")
+}
+
+private fun parseReadPtsAck(raw: String, fallbackReadPts: ULong): ULong {
+    val obj = parseJsonObject(raw)
+    val data = obj.obj("data") ?: obj
+    return data.ulong("last_read_pts")
+        ?: data.ulong("read_pts")
+        ?: fallbackReadPts
 }

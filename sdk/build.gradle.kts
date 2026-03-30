@@ -117,6 +117,7 @@ val ndkDirPath = localProps.getProperty("ndk.dir") ?: run {
 val cargoPath = localProps.getProperty("cargo.dir")?.let { "$it/cargo${if (os.isWindows) ".exe" else ""}" }
     ?: System.getenv("CARGO_HOME")?.let { "$it/bin/cargo${if (os.isWindows) ".exe" else ""}" }
     ?: "${System.getProperty("user.home")}/.cargo/bin/cargo${if (os.isWindows) ".exe" else ""}"
+val privchatFfiManifest = privchatRustDir.file("Cargo.toml")
 
 val cargoBuildAndroid = tasks.register<CargoNdkTask>("privchatCargoBuildAndroid") {
     abis.set(targetAbis)
@@ -136,6 +137,34 @@ val cargoBuildHost = tasks.register<CargoHostTask>("privchatCargoBuildHost") {
 tasks.named("preBuild") { dependsOn(cargoBuildAndroid) }
 tasks.matching { it.name.contains("JniLibFolders") || (it.name.contains("merge") && it.name.contains("NativeLibs")) }
     .configureEach { dependsOn(cargoBuildAndroid) }
+
+// Keep iOS Rust static libraries fresh so Xcode/Gradle never links stale symbols.
+fun registerAppleFfiBuildTask(taskName: String, targetTriple: String) = tasks.register<Exec>(taskName) {
+    val outputLib = rootProject.file("../privchat-sdk/target/$targetTriple/release/libprivchat_sdk_ffi.a")
+    group = "build"
+    description = "Build privchat-sdk-ffi for $targetTriple"
+    workingDir = rootProject.file("../privchat-sdk")
+    inputs.file(privchatFfiManifest)
+    outputs.file(outputLib)
+    commandLine(
+        cargoPath,
+        "build",
+        "--manifest-path", privchatFfiManifest.asFile.absolutePath,
+        "--package", "privchat-sdk-ffi",
+        "--release",
+        "--target", targetTriple
+    )
+}
+
+val cargoBuildIosArm64 = registerAppleFfiBuildTask("privchatCargoBuildIosArm64", "aarch64-apple-ios")
+val cargoBuildIosSimulatorArm64 = registerAppleFfiBuildTask("privchatCargoBuildIosSimulatorArm64", "aarch64-apple-ios-sim")
+val cargoBuildIosX64 = registerAppleFfiBuildTask("privchatCargoBuildIosX64", "x86_64-apple-ios")
+
+tasks.register("privchatCargoBuildAppleFfi") {
+    group = "build"
+    description = "Build privchat-sdk-ffi static libraries for all Apple targets (manual trigger)"
+    dependsOn(cargoBuildIosArm64, cargoBuildIosSimulatorArm64, cargoBuildIosX64)
+}
 
 // ========== Custom tasks ==========
 @DisableCachingByDefault(because = "Builds native code")

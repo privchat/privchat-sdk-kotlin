@@ -464,17 +464,15 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_logout(void * ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_all_mentions_read(void * ptr, int64_t channelId, int32_t channelType, int64_t userId
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_as_read(void * ptr, int64_t channelId, int64_t serverMessageId
-);
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_as_read_blocking(void * ptr, int64_t channelId, int64_t serverMessageId
-);
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_channel_read(void * ptr, int64_t channelId, int32_t channelType
-);
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_fully_read_at(void * ptr, int64_t channelId, int64_t serverMessageId
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_fully_read_at(void * ptr, int64_t channelId, int64_t readPts
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_mention_read(void * ptr, int64_t messageId, int64_t userId
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_message_sent(void * ptr, int64_t messageId, int64_t serverMessageId
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_read_to_pts(void * ptr, int64_t channelId, int64_t readPts
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_read_to_pts_blocking(void * ptr, int64_t channelId, int64_t readPts
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_reminder_done(void * ptr, int64_t reminderId, int8_t done
 );
@@ -639,8 +637,6 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_channel_notificatio
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_current_uid(void * ptr, RustBuffer uid
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_pinned(void * ptr, int64_t messageId, int8_t isPinned
-);
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_read(void * ptr, int64_t messageId, int64_t channelId, int32_t channelType, int8_t isRead
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_revoke(void * ptr, int64_t messageId, int8_t revoked, RustBuffer revoker
 );
@@ -1335,15 +1331,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_logout(void
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_all_mentions_read(void
     
 );
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_as_read(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_as_read_blocking(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_channel_read(void
-    
-);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_fully_read_at(void
     
 );
@@ -1351,6 +1338,12 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_mention_read
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_message_sent(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_read_to_pts(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_read_to_pts_blocking(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_reminder_done(void
@@ -1597,9 +1590,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_current_uid(v
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_pinned(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_read(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_revoke(void

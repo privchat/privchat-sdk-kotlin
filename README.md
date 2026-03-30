@@ -97,6 +97,21 @@ source ~/.zshrc
 ./scripts/gate-smoke.sh
 ```
 
+## iOS 编译流程（手动触发 Rust FFI）
+
+默认情况下，Gradle/Xcode **不会**在每次 iOS 编译前自动重建 `libprivchat_sdk_ffi.a`。  
+推荐流程如下：
+
+1. 首次拉代码、切换机器、或修改了 Rust FFI（`privchat-sdk-ffi` / UDL / UniFFI 导出）后，先执行：
+   ```bash
+   cd /Users/zoujiaqing/projects/privchat/privchat-sdk-kotlin
+   ./gradlew :sdk:privchatCargoBuildAppleFfi
+   ```
+2. 然后再在 Xcode 编译 iOS App（或命令行 `xcodebuild`）。
+3. 如果只改了 Kotlin UI/业务代码，没有改 Rust FFI，可以直接编译 iOS，不需要重建 `.a`。
+
+说明：`Product -> Clean Build Folder` 主要清理 Xcode/DerivedData，不保证重建 `privchat-sdk/target/.../libprivchat_sdk_ffi.a`。
+
 ## FFI 头文件与静态库生成方法（privchat-sdk）
 
 修改 Rust 侧 `privchat-sdk-ffi` 接口（如新增/修改 FFI 方法）后，需要更新头文件并重新编译各目标 `.a`。

@@ -45,6 +45,7 @@ expect class PrivchatClient private constructor() {
     suspend fun sendTextWithLocalId(channelId: ULong, channelType: Int, text: String, localMessageId: ULong): Result<ULong>
     suspend fun sendMedia(channelId: ULong, filePath: String, options: SendMessageOptions?): Result<Pair<ULong, AttachmentInfo>>
     suspend fun retryMessage(messageId: ULong): Result<Unit>
+    suspend fun markReadToPts(channelId: ULong, readPts: ULong): Result<ULong>
     suspend fun markAsRead(channelId: ULong, messageId: ULong): Result<Unit>
     suspend fun markFullyReadAt(channelId: ULong, messageId: ULong): Result<Unit>
     suspend fun revokeMessage(messageId: ULong): Result<Unit>
@@ -78,6 +79,7 @@ expect class PrivchatClient private constructor() {
     suspend fun syncChannel(channelId: ULong, channelType: UByte): Result<SyncStateEntry>
     suspend fun syncAllChannels(): Result<List<SyncStateEntry>>
     suspend fun getChannelSyncState(channelId: ULong, channelType: UByte): Result<SyncStateEntry>
+    suspend fun getChannelCurrentPts(channelId: ULong, channelType: UByte): Result<ULong>
     suspend fun needsSync(channelId: ULong, channelType: UByte): Result<Boolean>
     suspend fun startSupervisedSync(observer: SyncObserver): Result<Unit>
     suspend fun stopSupervisedSync(): Result<Unit>
