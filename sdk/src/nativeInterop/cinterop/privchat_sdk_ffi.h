@@ -302,8 +302,6 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_generate_local_message_
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_all_unread_mention_counts(void * ptr, int64_t userId
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_all_user_settings(void * ptr
-);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_blacklist(void * ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_channel_by_id(void * ptr, int64_t channelId
@@ -364,8 +362,6 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_unread_mention_coun
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_user_by_id(void * ptr, int64_t userId
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_user_setting(void * ptr, RustBuffer key
-);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_add_members_remote(void * ptr, int64_t groupId, RustBuffer userIds
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_approval_handle_remote(void * ptr, int64_t approvalId, int8_t approved, RustBuffer reason
@@ -417,12 +413,6 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_shutting_down(void *
 int8_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_supervised_sync_running(void * ptr, UniffiRustCallStatus *_Nonnull out_status
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_join_group_by_qrcode(void * ptr, RustBuffer qrKey
-);
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_get(void * ptr, RustBuffer key
-);
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_put(void * ptr, RustBuffer key, RustBuffer value
-);
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_scan_prefix(void * ptr, RustBuffer prefix
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_leave_channel(void * ptr, int64_t channelId
 );
@@ -641,8 +631,6 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_pinned(void
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_revoke(void * ptr, int64_t messageId, int8_t revoked, RustBuffer revoker
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_network_hint(void * ptr, RustBuffer hint
-);
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_user_setting(void * ptr, RustBuffer key, RustBuffer value
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_video_process_hook(void * ptr, RustBuffer hook
 );
@@ -1088,9 +1076,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_generate_local_me
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_all_unread_mention_counts(void
     
 );
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_all_user_settings(void
-    
-);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_blacklist(void
     
 );
@@ -1181,9 +1166,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_unread_mentio
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_user_by_id(void
     
 );
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_user_setting(void
-    
-);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_add_members_remote(void
     
 );
@@ -1260,15 +1242,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_is_supervised_syn
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_join_group_by_qrcode(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_get(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_put(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_scan_prefix(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_leave_channel(void
@@ -1596,9 +1569,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_revok
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_network_hint(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_user_setting(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_video_process_hook(void

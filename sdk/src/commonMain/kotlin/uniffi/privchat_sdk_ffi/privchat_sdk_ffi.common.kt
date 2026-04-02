@@ -221,8 +221,6 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getAllUnreadMentionCounts`(`userId`: kotlin.ULong): List<UnreadMentionCount>
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getAllUserSettings`(): UserSettingsView
-    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getBlacklist`(): List<StoredBlacklistEntry>
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getChannelById`(`channelId`: kotlin.ULong): StoredChannel?
@@ -283,8 +281,6 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getUserById`(`userId`: kotlin.ULong): StoredUser?
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getUserSetting`(`key`: kotlin.String): kotlin.String?
-    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `groupAddMembersRemote`(`groupId`: kotlin.ULong, `userIds`: List<kotlin.ULong>): kotlin.Boolean
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `groupApprovalHandleRemote`(`approvalId`: kotlin.ULong, `approved`: kotlin.Boolean, `reason`: kotlin.String?): kotlin.Boolean
@@ -332,12 +328,6 @@ interface PrivchatClientInterface {
     fun `isSupervisedSyncRunning`(): kotlin.Boolean
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `joinGroupByQrcode`(`qrKey`: kotlin.String): GroupQrCodeJoinResult
-    
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `kvGet`(`key`: kotlin.String): kotlin.ByteArray?
-    
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `kvPut`(`key`: kotlin.String, `value`: kotlin.ByteArray)
-    
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `kvScanPrefix`(`prefix`: kotlin.String): List<KeyValueEntry>
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `leaveChannel`(`channelId`: kotlin.ULong): kotlin.Boolean
     
@@ -538,8 +528,6 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setMessageRevoke`(`messageId`: kotlin.ULong, `revoked`: kotlin.Boolean, `revoker`: kotlin.ULong?)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setNetworkHint`(`hint`: NetworkHint)
-    
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setUserSetting`(`key`: kotlin.String, `value`: kotlin.String)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setVideoProcessHook`(`hook`: VideoProcessHook?)
     
@@ -987,11 +975,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `getAllUserSettings`() : UserSettingsView
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getBlacklist`() : List<StoredBlacklistEntry>
 
     
@@ -1142,11 +1125,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `getUserSetting`(`key`: kotlin.String) : kotlin.String?
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `groupAddMembersRemote`(`groupId`: kotlin.ULong, `userIds`: List<kotlin.ULong>) : kotlin.Boolean
 
     
@@ -1265,21 +1243,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `joinGroupByQrcode`(`qrKey`: kotlin.String) : GroupQrCodeJoinResult
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `kvGet`(`key`: kotlin.String) : kotlin.ByteArray?
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `kvPut`(`key`: kotlin.String, `value`: kotlin.ByteArray)
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `kvScanPrefix`(`prefix`: kotlin.String) : List<KeyValueEntry>
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -1790,11 +1753,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `setNetworkHint`(`hint`: NetworkHint)
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `setUserSetting`(`key`: kotlin.String, `value`: kotlin.String)
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -4370,16 +4328,6 @@ data class UserQrCodeGetView (
 
 
 
-data class UserSettingsView (
-    var `settingsJson`: kotlin.String
-        
-) {
-    
-    companion object
-}
-
-
-
 data class UserStoragePaths (
     var `userRoot`: kotlin.String
         , 
@@ -4468,6 +4416,37 @@ sealed class PrivchatFfiException: kotlin.Exception() {
 
 
 
+
+enum class ResumeEscalationScope {
+    
+    RETRY,
+    CHANNEL_SCOPED_RESYNC,
+    ENTITY_SCOPED_RESYNC,
+    FULL_REBUILD;
+    companion object
+}
+
+
+
+
+
+
+
+enum class ResumeFailureClass {
+    
+    RETRYABLE_TEMPORARY_ERROR,
+    CHANNEL_RESYNC_REQUIRED,
+    ENTITY_RESYNC_REQUIRED,
+    FULL_REBUILD_REQUIRED,
+    FATAL_PROTOCOL_ERROR;
+    companion object
+}
+
+
+
+
+
+
 sealed class SdkEvent {
     
     
@@ -4480,6 +4459,65 @@ sealed class SdkEvent {
     
     data class BootstrapCompleted(
         val `userId`: kotlin.ULong  ) : SdkEvent() {
+        
+    }
+    
+    @kotlinx.serialization.Serializable
+    object ResumeSyncStarted : SdkEvent() 
+    
+    
+    
+    data class ResumeSyncCompleted(
+        val `entityTypesSynced`: kotlin.ULong  , 
+        val `channelsScanned`: kotlin.ULong  , 
+        val `channelsApplied`: kotlin.ULong  , 
+        val `channelFailures`: kotlin.ULong  ) : SdkEvent() {
+        
+    }
+    
+    
+    data class ResumeSyncFailed(
+        val `classification`: ResumeFailureClass  , 
+        val `scope`: ResumeEscalationScope  , 
+        val `errorCode`: kotlin.UInt  , 
+        val `message`: kotlin.String  ) : SdkEvent() {
+        
+    }
+    
+    
+    data class ResumeSyncEscalated(
+        val `classification`: ResumeFailureClass  , 
+        val `scope`: ResumeEscalationScope  , 
+        val `reason`: kotlin.String  , 
+        val `entityType`: kotlin.String?  = null  , 
+        val `channelId`: kotlin.ULong?  = null  , 
+        val `channelType`: kotlin.Int?  = null  ) : SdkEvent() {
+        
+    }
+    
+    
+    data class ResumeSyncChannelStarted(
+        val `channelId`: kotlin.ULong  , 
+        val `channelType`: kotlin.Int  ) : SdkEvent() {
+        
+    }
+    
+    
+    data class ResumeSyncChannelCompleted(
+        val `channelId`: kotlin.ULong  , 
+        val `channelType`: kotlin.Int  , 
+        val `applied`: kotlin.ULong  ) : SdkEvent() {
+        
+    }
+    
+    
+    data class ResumeSyncChannelFailed(
+        val `channelId`: kotlin.ULong  , 
+        val `channelType`: kotlin.Int  , 
+        val `classification`: ResumeFailureClass  , 
+        val `scope`: ResumeEscalationScope  , 
+        val `errorCode`: kotlin.UInt  , 
+        val `message`: kotlin.String  ) : SdkEvent() {
         
     }
     
@@ -4620,8 +4658,6 @@ interface VideoProcessHook {
     
     companion object
 }
-
-
 
 
 

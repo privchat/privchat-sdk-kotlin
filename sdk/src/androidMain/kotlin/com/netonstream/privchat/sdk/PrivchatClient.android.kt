@@ -1416,6 +1416,50 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         type = "bootstrap_completed",
         userId = event.userId,
     )
+    CoreSdkEvent.ResumeSyncStarted -> SdkEventPayload(type = "resume_sync_started")
+    is CoreSdkEvent.ResumeSyncCompleted -> SdkEventPayload(
+        type = "resume_sync_completed",
+        entityTypesSynced = event.entityTypesSynced,
+        channelsScanned = event.channelsScanned,
+        channelsApplied = event.channelsApplied,
+        channelFailures = event.channelFailures,
+    )
+    is CoreSdkEvent.ResumeSyncFailed -> SdkEventPayload(
+        type = "resume_sync_failed",
+        classification = event.classification.name,
+        scope = event.scope.name,
+        errorCode = event.errorCode.toUInt(),
+        reason = event.message,
+    )
+    is CoreSdkEvent.ResumeSyncEscalated -> SdkEventPayload(
+        type = "resume_sync_escalated",
+        classification = event.classification.name,
+        scope = event.scope.name,
+        reason = event.reason,
+        entityType = event.entityType,
+        channelId = event.channelId,
+        channelType = event.channelType,
+    )
+    is CoreSdkEvent.ResumeSyncChannelStarted -> SdkEventPayload(
+        type = "resume_sync_channel_started",
+        channelId = event.channelId,
+        channelType = event.channelType,
+    )
+    is CoreSdkEvent.ResumeSyncChannelCompleted -> SdkEventPayload(
+        type = "resume_sync_channel_completed",
+        channelId = event.channelId,
+        channelType = event.channelType,
+        applied = event.applied,
+    )
+    is CoreSdkEvent.ResumeSyncChannelFailed -> SdkEventPayload(
+        type = "resume_sync_channel_failed",
+        channelId = event.channelId,
+        channelType = event.channelType,
+        classification = event.classification.name,
+        scope = event.scope.name,
+        errorCode = event.errorCode.toUInt(),
+        reason = event.message,
+    )
     is CoreSdkEvent.SyncEntitiesApplied -> SdkEventPayload(
         type = "sync_entities_applied",
         entityType = event.entityType,
@@ -1482,7 +1526,6 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
     )
     CoreSdkEvent.ShutdownStarted -> SdkEventPayload(type = "shutdown_started")
     CoreSdkEvent.ShutdownCompleted -> SdkEventPayload(type = "shutdown_completed")
-    else -> SdkEventPayload(type = "unknown")
 }
 
 private fun parseReadPtsAck(raw: String, fallbackReadPts: ULong): ULong {

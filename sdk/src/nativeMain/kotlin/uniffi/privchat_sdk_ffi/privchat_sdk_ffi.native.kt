@@ -777,18 +777,6 @@ get() = useContents { `uniffiFree`/* test  Any? */}
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -945,8 +933,6 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_all_unread_mention_counts(`ptr`: Pointer?,`userId`: Long,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_all_user_settings(`ptr`: Pointer?,
-    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_blacklist(`ptr`: Pointer?,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_channel_by_id(`ptr`: Pointer?,`channelId`: Long,
@@ -1007,8 +993,6 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_user_by_id(`ptr`: Pointer?,`userId`: Long,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_user_setting(`ptr`: Pointer?,`key`: RustBufferByValue,
-    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_add_members_remote(`ptr`: Pointer?,`groupId`: Long,`userIds`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_approval_handle_remote(`ptr`: Pointer?,`approvalId`: Long,`approved`: Byte,`reason`: RustBufferByValue,
@@ -1060,12 +1044,6 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_supervised_sync_running(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
     ): Byte
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_join_group_by_qrcode(`ptr`: Pointer?,`qrKey`: RustBufferByValue,
-    ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_get(`ptr`: Pointer?,`key`: RustBufferByValue,
-    ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_put(`ptr`: Pointer?,`key`: RustBufferByValue,`value`: RustBufferByValue,
-    ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_scan_prefix(`ptr`: Pointer?,`prefix`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_leave_channel(`ptr`: Pointer?,`channelId`: Long,
     ): Long
@@ -1284,8 +1262,6 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_revoke(`ptr`: Pointer?,`messageId`: Long,`revoked`: Byte,`revoker`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_network_hint(`ptr`: Pointer?,`hint`: RustBufferByValue,
-    ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_user_setting(`ptr`: Pointer?,`key`: RustBufferByValue,`value`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_video_process_hook(`ptr`: Pointer?,`hook`: RustBufferByValue,
     ): Long
@@ -1657,8 +1633,6 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_all_unread_mention_counts(
     ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_all_user_settings(
-    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_blacklist(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_channel_by_id(
@@ -1719,8 +1693,6 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_user_by_id(
     ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_user_setting(
-    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_add_members_remote(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_approval_handle_remote(
@@ -1772,12 +1744,6 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_is_supervised_sync_running(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_join_group_by_qrcode(
-    ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_get(
-    ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_put(
-    ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_scan_prefix(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_leave_channel(
     ): Short
@@ -1996,8 +1962,6 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_revoke(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_network_hint(
-    ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_user_setting(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_video_process_hook(
     ): Short
@@ -2401,10 +2365,6 @@ internal class UniffiLibInstance: UniffiLib {
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_all_unread_mention_counts(`ptr`?.inner,`userId`,)as Long
     
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_all_user_settings(`ptr`: Pointer?,
-    ): Long
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_all_user_settings(`ptr`?.inner,)as Long
-    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_blacklist(`ptr`: Pointer?,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_blacklist(`ptr`?.inner,)as Long
@@ -2525,10 +2485,6 @@ internal class UniffiLibInstance: UniffiLib {
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_user_by_id(`ptr`?.inner,`userId`,)as Long
     
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_user_setting(`ptr`: Pointer?,`key`: RustBufferByValue,
-    ): Long
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_user_setting(`ptr`?.inner,`key` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
-    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_add_members_remote(`ptr`: Pointer?,`groupId`: Long,`userIds`: RustBufferByValue,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_add_members_remote(`ptr`?.inner,`groupId`,`userIds` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
@@ -2632,18 +2588,6 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_join_group_by_qrcode(`ptr`: Pointer?,`qrKey`: RustBufferByValue,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_join_group_by_qrcode(`ptr`?.inner,`qrKey` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
-    
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_get(`ptr`: Pointer?,`key`: RustBufferByValue,
-    ): Long
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_get(`ptr`?.inner,`key` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
-    
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_put(`ptr`: Pointer?,`key`: RustBufferByValue,`value`: RustBufferByValue,
-    ): Long
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_put(`ptr`?.inner,`key` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`value` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
-    
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_scan_prefix(`ptr`: Pointer?,`prefix`: RustBufferByValue,
-    ): Long
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_scan_prefix(`ptr`?.inner,`prefix` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_leave_channel(`ptr`: Pointer?,`channelId`: Long,
     ): Long
@@ -3080,10 +3024,6 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_network_hint(`ptr`: Pointer?,`hint`: RustBufferByValue,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_network_hint(`ptr`?.inner,`hint` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
-    
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_user_setting(`ptr`: Pointer?,`key`: RustBufferByValue,`value`: RustBufferByValue,
-    ): Long
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_user_setting(`ptr`?.inner,`key` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`value` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_video_process_hook(`ptr`: Pointer?,`hook`: RustBufferByValue,
     ): Long
@@ -3825,10 +3765,6 @@ internal class UniffiLibInstance: UniffiLib {
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_all_unread_mention_counts()as Short
     
-    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_all_user_settings(
-    ): Short
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_all_user_settings()as Short
-    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_blacklist(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_blacklist()as Short
@@ -3949,10 +3885,6 @@ internal class UniffiLibInstance: UniffiLib {
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_user_by_id()as Short
     
-    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_user_setting(
-    ): Short
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_user_setting()as Short
-    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_add_members_remote(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_add_members_remote()as Short
@@ -4056,18 +3988,6 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_join_group_by_qrcode(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_join_group_by_qrcode()as Short
-    
-    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_get(
-    ): Short
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_get()as Short
-    
-    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_put(
-    ): Short
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_put()as Short
-    
-    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_scan_prefix(
-    ): Short
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_scan_prefix()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_leave_channel(
     ): Short
@@ -4504,10 +4424,6 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_network_hint(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_network_hint()as Short
-    
-    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_user_setting(
-    ): Short
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_user_setting()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_video_process_hook(
     ): Short
@@ -6454,28 +6370,6 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `getAllUserSettings`() : UserSettingsView {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_all_user_settings(
-                thisPtr,
-                
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
-        // lift function
-        { FfiConverterTypeUserSettingsView.lift(it!!) },
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getBlacklist`() : List<StoredBlacklistEntry> {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
@@ -7136,28 +7030,6 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `getUserSetting`(`key`: kotlin.String) : kotlin.String? {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_user_setting(
-                thisPtr,
-                FfiConverterString.lower(`key`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
-        // lift function
-        { FfiConverterOptionalString.lift(it!!) },
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `groupAddMembersRemote`(`groupId`: kotlin.ULong, `userIds`: List<kotlin.ULong>) : kotlin.Boolean {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
@@ -7682,73 +7554,6 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
         { FfiConverterTypeGroupQrCodeJoinResult.lift(it!!) },
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `kvGet`(`key`: kotlin.String) : kotlin.ByteArray? {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_get(
-                thisPtr,
-                FfiConverterString.lower(`key`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
-        // lift function
-        { FfiConverterOptionalByteArray.lift(it!!) },
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `kvPut`(`key`: kotlin.String, `value`: kotlin.ByteArray) {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_put(
-                thisPtr,
-                FfiConverterString.lower(`key`),FfiConverterByteArray.lower(`value`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
-        // lift function
-        { Unit },
-        
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `kvScanPrefix`(`prefix`: kotlin.String) : List<KeyValueEntry> {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_scan_prefix(
-                thisPtr,
-                FfiConverterString.lower(`prefix`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
-        // lift function
-        { FfiConverterSequenceTypeKeyValueEntry.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -9978,29 +9783,6 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_network_hint(
                 thisPtr,
                 FfiConverterTypeNetworkHint.lower(`hint`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
-        // lift function
-        { Unit },
-        
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `setUserSetting`(`key`: kotlin.String, `value`: kotlin.String) {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_user_setting(
-                thisPtr,
-                FfiConverterString.lower(`key`),FfiConverterString.lower(`value`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
@@ -15192,25 +14974,6 @@ object FfiConverterTypeUserQrCodeGetView: FfiConverterRustBuffer<UserQrCodeGetVi
 
 
 
-object FfiConverterTypeUserSettingsView: FfiConverterRustBuffer<UserSettingsView> {
-    override fun read(buf: ByteBuffer): UserSettingsView {
-        return UserSettingsView(
-            FfiConverterString.read(buf),
-        )
-    }
-
-    override fun allocationSize(value: UserSettingsView) = (
-            FfiConverterString.allocationSize(value.`settingsJson`)
-    )
-
-    override fun write(value: UserSettingsView, buf: ByteBuffer) {
-            FfiConverterString.write(value.`settingsJson`, buf)
-    }
-}
-
-
-
-
 object FfiConverterTypeUserStoragePaths: FfiConverterRustBuffer<UserStoragePaths> {
     override fun read(buf: ByteBuffer): UserStoragePaths {
         return UserStoragePaths(
@@ -15353,6 +15116,46 @@ object FfiConverterTypePrivchatFfiError : FfiConverterRustBuffer<PrivchatFfiExce
 
 
 
+object FfiConverterTypeResumeEscalationScope: FfiConverterRustBuffer<ResumeEscalationScope> {
+    override fun read(buf: ByteBuffer) = try {
+        ResumeEscalationScope.values()[buf.getInt() - 1]
+    } catch (e: IndexOutOfBoundsException) {
+        throw RuntimeException("invalid enum value, something is very wrong!!", e)
+    }
+
+    override fun allocationSize(value: ResumeEscalationScope) = 4UL
+
+    override fun write(value: ResumeEscalationScope, buf: ByteBuffer) {
+        buf.putInt(value.ordinal + 1)
+    }
+}
+
+
+
+
+
+
+
+object FfiConverterTypeResumeFailureClass: FfiConverterRustBuffer<ResumeFailureClass> {
+    override fun read(buf: ByteBuffer) = try {
+        ResumeFailureClass.values()[buf.getInt() - 1]
+    } catch (e: IndexOutOfBoundsException) {
+        throw RuntimeException("invalid enum value, something is very wrong!!", e)
+    }
+
+    override fun allocationSize(value: ResumeFailureClass) = 4UL
+
+    override fun write(value: ResumeFailureClass, buf: ByteBuffer) {
+        buf.putInt(value.ordinal + 1)
+    }
+}
+
+
+
+
+
+
+
 object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
     override fun read(buf: ByteBuffer): SdkEvent {
         return when(buf.getInt()) {
@@ -15363,53 +15166,91 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
             2 -> SdkEvent.BootstrapCompleted(
                 FfiConverterULong.read(buf),
                 )
-            3 -> SdkEvent.SyncEntitiesApplied(
+            3 -> SdkEvent.ResumeSyncStarted
+            4 -> SdkEvent.ResumeSyncCompleted(
+                FfiConverterULong.read(buf),
+                FfiConverterULong.read(buf),
+                FfiConverterULong.read(buf),
+                FfiConverterULong.read(buf),
+                )
+            5 -> SdkEvent.ResumeSyncFailed(
+                FfiConverterTypeResumeFailureClass.read(buf),
+                FfiConverterTypeResumeEscalationScope.read(buf),
+                FfiConverterUInt.read(buf),
+                FfiConverterString.read(buf),
+                )
+            6 -> SdkEvent.ResumeSyncEscalated(
+                FfiConverterTypeResumeFailureClass.read(buf),
+                FfiConverterTypeResumeEscalationScope.read(buf),
+                FfiConverterString.read(buf),
+                FfiConverterOptionalString.read(buf),
+                FfiConverterOptionalULong.read(buf),
+                FfiConverterOptionalInt.read(buf),
+                )
+            7 -> SdkEvent.ResumeSyncChannelStarted(
+                FfiConverterULong.read(buf),
+                FfiConverterInt.read(buf),
+                )
+            8 -> SdkEvent.ResumeSyncChannelCompleted(
+                FfiConverterULong.read(buf),
+                FfiConverterInt.read(buf),
+                FfiConverterULong.read(buf),
+                )
+            9 -> SdkEvent.ResumeSyncChannelFailed(
+                FfiConverterULong.read(buf),
+                FfiConverterInt.read(buf),
+                FfiConverterTypeResumeFailureClass.read(buf),
+                FfiConverterTypeResumeEscalationScope.read(buf),
+                FfiConverterUInt.read(buf),
+                FfiConverterString.read(buf),
+                )
+            10 -> SdkEvent.SyncEntitiesApplied(
                 FfiConverterString.read(buf),
                 FfiConverterOptionalString.read(buf),
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            4 -> SdkEvent.SyncEntityChanged(
+            11 -> SdkEvent.SyncEntityChanged(
                 FfiConverterString.read(buf),
                 FfiConverterString.read(buf),
                 FfiConverterBoolean.read(buf),
                 )
-            5 -> SdkEvent.SyncChannelApplied(
+            12 -> SdkEvent.SyncChannelApplied(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            6 -> SdkEvent.SyncAllChannelsApplied(
+            13 -> SdkEvent.SyncAllChannelsApplied(
                 FfiConverterULong.read(buf),
                 )
-            7 -> SdkEvent.NetworkHintChanged(
+            14 -> SdkEvent.NetworkHintChanged(
                 FfiConverterTypeNetworkHint.read(buf),
                 FfiConverterTypeNetworkHint.read(buf),
                 )
-            8 -> SdkEvent.OutboundQueueUpdated(
+            15 -> SdkEvent.OutboundQueueUpdated(
                 FfiConverterString.read(buf),
                 FfiConverterString.read(buf),
                 FfiConverterOptionalULong.read(buf),
                 FfiConverterOptionalULong.read(buf),
                 )
-            9 -> SdkEvent.TimelineUpdated(
+            16 -> SdkEvent.TimelineUpdated(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterULong.read(buf),
                 FfiConverterString.read(buf),
                 )
-            10 -> SdkEvent.MessageSendStatusChanged(
+            17 -> SdkEvent.MessageSendStatusChanged(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterOptionalULong.read(buf),
                 )
-            11 -> SdkEvent.TypingSent(
+            18 -> SdkEvent.TypingSent(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterBoolean.read(buf),
                 )
-            12 -> SdkEvent.SubscriptionMessageReceived(
+            19 -> SdkEvent.SubscriptionMessageReceived(
                 FfiConverterULong.read(buf),
                 FfiConverterOptionalString.read(buf),
                 FfiConverterByteArray.read(buf),
@@ -15417,8 +15258,8 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterOptionalULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            13 -> SdkEvent.ShutdownStarted
-            14 -> SdkEvent.ShutdownCompleted
+            20 -> SdkEvent.ShutdownStarted
+            21 -> SdkEvent.ShutdownCompleted
             else -> throw RuntimeException("invalid enum value, something is very wrong!!")
         }
     }
@@ -15437,6 +15278,73 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
             (
                 4UL
                 + FfiConverterULong.allocationSize(value.`userId`)
+            )
+        }
+        is SdkEvent.ResumeSyncStarted -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+            )
+        }
+        is SdkEvent.ResumeSyncCompleted -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterULong.allocationSize(value.`entityTypesSynced`)
+                + FfiConverterULong.allocationSize(value.`channelsScanned`)
+                + FfiConverterULong.allocationSize(value.`channelsApplied`)
+                + FfiConverterULong.allocationSize(value.`channelFailures`)
+            )
+        }
+        is SdkEvent.ResumeSyncFailed -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterTypeResumeFailureClass.allocationSize(value.`classification`)
+                + FfiConverterTypeResumeEscalationScope.allocationSize(value.`scope`)
+                + FfiConverterUInt.allocationSize(value.`errorCode`)
+                + FfiConverterString.allocationSize(value.`message`)
+            )
+        }
+        is SdkEvent.ResumeSyncEscalated -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterTypeResumeFailureClass.allocationSize(value.`classification`)
+                + FfiConverterTypeResumeEscalationScope.allocationSize(value.`scope`)
+                + FfiConverterString.allocationSize(value.`reason`)
+                + FfiConverterOptionalString.allocationSize(value.`entityType`)
+                + FfiConverterOptionalULong.allocationSize(value.`channelId`)
+                + FfiConverterOptionalInt.allocationSize(value.`channelType`)
+            )
+        }
+        is SdkEvent.ResumeSyncChannelStarted -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterULong.allocationSize(value.`channelId`)
+                + FfiConverterInt.allocationSize(value.`channelType`)
+            )
+        }
+        is SdkEvent.ResumeSyncChannelCompleted -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterULong.allocationSize(value.`channelId`)
+                + FfiConverterInt.allocationSize(value.`channelType`)
+                + FfiConverterULong.allocationSize(value.`applied`)
+            )
+        }
+        is SdkEvent.ResumeSyncChannelFailed -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterULong.allocationSize(value.`channelId`)
+                + FfiConverterInt.allocationSize(value.`channelType`)
+                + FfiConverterTypeResumeFailureClass.allocationSize(value.`classification`)
+                + FfiConverterTypeResumeEscalationScope.allocationSize(value.`scope`)
+                + FfiConverterUInt.allocationSize(value.`errorCode`)
+                + FfiConverterString.allocationSize(value.`message`)
             )
         }
         is SdkEvent.SyncEntitiesApplied -> {
@@ -15560,8 +15468,61 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterULong.write(value.`userId`, buf)
                 Unit
             }
-            is SdkEvent.SyncEntitiesApplied -> {
+            is SdkEvent.ResumeSyncStarted -> {
                 buf.putInt(3)
+                Unit
+            }
+            is SdkEvent.ResumeSyncCompleted -> {
+                buf.putInt(4)
+                FfiConverterULong.write(value.`entityTypesSynced`, buf)
+                FfiConverterULong.write(value.`channelsScanned`, buf)
+                FfiConverterULong.write(value.`channelsApplied`, buf)
+                FfiConverterULong.write(value.`channelFailures`, buf)
+                Unit
+            }
+            is SdkEvent.ResumeSyncFailed -> {
+                buf.putInt(5)
+                FfiConverterTypeResumeFailureClass.write(value.`classification`, buf)
+                FfiConverterTypeResumeEscalationScope.write(value.`scope`, buf)
+                FfiConverterUInt.write(value.`errorCode`, buf)
+                FfiConverterString.write(value.`message`, buf)
+                Unit
+            }
+            is SdkEvent.ResumeSyncEscalated -> {
+                buf.putInt(6)
+                FfiConverterTypeResumeFailureClass.write(value.`classification`, buf)
+                FfiConverterTypeResumeEscalationScope.write(value.`scope`, buf)
+                FfiConverterString.write(value.`reason`, buf)
+                FfiConverterOptionalString.write(value.`entityType`, buf)
+                FfiConverterOptionalULong.write(value.`channelId`, buf)
+                FfiConverterOptionalInt.write(value.`channelType`, buf)
+                Unit
+            }
+            is SdkEvent.ResumeSyncChannelStarted -> {
+                buf.putInt(7)
+                FfiConverterULong.write(value.`channelId`, buf)
+                FfiConverterInt.write(value.`channelType`, buf)
+                Unit
+            }
+            is SdkEvent.ResumeSyncChannelCompleted -> {
+                buf.putInt(8)
+                FfiConverterULong.write(value.`channelId`, buf)
+                FfiConverterInt.write(value.`channelType`, buf)
+                FfiConverterULong.write(value.`applied`, buf)
+                Unit
+            }
+            is SdkEvent.ResumeSyncChannelFailed -> {
+                buf.putInt(9)
+                FfiConverterULong.write(value.`channelId`, buf)
+                FfiConverterInt.write(value.`channelType`, buf)
+                FfiConverterTypeResumeFailureClass.write(value.`classification`, buf)
+                FfiConverterTypeResumeEscalationScope.write(value.`scope`, buf)
+                FfiConverterUInt.write(value.`errorCode`, buf)
+                FfiConverterString.write(value.`message`, buf)
+                Unit
+            }
+            is SdkEvent.SyncEntitiesApplied -> {
+                buf.putInt(10)
                 FfiConverterString.write(value.`entityType`, buf)
                 FfiConverterOptionalString.write(value.`scope`, buf)
                 FfiConverterULong.write(value.`queued`, buf)
@@ -15570,32 +15531,32 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.SyncEntityChanged -> {
-                buf.putInt(4)
+                buf.putInt(11)
                 FfiConverterString.write(value.`entityType`, buf)
                 FfiConverterString.write(value.`entityId`, buf)
                 FfiConverterBoolean.write(value.`deleted`, buf)
                 Unit
             }
             is SdkEvent.SyncChannelApplied -> {
-                buf.putInt(5)
+                buf.putInt(12)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterInt.write(value.`channelType`, buf)
                 FfiConverterULong.write(value.`applied`, buf)
                 Unit
             }
             is SdkEvent.SyncAllChannelsApplied -> {
-                buf.putInt(6)
+                buf.putInt(13)
                 FfiConverterULong.write(value.`applied`, buf)
                 Unit
             }
             is SdkEvent.NetworkHintChanged -> {
-                buf.putInt(7)
+                buf.putInt(14)
                 FfiConverterTypeNetworkHint.write(value.`from`, buf)
                 FfiConverterTypeNetworkHint.write(value.`to`, buf)
                 Unit
             }
             is SdkEvent.OutboundQueueUpdated -> {
-                buf.putInt(8)
+                buf.putInt(15)
                 FfiConverterString.write(value.`kind`, buf)
                 FfiConverterString.write(value.`action`, buf)
                 FfiConverterOptionalULong.write(value.`messageId`, buf)
@@ -15603,7 +15564,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.TimelineUpdated -> {
-                buf.putInt(9)
+                buf.putInt(16)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterInt.write(value.`channelType`, buf)
                 FfiConverterULong.write(value.`messageId`, buf)
@@ -15611,21 +15572,21 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.MessageSendStatusChanged -> {
-                buf.putInt(10)
+                buf.putInt(17)
                 FfiConverterULong.write(value.`messageId`, buf)
                 FfiConverterInt.write(value.`status`, buf)
                 FfiConverterOptionalULong.write(value.`serverMessageId`, buf)
                 Unit
             }
             is SdkEvent.TypingSent -> {
-                buf.putInt(11)
+                buf.putInt(18)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterInt.write(value.`channelType`, buf)
                 FfiConverterBoolean.write(value.`isTyping`, buf)
                 Unit
             }
             is SdkEvent.SubscriptionMessageReceived -> {
-                buf.putInt(12)
+                buf.putInt(19)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterOptionalString.write(value.`topic`, buf)
                 FfiConverterByteArray.write(value.`payload`, buf)
@@ -15635,11 +15596,11 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.ShutdownStarted -> {
-                buf.putInt(13)
+                buf.putInt(20)
                 Unit
             }
             is SdkEvent.ShutdownCompleted -> {
-                buf.putInt(14)
+                buf.putInt(21)
                 Unit
             }
         }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }
@@ -15793,6 +15754,35 @@ public object FfiConverterOptionalUInt: FfiConverterRustBuffer<kotlin.UInt?> {
 
 
 
+public object FfiConverterOptionalInt: FfiConverterRustBuffer<kotlin.Int?> {
+    override fun read(buf: ByteBuffer): kotlin.Int? {
+        if (buf.get().toInt() == 0) {
+            return null
+        }
+        return FfiConverterInt.read(buf)
+    }
+
+    override fun allocationSize(value: kotlin.Int?): ULong {
+        if (value == null) {
+            return 1UL
+        } else {
+            return 1UL + FfiConverterInt.allocationSize(value)
+        }
+    }
+
+    override fun write(value: kotlin.Int?, buf: ByteBuffer) {
+        if (value == null) {
+            buf.put(0)
+        } else {
+            buf.put(1)
+            FfiConverterInt.write(value, buf)
+        }
+    }
+}
+
+
+
+
 public object FfiConverterOptionalULong: FfiConverterRustBuffer<kotlin.ULong?> {
     override fun read(buf: ByteBuffer): kotlin.ULong? {
         if (buf.get().toInt() == 0) {
@@ -15902,35 +15892,6 @@ public object FfiConverterOptionalString: FfiConverterRustBuffer<kotlin.String?>
         } else {
             buf.put(1)
             FfiConverterString.write(value, buf)
-        }
-    }
-}
-
-
-
-
-public object FfiConverterOptionalByteArray: FfiConverterRustBuffer<kotlin.ByteArray?> {
-    override fun read(buf: ByteBuffer): kotlin.ByteArray? {
-        if (buf.get().toInt() == 0) {
-            return null
-        }
-        return FfiConverterByteArray.read(buf)
-    }
-
-    override fun allocationSize(value: kotlin.ByteArray?): ULong {
-        if (value == null) {
-            return 1UL
-        } else {
-            return 1UL + FfiConverterByteArray.allocationSize(value)
-        }
-    }
-
-    override fun write(value: kotlin.ByteArray?, buf: ByteBuffer) {
-        if (value == null) {
-            buf.put(0)
-        } else {
-            buf.put(1)
-            FfiConverterByteArray.write(value, buf)
         }
     }
 }
@@ -16529,31 +16490,6 @@ public object FfiConverterSequenceTypeGroupMemberRemoteEntry: FfiConverterRustBu
         buf.putInt(value.size)
         value.iterator().forEach {
             FfiConverterTypeGroupMemberRemoteEntry.write(it, buf)
-        }
-    }
-}
-
-
-
-
-public object FfiConverterSequenceTypeKeyValueEntry: FfiConverterRustBuffer<List<KeyValueEntry>> {
-    override fun read(buf: ByteBuffer): List<KeyValueEntry> {
-        val len = buf.getInt()
-        return List<KeyValueEntry>(len) {
-            FfiConverterTypeKeyValueEntry.read(buf)
-        }
-    }
-
-    override fun allocationSize(value: List<KeyValueEntry>): ULong {
-        val sizeForLength = 4UL
-        val sizeForItems = value.map { FfiConverterTypeKeyValueEntry.allocationSize(it) }.sum()
-        return sizeForLength + sizeForItems
-    }
-
-    override fun write(value: List<KeyValueEntry>, buf: ByteBuffer) {
-        buf.putInt(value.size)
-        value.iterator().forEach {
-            FfiConverterTypeKeyValueEntry.write(it, buf)
         }
     }
 }
