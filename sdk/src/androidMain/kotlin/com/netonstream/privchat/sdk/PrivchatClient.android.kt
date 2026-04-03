@@ -349,16 +349,7 @@ actual class PrivchatClient private actual constructor() {
 
     actual suspend fun markReadToPts(channelId: ULong, readPts: ULong): Result<ULong> {
         val c = requireClient().getOrElse { return Result.failure(it) }
-        return runCatching {
-            val raw = c.rpcCall(
-                "message/status/read_pts",
-                buildJsonObject {
-                    this["channel_id"] = channelId
-                    this["read_pts"] = readPts
-                }
-            )
-            parseReadPtsAck(raw, readPts)
-        }.fold(
+        return runCatching { c.markReadToPts(channelId, readPts) }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("markReadToPts failed", it)) },
         )
