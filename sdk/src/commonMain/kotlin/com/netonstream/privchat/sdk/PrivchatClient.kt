@@ -96,6 +96,7 @@ expect class PrivchatClient private constructor() {
 
     // ========== Friends & Groups ==========
     suspend fun searchUsers(query: String): Result<List<UserEntry>>
+    suspend fun getUserProfileLocalFirst(userId: ULong): Result<SearchedUserDto>
     suspend fun listUsersByIds(userIds: List<ULong>): Result<List<UserEntry>>
     suspend fun sendFriendRequest(toUserId: ULong, remark: String?, searchSessionId: String?): Result<ULong>
     suspend fun acceptFriendRequest(fromUserId: ULong): Result<ULong>

@@ -39,6 +39,8 @@ import uniffi.privchat_sdk_ffi.StoredGroup
 import uniffi.privchat_sdk_ffi.StoredGroupMember
 import uniffi.privchat_sdk_ffi.StoredMessage
 import uniffi.privchat_sdk_ffi.StoredUser
+import uniffi.privchat_sdk_ffi.AccountUserDetailView
+import uniffi.privchat_sdk_ffi.UpsertUserInput as CoreUpsertUserInput
 import uniffi.privchat_sdk_ffi.TransportProtocol as CoreProtocol
 import uniffi.privchat_sdk_ffi.TypingActionType
 import uniffi.privchat_sdk_ffi.SdkEvent as CoreSdkEvent
@@ -298,7 +300,12 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
-    actual suspend fun sendTextWithLocalId(channelId: ULong, channelType: Int, text: String, localMessageId: ULong): Result<ULong> {
+    actual suspend fun sendTextWithLocalId(
+        channelId: ULong,
+        channelType: Int,
+        text: String,
+        localMessageId: ULong
+    ): Result<ULong> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
         return runCatching { c.enqueueTextWithLocalId(channelId, channelType, uid, text, localMessageId) }.fold(
@@ -307,7 +314,12 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
-    actual suspend fun sendText(channelId: ULong, channelType: Int, text: String, options: SendMessageOptions): Result<ULong> {
+    actual suspend fun sendText(
+        channelId: ULong,
+        channelType: Int,
+        text: String,
+        options: SendMessageOptions
+    ): Result<ULong> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
         val input = NewMessage(
@@ -333,7 +345,11 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
-    actual suspend fun sendMedia(channelId: ULong, filePath: String, options: SendMessageOptions?): Result<Pair<ULong, AttachmentInfo>> {
+    actual suspend fun sendMedia(
+        channelId: ULong,
+        filePath: String,
+        options: SendMessageOptions?
+    ): Result<Pair<ULong, AttachmentInfo>> {
         return sendAttachmentFromPath(channelId, filePath, options, null)
     }
 
@@ -389,7 +405,10 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
-    actual suspend fun reactionsBatch(channelId: ULong, messageIds: List<ULong>): Result<Map<ULong, List<ReactionChip>>> {
+    actual suspend fun reactionsBatch(
+        channelId: ULong,
+        messageIds: List<ULong>
+    ): Result<Map<ULong, List<ReactionChip>>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
             messageIds.associateWith { listMessageReactionsAsChips(c, it) }
@@ -456,7 +475,12 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
-    actual suspend fun getMessagesByType(channelId: ULong, channelType: Int, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>> {
+    actual suspend fun getMessagesByType(
+        channelId: ULong,
+        channelType: Int,
+        limit: UInt,
+        beforeSeq: ULong?
+    ): Result<List<MessageEntry>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
             val offset = 0uL
@@ -564,7 +588,8 @@ actual class PrivchatClient private actual constructor() {
     actual suspend fun getGroupMembers(groupId: ULong, limit: UInt?, offset: UInt?): Result<List<GroupMemberEntry>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
-            c.getGroupMembers(groupId, (limit ?: 200u).toULong(), (offset ?: 0u).toULong()).map { it.toCommonGroupMember() }
+            c.getGroupMembers(groupId, (limit ?: 200u).toULong(), (offset ?: 0u).toULong())
+                .map { it.toCommonGroupMember() }
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("getGroupMembers failed", it)) },
@@ -820,6 +845,30 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun getUserProfileLocalFirst(userId: ULong): Result<SearchedUserDto> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val local = c.getUserById(userId)
+            if (local != null) {
+                // local-first: return immediately, refresh remote in background.
+                backgroundScope.launch {
+                    runCatching {
+                        val remote = c.accountUserDetailRemote(userId)
+                        c.upsertUser(remote.toCoreUpsertUserInput(local))
+                    }
+                }
+                local.toSearchedUserDto()
+            } else {
+                val remote = c.accountUserDetailRemote(userId)
+                c.upsertUser(remote.toCoreUpsertUserInput(null))
+                remote.toSearchedUserDto()
+            }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("getUserProfileLocalFirst failed", it)) },
+        )
+    }
+
     actual suspend fun listUsersByIds(userIds: List<ULong>): Result<List<UserEntry>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
@@ -873,8 +922,18 @@ actual class PrivchatClient private actual constructor() {
             c.getFriendPendingRequests().map {
                 FriendPendingEntry(
                     fromUserId = it.fromUserId,
+                    user = SearchedUserDto(
+                        userId = it.user.userId,
+                        username = it.user.username,
+                        nickname = it.user.nickname,
+                        avatarUrl = it.user.avatarUrl,
+                        userType = it.user.userType.toShort(),
+                        searchSessionId = it.user.searchSessionId,
+                        isFriend = it.user.isFriend,
+                        canSendMessage = it.user.canSendMessage,
+                    ),
                     message = it.message,
-                    createdAt = it.createdAt,
+                    createdAt = parseTimestampUlong(it.createdAt),
                 )
             }
         }.fold(
@@ -892,7 +951,7 @@ actual class PrivchatClient private actual constructor() {
                 name = obj.name,
                 description = obj.description,
                 memberCount = obj.memberCount,
-                createdAt = obj.createdAt,
+                createdAt = parseTimestampUlong(obj.createdAt),
                 creatorId = obj.creatorId,
             )
         }.fold(
@@ -934,9 +993,9 @@ actual class PrivchatClient private actual constructor() {
                 groupId = obj.groupId,
                 requestId = obj.requestId,
                 message = obj.message,
-                expiresAt = obj.expiresAt,
+                expiresAt = parseTimestampUlongOrNull(obj.expiresAt),
                 userId = obj.userId,
-                joinedAt = obj.joinedAt,
+                joinedAt = parseTimestampUlongOrNull(obj.joinedAt),
             )
         }.fold(
             onSuccess = { Result.success(it) },
@@ -990,7 +1049,12 @@ actual class PrivchatClient private actual constructor() {
         return callAsync("unsubscribeChannel failed") { c.unsubscribeChannel(channelId, channelType) }
     }
 
-    actual suspend fun sendAttachmentFromPath(channelId: ULong, path: String, options: SendMessageOptions?, progress: ProgressObserver?): Result<Pair<ULong, AttachmentInfo>> {
+    actual suspend fun sendAttachmentFromPath(
+        channelId: ULong,
+        path: String,
+        options: SendMessageOptions?,
+        progress: ProgressObserver?
+    ): Result<Pair<ULong, AttachmentInfo>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
         return runCatching {
@@ -1027,7 +1091,14 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
-    actual suspend fun sendAttachmentBytes(channelId: ULong, filename: String, mimeType: String, data: ByteArray, options: SendMessageOptions?, progress: ProgressObserver?): Result<Pair<ULong, AttachmentInfo>> {
+    actual suspend fun sendAttachmentBytes(
+        channelId: ULong,
+        filename: String,
+        mimeType: String,
+        data: ByteArray,
+        options: SendMessageOptions?,
+        progress: ProgressObserver?
+    ): Result<Pair<ULong, AttachmentInfo>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
         return runCatching {
@@ -1064,7 +1135,11 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
-    actual suspend fun downloadAttachmentToCache(fileId: String, fileUrl: String, progress: ProgressObserver?): Result<String> {
+    actual suspend fun downloadAttachmentToCache(
+        fileId: String,
+        fileUrl: String,
+        progress: ProgressObserver?
+    ): Result<String> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
             val path = c.downloadAttachmentToCache(fileUrl, fileId)
@@ -1076,7 +1151,11 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
-    actual suspend fun downloadAttachmentToPath(fileUrl: String, outputPath: String, progress: ProgressObserver?): Result<Unit> {
+    actual suspend fun downloadAttachmentToPath(
+        fileUrl: String,
+        outputPath: String,
+        progress: ProgressObserver?
+    ): Result<Unit> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
             c.downloadAttachmentToPath(fileUrl, outputPath)
@@ -1093,7 +1172,12 @@ actual class PrivchatClient private actual constructor() {
         val client = coreClient ?: return
         val coreHook = if (hook != null) {
             object : uniffi.privchat_sdk_ffi.VideoProcessHook {
-                override fun process(op: uniffi.privchat_sdk_ffi.MediaProcessOp, sourcePath: String, metaPath: String, outputPath: String): Boolean {
+                override fun process(
+                    op: uniffi.privchat_sdk_ffi.MediaProcessOp,
+                    sourcePath: String,
+                    metaPath: String,
+                    outputPath: String
+                ): Boolean {
                     val dtoOp = when (op) {
                         uniffi.privchat_sdk_ffi.MediaProcessOp.THUMBNAIL -> MediaProcessOp.Thumbnail
                         uniffi.privchat_sdk_ffi.MediaProcessOp.COMPRESS -> MediaProcessOp.Compress
@@ -1178,6 +1262,7 @@ actual class PrivchatClient private actual constructor() {
 private fun mapFfiCodeToSdkError(prefix: String, code: UInt, detail: String): SdkError = when (code) {
     SdkErrorCodes.NETWORK_DISCONNECTED,
     SdkErrorCodes.SHUTDOWN -> SdkError.Disconnected
+
     SdkErrorCodes.TRANSPORT_FAILURE -> SdkError.Network("$prefix: $detail", code.toInt())
     SdkErrorCodes.STORAGE_FAILURE -> SdkError.Database("$prefix: $detail")
     SdkErrorCodes.AUTH_FAILURE -> SdkError.Authentication("$prefix: $detail")
@@ -1256,6 +1341,42 @@ private fun StoredUser.toCommonUser() = UserEntry(
     canSendMessage = true,
     searchSessionId = null,
     isOnline = null,
+)
+
+private fun StoredUser.toSearchedUserDto() = SearchedUserDto(
+    userId = userId,
+    username = username?.takeIf { it.isNotBlank() } ?: userId.toString(),
+    nickname = nickname?.takeIf { it.isNotBlank() }
+        ?: username?.takeIf { it.isNotBlank() }
+        ?: userId.toString(),
+    avatarUrl = avatar.takeIf { it.isNotBlank() },
+    userType = userType.toShort(),
+    searchSessionId = 0u,
+    isFriend = false,
+    canSendMessage = true,
+)
+
+private fun AccountUserDetailView.toSearchedUserDto() = SearchedUserDto(
+    userId = userId,
+    username = username,
+    nickname = nickname.ifBlank { username },
+    avatarUrl = avatarUrl,
+    userType = userType,
+    searchSessionId = 0u,
+    isFriend = isFriend,
+    canSendMessage = canSendMessage,
+)
+
+private fun AccountUserDetailView.toCoreUpsertUserInput(local: StoredUser?) = CoreUpsertUserInput(
+    userId = userId,
+    username = username.takeIf { it.isNotBlank() },
+    nickname = nickname.takeIf { it.isNotBlank() },
+    alias = local?.alias?.takeIf { it.isNotBlank() },
+    avatar = avatarUrl.orEmpty(),
+    userType = userType.toInt(),
+    isDeleted = false,
+    channelId = local?.channelId.orEmpty(),
+    updatedAt = ((local?.updatedAt ?: 0L) + 1L).coerceAtLeast(1L),
 )
 
 private fun StoredGroup.toCommonGroup() = GroupEntry(
@@ -1382,10 +1503,12 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         fromState = event.from.name,
         toState = event.to.name,
     )
+
     is CoreSdkEvent.BootstrapCompleted -> SdkEventPayload(
         type = "bootstrap_completed",
         userId = event.userId,
     )
+
     CoreSdkEvent.ResumeSyncStarted -> SdkEventPayload(type = "resume_sync_started")
     is CoreSdkEvent.ResumeSyncCompleted -> SdkEventPayload(
         type = "resume_sync_completed",
@@ -1394,6 +1517,7 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         channelsApplied = event.channelsApplied,
         channelFailures = event.channelFailures,
     )
+
     is CoreSdkEvent.ResumeSyncFailed -> SdkEventPayload(
         type = "resume_sync_failed",
         classification = event.classification.name,
@@ -1401,6 +1525,7 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         errorCode = event.errorCode.toUInt(),
         reason = event.message,
     )
+
     is CoreSdkEvent.ResumeSyncEscalated -> SdkEventPayload(
         type = "resume_sync_escalated",
         classification = event.classification.name,
@@ -1410,17 +1535,20 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         channelId = event.channelId,
         channelType = event.channelType,
     )
+
     is CoreSdkEvent.ResumeSyncChannelStarted -> SdkEventPayload(
         type = "resume_sync_channel_started",
         channelId = event.channelId,
         channelType = event.channelType,
     )
+
     is CoreSdkEvent.ResumeSyncChannelCompleted -> SdkEventPayload(
         type = "resume_sync_channel_completed",
         channelId = event.channelId,
         channelType = event.channelType,
         applied = event.applied,
     )
+
     is CoreSdkEvent.ResumeSyncChannelFailed -> SdkEventPayload(
         type = "resume_sync_channel_failed",
         channelId = event.channelId,
@@ -1430,6 +1558,7 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         errorCode = event.errorCode.toUInt(),
         reason = event.message,
     )
+
     is CoreSdkEvent.SyncEntitiesApplied -> SdkEventPayload(
         type = "sync_entities_applied",
         entityType = event.entityType,
@@ -1438,27 +1567,32 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         applied = event.applied,
         droppedDuplicates = event.droppedDuplicates,
     )
+
     is CoreSdkEvent.SyncEntityChanged -> SdkEventPayload(
         type = "sync_entity_changed",
         entityType = event.entityType,
         entityId = event.entityId,
         deleted = event.deleted,
     )
+
     is CoreSdkEvent.SyncChannelApplied -> SdkEventPayload(
         type = "sync_channel_applied",
         channelId = event.channelId,
         channelType = event.channelType,
         applied = event.applied,
     )
+
     is CoreSdkEvent.SyncAllChannelsApplied -> SdkEventPayload(
         type = "sync_all_channels_applied",
         applied = event.applied,
     )
+
     is CoreSdkEvent.NetworkHintChanged -> SdkEventPayload(
         type = "network_hint_changed",
         fromNetworkHint = event.from.name,
         toNetworkHint = event.to.name,
     )
+
     is CoreSdkEvent.OutboundQueueUpdated -> SdkEventPayload(
         type = "outbound_queue_updated",
         kind = event.kind,
@@ -1466,6 +1600,7 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         messageId = event.messageId,
         queueIndex = event.queueIndex,
     )
+
     is CoreSdkEvent.TimelineUpdated -> SdkEventPayload(
         type = "timeline_updated",
         channelId = event.channelId,
@@ -1473,18 +1608,21 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         messageId = event.messageId,
         reason = event.reason,
     )
+
     is CoreSdkEvent.MessageSendStatusChanged -> SdkEventPayload(
         type = "message_send_status_changed",
         messageId = event.messageId,
         status = event.status,
         serverMessageId = event.serverMessageId,
     )
+
     is CoreSdkEvent.TypingSent -> SdkEventPayload(
         type = "typing_sent",
         channelId = event.channelId,
         channelType = event.channelType,
         isTyping = event.isTyping,
     )
+
     is CoreSdkEvent.SubscriptionMessageReceived -> SdkEventPayload(
         type = "subscription_message_received",
         channelId = event.channelId,
@@ -1494,6 +1632,7 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         serverMessageId = event.serverMessageId,
         timestamp = event.timestamp,
     )
+
     CoreSdkEvent.ShutdownStarted -> SdkEventPayload(type = "shutdown_started")
     CoreSdkEvent.ShutdownCompleted -> SdkEventPayload(type = "shutdown_completed")
 }
@@ -1505,3 +1644,10 @@ private fun parseReadPtsAck(raw: String, fallbackReadPts: ULong): ULong {
         ?: data.ulong("read_pts")
         ?: fallbackReadPts
 }
+
+private fun parseTimestampUlongOrNull(raw: String?): ULong? {
+    if (raw.isNullOrBlank()) return null
+    return raw.toULongOrNull()
+}
+
+private fun parseTimestampUlong(raw: String): ULong = parseTimestampUlongOrNull(raw) ?: 0uL

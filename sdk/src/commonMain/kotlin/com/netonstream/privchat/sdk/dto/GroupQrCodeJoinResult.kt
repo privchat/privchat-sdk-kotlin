@@ -5,7 +5,7 @@ data class GroupQrCodeJoinResult(
     val groupId: ULong,
     val requestId: String?,
     val message: String?,
-    val expiresAt: String?,
+    val expiresAt: ULong?,
     val userId: ULong?,
-    val joinedAt: String?,
+    val joinedAt: ULong?,
 )

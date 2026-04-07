@@ -5,6 +5,6 @@ data class GroupCreateResult(
     val name: String,
     val description: String?,
     val memberCount: UInt,
-    val createdAt: String,
+    val createdAt: ULong,
     val creatorId: ULong,
 )

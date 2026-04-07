@@ -60,18 +60,18 @@ internal open class UniffiVTableCallbackInterfaceVideoProcessHookStruct(
     `process`: Any?,
     `uniffiFree`: Any?,
 ) : com.sun.jna.Structure() {
-    
+
     @JvmField internal var `process`: UniffiCallbackInterfaceVideoProcessHookMethod0? = `process` as UniffiCallbackInterfaceVideoProcessHookMethod0?
-    
+
     @JvmField internal var `uniffiFree`: UniffiCallbackInterfaceFree? = `uniffiFree` as UniffiCallbackInterfaceFree?
-    
+
 
     constructor(): this(
-        
+
         `process` = null,
-        
+
         `uniffiFree` = null,
-        
+
     )
 
     internal class UniffiByValue(
@@ -780,18 +780,18 @@ internal interface UniffiLib : Library {
                 uniffiCallbackInterfaceVideoProcessHook.register(lib)
                 }
         }
-        
+
         // The Cleaner for the whole library
         internal val CLEANER: UniffiCleaner by lazy {
             UniffiCleaner.create()
         }
     }
 
-    fun uniffi_privchat_sdk_ffi_fn_clone_privchatclient(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_clone_privchatclient(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Pointer?
-    fun uniffi_privchat_sdk_ffi_fn_free_privchatclient(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_free_privchatclient(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Unit
-    fun uniffi_privchat_sdk_ffi_fn_constructor_privchatclient_new(`config`: RustBufferByValue,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_constructor_privchatclient_new(`config`: RustBufferByValue,uniffiCallStatus: UniffiRustCallStatus,
     ): Pointer?
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_accept_friend_request(`ptr`: Pointer?,`fromUserId`: Long,`message`: RustBufferByValue,
     ): Long
@@ -811,7 +811,7 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_add_reaction_blocking(`ptr`: Pointer?,`serverMessageId`: Long,`channelId`: RustBufferByValue,`emoji`: RustBufferByValue,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_add_server(`ptr`: Pointer?,`endpoint`: RustBufferByValue,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_add_server(`ptr`: Pointer?,`endpoint`: RustBufferByValue,uniffiCallStatus: UniffiRustCallStatus,
     ): Unit
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_add_to_blacklist(`ptr`: Pointer?,`blockedUserId`: Long,
     ): Long
@@ -825,9 +825,9 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_batch_get_presence(`ptr`: Pointer?,`userIds`: RustBufferByValue,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_build(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_build(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_builder(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_builder(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_channel_broadcast_create_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
@@ -855,7 +855,7 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_clear_presence_cache(`ptr`: Pointer?,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_config(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_config(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_connect(`ptr`: Pointer?,
     ): Long
@@ -863,7 +863,7 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_connection_state(`ptr`: Pointer?,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_connection_timeout(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_connection_timeout(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_create_group(`ptr`: Pointer?,`name`: RustBufferByValue,`description`: RustBufferByValue,`memberIds`: RustBufferByValue,
     ): Long
@@ -871,7 +871,7 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_data_dir(`ptr`: Pointer?,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_debug_mode(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_debug_mode(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Byte
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_blacklist_entry(`ptr`: Pointer?,`blockedUserId`: Long,
     ): Long
@@ -903,29 +903,29 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_text_with_local_id(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`fromUid`: Long,`content`: RustBufferByValue,`localMessageId`: RustBufferByValue,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_enter_background(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_enter_background(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Unit
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_enter_foreground(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_enter_foreground(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Unit
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_entity_sync_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_event_config(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_event_config(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_event_stream_cursor(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_event_stream_cursor(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_events_since(`ptr`: Pointer?,`sequenceId`: Long,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_events_since(`ptr`: Pointer?,`sequenceId`: Long,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_fetch_group_members_remote(`ptr`: Pointer?,`groupId`: Long,`page`: RustBufferByValue,`pageSize`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_fetch_presence(`ptr`: Pointer?,`userIds`: RustBufferByValue,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_api_base_url(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_api_base_url(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_request_upload_token_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_upload_callback_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_generate_local_message_id(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_generate_local_message_id(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_all_unread_mention_counts(`ptr`: Pointer?,`userId`: Long,
     ): Long
@@ -1017,13 +1017,13 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_update_settings_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_heartbeat_interval(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_heartbeat_interval(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_hide_channel(`ptr`: Pointer?,`channelId`: Long,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_http_client_config(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_http_client_config(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_image_send_max_edge(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_image_send_max_edge(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Int
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_invite_to_group(`ptr`: Pointer?,`groupId`: Long,`memberIds`: RustBufferByValue,
     ): Long
@@ -1037,7 +1037,7 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_shutting_down(`ptr`: Pointer?,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_supervised_sync_running(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_supervised_sync_running(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Byte
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_join_group_by_qrcode(`ptr`: Pointer?,`qrKey`: RustBufferByValue,
     ): Long
@@ -1103,7 +1103,7 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_needs_sync(`ptr`: Pointer?,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_network_events_since(`ptr`: Pointer?,`sequenceId`: Long,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_network_events_since(`ptr`: Pointer?,`sequenceId`: Long,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_next_event(`ptr`: Pointer?,`timeoutMs`: Long,
     ): Long
@@ -1117,17 +1117,17 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_next_timeline_event_envelope(`ptr`: Pointer?,`timeoutMs`: Long,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_app_background(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_app_background(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Unit
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_app_foreground(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_app_foreground(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Unit
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_connection_state_changed(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_connection_state_changed(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Unit
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_message_received(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_message_received(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Unit
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_reaction_changed(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_reaction_changed(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Unit
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_typing_indicator(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_typing_indicator(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Unit
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_own_last_read(`ptr`: Pointer?,`channelId`: Long,
     ): Long
@@ -1153,7 +1153,7 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_qrcode_revoke(`ptr`: Pointer?,`qrKey`: RustBufferByValue,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_queue_config(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_queue_config(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_reaction_stats(`ptr`: Pointer?,`serverMessageId`: Long,
     ): Long
@@ -1165,21 +1165,21 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recall_message_blocking(`ptr`: Pointer?,`serverMessageId`: Long,`channelId`: Long,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recent_events(`ptr`: Pointer?,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recent_events(`ptr`: Pointer?,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recent_network_events(`ptr`: Pointer?,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recent_network_events(`ptr`: Pointer?,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recent_network_plain_events(`ptr`: Pointer?,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recent_network_plain_events(`ptr`: Pointer?,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recent_timeline_events(`ptr`: Pointer?,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recent_timeline_events(`ptr`: Pointer?,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recent_timeline_plain_events(`ptr`: Pointer?,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recent_timeline_plain_events(`ptr`: Pointer?,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_record_mention(`ptr`: Pointer?,`input`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_register(`ptr`: Pointer?,`username`: RustBufferByValue,`password`: RustBufferByValue,`deviceId`: RustBufferByValue,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_register_lifecycle_hook(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_register_lifecycle_hook(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Unit
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_reject_friend_request(`ptr`: Pointer?,`fromUserId`: Long,`message`: RustBufferByValue,
     ): Long
@@ -1201,7 +1201,7 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_local_message_id_by_server_message_id(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`serverMessageId`: Long,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_retry_config(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_retry_config(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_retry_message(`ptr`: Pointer?,`messageId`: Long,
     ): Long
@@ -1239,9 +1239,9 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_typing(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`isTyping`: Byte,`actionType`: RustBufferByValue,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_server_config(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_server_config(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_servers(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_servers(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_session_snapshot(`ptr`: Pointer?,
     ): Long
@@ -1265,9 +1265,9 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_shutdown_blocking(`ptr`: Pointer?,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_supervised_sync(`ptr`: Pointer?,`intervalSecs`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_supervised_sync(`ptr`: Pointer?,`intervalSecs`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): Unit
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_transport_disconnect_listener(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_transport_disconnect_listener(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Unit
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_typing(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,
     ): Long
@@ -1277,7 +1277,7 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_sticker_package_list_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_stop_supervised_sync(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_stop_supervised_sync(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Unit
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_stop_typing(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,
     ): Long
@@ -1285,9 +1285,9 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_channel(`ptr`: Pointer?,`channelId`: Long,`channelType`: Byte,`token`: RustBufferByValue,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_events(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_events(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Byte
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_network_status(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_network_status(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Byte
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_presence(`ptr`: Pointer?,`userIds`: RustBufferByValue,
     ): Long
@@ -1311,17 +1311,17 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_submit_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_timeline_events_since(`ptr`: Pointer?,`sequenceId`: Long,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_timeline_events_since(`ptr`: Pointer?,`sequenceId`: Long,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_timezone_hours(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_timezone_hours(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Int
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_timezone_local(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_timezone_local(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_timezone_minutes(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_timezone_minutes(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Int
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_timezone_seconds(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_timezone_seconds(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): Int
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_to_client_endpoint(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_to_client_endpoint(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_unsubscribe_channel(`ptr`: Pointer?,`channelId`: Long,`channelType`: Byte,
     ): Long
@@ -1369,19 +1369,19 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_init_callback_vtable_videoprocesshook(`vtable`: UniffiVTableCallbackInterfaceVideoProcessHook,
     ): Unit
-    fun uniffi_privchat_sdk_ffi_fn_func_build_time(uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_func_build_time(uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
-    fun uniffi_privchat_sdk_ffi_fn_func_git_sha(uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_func_git_sha(uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
-    fun uniffi_privchat_sdk_ffi_fn_func_sdk_version(uniffiCallStatus: UniffiRustCallStatus, 
+    fun uniffi_privchat_sdk_ffi_fn_func_sdk_version(uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
-    fun ffi_privchat_sdk_ffi_rustbuffer_alloc(`size`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun ffi_privchat_sdk_ffi_rustbuffer_alloc(`size`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
-    fun ffi_privchat_sdk_ffi_rustbuffer_from_bytes(`bytes`: ForeignBytesByValue,uniffiCallStatus: UniffiRustCallStatus, 
+    fun ffi_privchat_sdk_ffi_rustbuffer_from_bytes(`bytes`: ForeignBytesByValue,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
-    fun ffi_privchat_sdk_ffi_rustbuffer_free(`buf`: RustBufferByValue,uniffiCallStatus: UniffiRustCallStatus, 
+    fun ffi_privchat_sdk_ffi_rustbuffer_free(`buf`: RustBufferByValue,uniffiCallStatus: UniffiRustCallStatus,
     ): Unit
-    fun ffi_privchat_sdk_ffi_rustbuffer_reserve(`buf`: RustBufferByValue,`additional`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun ffi_privchat_sdk_ffi_rustbuffer_reserve(`buf`: RustBufferByValue,`additional`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
     fun ffi_privchat_sdk_ffi_rust_future_poll_u8(`handle`: Long,`callback`: Any,`callbackData`: Long,
     ): Unit
@@ -1389,7 +1389,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_privchat_sdk_ffi_rust_future_free_u8(`handle`: Long,
     ): Unit
-    fun ffi_privchat_sdk_ffi_rust_future_complete_u8(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun ffi_privchat_sdk_ffi_rust_future_complete_u8(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): Byte
     fun ffi_privchat_sdk_ffi_rust_future_poll_i8(`handle`: Long,`callback`: Any,`callbackData`: Long,
     ): Unit
@@ -1397,7 +1397,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_privchat_sdk_ffi_rust_future_free_i8(`handle`: Long,
     ): Unit
-    fun ffi_privchat_sdk_ffi_rust_future_complete_i8(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun ffi_privchat_sdk_ffi_rust_future_complete_i8(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): Byte
     fun ffi_privchat_sdk_ffi_rust_future_poll_u16(`handle`: Long,`callback`: Any,`callbackData`: Long,
     ): Unit
@@ -1405,7 +1405,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_privchat_sdk_ffi_rust_future_free_u16(`handle`: Long,
     ): Unit
-    fun ffi_privchat_sdk_ffi_rust_future_complete_u16(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun ffi_privchat_sdk_ffi_rust_future_complete_u16(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): Short
     fun ffi_privchat_sdk_ffi_rust_future_poll_i16(`handle`: Long,`callback`: Any,`callbackData`: Long,
     ): Unit
@@ -1413,7 +1413,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_privchat_sdk_ffi_rust_future_free_i16(`handle`: Long,
     ): Unit
-    fun ffi_privchat_sdk_ffi_rust_future_complete_i16(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun ffi_privchat_sdk_ffi_rust_future_complete_i16(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): Short
     fun ffi_privchat_sdk_ffi_rust_future_poll_u32(`handle`: Long,`callback`: Any,`callbackData`: Long,
     ): Unit
@@ -1421,7 +1421,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_privchat_sdk_ffi_rust_future_free_u32(`handle`: Long,
     ): Unit
-    fun ffi_privchat_sdk_ffi_rust_future_complete_u32(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun ffi_privchat_sdk_ffi_rust_future_complete_u32(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): Int
     fun ffi_privchat_sdk_ffi_rust_future_poll_i32(`handle`: Long,`callback`: Any,`callbackData`: Long,
     ): Unit
@@ -1429,7 +1429,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_privchat_sdk_ffi_rust_future_free_i32(`handle`: Long,
     ): Unit
-    fun ffi_privchat_sdk_ffi_rust_future_complete_i32(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun ffi_privchat_sdk_ffi_rust_future_complete_i32(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): Int
     fun ffi_privchat_sdk_ffi_rust_future_poll_u64(`handle`: Long,`callback`: Any,`callbackData`: Long,
     ): Unit
@@ -1437,7 +1437,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_privchat_sdk_ffi_rust_future_free_u64(`handle`: Long,
     ): Unit
-    fun ffi_privchat_sdk_ffi_rust_future_complete_u64(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun ffi_privchat_sdk_ffi_rust_future_complete_u64(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): Long
     fun ffi_privchat_sdk_ffi_rust_future_poll_i64(`handle`: Long,`callback`: Any,`callbackData`: Long,
     ): Unit
@@ -1445,7 +1445,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_privchat_sdk_ffi_rust_future_free_i64(`handle`: Long,
     ): Unit
-    fun ffi_privchat_sdk_ffi_rust_future_complete_i64(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun ffi_privchat_sdk_ffi_rust_future_complete_i64(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): Long
     fun ffi_privchat_sdk_ffi_rust_future_poll_f32(`handle`: Long,`callback`: Any,`callbackData`: Long,
     ): Unit
@@ -1453,7 +1453,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_privchat_sdk_ffi_rust_future_free_f32(`handle`: Long,
     ): Unit
-    fun ffi_privchat_sdk_ffi_rust_future_complete_f32(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun ffi_privchat_sdk_ffi_rust_future_complete_f32(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): Float
     fun ffi_privchat_sdk_ffi_rust_future_poll_f64(`handle`: Long,`callback`: Any,`callbackData`: Long,
     ): Unit
@@ -1461,7 +1461,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_privchat_sdk_ffi_rust_future_free_f64(`handle`: Long,
     ): Unit
-    fun ffi_privchat_sdk_ffi_rust_future_complete_f64(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun ffi_privchat_sdk_ffi_rust_future_complete_f64(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): Double
     fun ffi_privchat_sdk_ffi_rust_future_poll_pointer(`handle`: Long,`callback`: Any,`callbackData`: Long,
     ): Unit
@@ -1469,7 +1469,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_privchat_sdk_ffi_rust_future_free_pointer(`handle`: Long,
     ): Unit
-    fun ffi_privchat_sdk_ffi_rust_future_complete_pointer(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun ffi_privchat_sdk_ffi_rust_future_complete_pointer(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): Pointer?
     fun ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(`handle`: Long,`callback`: Any,`callbackData`: Long,
     ): Unit
@@ -1477,7 +1477,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(`handle`: Long,
     ): Unit
-    fun ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): RustBufferByValue
     fun ffi_privchat_sdk_ffi_rust_future_poll_void(`handle`: Long,`callback`: Any,`callbackData`: Long,
     ): Unit
@@ -1485,7 +1485,7 @@ internal interface UniffiLib : Library {
     ): Unit
     fun ffi_privchat_sdk_ffi_rust_future_free_void(`handle`: Long,
     ): Unit
-    fun ffi_privchat_sdk_ffi_rust_future_complete_void(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    fun ffi_privchat_sdk_ffi_rust_future_complete_void(`handle`: Long,uniffiCallStatus: UniffiRustCallStatus,
     ): Unit
     fun uniffi_privchat_sdk_ffi_checksum_func_build_time(
     ): Short
@@ -2073,7 +2073,7 @@ internal interface UniffiLib : Library {
     ): Short
     fun ffi_privchat_sdk_ffi_uniffi_contract_version(
     ): Int
-    
+
 }
 
 private fun uniffiCheckContractApiVersion(lib: UniffiLib) {
@@ -3089,7 +3089,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         }
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `acceptFriendRequest`(`fromUserId`: kotlin.ULong, `message`: kotlin.String?) : kotlin.ULong {
@@ -3111,7 +3111,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `accountUserDetailRemote`(`userId`: kotlin.ULong) : AccountUserDetailView {
@@ -3133,7 +3133,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `accountUserShareCardRemote`(`userId`: kotlin.ULong) : AccountUserShareCardView {
@@ -3155,7 +3155,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `accountUserUpdateRemote`(`payload`: AccountUserUpdateInput) : kotlin.Boolean {
@@ -3177,7 +3177,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `ackOutboundFiles`(`queueIndex`: kotlin.ULong, `messageIds`: List<kotlin.ULong>) : kotlin.ULong {
@@ -3199,7 +3199,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `ackOutboundMessages`(`messageIds`: List<kotlin.ULong>) : kotlin.ULong {
@@ -3221,7 +3221,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `addChannelMembers`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `memberUids`: List<kotlin.ULong>) {
@@ -3238,13 +3238,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `addReaction`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong?, `emoji`: kotlin.String) : kotlin.Boolean {
@@ -3266,7 +3266,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `addReactionBlocking`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong?, `emoji`: kotlin.String) : kotlin.Boolean {
@@ -3288,19 +3288,19 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class)actual override fun `addServer`(`endpoint`: ServerEndpoint)
-        = 
+        =
     callWithPointer {
     uniffiRustCallWithError(PrivchatFfiExceptionErrorHandler) { _status ->
     UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_add_server(
         it, FfiConverterTypeServerEndpoint.lower(`endpoint`),_status)!!
 }
     }
-    
-    
 
-    
+
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `addToBlacklist`(`blockedUserId`: kotlin.ULong) : kotlin.Boolean {
@@ -3322,7 +3322,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `assetsDir`() : kotlin.String {
@@ -3330,7 +3330,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_assets_dir(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -3344,7 +3344,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `authLogoutRemote`() : kotlin.Boolean {
@@ -3352,7 +3352,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_auth_logout_remote(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_i8(future, callback, continuation)!! },
@@ -3366,7 +3366,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `authRefreshRemote`(`payload`: AuthRefreshInput) : LoginResult {
@@ -3388,7 +3388,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `authenticate`(`userId`: kotlin.ULong, `token`: kotlin.String, `deviceId`: kotlin.String) {
@@ -3405,13 +3405,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `batchGetPresence`(`userIds`: List<kotlin.ULong>) : List<PresenceStatus> {
@@ -3443,7 +3443,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
+
 
     actual override fun `builder`(): kotlin.String {
             return FfiConverterString.lift(
@@ -3455,9 +3455,9 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
 
-    
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `channelBroadcastCreateRemote`(`payload`: ChannelBroadcastCreateInput) : ChannelBroadcastCreateView {
@@ -3479,7 +3479,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `channelBroadcastListRemote`(`payload`: ChannelBroadcastListInput) : ChannelBroadcastListView {
@@ -3501,7 +3501,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `channelBroadcastSubscribeRemote`(`payload`: ChannelBroadcastSubscribeInput) : kotlin.Boolean {
@@ -3523,7 +3523,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `channelContentListRemote`(`payload`: ChannelContentListInput) : ChannelContentListView {
@@ -3545,7 +3545,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `channelContentPublishRemote`(`payload`: ChannelContentPublishInput) : ChannelContentPublishView {
@@ -3567,7 +3567,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `channelNotificationMode`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) : kotlin.Int {
@@ -3589,7 +3589,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `channelSendQueueSetEnabled`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `enabled`: kotlin.Boolean) {
@@ -3606,13 +3606,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `channelTags`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) : List<kotlin.String> {
@@ -3634,7 +3634,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `channelUnreadStats`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) : kotlin.Int {
@@ -3656,7 +3656,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `checkBlacklist`(`targetUserId`: kotlin.ULong) : BlacklistCheckResult {
@@ -3678,7 +3678,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `checkFriend`(`friendId`: kotlin.ULong) : kotlin.Boolean {
@@ -3700,7 +3700,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `clearLocalState`() {
@@ -3708,7 +3708,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_clear_local_state(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
@@ -3717,13 +3717,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `clearPresenceCache`() {
@@ -3731,7 +3731,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_clear_presence_cache(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
@@ -3740,7 +3740,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -3756,9 +3756,9 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
 
-    
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `connect`() {
@@ -3766,7 +3766,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_connect(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
@@ -3775,13 +3775,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `connectBlocking`() {
@@ -3789,7 +3789,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_connect_blocking(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
@@ -3798,13 +3798,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `connectionState`() : ConnectionState {
@@ -3812,7 +3812,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_connection_state(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -3836,9 +3836,9 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
 
-    
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `createGroup`(`name`: kotlin.String, `description`: kotlin.String?, `memberIds`: List<kotlin.ULong>?) : GroupCreateResult {
@@ -3860,7 +3860,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `createLocalMessage`(`input`: NewMessage) : kotlin.ULong {
@@ -3882,7 +3882,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `dataDir`() : kotlin.String {
@@ -3890,7 +3890,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_data_dir(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -3914,9 +3914,9 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
 
-    
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `deleteBlacklistEntry`(`blockedUserId`: kotlin.ULong) {
@@ -3933,13 +3933,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `deleteChannelMember`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `memberUid`: kotlin.ULong) {
@@ -3956,13 +3956,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `deleteFriend`(`friendId`: kotlin.ULong) : kotlin.Boolean {
@@ -3984,7 +3984,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `disconnect`() {
@@ -3992,7 +3992,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_disconnect(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
@@ -4001,13 +4001,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `dmPeerUserId`(`channelId`: kotlin.ULong) : kotlin.ULong? {
@@ -4029,7 +4029,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `downloadAttachmentToCache`(`sourcePath`: kotlin.String, `fileName`: kotlin.String) : kotlin.String {
@@ -4051,7 +4051,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `downloadAttachmentToMessageDir`(`sourcePath`: kotlin.String, `messageId`: kotlin.ULong, `fileName`: kotlin.String) : kotlin.String {
@@ -4073,7 +4073,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `downloadAttachmentToPath`(`sourcePath`: kotlin.String, `targetPath`: kotlin.String) : kotlin.String {
@@ -4095,7 +4095,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `editMessage`(`messageId`: kotlin.ULong, `content`: kotlin.String, `editedAt`: kotlin.Int) {
@@ -4112,13 +4112,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `editMessageBlocking`(`messageId`: kotlin.ULong, `content`: kotlin.String, `editedAt`: kotlin.Int) {
@@ -4135,13 +4135,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `enqueueLocalMessage`(`input`: NewMessage) : kotlin.ULong {
@@ -4163,7 +4163,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `enqueueOutboundFile`(`messageId`: kotlin.ULong, `routeKey`: kotlin.String, `payload`: kotlin.ByteArray) : FileQueueRef {
@@ -4185,7 +4185,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `enqueueOutboundMessage`(`messageId`: kotlin.ULong, `payload`: kotlin.ByteArray) : kotlin.ULong {
@@ -4207,7 +4207,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `enqueueText`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String) : kotlin.ULong {
@@ -4229,7 +4229,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `enqueueTextWithLocalId`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String, `localMessageId`: kotlin.ULong?) : kotlin.ULong {
@@ -4252,28 +4252,28 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     actual override fun `enterBackground`()
-        = 
+        =
     callWithPointer {
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_enter_background(
         it, _status)!!
 }
     }
-    
-    
+
+
 
     actual override fun `enterForeground`()
-        = 
+        =
     callWithPointer {
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_enter_foreground(
         it, _status)!!
 }
     }
-    
-    
 
-    
+
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `entitySyncRemote`(`payload`: SyncEntitiesInput) : SyncEntitiesView {
@@ -4305,7 +4305,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
+
 
     actual override fun `eventStreamCursor`(): kotlin.ULong {
             return FfiConverterULong.lift(
@@ -4317,7 +4317,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
+
 
     actual override fun `eventsSince`(`sequenceId`: kotlin.ULong, `limit`: kotlin.ULong): List<SequencedSdkEvent> {
             return FfiConverterSequenceTypeSequencedSdkEvent.lift(
@@ -4329,9 +4329,9 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
 
-    
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `fetchGroupMembersRemote`(`groupId`: kotlin.ULong, `page`: kotlin.UInt?, `pageSize`: kotlin.UInt?) : GroupMemberRemoteList {
@@ -4353,7 +4353,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `fetchPresence`(`userIds`: List<kotlin.ULong>) : List<PresenceStatus> {
@@ -4385,9 +4385,9 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
 
-    
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `fileRequestUploadTokenRemote`(`payload`: FileRequestUploadTokenInput) : FileRequestUploadTokenView {
@@ -4409,7 +4409,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `fileUploadCallbackRemote`(`payload`: FileUploadCallbackInput) : kotlin.Boolean {
@@ -4431,7 +4431,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class)actual override fun `generateLocalMessageId`(): kotlin.ULong {
             return FfiConverterULong.lift(
     callWithPointer {
@@ -4442,9 +4442,9 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
 
-    
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getAllUnreadMentionCounts`(`userId`: kotlin.ULong) : List<UnreadMentionCount> {
@@ -4466,7 +4466,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getBlacklist`() : List<StoredBlacklistEntry> {
@@ -4474,7 +4474,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_blacklist(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -4488,7 +4488,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getChannelById`(`channelId`: kotlin.ULong) : StoredChannel? {
@@ -4510,7 +4510,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getChannelExtra`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) : StoredChannelExtra? {
@@ -4532,7 +4532,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getChannelListEntries`(`page`: kotlin.ULong, `pageSize`: kotlin.ULong) : List<StoredChannel> {
@@ -4554,7 +4554,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getChannelSyncState`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) : ChannelSyncState {
@@ -4576,7 +4576,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getChannelUnreadCount`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) : kotlin.Int {
@@ -4598,7 +4598,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getChannels`(`limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredChannel> {
@@ -4620,7 +4620,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getConnectionState`() : ConnectionState {
@@ -4628,7 +4628,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_connection_state(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -4642,7 +4642,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getConnectionSummary`() : ConnectionSummary {
@@ -4650,7 +4650,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_connection_summary(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -4664,7 +4664,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getDevicePushStatus`(`deviceId`: kotlin.String?) : DevicePushStatusView {
@@ -4686,7 +4686,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getEarliestId`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) : kotlin.ULong? {
@@ -4708,7 +4708,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getFriendPendingRequests`() : List<FriendPendingEntry> {
@@ -4716,7 +4716,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_friend_pending_requests(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -4730,7 +4730,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getFriends`(`limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredFriend> {
@@ -4752,7 +4752,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getGroupById`(`groupId`: kotlin.ULong) : StoredGroup? {
@@ -4774,7 +4774,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getGroupInfo`(`groupId`: kotlin.ULong) : GroupInfoView {
@@ -4796,7 +4796,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getGroupMembers`(`groupId`: kotlin.ULong, `limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredGroupMember> {
@@ -4818,7 +4818,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getGroups`(`limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredGroup> {
@@ -4840,7 +4840,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getMessageById`(`messageId`: kotlin.ULong) : StoredMessage? {
@@ -4862,7 +4862,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getMessageExtra`(`messageId`: kotlin.ULong) : StoredMessageExtra? {
@@ -4884,7 +4884,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getMessages`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredMessage> {
@@ -4906,7 +4906,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getMessagesRemote`(`channelId`: kotlin.ULong, `beforeServerMessageId`: kotlin.ULong?, `limit`: kotlin.UInt?) : MessageHistoryView {
@@ -4928,7 +4928,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getOrCreateDirectChannel`(`peerUserId`: kotlin.ULong) : DirectChannelResult {
@@ -4950,7 +4950,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getPresence`(`userId`: kotlin.ULong) : PresenceStatus? {
@@ -4972,7 +4972,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getPresenceStats`() : PresenceStatsView {
@@ -4980,7 +4980,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_presence_stats(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -4994,7 +4994,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getPrivacySettings`() : PrivacySettingsView {
@@ -5002,7 +5002,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_privacy_settings(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -5016,7 +5016,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getProfile`() : ProfileView {
@@ -5024,7 +5024,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_profile(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -5038,7 +5038,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getTotalUnreadCount`(`excludeMuted`: kotlin.Boolean) : kotlin.Int {
@@ -5060,7 +5060,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getTypingStats`() : TypingStatsView {
@@ -5068,7 +5068,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_typing_stats(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -5082,7 +5082,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getUnreadMentionCount`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `userId`: kotlin.ULong) : kotlin.Int {
@@ -5104,7 +5104,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getUserById`(`userId`: kotlin.ULong) : StoredUser? {
@@ -5126,7 +5126,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `groupAddMembersRemote`(`groupId`: kotlin.ULong, `userIds`: List<kotlin.ULong>) : kotlin.Boolean {
@@ -5148,7 +5148,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `groupApprovalHandleRemote`(`approvalId`: kotlin.ULong, `approved`: kotlin.Boolean, `reason`: kotlin.String?) : kotlin.Boolean {
@@ -5170,7 +5170,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `groupApprovalListRemote`(`groupId`: kotlin.ULong, `page`: kotlin.UInt?, `pageSize`: kotlin.UInt?) : GroupApprovalListView {
@@ -5192,7 +5192,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `groupGetSettingsRemote`(`groupId`: kotlin.ULong) : GroupSettingsView {
@@ -5214,7 +5214,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `groupLeaveRemote`(`groupId`: kotlin.ULong) : kotlin.Boolean {
@@ -5236,7 +5236,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `groupMuteAllRemote`(`groupId`: kotlin.ULong, `enabled`: kotlin.Boolean) : GroupMuteAllView {
@@ -5258,7 +5258,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `groupMuteMemberRemote`(`groupId`: kotlin.ULong, `userId`: kotlin.ULong, `durationSeconds`: kotlin.ULong?) : kotlin.ULong {
@@ -5280,7 +5280,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `groupQrcodeGenerateRemote`(`groupId`: kotlin.ULong, `expireSeconds`: kotlin.ULong?) : GroupQrCodeGenerateView {
@@ -5302,7 +5302,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `groupQrcodeJoinRemote`(`qrKey`: kotlin.String, `token`: kotlin.String?) : GroupQrCodeJoinResult {
@@ -5324,7 +5324,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `groupRemoveMemberRemote`(`groupId`: kotlin.ULong, `userId`: kotlin.ULong) : kotlin.Boolean {
@@ -5346,7 +5346,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `groupSetRoleRemote`(`groupId`: kotlin.ULong, `userId`: kotlin.ULong, `role`: kotlin.String) : GroupRoleSetView {
@@ -5368,7 +5368,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `groupTransferOwnerRemote`(`groupId`: kotlin.ULong, `targetUserId`: kotlin.ULong) : GroupTransferOwnerView {
@@ -5390,7 +5390,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `groupUnmuteMemberRemote`(`groupId`: kotlin.ULong, `userId`: kotlin.ULong) : kotlin.Boolean {
@@ -5412,7 +5412,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `groupUpdateSettingsRemote`(`payload`: GroupSettingsUpdateInput) : kotlin.Boolean {
@@ -5444,9 +5444,9 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
 
-    
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `hideChannel`(`channelId`: kotlin.ULong) : kotlin.Boolean {
@@ -5478,7 +5478,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
+
 
     actual override fun `imageSendMaxEdge`(): kotlin.UInt {
             return FfiConverterUInt.lift(
@@ -5490,9 +5490,9 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
 
-    
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `inviteToGroup`(`groupId`: kotlin.ULong, `memberIds`: List<kotlin.ULong>) : kotlin.Boolean {
@@ -5514,7 +5514,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `isBootstrapCompleted`() : kotlin.Boolean {
@@ -5522,7 +5522,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_bootstrap_completed(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_i8(future, callback, continuation)!! },
@@ -5536,7 +5536,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `isConnected`() : kotlin.Boolean {
@@ -5544,7 +5544,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_connected(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_i8(future, callback, continuation)!! },
@@ -5558,7 +5558,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `isEventReadBy`(`serverMessageId`: kotlin.ULong, `userId`: kotlin.ULong) : kotlin.Boolean {
@@ -5580,7 +5580,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `isInitialized`() : kotlin.Boolean {
@@ -5588,7 +5588,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_initialized(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_i8(future, callback, continuation)!! },
@@ -5602,7 +5602,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `isShuttingDown`() : kotlin.Boolean {
@@ -5610,7 +5610,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_shutting_down(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_i8(future, callback, continuation)!! },
@@ -5634,9 +5634,9 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
 
-    
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `joinGroupByQrcode`(`qrKey`: kotlin.String) : GroupQrCodeJoinResult {
@@ -5658,7 +5658,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `leaveChannel`(`channelId`: kotlin.ULong) : kotlin.Boolean {
@@ -5680,7 +5680,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `leaveGroup`(`groupId`: kotlin.ULong) : kotlin.Boolean {
@@ -5702,7 +5702,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `listBlacklistEntries`(`limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredBlacklistEntry> {
@@ -5724,7 +5724,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `listChannelMembers`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredChannelMember> {
@@ -5746,7 +5746,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `listChannels`(`limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredChannel> {
@@ -5768,7 +5768,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `listFriends`(`limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredFriend> {
@@ -5790,7 +5790,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `listGroupMembers`(`groupId`: kotlin.ULong, `limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredGroupMember> {
@@ -5812,7 +5812,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `listGroups`(`limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredGroup> {
@@ -5834,7 +5834,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `listLocalAccounts`() : List<LocalAccountSummary> {
@@ -5842,7 +5842,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_local_accounts(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -5856,7 +5856,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `listMessageReactions`(`messageId`: kotlin.ULong, `limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredMessageReaction> {
@@ -5878,7 +5878,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `listMessages`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredMessage> {
@@ -5900,7 +5900,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `listMyDevices`() : List<DeviceInfoView> {
@@ -5908,7 +5908,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_my_devices(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -5922,7 +5922,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `listPendingReminders`(`uid`: kotlin.ULong, `limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredReminder> {
@@ -5944,7 +5944,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `listReactions`(`serverMessageId`: kotlin.ULong) : MessageReactionListView {
@@ -5966,7 +5966,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `listUnreadMentionMessageIds`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `userId`: kotlin.ULong, `limit`: kotlin.ULong) : List<kotlin.ULong> {
@@ -5988,7 +5988,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `listUsersByIds`(`userIds`: List<kotlin.ULong>) : List<StoredUser> {
@@ -6010,7 +6010,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `logConnectionState`() : ConnectionSummary {
@@ -6018,7 +6018,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_log_connection_state(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -6032,7 +6032,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `login`(`username`: kotlin.String, `password`: kotlin.String, `deviceId`: kotlin.String) : LoginResult {
@@ -6054,7 +6054,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `logout`() {
@@ -6062,7 +6062,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_logout(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
@@ -6071,13 +6071,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `markAllMentionsRead`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `userId`: kotlin.ULong) {
@@ -6094,13 +6094,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `markFullyReadAt`(`channelId`: kotlin.ULong, `readPts`: kotlin.ULong) : kotlin.ULong {
@@ -6122,7 +6122,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `markMentionRead`(`messageId`: kotlin.ULong, `userId`: kotlin.ULong) {
@@ -6139,13 +6139,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `markMessageSent`(`messageId`: kotlin.ULong, `serverMessageId`: kotlin.ULong) {
@@ -6162,13 +6162,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `markReadToPts`(`channelId`: kotlin.ULong, `readPts`: kotlin.ULong) : kotlin.ULong {
@@ -6190,7 +6190,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `markReadToPtsBlocking`(`channelId`: kotlin.ULong, `readPts`: kotlin.ULong) : kotlin.ULong {
@@ -6212,7 +6212,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `markReminderDone`(`reminderId`: kotlin.ULong, `done`: kotlin.Boolean) {
@@ -6229,13 +6229,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `messageReadList`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong) : MessageReadListView {
@@ -6257,7 +6257,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `messageReadStats`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong) : MessageReadStatsView {
@@ -6279,7 +6279,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `messageUnreadCountRemote`(`channelId`: kotlin.ULong) : MessageUnreadCountView {
@@ -6301,7 +6301,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `muteChannel`(`channelId`: kotlin.ULong, `muted`: kotlin.Boolean) : kotlin.Boolean {
@@ -6323,7 +6323,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `needsSync`() : kotlin.Boolean {
@@ -6331,7 +6331,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_needs_sync(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_i8(future, callback, continuation)!! },
@@ -6355,9 +6355,9 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
 
-    
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `nextEvent`(`timeoutMs`: kotlin.ULong) : SdkEvent? {
@@ -6379,7 +6379,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `nextEventEnvelope`(`timeoutMs`: kotlin.ULong) : SequencedSdkEvent? {
@@ -6401,7 +6401,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `nextNetworkEvent`(`timeoutMs`: kotlin.ULong) : SdkEvent? {
@@ -6423,7 +6423,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `nextNetworkEventEnvelope`(`timeoutMs`: kotlin.ULong) : SequencedSdkEvent? {
@@ -6445,7 +6445,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `nextTimelineEvent`(`timeoutMs`: kotlin.ULong) : SdkEvent? {
@@ -6467,7 +6467,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `nextTimelineEventEnvelope`(`timeoutMs`: kotlin.ULong) : SequencedSdkEvent? {
@@ -6490,72 +6490,72 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     actual override fun `onAppBackground`()
-        = 
+        =
     callWithPointer {
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_app_background(
         it, _status)!!
 }
     }
-    
-    
+
+
 
     actual override fun `onAppForeground`()
-        = 
+        =
     callWithPointer {
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_app_foreground(
         it, _status)!!
 }
     }
-    
-    
+
+
 
     actual override fun `onConnectionStateChanged`()
-        = 
+        =
     callWithPointer {
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_connection_state_changed(
         it, _status)!!
 }
     }
-    
-    
+
+
 
     actual override fun `onMessageReceived`()
-        = 
+        =
     callWithPointer {
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_message_received(
         it, _status)!!
 }
     }
-    
-    
+
+
 
     actual override fun `onReactionChanged`()
-        = 
+        =
     callWithPointer {
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_reaction_changed(
         it, _status)!!
 }
     }
-    
-    
+
+
 
     actual override fun `onTypingIndicator`()
-        = 
+        =
     callWithPointer {
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_typing_indicator(
         it, _status)!!
 }
     }
-    
-    
 
-    
+
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `ownLastRead`(`channelId`: kotlin.ULong) : kotlin.ULong {
@@ -6577,7 +6577,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `paginateBack`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `page`: kotlin.ULong, `pageSize`: kotlin.ULong) : List<StoredMessage> {
@@ -6599,7 +6599,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `paginateForward`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `page`: kotlin.ULong, `pageSize`: kotlin.ULong) : List<StoredMessage> {
@@ -6621,7 +6621,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `peekOutboundFiles`(`queueIndex`: kotlin.ULong, `limit`: kotlin.ULong) : List<QueueMessage> {
@@ -6643,7 +6643,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `peekOutboundMessages`(`limit`: kotlin.ULong) : List<QueueMessage> {
@@ -6665,7 +6665,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `pinChannel`(`channelId`: kotlin.ULong, `pinned`: kotlin.Boolean) : kotlin.Boolean {
@@ -6687,7 +6687,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `ping`() {
@@ -6695,7 +6695,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_ping(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
@@ -6704,13 +6704,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `qrcodeGenerate`(`qrType`: kotlin.String, `payload`: kotlin.String, `expireSeconds`: kotlin.ULong?) : QrCodeGenerateView {
@@ -6732,7 +6732,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `qrcodeList`(`includeRevoked`: kotlin.Boolean?) : QrCodeListView {
@@ -6754,7 +6754,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `qrcodeRefresh`(`qrType`: kotlin.String, `targetId`: kotlin.String) : QrCodeRefreshView {
@@ -6776,7 +6776,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `qrcodeResolve`(`qrKey`: kotlin.String, `token`: kotlin.String?) : QrCodeResolveView {
@@ -6798,7 +6798,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `qrcodeRevoke`(`qrKey`: kotlin.String) : QrCodeRevokeView {
@@ -6830,9 +6830,9 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
 
-    
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `reactionStats`(`serverMessageId`: kotlin.ULong) : MessageReactionStatsView {
@@ -6854,7 +6854,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `reactions`(`serverMessageId`: kotlin.ULong) : MessageReactionListView {
@@ -6876,7 +6876,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `reactionsBatch`(`serverMessageIds`: List<kotlin.ULong>) : ReactionsBatchView {
@@ -6898,7 +6898,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `recallMessage`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong) : kotlin.Boolean {
@@ -6920,7 +6920,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `recallMessageBlocking`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong) : kotlin.Boolean {
@@ -6952,7 +6952,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
+
 
     actual override fun `recentNetworkEvents`(`limit`: kotlin.ULong): List<SequencedSdkEvent> {
             return FfiConverterSequenceTypeSequencedSdkEvent.lift(
@@ -6964,7 +6964,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
+
 
     actual override fun `recentNetworkPlainEvents`(`limit`: kotlin.ULong): List<SdkEvent> {
             return FfiConverterSequenceTypeSdkEvent.lift(
@@ -6976,7 +6976,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
+
 
     actual override fun `recentTimelineEvents`(`limit`: kotlin.ULong): List<SequencedSdkEvent> {
             return FfiConverterSequenceTypeSequencedSdkEvent.lift(
@@ -6988,7 +6988,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
+
 
     actual override fun `recentTimelinePlainEvents`(`limit`: kotlin.ULong): List<SdkEvent> {
             return FfiConverterSequenceTypeSdkEvent.lift(
@@ -7000,9 +7000,9 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
 
-    
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `recordMention`(`input`: MentionInput) : kotlin.ULong {
@@ -7024,7 +7024,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `register`(`username`: kotlin.String, `password`: kotlin.String, `deviceId`: kotlin.String) : LoginResult {
@@ -7047,17 +7047,17 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     actual override fun `registerLifecycleHook`()
-        = 
+        =
     callWithPointer {
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_register_lifecycle_hook(
         it, _status)!!
 }
     }
-    
-    
 
-    
+
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `rejectFriendRequest`(`fromUserId`: kotlin.ULong, `message`: kotlin.String?) : kotlin.Boolean {
@@ -7079,7 +7079,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `removeChannelMember`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `memberUid`: kotlin.ULong) {
@@ -7096,13 +7096,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `removeFromBlacklist`(`blockedUserId`: kotlin.ULong) : kotlin.Boolean {
@@ -7124,7 +7124,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `removeGroupMember`(`groupId`: kotlin.ULong, `userId`: kotlin.ULong) : kotlin.Boolean {
@@ -7146,7 +7146,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `removeReaction`(`serverMessageId`: kotlin.ULong, `emoji`: kotlin.String) : kotlin.Boolean {
@@ -7168,7 +7168,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `removeVideoProcessHook`() {
@@ -7176,7 +7176,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_remove_video_process_hook(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
@@ -7185,13 +7185,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `requireCurrentUserId`() : kotlin.ULong {
@@ -7199,7 +7199,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_require_current_user_id(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_u64(future, callback, continuation)!! },
@@ -7213,7 +7213,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `resolveChannelIdByServerMessageId`(`serverMessageId`: kotlin.ULong) : kotlin.ULong {
@@ -7235,7 +7235,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `resolveChannelType`(`channelId`: kotlin.ULong) : kotlin.Int {
         return uniffiRustCallAsync(
@@ -7256,7 +7256,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `resolveLocalMessageIdByServerMessageId`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `serverMessageId`: kotlin.ULong) : kotlin.ULong? {
@@ -7288,9 +7288,9 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
 
-    
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `retryMessage`(`messageId`: kotlin.ULong) : kotlin.ULong {
@@ -7312,7 +7312,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `rpcCall`(`route`: kotlin.String, `bodyJson`: kotlin.String) : kotlin.String {
@@ -7334,7 +7334,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `runBootstrapSync`() {
@@ -7342,7 +7342,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_run_bootstrap_sync(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
@@ -7351,13 +7351,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `searchChannel`(`keyword`: kotlin.String) : List<StoredChannel> {
@@ -7379,7 +7379,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `searchMessages`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `keyword`: kotlin.String) : List<StoredMessage> {
@@ -7401,7 +7401,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `searchUserByQrcode`(`qrKey`: kotlin.String, `token`: kotlin.String?) : AccountSearchResultView {
@@ -7423,7 +7423,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `searchUsers`(`query`: kotlin.String) : List<SearchUserEntry> {
@@ -7445,7 +7445,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `seenByForEvent`(`serverMessageId`: kotlin.ULong) : List<SeenByEntry> {
@@ -7467,7 +7467,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `sendAttachmentBytes`(`messageId`: kotlin.ULong, `routeKey`: kotlin.String, `payload`: kotlin.ByteArray) : FileQueueRef {
@@ -7489,7 +7489,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `sendAttachmentFromPath`(`messageId`: kotlin.ULong, `routeKey`: kotlin.String, `path`: kotlin.String) : FileQueueRef {
@@ -7511,7 +7511,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `sendFriendRequest`(`targetUserId`: kotlin.ULong, `message`: kotlin.String?, `source`: kotlin.String?, `sourceId`: kotlin.String?) : FriendRequestResult {
@@ -7533,7 +7533,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `sendLocalMessageNow`(`input`: NewMessage) : kotlin.ULong {
@@ -7555,7 +7555,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `sendMessage`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String) : kotlin.ULong {
@@ -7577,7 +7577,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `sendMessageBlocking`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String) : kotlin.ULong {
@@ -7599,7 +7599,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `sendMessageWithInput`(`input`: NewMessage) : kotlin.ULong {
@@ -7621,7 +7621,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `sendMessageWithOptions`(`input`: NewMessage, `options`: SendMessageOptionsInput) : kotlin.ULong {
@@ -7643,7 +7643,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `sendQueueSetEnabled`(`enabled`: kotlin.Boolean) {
@@ -7660,13 +7660,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `sendTyping`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `isTyping`: kotlin.Boolean, `actionType`: TypingActionType) {
@@ -7683,7 +7683,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -7699,7 +7699,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
+
 
     actual override fun `servers`(): List<ServerEndpoint> {
             return FfiConverterSequenceTypeServerEndpoint.lift(
@@ -7711,9 +7711,9 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
 
-    
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `sessionSnapshot`() : SessionSnapshot? {
@@ -7721,7 +7721,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_session_snapshot(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -7735,7 +7735,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `setChannelFavourite`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `enabled`: kotlin.Boolean) {
@@ -7752,13 +7752,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `setChannelLowPriority`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `enabled`: kotlin.Boolean) {
@@ -7775,13 +7775,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `setChannelNotificationMode`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `mode`: kotlin.Int) {
@@ -7798,13 +7798,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `setCurrentUid`(`uid`: kotlin.String) {
@@ -7821,13 +7821,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `setMessagePinned`(`messageId`: kotlin.ULong, `isPinned`: kotlin.Boolean) {
@@ -7844,13 +7844,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `setMessageRevoke`(`messageId`: kotlin.ULong, `revoked`: kotlin.Boolean, `revoker`: kotlin.ULong?) {
@@ -7867,13 +7867,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `setNetworkHint`(`hint`: NetworkHint) {
@@ -7890,13 +7890,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `setVideoProcessHook`(`hook`: VideoProcessHook?) {
@@ -7913,13 +7913,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `shutdown`() {
@@ -7927,7 +7927,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_shutdown(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
@@ -7936,13 +7936,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `shutdownBlocking`() {
@@ -7950,7 +7950,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_shutdown_blocking(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
@@ -7959,36 +7959,36 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class)actual override fun `startSupervisedSync`(`intervalSecs`: kotlin.ULong)
-        = 
+        =
     callWithPointer {
     uniffiRustCallWithError(PrivchatFfiExceptionErrorHandler) { _status ->
     UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_supervised_sync(
         it, FfiConverterULong.lower(`intervalSecs`),_status)!!
 }
     }
-    
-    
+
+
 
     actual override fun `startTransportDisconnectListener`()
-        = 
+        =
     callWithPointer {
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_transport_disconnect_listener(
         it, _status)!!
 }
     }
-    
-    
 
-    
+
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `startTyping`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) {
@@ -8005,13 +8005,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `startTypingBlocking`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) {
@@ -8028,13 +8028,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `stickerPackageDetailRemote`(`payload`: StickerPackageDetailInput) : StickerPackageDetailView {
@@ -8056,7 +8056,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `stickerPackageListRemote`(`payload`: StickerPackageListInput) : StickerPackageListView {
@@ -8079,17 +8079,17 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     actual override fun `stopSupervisedSync`()
-        = 
+        =
     callWithPointer {
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_stop_supervised_sync(
         it, _status)!!
 }
     }
-    
-    
 
-    
+
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `stopTyping`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) {
@@ -8106,13 +8106,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `storage`() : UserStoragePaths {
@@ -8120,7 +8120,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_storage(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -8134,7 +8134,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     /**
      * 订阅频道事件（进入聊天页面时调用，接收 typing / presence 等状态事件）
      * channel_type: 0=Private, 1=Group, 2=Room
@@ -8156,7 +8156,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -8172,7 +8172,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
+
 
     actual override fun `subscribeNetworkStatus`(): kotlin.Boolean {
             return FfiConverterBoolean.lift(
@@ -8184,9 +8184,9 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
 
-    
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `subscribePresence`(`userIds`: List<kotlin.ULong>) : List<PresenceStatus> {
@@ -8208,7 +8208,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `syncAllChannels`() : kotlin.ULong {
@@ -8216,7 +8216,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_all_channels(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_u64(future, callback, continuation)!! },
@@ -8230,7 +8230,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `syncBatchGetChannelPtsRemote`(`payload`: BatchGetChannelPtsInput) : BatchGetChannelPtsView {
@@ -8252,7 +8252,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `syncChannel`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) : kotlin.ULong {
@@ -8274,7 +8274,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `syncEntities`(`entityType`: kotlin.String, `scope`: kotlin.String?) : kotlin.ULong {
@@ -8296,7 +8296,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `syncEntitiesInBackground`(`entityType`: kotlin.String, `scope`: kotlin.String?) {
@@ -8313,13 +8313,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `syncGetChannelPtsRemote`(`payload`: GetChannelPtsInput) : ChannelPtsView {
@@ -8341,7 +8341,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `syncGetDifferenceRemote`(`payload`: GetDifferenceInput) : GetDifferenceView {
@@ -8363,7 +8363,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `syncMessages`() : kotlin.ULong {
@@ -8371,7 +8371,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_messages(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_u64(future, callback, continuation)!! },
@@ -8385,7 +8385,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `syncMessagesInBackground`() {
@@ -8393,7 +8393,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_messages_in_background(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
@@ -8402,13 +8402,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `syncSubmitRemote`(`payload`: SyncSubmitInput) : SyncSubmitView {
@@ -8440,7 +8440,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
+
 
     actual override fun `timezoneHours`(): kotlin.Int {
             return FfiConverterInt.lift(
@@ -8452,7 +8452,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
+
 
     actual override fun `timezoneLocal`(): kotlin.String {
             return FfiConverterString.lift(
@@ -8464,7 +8464,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
+
 
     actual override fun `timezoneMinutes`(): kotlin.Int {
             return FfiConverterInt.lift(
@@ -8476,7 +8476,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
+
 
     actual override fun `timezoneSeconds`(): kotlin.Int {
             return FfiConverterInt.lift(
@@ -8488,7 +8488,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
+
 
     actual override fun `toClientEndpoint`(): kotlin.String? {
             return FfiConverterOptionalString.lift(
@@ -8500,9 +8500,9 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     )
     }
-    
 
-    
+
+
     /**
      * 取消订阅频道事件（离开聊天页面时调用）
      * channel_type: 0=Private, 1=Group, 2=Room
@@ -8523,13 +8523,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `unsubscribePresence`(`userIds`: List<kotlin.ULong>) {
@@ -8546,13 +8546,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `updateDevicePushState`(`deviceId`: kotlin.String, `apnsArmed`: kotlin.Boolean, `pushToken`: kotlin.String?) : DevicePushUpdateView {
@@ -8574,7 +8574,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `updateMessageStatus`(`messageId`: kotlin.ULong, `status`: kotlin.Int) {
@@ -8591,13 +8591,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `updatePrivacySettings`(`payload`: AccountPrivacyUpdateInput) : kotlin.Boolean {
@@ -8619,7 +8619,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `updateProfile`(`payload`: ProfileUpdateInput) : ProfileView {
@@ -8641,7 +8641,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `upsertBlacklistEntry`(`input`: UpsertBlacklistInput) {
@@ -8658,13 +8658,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `upsertChannel`(`input`: UpsertChannelInput) {
@@ -8681,13 +8681,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `upsertChannelExtra`(`input`: UpsertChannelExtraInput) {
@@ -8704,13 +8704,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `upsertChannelMember`(`input`: UpsertChannelMemberInput) {
@@ -8727,13 +8727,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `upsertFriend`(`input`: UpsertFriendInput) {
@@ -8750,13 +8750,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `upsertGroup`(`input`: UpsertGroupInput) {
@@ -8773,13 +8773,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `upsertGroupMember`(`input`: UpsertGroupMemberInput) {
@@ -8796,13 +8796,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `upsertMessageReaction`(`input`: UpsertMessageReactionInput) {
@@ -8819,13 +8819,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `upsertReminder`(`input`: UpsertReminderInput) {
@@ -8842,13 +8842,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `upsertUser`(`input`: UpsertUserInput) {
@@ -8865,13 +8865,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `userId`() : kotlin.ULong? {
@@ -8879,7 +8879,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_id(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -8893,7 +8893,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `userQrcodeGenerate`(`expireSeconds`: kotlin.ULong?) : UserQrCodeGenerateView {
@@ -8915,7 +8915,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `userQrcodeGet`() : UserQrCodeGetView {
@@ -8923,7 +8923,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_get(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -8937,7 +8937,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `userQrcodeRefresh`() : QrCodeRefreshView {
@@ -8945,7 +8945,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_refresh(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -8959,7 +8959,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `userStoragePaths`() : UserStoragePaths {
@@ -8967,7 +8967,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_storage_paths(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -8981,7 +8981,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-    
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `wipeCurrentUserFull`() {
@@ -8989,7 +8989,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_wipe_current_user_full(
                 thisPtr,
-                
+
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
@@ -8998,18 +8998,18 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { Unit },
-        
+
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-    
 
-    
-    
+
+
+
     actual companion object
-    
+
 }
 
 
@@ -9906,6 +9906,7 @@ object FfiConverterTypeFriendPendingEntry: FfiConverterRustBuffer<FriendPendingE
     override fun read(buf: ByteBuffer): FriendPendingEntry {
         return FriendPendingEntry(
             FfiConverterULong.read(buf),
+            FfiConverterTypeSearchUserEntry.read(buf),
             FfiConverterOptionalString.read(buf),
             FfiConverterString.read(buf),
         )
@@ -9913,12 +9914,14 @@ object FfiConverterTypeFriendPendingEntry: FfiConverterRustBuffer<FriendPendingE
 
     override fun allocationSize(value: FriendPendingEntry) = (
             FfiConverterULong.allocationSize(value.`fromUserId`) +
+            FfiConverterTypeSearchUserEntry.allocationSize(value.`user`) +
             FfiConverterOptionalString.allocationSize(value.`message`) +
             FfiConverterString.allocationSize(value.`createdAt`)
     )
 
     override fun write(value: FriendPendingEntry, buf: ByteBuffer) {
             FfiConverterULong.write(value.`fromUserId`, buf)
+            FfiConverterTypeSearchUserEntry.write(value.`user`, buf)
             FfiConverterOptionalString.write(value.`message`, buf)
             FfiConverterString.write(value.`createdAt`, buf)
     }
@@ -13129,7 +13132,7 @@ object PrivchatFfiExceptionErrorHandler : UniffiRustCallStatusErrorHandler<Privc
 
 object FfiConverterTypePrivchatFfiError : FfiConverterRustBuffer<PrivchatFfiException> {
     override fun read(buf: ByteBuffer): PrivchatFfiException {
-        
+
 
         return when(buf.getInt()) {
             1 -> PrivchatFfiException.SdkException(
@@ -15289,7 +15292,7 @@ actual fun `buildTime`(): kotlin.String {
 }
     )
     }
-    
+
 actual fun `gitSha`(): kotlin.String {
             return FfiConverterString.lift(
     uniffiRustCall() { _status ->
@@ -15298,7 +15301,7 @@ actual fun `gitSha`(): kotlin.String {
 }
     )
     }
-    
+
 actual fun `sdkVersion`(): kotlin.String {
             return FfiConverterString.lift(
     uniffiRustCall() { _status ->
@@ -15307,4 +15310,3 @@ actual fun `sdkVersion`(): kotlin.String {
 }
     )
     }
-    
