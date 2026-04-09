@@ -4,6 +4,7 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
+    kotlin("plugin.serialization") version "2.1.21"
     alias(libs.plugins.androidLibrary)
     `maven-publish`
 }
@@ -93,6 +94,7 @@ android {
     compileSdk = 34
     defaultConfig { minSdk = 24 }
     buildFeatures { buildConfig = false }
+    sourceSets["main"].jniLibs.srcDirs(layout.buildDirectory.dir("generated/jniLibs"))
 }
 
 // ========== Privchat FFI 配置 ==========
@@ -123,7 +125,7 @@ val cargoBuildAndroid = tasks.register<CargoNdkTask>("privchatCargoBuildAndroid"
     abis.set(targetAbis)
     cargoBin.set(providers.provider { cargoPath })
     rustDir.set(privchatRustDir)
-    jniOut.set(layout.projectDirectory.dir("src/androidMain/jniLibs/privchat"))
+    jniOut.set(layout.buildDirectory.dir("generated/jniLibs"))
     ndkDir.set(ndkDirPath ?: "")
 }
 

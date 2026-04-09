@@ -21,8 +21,10 @@ out/
 framework/
 shared/build/
 
-# JNI / UniFFI 生成的 native 库
+# JNI / UniFFI 生成的 native 库 (构建产物，不入库)
 shared/src/androidMain/jniLibs/
+sdk/src/androidMain/jniLibs/
+sdk/build/generated/jniLibs/
 
 # Profiler
 *.hprof

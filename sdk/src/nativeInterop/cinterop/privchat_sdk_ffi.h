@@ -290,8 +290,6 @@ RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_events_since(void * 
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_fetch_group_members_remote(void * ptr, int64_t groupId, RustBuffer page, RustBuffer pageSize
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_fetch_presence(void * ptr, RustBuffer userIds
-);
 RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_api_base_url(void * ptr, UniffiRustCallStatus *_Nonnull out_status
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_request_upload_token_remote(void * ptr, RustBuffer payload
@@ -568,6 +566,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_remove_video_process_ho
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_require_current_user_id(void * ptr
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_attachment_bytes(void * ptr, RustBuffer sourcePath
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_channel_id_by_server_message_id(void * ptr, int64_t serverMessageId
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_channel_type(void * ptr, int64_t channelId
@@ -662,8 +662,6 @@ int8_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_events(void * 
 );
 int8_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_network_status(void * ptr, UniffiRustCallStatus *_Nonnull out_status
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_presence(void * ptr, RustBuffer userIds
-);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_all_channels(void * ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_batch_get_channel_pts_remote(void * ptr, RustBuffer payload
@@ -697,8 +695,6 @@ int32_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_timezone_seconds(void *
 RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_to_client_endpoint(void * ptr, UniffiRustCallStatus *_Nonnull out_status
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_unsubscribe_channel(void * ptr, int64_t channelId, int8_t channelType
-);
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_unsubscribe_presence(void * ptr, RustBuffer userIds
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_device_push_state(void * ptr, RustBuffer deviceId, int8_t apnsArmed, RustBuffer pushToken
 );
@@ -1056,9 +1052,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_events_since(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_fetch_group_members_remote(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_fetch_presence(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_api_base_url(void
@@ -1475,6 +1468,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_remove_video_proc
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_require_current_user_id(void
     
 );
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_attachment_bytes(void
+    
+);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_channel_id_by_server_message_id(void
     
 );
@@ -1616,9 +1612,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_events(
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_network_status(void
     
 );
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_presence(void
-    
-);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_all_channels(void
     
 );
@@ -1668,9 +1661,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_to_client_endpoin
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unsubscribe_channel(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unsubscribe_presence(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_device_push_state(void

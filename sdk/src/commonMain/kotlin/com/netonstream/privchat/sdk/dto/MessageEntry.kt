@@ -14,4 +14,8 @@ data class MessageEntry(
     val content: String,
     val status: MessageStatus,
     val timestamp: ULong,
+    /** 协议标准消息类型（privchat-protocol ContentMessageType） */
+    val messageType: Int = 0,
+    /** 协议标准 extra 原始 JSON 字符串 */
+    val extra: String = "",
 )

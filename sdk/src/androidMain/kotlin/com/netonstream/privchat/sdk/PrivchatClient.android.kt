@@ -11,6 +11,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
@@ -113,6 +114,7 @@ actual class PrivchatClient private actual constructor() {
         return callAsync("Disconnect failed") {
             c.disconnect()
             cachedConnectionState = ConnectionState.Disconnected
+            runCatching { c.clearPresenceCache() }
         }
     }
 
@@ -285,6 +287,7 @@ actual class PrivchatClient private actual constructor() {
             c.logout()
             cachedUserId = null
             cachedConnectionState = ConnectionState.Disconnected
+            runCatching { c.clearPresenceCache() }
         }
     }
 
@@ -438,7 +441,7 @@ actual class PrivchatClient private actual constructor() {
             val mapped = entries.map {
                 SeenByEntry(
                     userId = it.userId,
-                    readAt = it.readAt?.toULongOrNull() ?: 0uL,
+                    readAt = it.readAt ?: 0uL,
                 )
             }
             limit?.let { mapped.take(it.toInt()) } ?: mapped
@@ -844,6 +847,14 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun dmPeerUserId(channelId: ULong): Result<ULong?> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.dmPeerUserId(channelId) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("dmPeerUserId failed", it)) },
+        )
+    }
+
     actual suspend fun searchUsers(query: String): Result<List<UserEntry>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
@@ -954,7 +965,7 @@ actual class PrivchatClient private actual constructor() {
                         canSendMessage = it.user.canSendMessage,
                     ),
                     message = it.message,
-                    createdAt = parseTimestampUlong(it.createdAt),
+                    createdAt = it.createdAt,
                 )
             }
         }.fold(
@@ -972,7 +983,7 @@ actual class PrivchatClient private actual constructor() {
                 name = obj.name,
                 description = obj.description,
                 memberCount = obj.memberCount,
-                createdAt = parseTimestampUlong(obj.createdAt),
+                createdAt = obj.createdAt,
                 creatorId = obj.creatorId,
             )
         }.fold(
@@ -1014,9 +1025,9 @@ actual class PrivchatClient private actual constructor() {
                 groupId = obj.groupId,
                 requestId = obj.requestId,
                 message = obj.message,
-                expiresAt = parseTimestampUlongOrNull(obj.expiresAt),
+                expiresAt = obj.expiresAt,
                 userId = obj.userId,
-                joinedAt = parseTimestampUlongOrNull(obj.joinedAt),
+                joinedAt = obj.joinedAt,
             )
         }.fold(
             onSuccess = { Result.success(it) },
@@ -1024,25 +1035,23 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
-    actual suspend fun subscribePresence(userIds: List<ULong>): Result<List<PresenceEntry>> {
-        val c = requireClient().getOrElse { return Result.failure(it) }
-        return runCatching { c.subscribePresence(userIds).map { it.toCommonPresence() } }.fold(
-            onSuccess = { Result.success(it) },
-            onFailure = { Result.failure(toSdkError("subscribePresence failed", it)) },
-        )
-    }
+    actual fun getPresence(userId: ULong): PresenceEntry? =
+        requireClient().getOrNull()?.let { client ->
+            runCatching { runBlocking { client.getPresence(userId) } }
+                .getOrNull()
+                ?.toCommonPresence()
+        }
 
-    actual fun unsubscribePresence(userIds: List<ULong>) {
-        coreClient?.let { runCatching { backgroundScope.launch { it.unsubscribePresence(userIds) } } }
-    }
-
-    actual fun getPresence(userId: ULong): PresenceEntry? = null
-
-    actual fun batchGetPresence(userIds: List<ULong>): List<PresenceEntry> = emptyList()
+    actual fun batchGetPresence(userIds: List<ULong>): List<PresenceEntry> =
+        requireClient().getOrNull()?.let { client ->
+            runCatching { userIds.mapNotNull { runBlocking { client.getPresence(it) } } }
+                .getOrDefault(emptyList())
+                .map { it.toCommonPresence() }
+        } ?: emptyList()
 
     actual suspend fun fetchPresence(userIds: List<ULong>): Result<List<PresenceEntry>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
-        return runCatching { c.fetchPresence(userIds).map { it.toCommonPresence() } }.fold(
+        return runCatching { c.batchGetPresence(userIds).map { it.toCommonPresence() } }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("fetchPresence failed", it)) },
         )
@@ -1163,7 +1172,14 @@ actual class PrivchatClient private actual constructor() {
     ): Result<String> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
-            val path = c.downloadAttachmentToCache(fileUrl, fileId)
+            val source = fileId.trim().ifEmpty { fileUrl.trim() }
+            if (source.isEmpty()) {
+                throw IllegalArgumentException("fileId/fileUrl is empty")
+            }
+            val cacheName = fileId.trim().ifEmpty {
+                fileUrl.trim().substringAfterLast('/').ifEmpty { "attachment.bin" }
+            }
+            val path = c.downloadAttachmentToCache(source, cacheName)
             progress?.onProgress(1uL, 1uL)
             path
         }.fold(
@@ -1314,6 +1330,8 @@ private fun StoredMessage.toCommonMessage() = MessageEntry(
         else -> MessageStatus.Read
     },
     timestamp = createdAt.toULong(),
+    messageType = messageType,
+    extra = extra,
 )
 
 private fun StoredChannel.toCommonChannel() = ChannelListEntry(
@@ -1424,9 +1442,9 @@ private fun StoredGroupMember.toCommonGroupMember() = GroupMemberEntry(
 
 private fun PresenceStatus.toCommonPresence() = PresenceEntry(
     userId = userId,
-    isOnline = status.equals("online", ignoreCase = true),
-    lastSeen = lastSeen,
-    deviceType = onlineDevices.firstOrNull(),
+    isOnline = isOnline,
+    lastSeen = lastSeenAt,
+    deviceType = null,
 )
 
 private fun CoreConnectionState.toCommonConnectionState(): ConnectionState = when (this) {

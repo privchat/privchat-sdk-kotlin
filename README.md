@@ -53,20 +53,25 @@ Kotlin 多平台统一 SDK，当前架构为：
 ## 前置要求
 
 - JDK 17+
-- Android SDK (Android target)
+- Android SDK + NDK (Android 端必须)
 - Rust + cargo-ndk (Android)
-- Xcode (iOS)
+- Xcode (iOS/macOS)
+
+> **重要说明**：Android 端的 `libprivchat_sdk_ffi.so` **不提交到代码仓库**。
+> 它们被视为构建产物。在执行 Android 构建（如 `./gradlew :sdk:assembleDebug`）时，
+> Gradle 会通过 `CargoNdkTask` 自动调用 `cargo ndk` 从源码编译生成，输出到 `sdk/build/generated/jniLibs`。
+> 确保你的环境已安装 `cargo-ndk` (`cargo install cargo-ndk`)。
 
 ## 构建
 
 ```bash
-# 确保 privchat-sdk FFI 已构建
+# 确保 privchat-sdk FFI 已构建（虽然 Android 构建会自动触发，但手动触发可以提前发现 Rust 错误）
 cd ../privchat-sdk
 cargo build -p privchat-sdk-ffi --release
 
 # 构建 sdk 模块（按需）
 cd ../privchat-sdk-kotlin
-./gradlew :sdk:assembleDebug           # Android
+./gradlew :sdk:assembleDebug           # Android（会自动编译 .so）
 ./gradlew :sdk:compileKotlinIosArm64   # iOS
 ./gradlew :sdk:compileKotlinMacosArm64 # macOS
 ./gradlew :sdk:compileKotlinLinuxX64   # Linux Desktop
