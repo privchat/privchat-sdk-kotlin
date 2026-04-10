@@ -290,8 +290,6 @@ RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_events_since(void * 
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_fetch_group_members_remote(void * ptr, int64_t groupId, RustBuffer page, RustBuffer pageSize
 );
-RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_api_base_url(void * ptr, UniffiRustCallStatus *_Nonnull out_status
-);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_request_upload_token_remote(void * ptr, RustBuffer payload
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_upload_callback_remote(void * ptr, RustBuffer payload
@@ -1052,9 +1050,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_events_since(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_fetch_group_members_remote(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_api_base_url(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_request_upload_token_remote(void

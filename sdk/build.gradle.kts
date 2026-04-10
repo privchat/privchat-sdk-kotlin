@@ -161,11 +161,12 @@ fun registerAppleFfiBuildTask(taskName: String, targetTriple: String) = tasks.re
 val cargoBuildIosArm64 = registerAppleFfiBuildTask("privchatCargoBuildIosArm64", "aarch64-apple-ios")
 val cargoBuildIosSimulatorArm64 = registerAppleFfiBuildTask("privchatCargoBuildIosSimulatorArm64", "aarch64-apple-ios-sim")
 val cargoBuildIosX64 = registerAppleFfiBuildTask("privchatCargoBuildIosX64", "x86_64-apple-ios")
+val cargoBuildMacosArm64 = registerAppleFfiBuildTask("privchatCargoBuildMacosArm64", "aarch64-apple-darwin")
 
 tasks.register("privchatCargoBuildAppleFfi") {
     group = "build"
     description = "Build privchat-sdk-ffi static libraries for all Apple targets (manual trigger)"
-    dependsOn(cargoBuildIosArm64, cargoBuildIosSimulatorArm64, cargoBuildIosX64)
+    dependsOn(cargoBuildIosArm64, cargoBuildIosSimulatorArm64, cargoBuildIosX64, cargoBuildMacosArm64)
 }
 
 // ========== Custom tasks ==========

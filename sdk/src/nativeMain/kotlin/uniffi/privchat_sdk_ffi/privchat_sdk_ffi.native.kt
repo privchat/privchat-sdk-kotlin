@@ -771,8 +771,6 @@ get() = useContents { `uniffiFree`/* test  Any? */}
 
 
 
-
-
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -917,8 +915,6 @@ internal interface UniffiLib {
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_fetch_group_members_remote(`ptr`: Pointer?,`groupId`: Long,`page`: RustBufferByValue,`pageSize`: RustBufferByValue,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_api_base_url(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
-    ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_request_upload_token_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_upload_callback_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
@@ -1612,8 +1608,6 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_events_since(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_fetch_group_members_remote(
-    ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_api_base_url(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_request_upload_token_remote(
     ): Short
@@ -2328,10 +2322,6 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_fetch_group_members_remote(`ptr`: Pointer?,`groupId`: Long,`page`: RustBufferByValue,`pageSize`: RustBufferByValue,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_fetch_group_members_remote(`ptr`?.inner,`groupId`,`page` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`pageSize` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
-    
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_api_base_url(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
-    ): RustBufferByValue
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_api_base_url(`ptr`?.inner,uniffiCallStatus.reinterpret(), )as RustBufferByValue
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_request_upload_token_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
@@ -3720,10 +3710,6 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_fetch_group_members_remote(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_fetch_group_members_remote()as Short
-    
-    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_api_base_url(
-    ): Short
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_api_base_url()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_request_upload_token_remote(
     ): Short
@@ -6225,18 +6211,6 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         PrivchatFfiExceptionErrorHandler,
     )
     }
-
-    actual override fun `fileApiBaseUrl`(): kotlin.String {
-            return FfiConverterString.lift(
-    callWithPointer {
-    uniffiRustCall() { _status ->
-    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_api_base_url(
-        it, _status)!!
-}
-    }
-    )
-    }
-    
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -12848,6 +12822,7 @@ object FfiConverterTypePresenceStatus: FfiConverterRustBuffer<PresenceStatus> {
             FfiConverterBoolean.read(buf),
             FfiConverterLong.read(buf),
             FfiConverterUInt.read(buf),
+            FfiConverterULong.read(buf),
         )
     }
 
@@ -12855,7 +12830,8 @@ object FfiConverterTypePresenceStatus: FfiConverterRustBuffer<PresenceStatus> {
             FfiConverterULong.allocationSize(value.`userId`) +
             FfiConverterBoolean.allocationSize(value.`isOnline`) +
             FfiConverterLong.allocationSize(value.`lastSeenAt`) +
-            FfiConverterUInt.allocationSize(value.`deviceCount`)
+            FfiConverterUInt.allocationSize(value.`deviceCount`) +
+            FfiConverterULong.allocationSize(value.`version`)
     )
 
     override fun write(value: PresenceStatus, buf: ByteBuffer) {
@@ -12863,6 +12839,7 @@ object FfiConverterTypePresenceStatus: FfiConverterRustBuffer<PresenceStatus> {
             FfiConverterBoolean.write(value.`isOnline`, buf)
             FfiConverterLong.write(value.`lastSeenAt`, buf)
             FfiConverterUInt.write(value.`deviceCount`, buf)
+            FfiConverterULong.write(value.`version`, buf)
     }
 }
 

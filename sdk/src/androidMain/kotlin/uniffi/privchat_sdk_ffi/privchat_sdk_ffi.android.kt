@@ -746,8 +746,6 @@ internal val UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue.`uniffiF
 
 
 
-
-
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -913,8 +911,6 @@ internal interface UniffiLib : Library {
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_fetch_group_members_remote(`ptr`: Pointer?,`groupId`: Long,`page`: RustBufferByValue,`pageSize`: RustBufferByValue,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_api_base_url(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
-    ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_request_upload_token_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_upload_callback_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
@@ -1609,8 +1605,6 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_fetch_group_members_remote(
     ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_api_base_url(
-    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_request_upload_token_remote(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_upload_callback_remote(
@@ -2269,9 +2263,6 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_fetch_group_members_remote() != 58514.toShort()) {
-        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
-    }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_api_base_url() != 44177.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_request_upload_token_remote() != 25243.toShort()) {
@@ -4334,18 +4325,6 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         PrivchatFfiExceptionErrorHandler,
     )
     }
-
-    actual override fun `fileApiBaseUrl`(): kotlin.String {
-            return FfiConverterString.lift(
-    callWithPointer {
-    uniffiRustCall() { _status ->
-    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_api_base_url(
-        it, _status)!!
-}
-    }
-    )
-    }
-    
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -10910,6 +10889,7 @@ object FfiConverterTypePresenceStatus: FfiConverterRustBuffer<PresenceStatus> {
             FfiConverterBoolean.read(buf),
             FfiConverterLong.read(buf),
             FfiConverterUInt.read(buf),
+            FfiConverterULong.read(buf),
         )
     }
 
@@ -10917,7 +10897,8 @@ object FfiConverterTypePresenceStatus: FfiConverterRustBuffer<PresenceStatus> {
             FfiConverterULong.allocationSize(value.`userId`) +
             FfiConverterBoolean.allocationSize(value.`isOnline`) +
             FfiConverterLong.allocationSize(value.`lastSeenAt`) +
-            FfiConverterUInt.allocationSize(value.`deviceCount`)
+            FfiConverterUInt.allocationSize(value.`deviceCount`) +
+            FfiConverterULong.allocationSize(value.`version`)
     )
 
     override fun write(value: PresenceStatus, buf: ByteBuffer) {
@@ -10925,6 +10906,7 @@ object FfiConverterTypePresenceStatus: FfiConverterRustBuffer<PresenceStatus> {
             FfiConverterBoolean.write(value.`isOnline`, buf)
             FfiConverterLong.write(value.`lastSeenAt`, buf)
             FfiConverterUInt.write(value.`deviceCount`, buf)
+            FfiConverterULong.write(value.`version`, buf)
     }
 }
 

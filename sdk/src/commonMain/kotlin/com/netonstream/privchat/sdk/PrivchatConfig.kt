@@ -21,5 +21,4 @@ data class PrivchatConfig(
     val connectionTimeout: ULong = 30u,
     val heartbeatInterval: ULong = 30u,
     val debugMode: Boolean = false,
-    val fileApiBaseUrl: String? = null,
 )

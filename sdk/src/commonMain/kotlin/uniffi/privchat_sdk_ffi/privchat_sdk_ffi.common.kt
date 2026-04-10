@@ -209,7 +209,6 @@ interface PrivchatClientInterface {
     fun `eventsSince`(`sequenceId`: kotlin.ULong, `limit`: kotlin.ULong): List<SequencedSdkEvent>
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `fetchGroupMembersRemote`(`groupId`: kotlin.ULong, `page`: kotlin.UInt?, `pageSize`: kotlin.UInt?): GroupMemberRemoteList
-    fun `fileApiBaseUrl`(): kotlin.String
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `fileRequestUploadTokenRemote`(`payload`: FileRequestUploadTokenInput): FileRequestUploadTokenView
     
@@ -940,9 +939,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `fetchGroupMembersRemote`(`groupId`: kotlin.ULong, `page`: kotlin.UInt?, `pageSize`: kotlin.UInt?) : GroupMemberRemoteList
-
-    override fun `fileApiBaseUrl`(): kotlin.String
-    
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -3104,6 +3100,8 @@ data class PresenceStatus (
     var `lastSeenAt`: kotlin.Long
         , 
     var `deviceCount`: kotlin.UInt
+        , 
+    var `version`: kotlin.ULong
         
 ) {
     
