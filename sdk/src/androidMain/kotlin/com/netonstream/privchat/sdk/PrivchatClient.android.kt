@@ -334,7 +334,7 @@ actual class PrivchatClient private actual constructor() {
             channelId = channelId,
             channelType = channelType,
             fromUid = uid,
-            messageType = 1,
+            messageType = 0,
             content = text,
             searchableWord = text,
             setting = 0,
@@ -577,6 +577,16 @@ actual class PrivchatClient private actual constructor() {
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("getChannels failed", it)) },
+        )
+    }
+
+    actual suspend fun getChannelById(channelId: ULong): Result<ChannelListEntry?> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.getChannelById(channelId)?.toCommonChannel()
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("getChannelById failed", it)) },
         )
     }
 
@@ -1089,12 +1099,13 @@ actual class PrivchatClient private actual constructor() {
         val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
         return runCatching {
             val channelType = resolveChannelType(c, channelId)
+            val messageType = inferAttachmentMessageType(path, null)
             val messageId = c.createLocalMessage(
                 NewMessage(
                     channelId = channelId,
                     channelType = channelType,
                     fromUid = uid,
-                    messageType = 2,
+                    messageType = messageType,
                     content = path,
                     searchableWord = path,
                     setting = 0,
@@ -1121,6 +1132,51 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun sendVoiceFromPath(
+        channelId: ULong,
+        path: String,
+        durationMs: Long,
+        options: SendMessageOptions?,
+        progress: ProgressObserver?
+    ): Result<Pair<ULong, AttachmentInfo>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
+        return runCatching {
+            val channelType = resolveChannelType(c, channelId)
+            val durationSec = (durationMs / 1000).coerceAtLeast(1)
+            val filename = path.substringAfterLast('/')
+            val messageId = c.createLocalMessage(
+                NewMessage(
+                    channelId = channelId,
+                    channelType = channelType,
+                    fromUid = uid,
+                    messageType = 3,
+                    content = "[语音] $durationSec\"",
+                    searchableWord = "",
+                    setting = 0,
+                    extra = """{"url":"$path","duration":$durationSec,"mime":"audio/mp4","filename":"$filename"}""",
+                )
+            )
+            val routeKey = c.toClientEndpoint() ?: ""
+            val queueRef = c.sendAttachmentFromPath(messageId, routeKey, path)
+            progress?.onProgress(1uL, 1uL)
+            queueRef.messageId to AttachmentInfo(
+                url = path,
+                mimeType = "audio/mp4",
+                size = 0uL,
+                thumbnailUrl = null,
+                filename = filename,
+                fileId = null,
+                width = null,
+                height = null,
+                duration = durationSec.toUInt(),
+            )
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("sendVoiceFromPath failed", it)) },
+        )
+    }
+
     actual suspend fun sendAttachmentBytes(
         channelId: ULong,
         filename: String,
@@ -1133,12 +1189,13 @@ actual class PrivchatClient private actual constructor() {
         val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
         return runCatching {
             val channelType = resolveChannelType(c, channelId)
+            val messageType = inferAttachmentMessageType(filename, mimeType)
             val messageId = c.createLocalMessage(
                 NewMessage(
                     channelId = channelId,
                     channelType = channelType,
                     fromUid = uid,
-                    messageType = 2,
+                    messageType = messageType,
                     content = filename,
                     searchableWord = filename,
                     setting = 0,
@@ -1286,6 +1343,22 @@ actual class PrivchatClient private actual constructor() {
 
     private suspend fun resolveChannelType(client: CorePrivchatClient, channelId: ULong): Int =
         client.getChannelById(channelId)?.channelType ?: 1
+
+    private fun inferAttachmentMessageType(pathOrName: String, mimeType: String?): Int {
+        val mime = mimeType?.trim()?.lowercase().orEmpty()
+        if (mime.startsWith("image/")) return 1
+        if (mime.startsWith("video/")) return 4
+
+        val ext = pathOrName
+            .substringAfterLast('/', pathOrName)
+            .substringAfterLast('.', "")
+            .lowercase()
+        return when (ext) {
+            "jpg", "jpeg", "png", "gif", "webp", "bmp", "heic", "heif" -> 1
+            "mp4", "mov", "mkv", "avi", "webm", "m4v", "3gp" -> 4
+            else -> 2
+        }
+    }
 
     private fun toSdkError(prefix: String, t: Throwable): SdkError {
         return when (t) {

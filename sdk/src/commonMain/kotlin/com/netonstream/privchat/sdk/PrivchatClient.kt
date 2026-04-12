@@ -67,6 +67,7 @@ expect class PrivchatClient private constructor() {
     suspend fun listLocalAccounts(): Result<List<LocalAccountInfo>>
     suspend fun setCurrentUid(uid: String): Result<Unit>
     suspend fun getChannels(limit: UInt, offset: UInt): Result<List<ChannelListEntry>>
+    suspend fun getChannelById(channelId: ULong): Result<ChannelListEntry?>
     suspend fun getFriends(limit: UInt?, offset: UInt?): Result<List<FriendEntry>>
     suspend fun getGroups(limit: UInt?, offset: UInt?): Result<List<GroupEntry>>
     suspend fun getGroupMembers(groupId: ULong, limit: UInt?, offset: UInt?): Result<List<GroupMemberEntry>>
@@ -124,6 +125,9 @@ expect class PrivchatClient private constructor() {
     // ========== File ==========
     suspend fun sendAttachmentFromPath(channelId: ULong, path: String, options: SendMessageOptions?, progress: ProgressObserver?): Result<Pair<ULong, AttachmentInfo>>
     suspend fun sendAttachmentBytes(channelId: ULong, filename: String, mimeType: String, data: ByteArray, options: SendMessageOptions?, progress: ProgressObserver?): Result<Pair<ULong, AttachmentInfo>>
+
+    // ========== Voice ==========
+    suspend fun sendVoiceFromPath(channelId: ULong, path: String, durationMs: Long, options: SendMessageOptions?, progress: ProgressObserver?): Result<Pair<ULong, AttachmentInfo>>
     suspend fun downloadAttachmentToCache(fileId: String, fileUrl: String, progress: ProgressObserver?): Result<String>
     suspend fun downloadAttachmentToPath(fileUrl: String, outputPath: String, progress: ProgressObserver?): Result<Unit>
 
