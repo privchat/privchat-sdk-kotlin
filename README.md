@@ -9,23 +9,30 @@ Kotlin 多平台统一 SDK，当前架构为：
 
 产物：`com.netonstream.privchat:sdk:0.1.0`
 
+## 在 privchat-app 中使用
+
+`privchat-app` 通过 Gradle Composite Build 直接依赖本目录的 `:sdk` 模块。日常 Android 联调不需要手动先编译 `.so`，在 `privchat-app` 中执行安装任务即可自动串起：
+
+1. `privchat-sdk` Rust FFI Android `.so` 构建
+2. `privchat-sdk-kotlin:sdk` Kotlin/UniFFI wrapper 编译
+3. `privchat-app` 业务/UI 编译
+4. APK 打包并安装到手机
+
+```bash
+cd /Users/zoujiaqing/projects/privchat/privchat-app
+./gradlew :androidApp:installLocalDebug
+```
+
+如果刚改过 Rust FFI、UniFFI 生成代码，或怀疑 Gradle 增量缓存没有捕捉到变更，用更保守的强制重建命令：
+
+```bash
+cd /Users/zoujiaqing/projects/privchat/privchat-app
+./gradlew :privchat-sdk-kotlin:sdk:privchatCargoBuildAndroid :androidApp:installLocalDebug --rerun-tasks
+```
+
 ## 在其他项目中使用
 
-**方式一：Maven 本地发布（推荐，仅 Android 或同机多项目）**
-
-1. 在本仓库根目录先构建 Rust FFI，再发布 Kotlin 库到本地 Maven：
-   ```bash
-   cd ../privchat-sdk && cargo build -p privchat-sdk-ffi --release
-   cd ../privchat-sdk-kotlin && ./gradlew :sdk:publishToMavenLocal
-   ```
-2. 在你的项目里添加本地 Maven 仓库并依赖：
-   ```kotlin
-   // settings.gradle.kts 或 build.gradle.kts
-   repositories { mavenLocal(); google(); mavenCentral() }
-   dependencies { implementation("com.netonstream.privchat:sdk:0.1.0") }
-   ```
-
-**方式二：作为本地子项目（需保留整仓目录结构）**
+**方式一：作为本地子项目（推荐，需保留整仓目录结构）**
 
 1. 将本仓库克隆或 submodule 到你的项目旁（或子目录），保证 `privchat-sdk` 与 `privchat-sdk-kotlin` 同级。
 2. 在你的项目 `settings.gradle.kts` 里 include 本仓库的 sdk 模块，例如：
@@ -43,6 +50,22 @@ Kotlin 多平台统一 SDK，当前架构为：
 
 说明：`sdk` 构建依赖同仓库内的 `privchat-sdk`，不能仅拷贝 `privchat-sdk-kotlin` 单目录独立构建。
 
+**方式二：Maven 本地发布（仅 Android 或同机多项目）**
+
+```bash
+cd /Users/zoujiaqing/projects/privchat/privchat-sdk-kotlin
+./gradlew :sdk:publishToMavenLocal
+```
+
+然后在目标项目里添加本地 Maven 仓库并依赖：
+
+```kotlin
+repositories { mavenLocal(); google(); mavenCentral() }
+dependencies { implementation("com.netonstream.privchat:sdk:0.1.0") }
+```
+
+发布任务会按 Gradle 依赖自动构建 Android 所需 `.so`；如果是 UniFFI 接口变更，仍应先按下文执行 `./scripts/regenerate-uniffi.sh`。
+
 ## 技术栈
 
 - Kotlin 2.1.21
@@ -57,30 +80,63 @@ Kotlin 多平台统一 SDK，当前架构为：
 - Rust + cargo-ndk (Android)
 - Xcode (iOS/macOS)
 
-> **重要说明**：Android 端的 `libprivchat_sdk_ffi.so` **不提交到代码仓库**。
-> 它们被视为构建产物。在执行 Android 构建（如 `./gradlew :sdk:assembleDebug`）时，
-> Gradle 会通过 `CargoNdkTask` 自动调用 `cargo ndk` 从源码编译生成，输出到 `sdk/build/generated/jniLibs`。
-> 确保你的环境已安装 `cargo-ndk` (`cargo install cargo-ndk`)。
+> **重要说明**：Android 端的 `libprivchat_sdk_ffi.so` **不提交到代码仓库**。它是构建产物，Gradle 会通过 `privchatCargoBuildAndroid` 自动调用 `cargo ndk` 从源码编译生成，输出到 `sdk/build/generated/jniLibs`，再由 Android 打包任务收进去。确保你的环境已安装 `cargo-ndk`：`cargo install cargo-ndk`。
 
 ## 构建
 
 ```bash
-# 确保 privchat-sdk FFI 已构建（虽然 Android 构建会自动触发，但手动触发可以提前发现 Rust 错误）
-cd ../privchat-sdk
-cargo build -p privchat-sdk-ffi --release
+cd /Users/zoujiaqing/projects/privchat/privchat-sdk-kotlin
 
-# 构建 sdk 模块（按需）
-cd ../privchat-sdk-kotlin
-./gradlew :sdk:assembleDebug           # Android（会自动编译 .so）
-./gradlew :sdk:compileKotlinIosArm64   # iOS
-./gradlew :sdk:compileKotlinMacosArm64 # macOS
-./gradlew :sdk:compileKotlinLinuxX64   # Linux Desktop
-./gradlew :sdk:compileKotlinMingwX64   # Windows Desktop
+# Android SDK 模块。会自动执行 :sdk:privchatCargoBuildAndroid 并生成 .so。
+./gradlew :sdk:assembleDebug
+
+# 只想显式构建 Android Rust FFI .so 时使用。
+./gradlew :sdk:privchatCargoBuildAndroid
+
+# Apple 静态库。iOS/macOS 链接前建议手动触发一次。
+./gradlew :sdk:privchatCargoBuildAppleFfi
+
+# Kotlin/Native 编译检查（按需）
+./gradlew :sdk:compileKotlinIosArm64
+./gradlew :sdk:compileKotlinMacosArm64
+./gradlew :sdk:compileKotlinLinuxX64
+./gradlew :sdk:compileKotlinMingwX64
 ```
+
+## UniFFI 产物同步
+
+只改 Rust 业务实现、SQL、网络逻辑等，且 **没有改变 UniFFI 暴露的方法/类型/字段** 时，不需要重新生成 UniFFI 产物，直接跑 Gradle 构建即可。
+
+只要修改了 `privchat-sdk-ffi` 对外接口，例如新增/删除/改名 FFI 方法、修改 FFI data class 字段、修改错误类型、更新 UniFFI 配置，就必须同步 Kotlin/Native 生成文件：
+
+```bash
+cd /Users/zoujiaqing/projects/privchat/privchat-sdk-kotlin
+source ~/.zshrc
+./scripts/regenerate-uniffi.sh
+```
+
+脚本会自动完成：
+
+- 编译 host `privchat-sdk-ffi` dylib，作为 bindgen 输入。
+- 调用 `uniffi-bindgen-kotlin-multiplatform` 生成 Kotlin/Native 绑定。
+- 安装生成产物到 `sdk/src/commonMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.common.kt`。
+- 安装生成产物到 `sdk/src/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt`。
+- 安装生成产物到 `sdk/src/nativeMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.native.kt`。
+- 刷新 cinterop 头文件 `sdk/src/nativeInterop/cinterop/privchat_sdk_ffi.h`。
+- 修正 Android UniFFI contract version。
+- 执行 `:sdk:compileDebugKotlinAndroid` 与 `:sdk:compileKotlinIosSimulatorArm64` 校验；如果校验失败，会自动回滚生成文件。
+
+如果 bindgen 不在默认路径，使用：
+
+```bash
+KMP_BINDGEN=/abs/path/to/uniffi-bindgen-kotlin-multiplatform ./scripts/regenerate-uniffi.sh
+```
+
+请不要手动编辑 `sdk/src/**/uniffi/privchat_sdk_ffi/*` 或 `sdk/src/nativeInterop/cinterop/privchat_sdk_ffi.h`，这些文件应统一由脚本刷新。生成后如果公共 API 语义变化，还需要手动更新 SDK wrapper/DTO，例如 `sdk/src/commonMain/kotlin/com/netonstream/privchat/sdk/**`。
 
 ## 日常脚本（推荐固定流程）
 
-修改 Rust FFI（UDL/ffi 导出）后，统一使用下面顺序：
+修改 Rust FFI 对外接口后，推荐顺序：
 
 ```bash
 cd /Users/zoujiaqing/projects/privchat/privchat-sdk-kotlin
@@ -90,17 +146,7 @@ source ~/.zshrc
 ./scripts/gate-smoke.sh
 ```
 
-- `scripts/regenerate-uniffi.sh`：生成 UniFFI 绑定、刷新头文件并做 Kotlin 编译校验（失败自动回滚生成文件）。
-- `build-ios.sh`：构建 iOS 所需 Rust 静态库并同步 iOS framework。
-- `scripts/gate-smoke.sh`：执行 Rust + Kotlin(Android/iOS shared) 门禁编译检查。
-
-如果只改 Kotlin 业务代码（未改 Rust FFI），可直接执行：
-
-```bash
-cd /Users/zoujiaqing/projects/privchat/privchat-sdk-kotlin
-source ~/.zshrc
-./scripts/gate-smoke.sh
-```
+如果只改 Kotlin wrapper/DTO 或 app 业务代码，没有改 UniFFI 接口，可直接执行 `./scripts/gate-smoke.sh` 或从 `privchat-app` 执行 `./gradlew :androidApp:installLocalDebug`。
 
 ## iOS 编译流程（手动触发 Rust FFI）
 
@@ -149,7 +195,7 @@ cargo build -p privchat-sdk-ffi --release --target aarch64-apple-ios
 
 ### 方式 B：KMP bindgen（推荐）
 
-适用：Rust FFI 方法/类型有改动，需要同步刷新 `shared/src/**/uniffi/privchat_sdk_ffi/*` 与 cinterop 头文件。
+适用：Rust FFI 方法/类型有改动，需要同步刷新 `sdk/src/**/uniffi/privchat_sdk_ffi/*` 与 cinterop 头文件。
 
 优先使用脚本（一键生成+安装+编译校验）：
 
