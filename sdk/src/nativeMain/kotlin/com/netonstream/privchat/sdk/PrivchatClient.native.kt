@@ -140,6 +140,16 @@ actual class PrivchatClient private actual constructor() {
 
     actual fun currentUserId(): ULong? = cachedUserId
 
+    actual fun enterBackground(): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callSync("enterBackground failed") { c.enterBackground() }
+    }
+
+    actual fun enterForeground(): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callSync("enterForeground failed") { c.enterForeground() }
+    }
+
     private fun startConnectionMonitor(core: CorePrivchatClient) {
         connectionMonitorJob?.cancel()
         connectionMonitorJob = backgroundScope.launch {
@@ -1320,6 +1330,15 @@ actual class PrivchatClient private actual constructor() {
         }
     }
 
+    private inline fun callSync(message: String, block: () -> Unit): Result<Unit> {
+        return try {
+            block()
+            Result.success(Unit)
+        } catch (e: Throwable) {
+            Result.failure(toSdkError(message, e))
+        }
+    }
+
     private suspend fun resolveChannelType(client: CorePrivchatClient, channelId: ULong): Int =
         client.getChannelById(channelId)?.channelType ?: 1
 
@@ -1384,6 +1403,8 @@ private fun StoredMessage.toCommonMessage() = MessageEntry(
     timestamp = createdAt.toULong(),
     messageType = messageType,
     extra = extra,
+    isRevoked = revoked,
+    revoker = revokedBy,
 )
 
 private fun StoredChannel.toCommonChannel() = ChannelListEntry(

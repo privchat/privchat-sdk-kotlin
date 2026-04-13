@@ -18,4 +18,8 @@ data class MessageEntry(
     val messageType: Int = 0,
     /** 协议标准 extra 原始 JSON 字符串 */
     val extra: String = "",
+    /** 是否已撤回，由 message_extra.revoke 驱动 */
+    val isRevoked: Boolean = false,
+    /** 撤回操作者 uid */
+    val revoker: ULong? = null,
 )

@@ -3738,7 +3738,11 @@ data class StoredMessage (
     var `updatedAt`: kotlin.Long
         , 
     var `extra`: kotlin.String
-        
+        , 
+    var `revoked`: kotlin.Boolean
+        , 
+    var `revokedBy`: kotlin.ULong?
+         = null 
 ) {
     
     companion object

@@ -28,6 +28,8 @@ expect class PrivchatClient private constructor() {
     suspend fun nextEvent(timeoutMs: ULong = 1000u): Result<SdkEventEnvelope?>
     suspend fun recentEvents(limit: ULong = 100u): Result<List<SdkEventEnvelope>>
     fun observeEvents(timeoutMs: ULong = 1000u): Flow<SdkEventEnvelope>
+    fun enterBackground(): Result<Unit>
+    fun enterForeground(): Result<Unit>
 
     // ========== Auth ==========
     suspend fun register(username: String, password: String, deviceId: String): Result<AuthResult>

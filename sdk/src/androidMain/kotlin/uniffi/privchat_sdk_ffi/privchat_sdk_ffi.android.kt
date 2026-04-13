@@ -11959,6 +11959,8 @@ object FfiConverterTypeStoredMessage: FfiConverterRustBuffer<StoredMessage> {
             FfiConverterLong.read(buf),
             FfiConverterLong.read(buf),
             FfiConverterString.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterOptionalULong.read(buf),
         )
     }
 
@@ -11974,7 +11976,9 @@ object FfiConverterTypeStoredMessage: FfiConverterRustBuffer<StoredMessage> {
             FfiConverterInt.allocationSize(value.`status`) +
             FfiConverterLong.allocationSize(value.`createdAt`) +
             FfiConverterLong.allocationSize(value.`updatedAt`) +
-            FfiConverterString.allocationSize(value.`extra`)
+            FfiConverterString.allocationSize(value.`extra`) +
+            FfiConverterBoolean.allocationSize(value.`revoked`) +
+            FfiConverterOptionalULong.allocationSize(value.`revokedBy`)
     )
 
     override fun write(value: StoredMessage, buf: ByteBuffer) {
@@ -11990,6 +11994,8 @@ object FfiConverterTypeStoredMessage: FfiConverterRustBuffer<StoredMessage> {
             FfiConverterLong.write(value.`createdAt`, buf)
             FfiConverterLong.write(value.`updatedAt`, buf)
             FfiConverterString.write(value.`extra`, buf)
+            FfiConverterBoolean.write(value.`revoked`, buf)
+            FfiConverterOptionalULong.write(value.`revokedBy`, buf)
     }
 }
 
