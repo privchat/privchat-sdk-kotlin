@@ -22,4 +22,14 @@ data class MessageEntry(
     val isRevoked: Boolean = false,
     /** 撤回操作者 uid */
     val revoker: ULong? = null,
+    /** 媒体 MIME 类型（从 content/extra JSON 提取） */
+    val mimeType: String? = null,
+    /** 媒体文件是否已下载到本地 */
+    val mediaDownloaded: Boolean = false,
+    /** 缩略图状态：0=missing, 1=ready, 2=failed */
+    val thumbStatus: Int = 0,
+    /** 本地缩略图路径（规范路径 thumb.webp），thumbStatus==1 时有值 */
+    val localThumbnailPath: String? = null,
+    /** 本地媒体文件路径（规范路径 payload.{ext}） */
+    val localMediaPath: String? = null,
 )

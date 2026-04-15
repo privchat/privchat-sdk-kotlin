@@ -349,6 +349,8 @@ actual class PrivchatClient private actual constructor() {
             searchableWord = text,
             setting = 0,
             extra = options.extraJson ?: "{}",
+            mediaDownloaded = false,
+            thumbStatus = 0,
         )
         val optionsJson = buildJsonObject {
             this["in_reply_to_message_id"] = options.inReplyToMessageId
@@ -467,11 +469,11 @@ actual class PrivchatClient private actual constructor() {
             val id = channelId?.toULongOrNull()
             if (id != null) {
                 val channelType = resolveChannelType(c, id)
-                c.searchMessages(id, channelType, query).map { it.toCommonMessage() }
+                c.searchMessages(id, channelType, query).map { it.toCommonMessage(c, cachedUserId) }
             } else {
                 c.searchChannel(query).flatMap { ch ->
                     c.searchMessages(ch.channelId, ch.channelType, query)
-                }.map { it.toCommonMessage() }
+                }.map { it.toCommonMessage(c, cachedUserId) }
             }
         }.fold(
             onSuccess = { Result.success(it) },
@@ -486,7 +488,7 @@ actual class PrivchatClient private actual constructor() {
             val offset = 0uL
             val raw = c.getMessages(channelId, channelType, limit.toULong(), offset)
             val filtered = beforeSeq?.let { seq -> raw.filter { it.messageId < seq } } ?: raw
-            filtered.map { it.toCommonMessage() }
+            filtered.map { it.toCommonMessage(c, cachedUserId) }
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("getMessages failed", it)) },
@@ -504,7 +506,7 @@ actual class PrivchatClient private actual constructor() {
             val offset = 0uL
             val raw = c.getMessages(channelId, channelType, limit.toULong(), offset)
             val filtered = beforeSeq?.let { seq -> raw.filter { it.messageId < seq } } ?: raw
-            filtered.map { it.toCommonMessage() }
+            filtered.map { it.toCommonMessage(c, cachedUserId) }
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("getMessagesByType failed", it)) },
@@ -513,7 +515,7 @@ actual class PrivchatClient private actual constructor() {
 
     actual suspend fun getMessageById(messageId: ULong): Result<MessageEntry?> {
         val c = requireClient().getOrElse { return Result.failure(it) }
-        return runCatching { c.getMessageById(messageId)?.toCommonMessage() }.fold(
+        return runCatching { c.getMessageById(messageId)?.toCommonMessage(c, cachedUserId) }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("getMessageById failed", it)) },
         )
@@ -523,7 +525,7 @@ actual class PrivchatClient private actual constructor() {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
             val channelType = resolveChannelType(c, channelId)
-            c.paginateBack(channelId, channelType, beforeSeq, limit.toULong()).map { it.toCommonMessage() }
+            c.paginateBack(channelId, channelType, beforeSeq, limit.toULong()).map { it.toCommonMessage(c, cachedUserId) }
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("paginateBack failed", it)) },
@@ -534,7 +536,7 @@ actual class PrivchatClient private actual constructor() {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
             val channelType = resolveChannelType(c, channelId)
-            c.paginateForward(channelId, channelType, afterSeq, limit.toULong()).map { it.toCommonMessage() }
+            c.paginateForward(channelId, channelType, afterSeq, limit.toULong()).map { it.toCommonMessage(c, cachedUserId) }
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("paginateForward failed", it)) },
@@ -1110,6 +1112,15 @@ actual class PrivchatClient private actual constructor() {
         return runCatching {
             val channelType = resolveChannelType(c, channelId)
             val messageType = inferAttachmentMessageType(path, null)
+            val srcFile = java.io.File(path)
+            val originalFilename = srcFile.name
+            val createdAtMs = System.currentTimeMillis()
+
+            // Spec §7.5 v2: canonical payload filename
+            val mime = guessMimeFromFilename(originalFilename)
+            val canonicalFilename = payloadFilename(mime, originalFilename)
+
+            // 1. 创建本地消息获取真实 ID
             val messageId = c.createLocalMessage(
                 NewMessage(
                     channelId = channelId,
@@ -1117,20 +1128,30 @@ actual class PrivchatClient private actual constructor() {
                     fromUid = uid,
                     messageType = messageType,
                     content = path,
-                    searchableWord = path,
+                    searchableWord = originalFilename,
                     setting = 0,
                     extra = options?.extraJson ?: "{}",
+                    mediaDownloaded = false,
+                    thumbStatus = 0,
                 )
             )
+
+            // 2. 获取规范附件目录并复制文件（使用 payload.{ext} 命名）
+            val targetDir = c.getAttachmentTargetDir(uid, messageId.toLong(), createdAtMs)
+            val targetFile = java.io.File(targetDir, canonicalFilename)
+            srcFile.copyTo(targetFile, overwrite = true)
+            val localFilePath = targetFile.absolutePath
+
+            // 3. 从规范目录路径入队
             val routeKey = c.toClientEndpoint() ?: ""
-            val queueRef = c.sendAttachmentFromPath(messageId, routeKey, path)
+            val queueRef = c.sendAttachmentFromPath(messageId, routeKey, localFilePath)
             progress?.onProgress(1uL, 1uL)
             queueRef.messageId to AttachmentInfo(
-                url = path,
-                mimeType = "application/octet-stream",
-                size = 0uL,
+                url = localFilePath,
+                mimeType = mime,
+                size = srcFile.length().toULong(),
                 thumbnailUrl = null,
-                filename = path.substringAfterLast('/'),
+                filename = originalFilename,
                 fileId = null,
                 width = null,
                 height = null,
@@ -1154,7 +1175,14 @@ actual class PrivchatClient private actual constructor() {
         return runCatching {
             val channelType = resolveChannelType(c, channelId)
             val durationSec = (durationMs / 1000).coerceAtLeast(1)
-            val filename = path.substringAfterLast('/')
+            val srcFile = java.io.File(path)
+            val originalFilename = srcFile.name
+            val createdAtMs = System.currentTimeMillis()
+
+            // Spec §7.5 v2: canonical payload filename
+            val mime = guessMimeFromFilename(originalFilename)
+            val canonicalFilename = payloadFilename(mime, originalFilename)
+
             val messageId = c.createLocalMessage(
                 NewMessage(
                     channelId = channelId,
@@ -1164,18 +1192,26 @@ actual class PrivchatClient private actual constructor() {
                     content = "[语音] $durationSec\"",
                     searchableWord = "",
                     setting = 0,
-                    extra = """{"url":"$path","duration":$durationSec,"mime":"audio/mp4","filename":"$filename"}""",
+                    extra = """{"url":"$path","duration":$durationSec,"mime":"$mime","filename":"$originalFilename"}""",
+                    mediaDownloaded = false,
+                    thumbStatus = 0,
                 )
             )
+            // 复制到 media_store 规范目录（使用 payload.{ext} 命名）
+            val targetDir = c.getAttachmentTargetDir(uid, messageId.toLong(), createdAtMs)
+            val targetFile = java.io.File(targetDir, canonicalFilename)
+            srcFile.copyTo(targetFile, overwrite = true)
+            val localFilePath = targetFile.absolutePath
+
             val routeKey = c.toClientEndpoint() ?: ""
-            val queueRef = c.sendAttachmentFromPath(messageId, routeKey, path)
+            val queueRef = c.sendAttachmentFromPath(messageId, routeKey, localFilePath)
             progress?.onProgress(1uL, 1uL)
             queueRef.messageId to AttachmentInfo(
-                url = path,
-                mimeType = "audio/mp4",
-                size = 0uL,
+                url = localFilePath,
+                mimeType = mime,
+                size = srcFile.length().toULong(),
                 thumbnailUrl = null,
-                filename = filename,
+                filename = originalFilename,
                 fileId = null,
                 width = null,
                 height = null,
@@ -1200,6 +1236,11 @@ actual class PrivchatClient private actual constructor() {
         return runCatching {
             val channelType = resolveChannelType(c, channelId)
             val messageType = inferAttachmentMessageType(filename, mimeType)
+            val createdAtMs = System.currentTimeMillis()
+
+            // Spec §7.5 v2: canonical payload filename
+            val canonicalFilename = payloadFilename(mimeType, filename)
+
             val messageId = c.createLocalMessage(
                 NewMessage(
                     channelId = channelId,
@@ -1210,13 +1251,21 @@ actual class PrivchatClient private actual constructor() {
                     searchableWord = filename,
                     setting = 0,
                     extra = options?.extraJson ?: "{}",
+                    mediaDownloaded = false,
+                    thumbStatus = 0,
                 )
             )
+            // 写入 media_store 规范目录（使用 payload.{ext} 命名）
+            val targetDir = c.getAttachmentTargetDir(uid, messageId.toLong(), createdAtMs)
+            val targetFile = java.io.File(targetDir, canonicalFilename)
+            targetFile.writeBytes(data)
+            val localFilePath = targetFile.absolutePath
+
             val routeKey = c.toClientEndpoint() ?: ""
-            val queueRef = c.sendAttachmentBytes(messageId, routeKey, data)
+            val queueRef = c.sendAttachmentFromPath(messageId, routeKey, localFilePath)
             progress?.onProgress(data.size.toULong(), data.size.toULong())
             queueRef.messageId to AttachmentInfo(
-                url = filename,
+                url = localFilePath,
                 mimeType = mimeType,
                 size = data.size.toULong(),
                 thumbnailUrl = null,
@@ -1360,8 +1409,108 @@ actual class PrivchatClient private actual constructor() {
         }
     }
 
+    actual fun getAttachmentTargetDir(uid: ULong, messageId: Long, createdAtMs: Long): String {
+        val c = coreClient ?: throw IllegalStateException("SDK not initialized")
+        return c.getAttachmentTargetDir(uid, messageId, createdAtMs)
+    }
+
+    actual fun resolveAttachmentPath(uid: ULong, messageId: Long, createdAtMs: Long, filename: String?): String? {
+        val c = coreClient ?: return null
+        return c.resolveAttachmentPath(uid, messageId, createdAtMs, filename)
+    }
+
     private suspend fun resolveChannelType(client: CorePrivchatClient, channelId: ULong): Int =
         client.getChannelById(channelId)?.channelType ?: 1
+
+    /**
+     * Spec §7.5 v2: Canonical file naming — MIME → extension mapping.
+     */
+    private fun extFromMime(mime: String): String = when (mime.trim().lowercase()) {
+        "image/jpeg", "image/jpg" -> "jpg"
+        "image/png" -> "png"
+        "image/gif" -> "gif"
+        "image/webp" -> "webp"
+        "image/heic" -> "heic"
+        "image/heif" -> "heif"
+        "image/bmp", "image/x-bmp" -> "bmp"
+        "image/svg+xml" -> "svg"
+        "image/tiff" -> "tiff"
+        "video/mp4" -> "mp4"
+        "video/quicktime" -> "mov"
+        "video/x-matroska" -> "mkv"
+        "video/webm" -> "webm"
+        "video/x-msvideo" -> "avi"
+        "video/3gpp" -> "3gp"
+        "audio/mpeg", "audio/mp3" -> "mp3"
+        "audio/mp4", "audio/x-m4a" -> "m4a"
+        "audio/aac" -> "aac"
+        "audio/ogg", "audio/vorbis" -> "ogg"
+        "audio/wav", "audio/x-wav" -> "wav"
+        "audio/flac" -> "flac"
+        "audio/opus" -> "opus"
+        "audio/amr" -> "amr"
+        "application/pdf" -> "pdf"
+        "application/zip" -> "zip"
+        "application/x-rar-compressed", "application/vnd.rar" -> "rar"
+        "application/x-7z-compressed" -> "7z"
+        "text/plain" -> "txt"
+        else -> "bin"
+    }
+
+    /**
+     * Guess MIME type from filename extension (best-effort).
+     */
+    private fun guessMimeFromFilename(filename: String): String {
+        val ext = filename.substringAfterLast('.', "").lowercase()
+        return when (ext) {
+            "jpg", "jpeg" -> "image/jpeg"
+            "png" -> "image/png"
+            "gif" -> "image/gif"
+            "webp" -> "image/webp"
+            "heic" -> "image/heic"
+            "heif" -> "image/heif"
+            "bmp" -> "image/bmp"
+            "svg" -> "image/svg+xml"
+            "tiff", "tif" -> "image/tiff"
+            "mp4" -> "video/mp4"
+            "mov" -> "video/quicktime"
+            "mkv" -> "video/x-matroska"
+            "webm" -> "video/webm"
+            "avi" -> "video/x-msvideo"
+            "3gp" -> "video/3gpp"
+            "mp3" -> "audio/mpeg"
+            "m4a" -> "audio/mp4"
+            "aac" -> "audio/aac"
+            "ogg" -> "audio/ogg"
+            "wav" -> "audio/wav"
+            "flac" -> "audio/flac"
+            "opus" -> "audio/opus"
+            "amr" -> "audio/amr"
+            "pdf" -> "application/pdf"
+            "zip" -> "application/zip"
+            "rar" -> "application/vnd.rar"
+            "7z" -> "application/x-7z-compressed"
+            "txt" -> "text/plain"
+            else -> "application/octet-stream"
+        }
+    }
+
+    /**
+     * Spec §7.5 v2: Build canonical payload filename `payload.{ext}`.
+     * Fallback chain: known MIME → original filename ext → .bin
+     */
+    private fun payloadFilename(mime: String, originalFilename: String? = null): String {
+        val ext = extFromMime(mime)
+        if (ext != "bin") return "payload.$ext"
+        // MIME unknown, try original filename extension
+        if (originalFilename != null) {
+            val origExt = originalFilename.substringAfterLast('.', "").lowercase()
+            if (origExt.isNotEmpty() && origExt.length <= 10 && !origExt.contains('/') && !origExt.contains('\\')) {
+                return "payload.$origExt"
+            }
+        }
+        return "payload.bin"
+    }
 
     private fun inferAttachmentMessageType(pathOrName: String, mimeType: String?): Int {
         val mime = mimeType?.trim()?.lowercase().orEmpty()
@@ -1406,7 +1555,10 @@ private fun mapFfiCodeToSdkError(prefix: String, code: UInt, detail: String): Sd
     }
 }
 
-private fun StoredMessage.toCommonMessage() = MessageEntry(
+private fun StoredMessage.toCommonMessage(
+    c: CorePrivchatClient? = null,
+    uid: ULong? = null,
+) = MessageEntry(
     id = messageId,
     serverMessageId = serverMessageId,
     localMessageId = localMessageId,
@@ -1426,6 +1578,20 @@ private fun StoredMessage.toCommonMessage() = MessageEntry(
     extra = extra,
     isRevoked = revoked,
     revoker = revokedBy,
+    mimeType = mimeType,
+    mediaDownloaded = mediaDownloaded,
+    thumbStatus = thumbStatus,
+    localThumbnailPath = if (c != null && uid != null && (messageType == 1 || messageType == 4)) {
+        val resolvedThumb = c.resolveThumbnailPath(uid, messageId.toLong(), createdAt)
+        if (resolvedThumb == null) {
+            Log.i("PrivchatClient", "[DBG][thumb] msgId=$messageId type=$messageType thumbStatus=$thumbStatus resolved=null content=${content.take(200)} extra=${extra.take(300)}")
+        } else {
+            Log.i("PrivchatClient", "[DBG][thumb] msgId=$messageId type=$messageType thumbStatus=$thumbStatus resolved=$resolvedThumb")
+        }
+        resolvedThumb
+    } else null,
+    localMediaPath = if (c != null && uid != null)
+        c.resolveAttachmentPath(uid, messageId.toLong(), createdAt, null) else null,
 )
 
 private fun StoredChannel.toCommonChannel() = ChannelListEntry(

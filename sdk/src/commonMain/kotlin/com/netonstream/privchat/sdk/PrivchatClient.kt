@@ -128,6 +128,10 @@ expect class PrivchatClient private constructor() {
     suspend fun sendAttachmentFromPath(channelId: ULong, path: String, options: SendMessageOptions?, progress: ProgressObserver?): Result<Pair<ULong, AttachmentInfo>>
     suspend fun sendAttachmentBytes(channelId: ULong, filename: String, mimeType: String, data: ByteArray, options: SendMessageOptions?, progress: ProgressObserver?): Result<Pair<ULong, AttachmentInfo>>
 
+    // ========== Media Store ==========
+    fun getAttachmentTargetDir(uid: ULong, messageId: Long, createdAtMs: Long): String
+    fun resolveAttachmentPath(uid: ULong, messageId: Long, createdAtMs: Long, filename: String?): String?
+
     // ========== Voice ==========
     suspend fun sendVoiceFromPath(channelId: ULong, path: String, durationMs: Long, options: SendMessageOptions?, progress: ProgressObserver?): Result<Pair<ULong, AttachmentInfo>>
     suspend fun downloadAttachmentToCache(fileId: String, fileUrl: String, progress: ProgressObserver?): Result<String>

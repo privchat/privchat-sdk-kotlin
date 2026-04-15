@@ -183,8 +183,6 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `downloadAttachmentToCache`(`sourcePath`: kotlin.String, `fileName`: kotlin.String): kotlin.String
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `downloadAttachmentToMessageDir`(`sourcePath`: kotlin.String, `messageId`: kotlin.ULong, `fileName`: kotlin.String): kotlin.String
-    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `downloadAttachmentToPath`(`sourcePath`: kotlin.String, `targetPath`: kotlin.String): kotlin.String
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `editMessage`(`messageId`: kotlin.ULong, `content`: kotlin.String, `editedAt`: kotlin.Int)
@@ -217,6 +215,12 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class)fun `generateLocalMessageId`(): kotlin.ULong
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getAllUnreadMentionCounts`(`userId`: kotlin.ULong): List<UnreadMentionCount>
+    
+    /**
+     * 获取附件下载目标目录 (Canonical 路径)
+     * 参数必须传入 message 表的主键和创建时间，禁止使用业务脏字段
+     */
+        @Throws(PrivchatFfiException::class)fun `getAttachmentTargetDir`(`uid`: kotlin.ULong, `messageId`: kotlin.Long, `createdAtMs`: kotlin.Long): kotlin.String
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getBlacklist`(): List<StoredBlacklistEntry>
     
@@ -468,10 +472,18 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `resolveAttachmentBytes`(`sourcePath`: kotlin.String): kotlin.ByteArray
     
+    /**
+     * 解析本地已存在的附件路径 (含 Legacy 兼容)
+     */fun `resolveAttachmentPath`(`uid`: kotlin.ULong, `messageId`: kotlin.Long, `createdAtMs`: kotlin.Long, `filename`: kotlin.String?): kotlin.String?
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `resolveChannelIdByServerMessageId`(`serverMessageId`: kotlin.ULong): kotlin.ULong
     suspend fun `resolveChannelType`(`channelId`: kotlin.ULong): kotlin.Int
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `resolveLocalMessageIdByServerMessageId`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `serverMessageId`: kotlin.ULong): kotlin.ULong?
+    
+    /**
+     * 查找本地缩略图路径：{user_root}/files/{yyyymm}/{message_id}/thumb.webp
+     */fun `resolveThumbnailPath`(`uid`: kotlin.ULong, `messageId`: kotlin.Long, `createdAtMs`: kotlin.Long): kotlin.String?
     fun `retryConfig`(): RetryConfigView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `retryMessage`(`messageId`: kotlin.ULong): kotlin.ULong
@@ -593,11 +605,15 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `updateDevicePushState`(`deviceId`: kotlin.String, `apnsArmed`: kotlin.Boolean, `pushToken`: kotlin.String?): DevicePushUpdateView
     
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `updateMediaDownloaded`(`messageId`: kotlin.ULong, `downloaded`: kotlin.Boolean)
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `updateMessageStatus`(`messageId`: kotlin.ULong, `status`: kotlin.Int)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `updatePrivacySettings`(`payload`: AccountPrivacyUpdateInput): kotlin.Boolean
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `updateProfile`(`payload`: ProfileUpdateInput): ProfileView
+    
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `updateThumbStatus`(`messageId`: kotlin.ULong, `thumbStatus`: kotlin.Int)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `upsertBlacklistEntry`(`input`: UpsertBlacklistInput)
     
@@ -873,11 +889,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `downloadAttachmentToMessageDir`(`sourcePath`: kotlin.String, `messageId`: kotlin.ULong, `fileName`: kotlin.String) : kotlin.String
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `downloadAttachmentToPath`(`sourcePath`: kotlin.String, `targetPath`: kotlin.String) : kotlin.String
 
     
@@ -958,6 +969,14 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getAllUnreadMentionCounts`(`userId`: kotlin.ULong) : List<UnreadMentionCount>
+
+    
+    /**
+     * 获取附件下载目标目录 (Canonical 路径)
+     * 参数必须传入 message 表的主键和创建时间，禁止使用业务脏字段
+     */
+    @Throws(PrivchatFfiException::class)override fun `getAttachmentTargetDir`(`uid`: kotlin.ULong, `messageId`: kotlin.Long, `createdAtMs`: kotlin.Long): kotlin.String
+    
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -1594,6 +1613,12 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `resolveAttachmentBytes`(`sourcePath`: kotlin.String) : kotlin.ByteArray
 
     
+    /**
+     * 解析本地已存在的附件路径 (含 Legacy 兼容)
+     */override fun `resolveAttachmentPath`(`uid`: kotlin.ULong, `messageId`: kotlin.Long, `createdAtMs`: kotlin.Long, `filename`: kotlin.String?): kotlin.String?
+    
+
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `resolveChannelIdByServerMessageId`(`serverMessageId`: kotlin.ULong) : kotlin.ULong
@@ -1606,6 +1631,12 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `resolveLocalMessageIdByServerMessageId`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `serverMessageId`: kotlin.ULong) : kotlin.ULong?
+
+    
+    /**
+     * 查找本地缩略图路径：{user_root}/files/{yyyymm}/{message_id}/thumb.webp
+     */override fun `resolveThumbnailPath`(`uid`: kotlin.ULong, `messageId`: kotlin.Long, `createdAtMs`: kotlin.Long): kotlin.String?
+    
 
     override fun `retryConfig`(): RetryConfigView
     
@@ -1902,6 +1933,11 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `updateMediaDownloaded`(`messageId`: kotlin.ULong, `downloaded`: kotlin.Boolean)
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `updateMessageStatus`(`messageId`: kotlin.ULong, `status`: kotlin.Int)
 
     
@@ -1913,6 +1949,11 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `updateProfile`(`payload`: ProfileUpdateInput) : ProfileView
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `updateThumbStatus`(`messageId`: kotlin.ULong, `thumbStatus`: kotlin.Int)
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -3070,6 +3111,12 @@ data class NewMessage (
     var `setting`: kotlin.Int
         , 
     var `extra`: kotlin.String
+        , 
+    var `mimeType`: kotlin.String?
+         = null , 
+    var `mediaDownloaded`: kotlin.Boolean
+        , 
+    var `thumbStatus`: kotlin.Int
         
 ) {
     
@@ -3742,7 +3789,13 @@ data class StoredMessage (
     var `revoked`: kotlin.Boolean
         , 
     var `revokedBy`: kotlin.ULong?
-         = null 
+         = null , 
+    var `mimeType`: kotlin.String?
+         = null , 
+    var `mediaDownloaded`: kotlin.Boolean
+        , 
+    var `thumbStatus`: kotlin.Int
+        
 ) {
     
     companion object

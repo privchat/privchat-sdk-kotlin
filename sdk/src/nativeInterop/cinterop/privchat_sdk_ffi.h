@@ -258,8 +258,6 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_dm_peer_user_id(void * 
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_download_attachment_to_cache(void * ptr, RustBuffer sourcePath, RustBuffer fileName
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_download_attachment_to_message_dir(void * ptr, RustBuffer sourcePath, int64_t messageId, RustBuffer fileName
-);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_download_attachment_to_path(void * ptr, RustBuffer sourcePath, RustBuffer targetPath
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_edit_message(void * ptr, int64_t messageId, RustBuffer content, int32_t editedAt
@@ -297,6 +295,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_upload_callback_re
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_generate_local_message_id(void * ptr, UniffiRustCallStatus *_Nonnull out_status
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_all_unread_mention_counts(void * ptr, int64_t userId
+);
+RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_attachment_target_dir(void * ptr, int64_t uid, int64_t messageId, int64_t createdAtMs, UniffiRustCallStatus *_Nonnull out_status
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_blacklist(void * ptr
 );
@@ -566,11 +566,15 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_require_current_user_id
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_attachment_bytes(void * ptr, RustBuffer sourcePath
 );
+RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_attachment_path(void * ptr, int64_t uid, int64_t messageId, int64_t createdAtMs, RustBuffer filename, UniffiRustCallStatus *_Nonnull out_status
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_channel_id_by_server_message_id(void * ptr, int64_t serverMessageId
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_channel_type(void * ptr, int64_t channelId
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_local_message_id_by_server_message_id(void * ptr, int64_t channelId, int32_t channelType, int64_t serverMessageId
+);
+RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_thumbnail_path(void * ptr, int64_t uid, int64_t messageId, int64_t createdAtMs, UniffiRustCallStatus *_Nonnull out_status
 );
 RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_retry_config(void * ptr, UniffiRustCallStatus *_Nonnull out_status
 );
@@ -696,11 +700,15 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_unsubscribe_channel(voi
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_device_push_state(void * ptr, RustBuffer deviceId, int8_t apnsArmed, RustBuffer pushToken
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_media_downloaded(void * ptr, int64_t messageId, int8_t downloaded
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_message_status(void * ptr, int64_t messageId, int32_t status
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_privacy_settings(void * ptr, RustBuffer payload
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_profile(void * ptr, RustBuffer payload
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_thumb_status(void * ptr, int64_t messageId, int32_t thumbStatus
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_upsert_blacklist_entry(void * ptr, RustBuffer input
 );
@@ -1004,9 +1012,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_dm_peer_user_id(v
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_download_attachment_to_cache(void
     
 );
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_download_attachment_to_message_dir(void
-    
-);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_download_attachment_to_path(void
     
 );
@@ -1062,6 +1067,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_generate_local_me
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_all_unread_mention_counts(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_attachment_target_dir(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_blacklist(void
@@ -1466,6 +1474,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_require_current_u
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_attachment_bytes(void
     
 );
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_attachment_path(void
+    
+);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_channel_id_by_server_message_id(void
     
 );
@@ -1473,6 +1484,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_channel_t
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_local_message_id_by_server_message_id(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_thumbnail_path(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_retry_config(void
@@ -1661,6 +1675,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unsubscribe_chann
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_device_push_state(void
     
 );
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_media_downloaded(void
+    
+);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_message_status(void
     
 );
@@ -1668,6 +1685,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_privacy_se
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_profile(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_thumb_status(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_upsert_blacklist_entry(void

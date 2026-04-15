@@ -344,6 +344,8 @@ actual class PrivchatClient private actual constructor() {
             searchableWord = text,
             setting = 0,
             extra = options.extraJson ?: "{}",
+            mediaDownloaded = false,
+            thumbStatus = 0,
         )
         val optionsJson = buildJsonObject {
             this["in_reply_to_message_id"] = options.inReplyToMessageId
@@ -462,11 +464,11 @@ actual class PrivchatClient private actual constructor() {
             val id = channelId?.toULongOrNull()
             if (id != null) {
                 val channelType = resolveChannelType(c, id)
-                c.searchMessages(id, channelType, query).map { it.toCommonMessage() }
+                c.searchMessages(id, channelType, query).map { it.toCommonMessage(c, cachedUserId) }
             } else {
                 c.searchChannel(query).flatMap { ch ->
                     c.searchMessages(ch.channelId, ch.channelType, query)
-                }.map { it.toCommonMessage() }
+                }.map { it.toCommonMessage(c, cachedUserId) }
             }
         }.fold(
             onSuccess = { Result.success(it) },
@@ -481,7 +483,7 @@ actual class PrivchatClient private actual constructor() {
             val offset = 0uL
             val raw = c.getMessages(channelId, channelType, limit.toULong(), offset)
             val filtered = beforeSeq?.let { seq -> raw.filter { it.messageId < seq } } ?: raw
-            filtered.map { it.toCommonMessage() }
+            filtered.map { it.toCommonMessage(c, cachedUserId) }
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("getMessages failed", it)) },
@@ -499,7 +501,7 @@ actual class PrivchatClient private actual constructor() {
             val offset = 0uL
             val raw = c.getMessages(channelId, channelType, limit.toULong(), offset)
             val filtered = beforeSeq?.let { seq -> raw.filter { it.messageId < seq } } ?: raw
-            filtered.map { it.toCommonMessage() }
+            filtered.map { it.toCommonMessage(c, cachedUserId) }
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("getMessagesByType failed", it)) },
@@ -508,7 +510,7 @@ actual class PrivchatClient private actual constructor() {
 
     actual suspend fun getMessageById(messageId: ULong): Result<MessageEntry?> {
         val c = requireClient().getOrElse { return Result.failure(it) }
-        return runCatching { c.getMessageById(messageId)?.toCommonMessage() }.fold(
+        return runCatching { c.getMessageById(messageId)?.toCommonMessage(c, cachedUserId) }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("getMessageById failed", it)) },
         )
@@ -518,7 +520,7 @@ actual class PrivchatClient private actual constructor() {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
             val channelType = resolveChannelType(c, channelId)
-            c.paginateBack(channelId, channelType, beforeSeq, limit.toULong()).map { it.toCommonMessage() }
+            c.paginateBack(channelId, channelType, beforeSeq, limit.toULong()).map { it.toCommonMessage(c, cachedUserId) }
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("paginateBack failed", it)) },
@@ -529,7 +531,7 @@ actual class PrivchatClient private actual constructor() {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
             val channelType = resolveChannelType(c, channelId)
-            c.paginateForward(channelId, channelType, afterSeq, limit.toULong()).map { it.toCommonMessage() }
+            c.paginateForward(channelId, channelType, afterSeq, limit.toULong()).map { it.toCommonMessage(c, cachedUserId) }
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("paginateForward failed", it)) },
@@ -1099,6 +1101,8 @@ actual class PrivchatClient private actual constructor() {
                     searchableWord = path,
                     setting = 0,
                     extra = options?.extraJson ?: "{}",
+                    mediaDownloaded = false,
+                    thumbStatus = 0,
                 )
             )
             val routeKey = c.toClientEndpoint() ?: ""
@@ -1144,6 +1148,8 @@ actual class PrivchatClient private actual constructor() {
                     searchableWord = "",
                     setting = 0,
                     extra = """{"url":"$path","duration":$durationSec,"mime":"audio/mp4","filename":"$filename"}""",
+                    mediaDownloaded = false,
+                    thumbStatus = 0,
                 )
             )
             val routeKey = c.toClientEndpoint() ?: ""
@@ -1189,6 +1195,8 @@ actual class PrivchatClient private actual constructor() {
                     searchableWord = filename,
                     setting = 0,
                     extra = options?.extraJson ?: "{}",
+                    mediaDownloaded = false,
+                    thumbStatus = 0,
                 )
             )
             val routeKey = c.toClientEndpoint() ?: ""
@@ -1339,6 +1347,16 @@ actual class PrivchatClient private actual constructor() {
         }
     }
 
+    actual fun getAttachmentTargetDir(uid: ULong, messageId: Long, createdAtMs: Long): String {
+        val c = coreClient ?: throw IllegalStateException("SDK not initialized")
+        return c.getAttachmentTargetDir(uid, messageId, createdAtMs)
+    }
+
+    actual fun resolveAttachmentPath(uid: ULong, messageId: Long, createdAtMs: Long, filename: String?): String? {
+        val c = coreClient ?: return null
+        return c.resolveAttachmentPath(uid, messageId, createdAtMs, filename)
+    }
+
     private suspend fun resolveChannelType(client: CorePrivchatClient, channelId: ULong): Int =
         client.getChannelById(channelId)?.channelType ?: 1
 
@@ -1385,7 +1403,10 @@ private fun mapFfiCodeToSdkError(prefix: String, code: UInt, detail: String): Sd
     }
 }
 
-private fun StoredMessage.toCommonMessage() = MessageEntry(
+private fun StoredMessage.toCommonMessage(
+    c: CorePrivchatClient? = null,
+    uid: ULong? = null,
+) = MessageEntry(
     id = messageId,
     serverMessageId = serverMessageId,
     localMessageId = localMessageId,
@@ -1405,6 +1426,13 @@ private fun StoredMessage.toCommonMessage() = MessageEntry(
     extra = extra,
     isRevoked = revoked,
     revoker = revokedBy,
+    mimeType = mimeType,
+    mediaDownloaded = mediaDownloaded,
+    thumbStatus = thumbStatus,
+    localThumbnailPath = if (c != null && uid != null && (messageType == 1 || messageType == 4))
+        c.resolveThumbnailPath(uid, messageId.toLong(), createdAt) else null,
+    localMediaPath = if (c != null && uid != null)
+        c.resolveAttachmentPath(uid, messageId.toLong(), createdAt, null) else null,
 )
 
 private fun StoredChannel.toCommonChannel() = ChannelListEntry(
