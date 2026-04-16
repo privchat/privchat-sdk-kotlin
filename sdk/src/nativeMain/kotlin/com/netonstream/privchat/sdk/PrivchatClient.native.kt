@@ -760,6 +760,17 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun getPeerReadPts(channelId: ULong, channelType: Int): Result<ULong?> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val pts = c.getPeerReadPts(channelId, channelType)
+            if (pts == 0uL) null else pts
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("getPeerReadPts failed", it)) },
+        )
+    }
+
     actual suspend fun markChannelRead(channelId: ULong, channelType: Int): Result<Unit> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
@@ -1433,6 +1444,8 @@ private fun StoredMessage.toCommonMessage(
         c.resolveThumbnailPath(uid, messageId.toLong(), createdAt) else null,
     localMediaPath = if (c != null && uid != null)
         c.resolveAttachmentPath(uid, messageId.toLong(), createdAt, null) else null,
+    delivered = delivered,
+    pts = pts,
 )
 
 private fun StoredChannel.toCommonChannel() = ChannelListEntry(
@@ -1771,6 +1784,22 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         publisher = event.publisher,
         serverMessageId = event.serverMessageId,
         timestamp = event.timestamp,
+    )
+
+    is CoreSdkEvent.PeerReadPtsAdvanced -> SdkEventPayload(
+        type = "peer_read_pts_advanced",
+        channelId = event.channelId,
+        channelType = event.channelType,
+        readerId = event.readerId,
+        readPts = event.readPts,
+    )
+
+    is CoreSdkEvent.MessageDelivered -> SdkEventPayload(
+        type = "message_delivered",
+        channelId = event.channelId,
+        channelType = event.channelType,
+        serverMessageId = event.serverMessageId,
+        deliveredAt = event.deliveredAt,
     )
 
     CoreSdkEvent.ShutdownStarted -> SdkEventPayload(type = "shutdown_started")

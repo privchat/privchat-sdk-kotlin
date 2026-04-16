@@ -87,6 +87,10 @@ expect class PrivchatClient private constructor() {
     suspend fun startSupervisedSync(observer: SyncObserver): Result<Unit>
     suspend fun stopSupervisedSync(): Result<Unit>
 
+    // ========== Read/Delivered Status ==========
+    /** 查询对端已读水位（冷启动用）。返回 null 表示无记录，不透传 0。 */
+    suspend fun getPeerReadPts(channelId: ULong, channelType: Int): Result<ULong?>
+
     // ========== Channels ==========
     suspend fun markChannelRead(channelId: ULong, channelType: Int): Result<Unit>
     suspend fun pinChannel(channelId: ULong, pin: Boolean): Result<Boolean>

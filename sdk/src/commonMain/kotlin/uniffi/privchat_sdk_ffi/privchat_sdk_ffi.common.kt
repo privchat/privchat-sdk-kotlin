@@ -265,7 +265,9 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getMessagesRemote`(`channelId`: kotlin.ULong, `beforeServerMessageId`: kotlin.ULong?, `limit`: kotlin.UInt?): MessageHistoryView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getOrCreateDirectChannel`(`peerUserId`: kotlin.ULong): DirectChannelResult
-    
+
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getPeerReadPts`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int): kotlin.ULong?
+
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getPresence`(`userId`: kotlin.ULong): PresenceStatus?
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getPresenceStats`(): PresenceStatsView
@@ -1088,7 +1090,11 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getOrCreateDirectChannel`(`peerUserId`: kotlin.ULong) : DirectChannelResult
 
-    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `getPeerReadPts`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) : kotlin.ULong?
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getPresence`(`userId`: kotlin.ULong) : PresenceStatus?
@@ -3795,9 +3801,14 @@ data class StoredMessage (
     var `mediaDownloaded`: kotlin.Boolean
         , 
     var `thumbStatus`: kotlin.Int
-        
+        ,
+    var `delivered`: kotlin.Boolean
+        ,
+    var `pts`: kotlin.ULong?
+         = null
+
 ) {
-    
+
     companion object
 }
 
@@ -3831,9 +3842,13 @@ data class StoredMessageExtra (
     var `needUpload`: kotlin.Boolean
         , 
     var `isPinned`: kotlin.Boolean
-        
+        ,
+    var `delivered`: kotlin.Boolean
+        ,
+    var `deliveredAt`: kotlin.ULong
+
 ) {
-    
+
     companion object
 }
 
@@ -4648,14 +4663,32 @@ sealed class SdkEvent {
         
     }
     
+    data class PeerReadPtsAdvanced(
+        val `channelId`: kotlin.ULong,
+        val `channelType`: kotlin.Int,
+        val `readerId`: kotlin.ULong,
+        val `readPts`: kotlin.ULong) : SdkEvent() {
+
+        companion object
+    }
+
+    data class MessageDelivered(
+        val `channelId`: kotlin.ULong,
+        val `channelType`: kotlin.Int,
+        val `serverMessageId`: kotlin.ULong,
+        val `deliveredAt`: kotlin.ULong) : SdkEvent() {
+
+        companion object
+    }
+
     @kotlinx.serialization.Serializable
-    object ShutdownStarted : SdkEvent() 
-    
-    
+    object ShutdownStarted : SdkEvent()
+
+
     @kotlinx.serialization.Serializable
-    object ShutdownCompleted : SdkEvent() 
-    
-    
+    object ShutdownCompleted : SdkEvent()
+
+
 }
 
 

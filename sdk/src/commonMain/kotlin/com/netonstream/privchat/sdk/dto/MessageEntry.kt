@@ -32,4 +32,8 @@ data class MessageEntry(
     val localThumbnailPath: String? = null,
     /** 本地媒体文件路径（规范路径 payload.{ext}） */
     val localMediaPath: String? = null,
+    /** 是否已送达（对端在线 session 已 ack） */
+    val delivered: Boolean = false,
+    /** 消息在所属 channel timeline 内的序号，用于 Read 投影 */
+    val pts: ULong? = null,
 )

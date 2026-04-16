@@ -971,6 +971,8 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_or_create_direct_channel(`ptr`: Pointer?,`peerUserId`: Long,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_peer_read_pts(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_presence(`ptr`: Pointer?,`userId`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_presence_stats(`ptr`: Pointer?,
@@ -1673,6 +1675,8 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_or_create_direct_channel(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_peer_read_pts(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_presence(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_presence_stats(
@@ -2365,6 +2369,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_or_create_direct_channel() != 24053.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_peer_read_pts() != 8899.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_presence() != 56572.toShort()) {
@@ -4921,6 +4928,28 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `getPeerReadPts`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) : kotlin.ULong? {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_peer_read_pts(
+                thisPtr,
+                FfiConverterULong.lower(`channelId`),FfiConverterInt.lower(`channelType`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterOptionalULong.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getPresence`(`userId`: kotlin.ULong) : PresenceStatus? {
@@ -12080,6 +12109,8 @@ object FfiConverterTypeStoredMessage: FfiConverterRustBuffer<StoredMessage> {
             FfiConverterOptionalString.read(buf),
             FfiConverterBoolean.read(buf),
             FfiConverterInt.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterOptionalULong.read(buf),
         )
     }
 
@@ -12100,7 +12131,9 @@ object FfiConverterTypeStoredMessage: FfiConverterRustBuffer<StoredMessage> {
             FfiConverterOptionalULong.allocationSize(value.`revokedBy`) +
             FfiConverterOptionalString.allocationSize(value.`mimeType`) +
             FfiConverterBoolean.allocationSize(value.`mediaDownloaded`) +
-            FfiConverterInt.allocationSize(value.`thumbStatus`)
+            FfiConverterInt.allocationSize(value.`thumbStatus`) +
+            FfiConverterBoolean.allocationSize(value.`delivered`) +
+            FfiConverterOptionalULong.allocationSize(value.`pts`)
     )
 
     override fun write(value: StoredMessage, buf: ByteBuffer) {
@@ -12121,6 +12154,8 @@ object FfiConverterTypeStoredMessage: FfiConverterRustBuffer<StoredMessage> {
             FfiConverterOptionalString.write(value.`mimeType`, buf)
             FfiConverterBoolean.write(value.`mediaDownloaded`, buf)
             FfiConverterInt.write(value.`thumbStatus`, buf)
+            FfiConverterBoolean.write(value.`delivered`, buf)
+            FfiConverterOptionalULong.write(value.`pts`, buf)
     }
 }
 
@@ -12144,6 +12179,8 @@ object FfiConverterTypeStoredMessageExtra: FfiConverterRustBuffer<StoredMessageE
             FfiConverterInt.read(buf),
             FfiConverterBoolean.read(buf),
             FfiConverterBoolean.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterULong.read(buf),
         )
     }
 
@@ -12161,7 +12198,9 @@ object FfiConverterTypeStoredMessageExtra: FfiConverterRustBuffer<StoredMessageE
             FfiConverterOptionalString.allocationSize(value.`contentEdit`) +
             FfiConverterInt.allocationSize(value.`editedAt`) +
             FfiConverterBoolean.allocationSize(value.`needUpload`) +
-            FfiConverterBoolean.allocationSize(value.`isPinned`)
+            FfiConverterBoolean.allocationSize(value.`isPinned`) +
+            FfiConverterBoolean.allocationSize(value.`delivered`) +
+            FfiConverterULong.allocationSize(value.`deliveredAt`)
     )
 
     override fun write(value: StoredMessageExtra, buf: ByteBuffer) {
@@ -12179,6 +12218,8 @@ object FfiConverterTypeStoredMessageExtra: FfiConverterRustBuffer<StoredMessageE
             FfiConverterInt.write(value.`editedAt`, buf)
             FfiConverterBoolean.write(value.`needUpload`, buf)
             FfiConverterBoolean.write(value.`isPinned`, buf)
+            FfiConverterBoolean.write(value.`delivered`, buf)
+            FfiConverterULong.write(value.`deliveredAt`, buf)
     }
 }
 
@@ -13363,8 +13404,20 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterOptionalULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            20 -> SdkEvent.ShutdownStarted
-            21 -> SdkEvent.ShutdownCompleted
+            20 -> SdkEvent.PeerReadPtsAdvanced(
+                FfiConverterULong.read(buf),
+                FfiConverterInt.read(buf),
+                FfiConverterULong.read(buf),
+                FfiConverterULong.read(buf),
+                )
+            21 -> SdkEvent.MessageDelivered(
+                FfiConverterULong.read(buf),
+                FfiConverterInt.read(buf),
+                FfiConverterULong.read(buf),
+                FfiConverterULong.read(buf),
+                )
+            22 -> SdkEvent.ShutdownStarted
+            23 -> SdkEvent.ShutdownCompleted
             else -> throw RuntimeException("invalid enum value, something is very wrong!!")
         }
     }
@@ -13546,14 +13599,30 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 + FfiConverterULong.allocationSize(value.`timestamp`)
             )
         }
+        is SdkEvent.PeerReadPtsAdvanced -> {
+            (
+                4UL
+                + FfiConverterULong.allocationSize(value.`channelId`)
+                + FfiConverterInt.allocationSize(value.`channelType`)
+                + FfiConverterULong.allocationSize(value.`readerId`)
+                + FfiConverterULong.allocationSize(value.`readPts`)
+            )
+        }
+        is SdkEvent.MessageDelivered -> {
+            (
+                4UL
+                + FfiConverterULong.allocationSize(value.`channelId`)
+                + FfiConverterInt.allocationSize(value.`channelType`)
+                + FfiConverterULong.allocationSize(value.`serverMessageId`)
+                + FfiConverterULong.allocationSize(value.`deliveredAt`)
+            )
+        }
         is SdkEvent.ShutdownStarted -> {
-            // Add the size for the Int that specifies the variant plus the size needed for all fields
             (
                 4UL
             )
         }
         is SdkEvent.ShutdownCompleted -> {
-            // Add the size for the Int that specifies the variant plus the size needed for all fields
             (
                 4UL
             )
@@ -13700,12 +13769,28 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterULong.write(value.`timestamp`, buf)
                 Unit
             }
-            is SdkEvent.ShutdownStarted -> {
+            is SdkEvent.PeerReadPtsAdvanced -> {
                 buf.putInt(20)
+                FfiConverterULong.write(value.`channelId`, buf)
+                FfiConverterInt.write(value.`channelType`, buf)
+                FfiConverterULong.write(value.`readerId`, buf)
+                FfiConverterULong.write(value.`readPts`, buf)
+                Unit
+            }
+            is SdkEvent.MessageDelivered -> {
+                buf.putInt(21)
+                FfiConverterULong.write(value.`channelId`, buf)
+                FfiConverterInt.write(value.`channelType`, buf)
+                FfiConverterULong.write(value.`serverMessageId`, buf)
+                FfiConverterULong.write(value.`deliveredAt`, buf)
+                Unit
+            }
+            is SdkEvent.ShutdownStarted -> {
+                buf.putInt(22)
                 Unit
             }
             is SdkEvent.ShutdownCompleted -> {
-                buf.putInt(21)
+                buf.putInt(23)
                 Unit
             }
         }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }

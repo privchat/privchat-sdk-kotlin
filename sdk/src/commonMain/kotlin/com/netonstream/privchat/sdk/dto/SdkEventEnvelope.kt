@@ -41,4 +41,7 @@ data class SdkEventPayload(
     val publisher: String? = null,
     val payload: ByteArray? = null,
     val timestamp: ULong? = null,
+    val readerId: ULong? = null,
+    val readPts: ULong? = null,
+    val deliveredAt: ULong? = null,
 )
