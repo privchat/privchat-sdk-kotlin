@@ -779,6 +779,8 @@ get() = useContents { `uniffiFree`/* test  Any? */}
 
 
 
+
+
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -2454,11 +2456,11 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_or_create_direct_channel(`ptr`: Pointer?,`peerUserId`: Long,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_or_create_direct_channel(`ptr`?.inner,`peerUserId`,)as Long
-
+    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_peer_read_pts(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_peer_read_pts(`ptr`?.inner,`channelId`,`channelType`,)as Long
-
+    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_presence(`ptr`: Pointer?,`userId`: Long,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_presence(`ptr`?.inner,`userId`,)as Long
@@ -3862,11 +3864,11 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_or_create_direct_channel(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_or_create_direct_channel()as Short
-
+    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_peer_read_pts(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_peer_read_pts()as Short
-
+    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_presence(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_presence()as Short
@@ -6860,7 +6862,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getPresence`(`userId`: kotlin.ULong) : PresenceStatus? {
@@ -15558,6 +15560,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
             )
         }
         is SdkEvent.PeerReadPtsAdvanced -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
             (
                 4UL
                 + FfiConverterULong.allocationSize(value.`channelId`)
@@ -15567,6 +15570,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
             )
         }
         is SdkEvent.MessageDelivered -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
             (
                 4UL
                 + FfiConverterULong.allocationSize(value.`channelId`)
@@ -15576,6 +15580,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
             )
         }
         is SdkEvent.ShutdownStarted -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
             (
                 4UL
             )

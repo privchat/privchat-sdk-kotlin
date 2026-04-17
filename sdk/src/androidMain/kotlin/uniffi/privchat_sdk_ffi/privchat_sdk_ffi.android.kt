@@ -754,6 +754,8 @@ internal val UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue.`uniffiF
 
 
 
+
+
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -4949,7 +4951,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getPresence`(`userId`: kotlin.ULong) : PresenceStatus? {
@@ -13600,6 +13602,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
             )
         }
         is SdkEvent.PeerReadPtsAdvanced -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
             (
                 4UL
                 + FfiConverterULong.allocationSize(value.`channelId`)
@@ -13609,6 +13612,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
             )
         }
         is SdkEvent.MessageDelivered -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
             (
                 4UL
                 + FfiConverterULong.allocationSize(value.`channelId`)
@@ -13618,11 +13622,13 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
             )
         }
         is SdkEvent.ShutdownStarted -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
             (
                 4UL
             )
         }
         is SdkEvent.ShutdownCompleted -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
             (
                 4UL
             )

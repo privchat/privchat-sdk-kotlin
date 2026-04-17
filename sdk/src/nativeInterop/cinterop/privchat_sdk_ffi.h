@@ -342,6 +342,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_messages_remote(voi
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_or_create_direct_channel(void * ptr, int64_t peerUserId
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_peer_read_pts(void * ptr, int64_t channelId, int32_t channelType
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_presence(void * ptr, int64_t userId
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_presence_stats(void * ptr
@@ -1136,6 +1138,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_messages_remo
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_or_create_direct_channel(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_peer_read_pts(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_presence(void
