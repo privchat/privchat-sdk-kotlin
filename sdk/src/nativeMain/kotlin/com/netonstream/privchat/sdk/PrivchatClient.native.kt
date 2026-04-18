@@ -960,6 +960,11 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun updateUserAlias(userId: ULong, alias: String?): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("updateUserAlias failed") { c.updateUserAlias(userId, alias) }
+    }
+
     actual suspend fun listFriendPendingRequests(): Result<List<FriendPendingEntry>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {

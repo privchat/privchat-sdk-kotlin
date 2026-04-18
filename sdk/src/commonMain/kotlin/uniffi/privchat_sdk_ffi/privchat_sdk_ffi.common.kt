@@ -617,6 +617,11 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `updateThumbStatus`(`messageId`: kotlin.ULong, `thumbStatus`: kotlin.Int)
     
+    /**
+     * 设置用户备注（本地）
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `updateUserAlias`(`userId`: kotlin.ULong, `alias`: kotlin.String?)
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `upsertBlacklistEntry`(`input`: UpsertBlacklistInput)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `upsertChannel`(`input`: UpsertChannelInput)
@@ -1961,6 +1966,14 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `updateThumbStatus`(`messageId`: kotlin.ULong, `thumbStatus`: kotlin.Int)
+
+    
+    /**
+     * 设置用户备注（本地）
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `updateUserAlias`(`userId`: kotlin.ULong, `alias`: kotlin.String?)
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -3630,7 +3643,9 @@ data class StoredChannel (
     var `lastMsgContent`: kotlin.String
         , 
     var `updatedAt`: kotlin.Long
-        
+        , 
+    var `peerUserId`: kotlin.ULong?
+         = null 
 ) {
     
     companion object

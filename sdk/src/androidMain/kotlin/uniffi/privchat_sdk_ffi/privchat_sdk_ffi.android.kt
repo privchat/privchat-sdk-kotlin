@@ -756,6 +756,8 @@ internal val UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue.`uniffiF
 
 
 
+
+
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -1342,6 +1344,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_profile(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_thumb_status(`ptr`: Pointer?,`messageId`: Long,`thumbStatus`: Int,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_user_alias(`ptr`: Pointer?,`userId`: Long,`alias`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_upsert_blacklist_entry(`ptr`: Pointer?,`input`: RustBufferByValue,
     ): Long
@@ -2046,6 +2050,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_profile(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_thumb_status(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_user_alias(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_upsert_blacklist_entry(
     ): Short
@@ -2926,6 +2932,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_thumb_status() != 3643.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_user_alias() != 16889.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_upsert_blacklist_entry() != 16355.toShort()) {
@@ -8696,6 +8705,32 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     
+    /**
+     * 设置用户备注（本地）
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `updateUserAlias`(`userId`: kotlin.ULong, `alias`: kotlin.String?) {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_user_alias(
+                thisPtr,
+                FfiConverterULong.lower(`userId`),FfiConverterOptionalString.lower(`alias`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
+        // lift function
+        { Unit },
+        
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `upsertBlacklistEntry`(`input`: UpsertBlacklistInput) {
@@ -11839,6 +11874,7 @@ object FfiConverterTypeStoredChannel: FfiConverterRustBuffer<StoredChannel> {
             FfiConverterULong.read(buf),
             FfiConverterString.read(buf),
             FfiConverterLong.read(buf),
+            FfiConverterOptionalULong.read(buf),
         )
     }
 
@@ -11854,7 +11890,8 @@ object FfiConverterTypeStoredChannel: FfiConverterRustBuffer<StoredChannel> {
             FfiConverterLong.allocationSize(value.`lastMsgTimestamp`) +
             FfiConverterULong.allocationSize(value.`lastLocalMessageId`) +
             FfiConverterString.allocationSize(value.`lastMsgContent`) +
-            FfiConverterLong.allocationSize(value.`updatedAt`)
+            FfiConverterLong.allocationSize(value.`updatedAt`) +
+            FfiConverterOptionalULong.allocationSize(value.`peerUserId`)
     )
 
     override fun write(value: StoredChannel, buf: ByteBuffer) {
@@ -11870,6 +11907,7 @@ object FfiConverterTypeStoredChannel: FfiConverterRustBuffer<StoredChannel> {
             FfiConverterULong.write(value.`lastLocalMessageId`, buf)
             FfiConverterString.write(value.`lastMsgContent`, buf)
             FfiConverterLong.write(value.`updatedAt`, buf)
+            FfiConverterOptionalULong.write(value.`peerUserId`, buf)
     }
 }
 

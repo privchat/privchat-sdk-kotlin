@@ -110,6 +110,7 @@ expect class PrivchatClient private constructor() {
     suspend fun acceptFriendRequest(fromUserId: ULong): Result<ULong>
     suspend fun rejectFriendRequest(fromUserId: ULong): Result<Boolean>
     suspend fun deleteFriend(userId: ULong): Result<Boolean>
+    suspend fun updateUserAlias(userId: ULong, alias: String?): Result<Unit>
     suspend fun listFriendPendingRequests(): Result<List<FriendPendingEntry>>
     suspend fun createGroup(name: String, memberIds: List<ULong>): Result<GroupCreateResult>
     suspend fun inviteToGroup(groupId: ULong, userIds: List<ULong>): Result<Boolean>

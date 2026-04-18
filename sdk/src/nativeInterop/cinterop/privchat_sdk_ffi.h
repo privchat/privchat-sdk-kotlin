@@ -712,6 +712,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_profile(void * p
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_thumb_status(void * ptr, int64_t messageId, int32_t thumbStatus
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_user_alias(void * ptr, int64_t userId, RustBuffer alias
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_upsert_blacklist_entry(void * ptr, RustBuffer input
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_upsert_channel(void * ptr, RustBuffer input
@@ -1693,6 +1695,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_profile(vo
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_thumb_status(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_user_alias(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_upsert_blacklist_entry(void
