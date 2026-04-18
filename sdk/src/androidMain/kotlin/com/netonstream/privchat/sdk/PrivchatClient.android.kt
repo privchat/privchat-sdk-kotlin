@@ -1630,6 +1630,7 @@ private fun StoredChannel.toCommonChannel() = ChannelListEntry(
             timestamp = lastMsgTimestamp.toULong(),
         )
     },
+    peerUserId = peerUserId,
 )
 
 private fun StoredFriend.toCommonFriend(user: StoredUser?) = FriendEntry(

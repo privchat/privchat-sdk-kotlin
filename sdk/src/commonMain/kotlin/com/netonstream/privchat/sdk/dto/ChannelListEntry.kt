@@ -17,4 +17,5 @@ data class ChannelListEntry(
     val memberCount: UInt,
     val topic: String?,
     val latestEvent: LatestChannelEvent?,
+    val peerUserId: ULong? = null,
 )
