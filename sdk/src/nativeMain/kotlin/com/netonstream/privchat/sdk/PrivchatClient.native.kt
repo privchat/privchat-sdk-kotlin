@@ -1159,7 +1159,7 @@ actual class PrivchatClient private actual constructor() {
                     channelId = channelId,
                     channelType = channelType,
                     fromUid = uid,
-                    messageType = 3,
+                    messageType = ContentMessageType.VOICE.value,
                     content = "[语音] $durationSec\"",
                     searchableWord = "",
                     setting = 0,

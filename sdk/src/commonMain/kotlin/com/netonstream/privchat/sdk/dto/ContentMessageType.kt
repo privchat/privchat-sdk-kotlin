@@ -9,16 +9,20 @@ package om.netonstream.privchat.sdk.dto
  * 值必须与服务端/协议保持一致，禁止客户端自定义新增。
  */
 enum class ContentMessageType(val value: Int) {
+    // 编号按业务优先级（0=文字 最常用 … 10=转发 最少用），与 Rust 协议保持一致。
     TEXT(0),
-    IMAGE(1),
-    FILE(2),
-    VOICE(3),
-    VIDEO(4),
+    VOICE(1),
+    IMAGE(2),
+    VIDEO(3),
+    // FILE 涵盖普通文件，包括音频文件（mp3 / wav 等）。协议层无独立 Audio 类型。
+    FILE(4),
     SYSTEM(5),
-    AUDIO(6),
-    LOCATION(7),
-    CONTACT_CARD(8),
-    STICKER(9),
+    STICKER(6),
+    CONTACT_CARD(7),
+    LOCATION(8),
+    // LINK 的 title / description / thumbnail 由 SDK 宿主通过预览回调（类比视频抽帧 hook）填充；
+    // 未注册回调时仅带 URL，UI 显示空白缩略图。
+    LINK(9),
     FORWARD(10);
 
     companion object {
@@ -28,15 +32,15 @@ enum class ContentMessageType(val value: Int) {
          */
         fun fromValue(value: Int): ContentMessageType? = when (value) {
             0 -> TEXT
-            1 -> IMAGE
-            2 -> FILE
-            3 -> VOICE
-            4 -> VIDEO
+            1 -> VOICE
+            2 -> IMAGE
+            3 -> VIDEO
+            4 -> FILE
             5 -> SYSTEM
-            6 -> AUDIO
-            7 -> LOCATION
-            8 -> CONTACT_CARD
-            9 -> STICKER
+            6 -> STICKER
+            7 -> CONTACT_CARD
+            8 -> LOCATION
+            9 -> LINK
             10 -> FORWARD
             else -> null
         }
