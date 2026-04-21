@@ -23,6 +23,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.longOrNull
 import kotlinx.serialization.json.contentOrNull
+import kotlinx.cinterop.useContents
 import uniffi.privchat_sdk_ffi.ConnectionState as CoreConnectionState
 import uniffi.privchat_sdk_ffi.FileQueueRef
 import uniffi.privchat_sdk_ffi.GetChannelPtsInput
@@ -1220,17 +1221,8 @@ actual class PrivchatClient private actual constructor() {
                     if (secs.isFinite() && secs > 0.0) secs.toLong().coerceAtLeast(1) else null
                 } else null
             }
-            var width: Int? = null
-            var height: Int? = null
-            val tracks = asset.tracksWithMediaType(platform.AVFoundation.AVMediaTypeVideo)
-            val videoTrack = tracks.firstOrNull() as? platform.AVFoundation.AVAssetTrack
-            if (videoTrack != null) {
-                videoTrack.naturalSize.useContents {
-                    width = this.width.toInt()
-                    height = this.height.toInt()
-                }
-            }
-            VideoMeta(durationSec, width, height)
+            // 宽高从 iOS 侧异步获取成本较高，留给上层或后续补齐
+            VideoMeta(durationSec, null, null)
         } catch (t: Throwable) {
             VideoMeta(null, null, null)
         }
@@ -1244,7 +1236,9 @@ actual class PrivchatClient private actual constructor() {
         meta.durationSec?.let { merged["duration"] = JsonPrimitive(it) }
         meta.width?.let { merged["width"] = JsonPrimitive(it) }
         meta.height?.let { merged["height"] = JsonPrimitive(it) }
-        merged.putIfAbsent("filename", JsonPrimitive(filename))
+        if (!merged.containsKey("filename")) {
+            merged["filename"] = JsonPrimitive(filename)
+        }
         return JsonObject(merged).toString()
     }
 
