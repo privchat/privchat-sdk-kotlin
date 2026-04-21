@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.pages.session
+package com.netonstream.privchat.sdk.kotlin.sample.pages.session
 
 import com.tencent.kuikly.core.annotations.Page
 import com.tencent.kuikly.core.base.*
@@ -9,11 +9,11 @@ import com.tencent.kuikly.core.nvi.serialization.json.JSONObject
 import com.tencent.kuikly.core.reactive.handler.observable
 import com.tencent.kuikly.core.reactive.handler.observableList
 import com.tencent.kuikly.core.views.*
-import om.netonstream.privchat.sdk.kotlin.sample.base.BasePager
-import om.netonstream.privchat.sdk.kotlin.sample.privchat.PrivchatClientHolder
-import om.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
-import om.netonstream.privchat.sdk.kotlin.sample.util.TimeFormatter
-import om.netonstream.privchat.sdk.dto.ChannelListEntry
+import com.netonstream.privchat.sdk.kotlin.sample.base.BasePager
+import com.netonstream.privchat.sdk.kotlin.sample.privchat.PrivchatClientHolder
+import com.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
+import com.netonstream.privchat.sdk.kotlin.sample.util.TimeFormatter
+import com.netonstream.privchat.sdk.dto.ChannelListEntry
 import kotlinx.coroutines.runBlocking
 
 /**

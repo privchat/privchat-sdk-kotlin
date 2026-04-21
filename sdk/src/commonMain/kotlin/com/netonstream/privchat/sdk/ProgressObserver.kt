@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk
+package com.netonstream.privchat.sdk
 
 /**
  * 进度观察者 - 用于文件上传/下载进度回调

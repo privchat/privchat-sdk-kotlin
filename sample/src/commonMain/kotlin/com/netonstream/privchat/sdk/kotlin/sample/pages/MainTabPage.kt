@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.pages
+package com.netonstream.privchat.sdk.kotlin.sample.pages
 
 import com.tencent.kuikly.core.annotations.Page
 import com.tencent.kuikly.core.base.*
@@ -12,13 +12,13 @@ import com.tencent.kuikly.core.reactive.handler.observableList
 import com.tencent.kuikly.core.utils.PlatformUtils
 import com.tencent.kuikly.core.views.*
 import com.tencent.kuikly.core.views.compose.Button
-import om.netonstream.privchat.sdk.kotlin.sample.base.BasePager
-import om.netonstream.privchat.sdk.kotlin.sample.lang.LangManager
-import om.netonstream.privchat.sdk.kotlin.sample.lang.MultiLingualPager
-import om.netonstream.privchat.sdk.kotlin.sample.pages.session.SessionsPage
-import om.netonstream.privchat.sdk.kotlin.sample.pages.friend.FriendsPage
-import om.netonstream.privchat.sdk.kotlin.sample.pages.profile.ProfilePage
-import om.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
+import com.netonstream.privchat.sdk.kotlin.sample.base.BasePager
+import com.netonstream.privchat.sdk.kotlin.sample.lang.LangManager
+import com.netonstream.privchat.sdk.kotlin.sample.lang.MultiLingualPager
+import ccom.netonstream.privchat.sdk.kotlin.sample.pages.session.SessionsPage
+import ccom.netonstream.privchat.sdk.kotlin.sample.pages.friend.FriendsPage
+import com.netonstream.privchat.sdk.kotlin.sample.pages.profile.ProfilePage
+import com.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
 
 /**
  * 主页面 - 实现底部导航栏
@@ -29,16 +29,16 @@ internal class MainTabPage : MultiLingualPager() {
 
     // 当前选中的 tab 索引
     private var selectedTabIndex: Int by observable(0)
-    
+
     // Tab 标题列表（将从 resStrings 中获取）
     private var pageTitles by observableList<String>()
-    
+
     // 主题
     var theme by observable(ThemeManager.getTheme())
     private lateinit var themeEventCallbackRef: CallbackRef
     private lateinit var spModule: SharedPreferencesModule
     private lateinit var notifyModule: NotifyModule
-    
+
     // Tab 图标（未选中状态）- 会话、联系人、娱乐、我的
     private val pageIcons = listOf(
         "tabbar_entertainment.png",
@@ -46,7 +46,7 @@ internal class MainTabPage : MultiLingualPager() {
         "tabbar_entertainment.png",
         "tabbar_profile.png"
     )
-    
+
     // Tab 图标（选中状态）
     private val pageIconsHighlight = listOf(
         "tabbar_entertainment_highlighted.png",
@@ -54,37 +54,37 @@ internal class MainTabPage : MultiLingualPager() {
         "tabbar_entertainment_highlighted.png",
         "tabbar_profile_highlighted.png"
     )
-    
+
     // PageList 引用，用于切换页面
     private var pageListRef: ViewRef<PageListView<*, *>>? = null
 
     override fun created() {
         super.created()
-        
+
         // 在 created() 内 acquireModule（官方建议的方式）
         spModule = acquireModule(SharedPreferencesModule.MODULE_NAME)
         notifyModule = acquireModule(NotifyModule.MODULE_NAME)
-        
+
         // 从 SharedPreferences 读取保存的主题
         val colorTheme = spModule.getString(ThemeManager.PREF_KEY_COLOR)
             .takeUnless { it.isEmpty() } ?: "light"
         ThemeManager.changeColorScheme(colorTheme)
         theme = ThemeManager.getTheme()
-        
+
         // 注册主题变化监听
         themeEventCallbackRef = notifyModule.addNotify(ThemeManager.SKIN_CHANGED_EVENT) { _ ->
             theme = ThemeManager.getTheme()
         }
-        
+
         // 初始化 tab 标题（从多语言资源获取）
         updatePageTitles()
     }
-    
+
     override fun langEventCallbackFn() {
         super.langEventCallbackFn()
         updatePageTitles()
     }
-    
+
     private fun updatePageTitles() {
         // 先添加新数据，再清空旧数据，避免在更新过程中访问空列表
         val newTitles = listOf(
@@ -112,7 +112,7 @@ internal class MainTabPage : MultiLingualPager() {
             }
         }
     }
-    
+
     override fun pageWillDestroy() {
         super.pageWillDestroy()
         notifyModule.removeNotify(ThemeManager.SKIN_CHANGED_EVENT, themeEventCallbackRef)
@@ -175,9 +175,9 @@ internal class MainTabPage : MultiLingualPager() {
                                     fontSize(12f)
                                     marginTop(4f)
                                     color(
-                                        if (i == ctx.selectedTabIndex) 
+                                        if (i == ctx.selectedTabIndex)
                                             ctx.theme.colors.tabBarTextFocused
-                                        else 
+                                        else
                                             ctx.theme.colors.tabBarTextUnfocused
                                     )
                                 }
@@ -237,13 +237,13 @@ internal class MainTabPage : MultiLingualPager() {
                         ctx.selectedTabIndex = index
                     }
                 }
-                
+
                 // 会话列表
                 SessionsPage { }
-                
+
                 // 联系人列表
                 FriendsPage { }
-                
+
                 EmptyPage {
                     attr {
                         title = if (ctx.pageTitles.size > 2) ctx.pageTitles[2] else ""
@@ -252,7 +252,7 @@ internal class MainTabPage : MultiLingualPager() {
                 // 我的页面
                 ProfilePage { }
             }
-            
+
             // 底部导航栏
             ctx.tabBar().invoke(this)
         }
@@ -270,7 +270,7 @@ internal class EmptyPage : ComposeView<EmptyPageAttr, ComposeEvent>() {
     // 主题
     private var theme by observable(ThemeManager.getTheme())
     private var themeEventCallbackRef: CallbackRef? = null
-    
+
     override fun created() {
         super.created()
         // 延迟注册主题变化监听，确保父 Pager 的模块已初始化
@@ -284,7 +284,7 @@ internal class EmptyPage : ComposeView<EmptyPageAttr, ComposeEvent>() {
             // 如果模块未初始化，在 viewDidLoad 中重试
         }
     }
-    
+
     override fun viewDidLoad() {
         super.viewDidLoad()
         // 如果 created() 中注册失败，在这里重试
@@ -299,7 +299,7 @@ internal class EmptyPage : ComposeView<EmptyPageAttr, ComposeEvent>() {
             }
         }
     }
-    
+
     override fun viewWillUnload() {
         super.viewWillUnload()
         themeEventCallbackRef?.let {
@@ -311,7 +311,7 @@ internal class EmptyPage : ComposeView<EmptyPageAttr, ComposeEvent>() {
             }
         }
     }
-    
+
     override fun createAttr(): EmptyPageAttr = EmptyPageAttr()
     override fun createEvent(): ComposeEvent = ComposeEvent()
 
@@ -342,15 +342,14 @@ internal fun ViewContainer<*, *>.EmptyPage(init: EmptyPage.() -> Unit) {
     addChild(EmptyPage(), init)
 }
 
-internal fun ViewContainer<*, *>.SessionsPage(init: om.netonstream.privchat.sdk.kotlin.sample.pages.session.SessionsPage.() -> Unit = {}): om.netonstream.privchat.sdk.kotlin.sample.pages.session.SessionsPage {
-    val p = om.netonstream.privchat.sdk.kotlin.sample.pages.session.SessionsPage()
+internal fun ViewContainer<*, *>.SessionsPage(init: com.netonstream.privchat.sdk.kotlin.sample.pages.session.SessionsPage.() -> Unit = {}): com.netonstream.privchat.sdk.kotlin.sample.pages.session.SessionsPage {
+    val p = com.netonstream.privchat.sdk.kotlin.sample.pages.session.SessionsPage()
     addChild(p, init)
     return p
 }
 
-internal fun ViewContainer<*, *>.FriendsPage(init: om.netonstream.privchat.sdk.kotlin.sample.pages.friend.FriendsPage.() -> Unit = {}): om.netonstream.privchat.sdk.kotlin.sample.pages.friend.FriendsPage {
-    val p = om.netonstream.privchat.sdk.kotlin.sample.pages.friend.FriendsPage()
+internal fun ViewContainer<*, *>.FriendsPage(init: com.netonstream.privchat.sdk.kotlin.sample.pages.friend.FriendsPage.() -> Unit = {}): com.netonstream.privchat.sdk.kotlin.sample.pages.friend.FriendsPage {
+    val p = com.netonstream.privchat.sdk.kotlin.sample.pages.friend.FriendsPage()
     addChild(p, init)
     return p
 }
-

@@ -1,6 +1,6 @@
-package om.netonstream.privchat.sdk
+package com.netonstream.privchat.sdk
 
-import om.netonstream.privchat.sdk.dto.SyncStatus
+import com.netonstream.privchat.sdk.dto.SyncStatus
 
 /**
  * 同步状态观察者 - 用于受监督同步

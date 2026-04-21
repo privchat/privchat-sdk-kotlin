@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.adapter
+package com.netonstream.privchat.sdk.kotlin.sample.adapter
 
 import android.util.Log
 import com.tencent.kuikly.core.render.android.adapter.IKRLogAdapter

@@ -1,10 +1,10 @@
-package om.netonstream.privchat.sdk.kotlin.sample.pages.livestream
+package com.netonstream.privchat.sdk.kotlin.sample.pages.livestream
 
-import om.netonstream.privchat.sdk.kotlin.sample.KuiklyContextScheduler
+import com.netonstream.privchat.sdk.kotlin.sample.KuiklyContextScheduler
 
 /**
  * iOS 平台的 UI 更新调度实现
- * 
+ *
  * 使用 KuiklyRenderThreadManager 确保在正确的线程上更新 UI
  * 调度器由 Swift 层通过 setIOSScheduler() 注册
  */

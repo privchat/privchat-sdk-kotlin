@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.util
+package com.netonstream.privchat.sdk.kotlin.sample.util
 
 import java.text.SimpleDateFormat
 import java.util.Date

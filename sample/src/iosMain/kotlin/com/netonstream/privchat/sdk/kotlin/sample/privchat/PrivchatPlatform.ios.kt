@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.privchat
+package com.netonstream.privchat.sdk.kotlin.sample.privchat
 
 import platform.Foundation.NSHomeDirectory
 import platform.Foundation.NSUserDefaults

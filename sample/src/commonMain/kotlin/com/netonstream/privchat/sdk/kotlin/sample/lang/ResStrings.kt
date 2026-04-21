@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.lang
+package com.netonstream.privchat.sdk.kotlin.sample.lang
 
 import com.tencent.kuikly.core.nvi.serialization.json.JSONObject
 
@@ -151,4 +151,3 @@ val enJsonString = """
   "languageHint": "Please select language"
 }
 """.trimIndent()
-

@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.pages.livestream
+package com.netonstream.privchat.sdk.kotlin.sample.pages.livestream
 
 import com.tencent.kuikly.core.annotations.Page
 import com.tencent.kuikly.core.base.*
@@ -6,27 +6,27 @@ import com.tencent.kuikly.core.module.RouterModule
 import com.tencent.kuikly.core.reactive.handler.observable
 import com.tencent.kuikly.core.utils.PlatformUtils
 import com.tencent.kuikly.core.views.*
-import om.netonstream.privchat.sdk.kotlin.sample.lang.MultiLingualPager
-import om.netonstream.privchat.sdk.kotlin.sample.LiveStreamBridge
-import om.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
+import com.netonstream.privchat.sdk.kotlin.sample.lang.MultiLingualPager
+import com.netonstream.privchat.sdk.kotlin.sample.LiveStreamBridge
+import com.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
 
 /**
  * 混合直播测试页面
- * 
+ *
  * 统一使用混合直播模式（视频背景 + KuiklyUI 覆盖层）
  * iOS 和 Android 共享相同的 UI 代码
  */
 @Page("LiveStreamTestPage")
 internal class LiveStreamTestPage : MultiLingualPager() {
-    
+
     private var theme by observable(ThemeManager.getTheme())
-    
+
     // LiveKit 服务器地址
     private var serverUrl by observable("wss://turn.deviceadmin.net")
-    
+
     // 选中的用户（默认 user001）
     private var selectedUser by observable("user001")
-    
+
     // 用户选项列表 (10 个用户)
     private val userOptions = listOf(
         "user001" to "用户 1",
@@ -40,11 +40,11 @@ internal class LiveStreamTestPage : MultiLingualPager() {
         "user009" to "用户 9",
         "user010" to "用户 10"
     )
-    
+
     // 连接状态
     private var connectionStatus by observable("选择用户后点击按钮启动直播")
     private var errorMessage by observable<String?>(null)
-    
+
     /**
      * 根据选中的用户获取对应的 Token
      * 所有用户都在同一个房间: test-room
@@ -65,7 +65,7 @@ internal class LiveStreamTestPage : MultiLingualPager() {
             else -> ""
         }
     }
-    
+
     /**
      * 顶部导航栏
      */
@@ -83,7 +83,7 @@ internal class LiveStreamTestPage : MultiLingualPager() {
                         flexDirectionRow()
                         alignItemsCenter()
                     }
-                    
+
                     // 返回按钮
                     View {
                         attr {
@@ -104,7 +104,7 @@ internal class LiveStreamTestPage : MultiLingualPager() {
                             }
                         }
                     }
-                    
+
                     // 标题
                     Text {
                         attr {
@@ -116,7 +116,7 @@ internal class LiveStreamTestPage : MultiLingualPager() {
                             textAlignCenter()
                         }
                     }
-                    
+
                     // 占位（保持居中）
                     View {
                         attr {
@@ -128,7 +128,7 @@ internal class LiveStreamTestPage : MultiLingualPager() {
             }
         }
     }
-    
+
     /**
      * 输入表单
      */
@@ -141,7 +141,7 @@ internal class LiveStreamTestPage : MultiLingualPager() {
                     paddingRight(20f)
                     paddingTop(20f)
                 }
-                
+
                 // 服务器地址输入框
                 View {
                     attr {
@@ -175,7 +175,7 @@ internal class LiveStreamTestPage : MultiLingualPager() {
                         }
                     }
                 }
-                
+
                 // 当前用户信息
                 View {
                     attr {
@@ -209,7 +209,7 @@ internal class LiveStreamTestPage : MultiLingualPager() {
                         }
                     }
                 }
-                
+
                 // Access Token (折叠显示)
                 View {
                     attr {
@@ -246,7 +246,7 @@ internal class LiveStreamTestPage : MultiLingualPager() {
             }
         }
     }
-    
+
     /**
      * 状态显示
      */
@@ -260,7 +260,7 @@ internal class LiveStreamTestPage : MultiLingualPager() {
                     paddingTop(10f)
                     paddingBottom(10f)
                 }
-                
+
                 View {
                     attr {
                         paddingLeft(16f)
@@ -276,7 +276,7 @@ internal class LiveStreamTestPage : MultiLingualPager() {
                             }
                         )
                     }
-                    
+
                     Text {
                         attr {
                             text(ctx.connectionStatus)
@@ -295,7 +295,7 @@ internal class LiveStreamTestPage : MultiLingualPager() {
             }
         }
     }
-    
+
     /**
      * 操作按钮区域
      */
@@ -309,7 +309,7 @@ internal class LiveStreamTestPage : MultiLingualPager() {
                     paddingTop(20f)
                     flexDirectionColumn()
                 }
-                
+
                 // 用户选择区域
                 View {
                     attr {
@@ -321,7 +321,7 @@ internal class LiveStreamTestPage : MultiLingualPager() {
                         borderRadius(12f)
                         backgroundColor(Color(0x20000000))
                     }
-                    
+
                     // 标题
                     Text {
                         attr {
@@ -331,13 +331,13 @@ internal class LiveStreamTestPage : MultiLingualPager() {
                             marginBottom(12f)
                         }
                     }
-                    
+
                     // 用户选项按钮（5 列 x 2 行网格布局）
                     View {
                         attr {
                             flexDirectionColumn()
                         }
-                        
+
                         // 第一行：user001 - user005
                         View {
                             attr {
@@ -345,7 +345,7 @@ internal class LiveStreamTestPage : MultiLingualPager() {
                                 justifyContentCenter()
                                 marginBottom(6f)
                             }
-                            
+
                             ctx.userOptions.take(5).forEachIndexed { index, (userId, userName) ->
                                 View {
                                     attr {
@@ -378,14 +378,14 @@ internal class LiveStreamTestPage : MultiLingualPager() {
                                 }
                             }
                         }
-                        
+
                         // 第二行：user006 - user010
                         View {
                             attr {
                                 flexDirectionRow()
                                 justifyContentCenter()
                             }
-                            
+
                             ctx.userOptions.drop(5).forEachIndexed { index, (userId, userName) ->
                                 View {
                                     attr {
@@ -419,7 +419,7 @@ internal class LiveStreamTestPage : MultiLingualPager() {
                             }
                         }
                     }
-                    
+
                     // 当前选中用户提示
                     Text {
                         attr {
@@ -430,7 +430,7 @@ internal class LiveStreamTestPage : MultiLingualPager() {
                         }
                     }
                 }
-                
+
                 // 启动混合直播按钮
                 View {
                     attr {
@@ -456,7 +456,7 @@ internal class LiveStreamTestPage : MultiLingualPager() {
             }
         }
     }
-    
+
     /**
      * 使用说明
      */
@@ -469,7 +469,7 @@ internal class LiveStreamTestPage : MultiLingualPager() {
                     paddingRight(20f)
                     paddingTop(30f)
                 }
-                
+
                 View {
                     attr {
                         paddingLeft(16f)
@@ -479,28 +479,28 @@ internal class LiveStreamTestPage : MultiLingualPager() {
                         borderRadius(12f)
                         backgroundColor(Color(0xFFF5F5F5))
                     }
-                    
+
                     Text {
                         attr {
                             text("""
                                 📝 使用说明
-                                
+
                                 ✅ 架构特点：
                                 • 底层：LiveKit 原生视频渲染
                                 • 上层：KuiklyUI 透明覆盖层
                                 • UI 代码跨平台共享
-                                
+
                                 🎯 功能特点：
                                 • 自动连接 LiveKit 服务器
                                 • 摄像头和麦克风自动启用
                                 • 支持前后摄像头切换
                                 • 支持静音控制
-                                
+
                                 🔄 测试用户：
                                 • iOS: user001
                                 • Android: user002
                                 • 房间: test-room
-                                
+
                                 💡 提示：
                                 在真机上测试以查看完整的视频效果
                             """.trimIndent())
@@ -513,41 +513,41 @@ internal class LiveStreamTestPage : MultiLingualPager() {
             }
         }
     }
-    
+
     /**
      * 启动混合直播
      */
     private fun launchHybridLiveStream() {
         // 获取当前选中用户的 token
         val accessToken = getAccessToken()
-        
+
         if (serverUrl.isEmpty() || accessToken.isEmpty()) {
             connectionStatus = "❌ 服务器地址或令牌为空"
             errorMessage = "参数错误"
             return
         }
-        
+
         if (serverUrl.length < 6 || !serverUrl.startsWith("wss://")) {
             connectionStatus = "❌ 服务器地址格式错误（需要 wss:// 开头）"
             errorMessage = "格式错误"
             return
         }
-        
+
         errorMessage = null
         connectionStatus = "🚀 正在启动混合直播 (${selectedUser})..."
-        
+
         println("🎬 [LiveStreamTestPage] 启动混合直播")
         println("   用户: $selectedUser")
         println("   服务器: $serverUrl")
         println("   Token: ${accessToken.take(50)}...")
-        
+
         // 启动混合直播视图
         LiveStreamBridge.showLiveStream(
             url = serverUrl,
             token = accessToken
         )
     }
-    
+
     override fun body(): ViewBuilder {
         val ctx = this
         return {
@@ -556,26 +556,26 @@ internal class LiveStreamTestPage : MultiLingualPager() {
                 backgroundColor(ctx.theme.colors.background)
                 flexDirectionColumn()
             }
-            
+
             // 顶部导航栏
             ctx.topNavBar().invoke(this)
-            
+
             // 内容区域
             View {
                 attr {
                     flex(1f)
                     flexDirectionColumn()
                 }
-                
+
                 // 输入表单
                 ctx.inputFormView().invoke(this)
-                
+
                 // 状态显示
                 ctx.statusView().invoke(this)
-                
+
                 // 操作按钮
                 ctx.actionButtonsView().invoke(this)
-                
+
                 // 使用说明
                 ctx.instructionsView().invoke(this)
             }

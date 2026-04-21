@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.privchat
+package com.netonstream.privchat.sdk.kotlin.sample.privchat
 
 /**
  * 平台相关路径与设备 ID

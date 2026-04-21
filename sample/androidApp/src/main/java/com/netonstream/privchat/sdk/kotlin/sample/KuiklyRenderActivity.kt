@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample
+package com.netonstream.privchat.sdk.kotlin.sample
 
 import android.Manifest
 import android.content.Context
@@ -18,24 +18,24 @@ import com.tencent.kuikly.core.render.android.adapter.KuiklyRenderAdapterManager
 import com.tencent.kuikly.core.render.android.css.ktx.toMap
 import com.tencent.kuikly.core.render.android.expand.KuiklyRenderViewBaseDelegatorDelegate
 import com.tencent.kuikly.core.render.android.expand.KuiklyRenderViewBaseDelegator
-import om.netonstream.privchat.sdk.kotlin.sample.adapter.KRColorParserAdapter
-import om.netonstream.privchat.sdk.kotlin.sample.adapter.KRFontAdapter
-import om.netonstream.privchat.sdk.kotlin.sample.adapter.KRImageAdapter
-import om.netonstream.privchat.sdk.kotlin.sample.adapter.KRLogAdapter
-import om.netonstream.privchat.sdk.kotlin.sample.adapter.KRRouterAdapter
-import om.netonstream.privchat.sdk.kotlin.sample.adapter.KRThreadAdapter
-import om.netonstream.privchat.sdk.kotlin.sample.adapter.KRUncaughtExceptionHandlerAdapter
-import om.netonstream.privchat.sdk.kotlin.sample.module.KRBridgeModule
-import om.netonstream.privchat.sdk.kotlin.sample.module.KRShareModule
+import com.netonstream.privchat.sdk.kotlin.sample.adapter.KRColorParserAdapter
+import com.netonstream.privchat.sdk.kotlin.sample.adapter.KRFontAdapter
+import com.netonstream.privchat.sdk.kotlin.sample.adapter.KRImageAdapter
+import com.netonstream.privchat.sdk.kotlin.sample.adapter.KRLogAdapter
+import com.netonstream.privchat.sdk.kotlin.sample.adapter.KRRouterAdapter
+import com.netonstream.privchat.sdk.kotlin.sample.adapter.KRThreadAdapter
+import com.netonstream.privchat.sdk.kotlin.sample.adapter.KRUncaughtExceptionHandlerAdapter
+import com.netonstream.privchat.sdk.kotlin.sample.module.KRBridgeModule
+import com.netonstream.privchat.sdk.kotlin.sample.module.KRShareModule
 import org.json.JSONObject
 
 class KuiklyRenderActivity : AppCompatActivity(), KuiklyRenderViewBaseDelegatorDelegate {
-    
+
     companion object {
         private const val KEY_PAGE_NAME = "pageName"
         private const val KEY_PAGE_DATA = "pageData"
         private const val PERMISSION_REQUEST_CODE = 1001
-        
+
         // LiveKit 直播所需权限
         private val REQUIRED_PERMISSIONS = arrayOf(
             Manifest.permission.CAMERA,
@@ -92,11 +92,11 @@ class KuiklyRenderActivity : AppCompatActivity(), KuiklyRenderViewBaseDelegatorD
         loadingView = findViewById(R.id.hr_loading)
         errorView = findViewById(R.id.hr_error)
         kuiklyRenderViewDelegator.onAttach(hrContainerView, "", pageName, createPageData())
-        
+
         // 检查并请求直播所需权限
         checkAndRequestPermissions()
     }
-    
+
     /**
      * 检查并请求权限
      */
@@ -105,7 +105,7 @@ class KuiklyRenderActivity : AppCompatActivity(), KuiklyRenderViewBaseDelegatorD
             val permissionsToRequest = REQUIRED_PERMISSIONS.filter {
                 ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
             }
-            
+
             if (permissionsToRequest.isNotEmpty()) {
                 ActivityCompat.requestPermissions(
                     this,
@@ -115,7 +115,7 @@ class KuiklyRenderActivity : AppCompatActivity(), KuiklyRenderViewBaseDelegatorD
             }
         }
     }
-    
+
     /**
      * 权限请求结果回调
      */
@@ -125,7 +125,7 @@ class KuiklyRenderActivity : AppCompatActivity(), KuiklyRenderViewBaseDelegatorD
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        
+
         if (requestCode == PERMISSION_REQUEST_CODE) {
             val allGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
             if (!allGranted) {

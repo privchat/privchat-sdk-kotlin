@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.module
+package com.netonstream.privchat.sdk.kotlin.sample.module
 
 import com.tencent.kuikly.core.render.android.export.KuiklyRenderBaseModule
 

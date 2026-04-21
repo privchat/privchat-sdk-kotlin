@@ -1,9 +1,9 @@
-package om.netonstream.privchat.sdk.kotlin.sample.adapter
+package com.netonstream.privchat.sdk.kotlin.sample.adapter
 
 import android.content.Context
 import android.graphics.Color
 import com.tencent.kuikly.core.render.android.adapter.IKRColorParserAdapter
-import om.netonstream.privchat.sdk.kotlin.sample.SkinIniFile
+import com.netonstream.privchat.sdk.kotlin.sample.SkinIniFile
 
 class KRColorParserAdapter(context: Context) : IKRColorParserAdapter {
 

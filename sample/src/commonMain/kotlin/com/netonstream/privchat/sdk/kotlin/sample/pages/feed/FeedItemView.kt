@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.pages.feed
+package com.netonstream.privchat.sdk.kotlin.sample.pages.feed
 
 import com.tencent.kuikly.core.base.*
 import com.tencent.kuikly.core.base.Border
@@ -8,7 +8,7 @@ import com.tencent.kuikly.core.nvi.serialization.json.JSONObject
 import com.tencent.kuikly.core.reactive.handler.observable
 import com.tencent.kuikly.core.utils.urlParams
 import com.tencent.kuikly.core.views.*
-import om.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
+import com.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
 import com.tencent.kuikly.core.module.CallbackRef
 import com.tencent.kuikly.core.module.NotifyModule
 
@@ -16,7 +16,7 @@ import com.tencent.kuikly.core.module.NotifyModule
  * 列表项组件 - 实现点击跳转到详情页
  */
 internal class FeedItemView : ComposeView<FeedItemViewAttr, FeedItemViewEvent>() {
-    
+
     // 主题
     private var theme by observable(ThemeManager.getTheme())
     private lateinit var themeEventCallbackRef: CallbackRef
@@ -29,7 +29,7 @@ internal class FeedItemView : ComposeView<FeedItemViewAttr, FeedItemViewEvent>()
                 theme = ThemeManager.getTheme()
             }
     }
-    
+
     override fun viewWillUnload() {
         super.viewWillUnload()
         acquireModule<NotifyModule>(NotifyModule.MODULE_NAME)
@@ -46,7 +46,7 @@ internal class FeedItemView : ComposeView<FeedItemViewAttr, FeedItemViewEvent>()
                 backgroundColor(ctx.theme.colors.feedBackground)
                 marginBottom(10f)
             }
-            
+
             // 整个 item 可点击
             View {
                 attr {
@@ -60,13 +60,13 @@ internal class FeedItemView : ComposeView<FeedItemViewAttr, FeedItemViewEvent>()
                         params.forEach {
                             pageData.put(it.key, it.value)
                         }
-                        
+
                         // 使用 RouterModule 跳转
                         getPager().acquireModule<RouterModule>(RouterModule.MODULE_NAME)
                             .openPage("DetailPage", pageData)
                     }
                 }
-                
+
                 // 作者信息
                 View {
                     attr {
@@ -74,7 +74,7 @@ internal class FeedItemView : ComposeView<FeedItemViewAttr, FeedItemViewEvent>()
                         alignItemsCenter()
                         marginBottom(10f)
                     }
-                    
+
                     // 头像
                     View {
                         attr {
@@ -91,7 +91,7 @@ internal class FeedItemView : ComposeView<FeedItemViewAttr, FeedItemViewEvent>()
                         //     }
                         // }
                     }
-                    
+
                     // 作者名
                     Text {
                         attr {
@@ -103,7 +103,7 @@ internal class FeedItemView : ComposeView<FeedItemViewAttr, FeedItemViewEvent>()
                         }
                     }
                 }
-                
+
                 // 标题
                 Text {
                     attr {
@@ -114,7 +114,7 @@ internal class FeedItemView : ComposeView<FeedItemViewAttr, FeedItemViewEvent>()
                         marginBottom(8f)
                     }
                 }
-                
+
                 // 内容
                 Text {
                     attr {
@@ -125,7 +125,7 @@ internal class FeedItemView : ComposeView<FeedItemViewAttr, FeedItemViewEvent>()
                         // 注意：KuiklyUI 的 Text 组件不支持 maxLines，文本会自动换行
                     }
                 }
-                
+
                 // 图片（如果有）
                 if (ctx.attr.item.imageUrl.isNotEmpty()) {
                     Image {
@@ -138,7 +138,7 @@ internal class FeedItemView : ComposeView<FeedItemViewAttr, FeedItemViewEvent>()
                         }
                     }
                 }
-                
+
                 // 底部操作栏
                 View {
                     attr {
@@ -148,7 +148,7 @@ internal class FeedItemView : ComposeView<FeedItemViewAttr, FeedItemViewEvent>()
                         paddingTop(10f)
                         borderTop(Border(0.5f, BorderStyle.SOLID, ctx.theme.colors.feedContentDivider))
                     }
-                    
+
                     // 点赞
                     View {
                         attr {
@@ -170,7 +170,7 @@ internal class FeedItemView : ComposeView<FeedItemViewAttr, FeedItemViewEvent>()
                             }
                         }
                     }
-                    
+
                     // 评论
                     View {
                         attr {
@@ -192,7 +192,7 @@ internal class FeedItemView : ComposeView<FeedItemViewAttr, FeedItemViewEvent>()
                             }
                         }
                     }
-                    
+
                     // 转发
                     View {
                         attr {
@@ -229,4 +229,3 @@ internal class FeedItemViewEvent : ComposeEvent()
 internal fun ViewContainer<*, *>.FeedItemView(init: FeedItemView.() -> Unit) {
     addChild(FeedItemView(), init)
 }
-

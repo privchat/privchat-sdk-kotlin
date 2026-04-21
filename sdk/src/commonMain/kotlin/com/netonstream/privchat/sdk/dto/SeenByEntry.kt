@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.dto
+package com.netonstream.privchat.sdk.dto
 
 /** 已读用户条目 - 与 SDK_API_CONTRACT 对齐 */
 data class SeenByEntry(

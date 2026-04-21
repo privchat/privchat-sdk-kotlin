@@ -1,7 +1,7 @@
-package om.netonstream.privchat.sdk.kotlin.sample
+package com.netonstream.privchat.sdk.kotlin.sample
 
 import android.app.Application
-import om.netonstream.privchat.sdk.kotlin.sample.privchat.PrivchatPlatform
+import com.netonstream.privchat.sdk.kotlin.sample.privchat.PrivchatPlatform
 
 class KRApplication : Application() {
 

@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.dto
+package com.netonstream.privchat.sdk.dto
 
 data class UnreadStats(
     val messages: ULong,

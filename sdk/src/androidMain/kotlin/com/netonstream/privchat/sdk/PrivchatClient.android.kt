@@ -1,7 +1,7 @@
-package om.netonstream.privchat.sdk
+package com.netonstream.privchat.sdk
 
 import android.util.Log
-import om.netonstream.privchat.sdk.dto.*
+import com.netonstream.privchat.sdk.dto.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -46,6 +46,7 @@ import uniffi.privchat_sdk_ffi.UpsertUserInput as CoreUpsertUserInput
 import uniffi.privchat_sdk_ffi.TransportProtocol as CoreProtocol
 import uniffi.privchat_sdk_ffi.TypingActionType
 import uniffi.privchat_sdk_ffi.SdkEvent as CoreSdkEvent
+import uniffi.privchat_sdk_ffi.MediaDownloadState as CoreMediaDownloadState
 import uniffi.privchat_sdk_ffi.sdkVersion
 
 private val json = Json { ignoreUnknownKeys = true }
@@ -396,8 +397,11 @@ actual class PrivchatClient private actual constructor() {
 
     actual suspend fun revokeMessage(messageId: ULong): Result<Unit> {
         val c = requireClient().getOrElse { return Result.failure(it) }
-        val channelId = runCatching { c.getMessageById(messageId)?.channelId ?: 0uL }.getOrDefault(0uL)
-        return callAsync("revokeMessage failed") { c.recallMessage(messageId, channelId) }
+        val stored = runCatching { c.getMessageById(messageId) }.getOrNull()
+            ?: return Result.failure(toSdkError("revokeMessage failed", IllegalStateException("message not found: $messageId")))
+        val serverMessageId = stored.serverMessageId
+            ?: return Result.failure(toSdkError("revokeMessage failed", IllegalStateException("message has no serverMessageId, cannot recall")))
+        return callAsync("revokeMessage failed") { c.recallMessage(serverMessageId, stored.channelId) }
     }
 
     actual suspend fun editMessage(messageId: ULong, newContent: String): Result<Unit> {
@@ -405,14 +409,44 @@ actual class PrivchatClient private actual constructor() {
         return callAsync("editMessage failed") { c.editMessage(messageId, newContent, 0) }
     }
 
+    actual suspend fun deleteMessageLocal(messageId: ULong): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.deleteMessageLocal(messageId) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("deleteMessageLocal failed", it)) },
+        )
+    }
+
+    actual suspend fun forwardMessage(
+        srcMessageId: ULong,
+        targetChannelId: ULong,
+        targetChannelType: Int,
+    ): Result<ULong> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.forwardMessage(srcMessageId, targetChannelId, targetChannelType)
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("forwardMessage failed", it)) },
+        )
+    }
+
     actual suspend fun addReaction(messageId: ULong, emoji: String): Result<Unit> {
         val c = requireClient().getOrElse { return Result.failure(it) }
-        return callAsync("addReaction failed") { c.addReaction(messageId, null, emoji) }
+        val stored = runCatching { c.getMessageById(messageId) }.getOrNull()
+            ?: return Result.failure(toSdkError("addReaction failed", IllegalStateException("message not found: $messageId")))
+        val serverMessageId = stored.serverMessageId
+            ?: return Result.failure(toSdkError("addReaction failed", IllegalStateException("message has no serverMessageId")))
+        return callAsync("addReaction failed") { c.addReaction(serverMessageId, stored.channelId, emoji) }
     }
 
     actual suspend fun removeReaction(messageId: ULong, emoji: String): Result<Unit> {
         val c = requireClient().getOrElse { return Result.failure(it) }
-        return callAsync("removeReaction failed") { c.removeReaction(messageId, emoji) }
+        val stored = runCatching { c.getMessageById(messageId) }.getOrNull()
+            ?: return Result.failure(toSdkError("removeReaction failed", IllegalStateException("message not found: $messageId")))
+        val serverMessageId = stored.serverMessageId
+            ?: return Result.failure(toSdkError("removeReaction failed", IllegalStateException("message has no serverMessageId")))
+        return callAsync("removeReaction failed") { c.removeReaction(serverMessageId, emoji) }
     }
 
     actual suspend fun reactions(channelId: ULong, messageId: ULong): Result<List<ReactionChip>> {
@@ -822,6 +856,22 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun setChannelHiddenLocal(channelId: ULong, hidden: Boolean): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.setChannelHiddenLocal(channelId, hidden) }.fold(
+            onSuccess = { Result.success(Unit) },
+            onFailure = { Result.failure(toSdkError("setChannelHiddenLocal failed", it)) },
+        )
+    }
+
+    actual suspend fun deleteChannelLocal(channelId: ULong): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.deleteChannelLocal(channelId) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("deleteChannelLocal failed", it)) },
+        )
+    }
+
     actual suspend fun muteChannel(channelId: ULong, muted: Boolean): Result<Boolean> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching { c.muteChannel(channelId, muted) }.fold(
@@ -1136,6 +1186,14 @@ actual class PrivchatClient private actual constructor() {
             val mime = guessMimeFromFilename(originalFilename)
             val canonicalFilename = payloadFilename(mime, originalFilename)
 
+            // 视频消息补齐 duration/width/height 到 extra，UI 侧才能显示时长与占位比例
+            val extraJson = if (messageType == ContentMessageType.VIDEO.value) {
+                val meta = extractVideoMetadata(path)
+                mergeVideoMetaIntoExtra(options?.extraJson, meta, originalFilename, mime)
+            } else {
+                options?.extraJson ?: "{}"
+            }
+
             // 1. 创建本地消息获取真实 ID
             val messageId = c.createLocalMessage(
                 NewMessage(
@@ -1146,7 +1204,7 @@ actual class PrivchatClient private actual constructor() {
                     content = path,
                     searchableWord = originalFilename,
                     setting = 0,
-                    extra = options?.extraJson ?: "{}",
+                    extra = extraJson,
                     mediaDownloaded = false,
                     thumbStatus = 0,
                 )
@@ -1157,6 +1215,31 @@ actual class PrivchatClient private actual constructor() {
             val targetFile = java.io.File(targetDir, canonicalFilename)
             srcFile.copyTo(targetFile, overwrite = true)
             val localFilePath = targetFile.absolutePath
+
+            // 2.5 视频消息：抽帧并保存本地缩略图，发送者侧立即可见
+            val attachmentDuration: UInt?
+            val attachmentWidth: UInt?
+            val attachmentHeight: UInt?
+            if (messageType == ContentMessageType.VIDEO.value) {
+                val meta = extractVideoMetadata(path)
+                attachmentDuration = meta.durationSec?.toUInt()
+                attachmentWidth = meta.width?.toUInt()
+                attachmentHeight = meta.height?.toUInt()
+                meta.thumbnailBitmap?.let { bmp ->
+                    runCatching {
+                        val thumbFile = java.io.File(targetDir, "thumb.webp")
+                        java.io.FileOutputStream(thumbFile).use { out ->
+                            @Suppress("DEPRECATION")
+                            bmp.compress(android.graphics.Bitmap.CompressFormat.WEBP, 85, out)
+                        }
+                    }
+                    bmp.recycle()
+                }
+            } else {
+                attachmentDuration = null
+                attachmentWidth = null
+                attachmentHeight = null
+            }
 
             // 3. 从规范目录路径入队
             val routeKey = c.toClientEndpoint() ?: ""
@@ -1169,14 +1252,68 @@ actual class PrivchatClient private actual constructor() {
                 thumbnailUrl = null,
                 filename = originalFilename,
                 fileId = null,
-                width = null,
-                height = null,
-                duration = null,
+                width = attachmentWidth,
+                height = attachmentHeight,
+                duration = attachmentDuration,
             )
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("sendAttachmentFromPath failed", it)) },
         )
+    }
+
+    private data class VideoMeta(
+        val durationSec: Long?,
+        val width: Int?,
+        val height: Int?,
+        val thumbnailBitmap: android.graphics.Bitmap?,
+    )
+
+    private fun extractVideoMetadata(path: String): VideoMeta {
+        val retriever = android.media.MediaMetadataRetriever()
+        return try {
+            retriever.setDataSource(path)
+            val durationMs = retriever
+                .extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION)
+                ?.toLongOrNull()
+            val width = retriever
+                .extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
+                ?.toIntOrNull()
+            val height = retriever
+                .extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
+                ?.toIntOrNull()
+            val bitmap = runCatching {
+                retriever.getFrameAtTime(0L, android.media.MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
+            }.getOrNull()
+            VideoMeta(
+                durationSec = durationMs?.let { (it / 1000).coerceAtLeast(1) },
+                width = width,
+                height = height,
+                thumbnailBitmap = bitmap,
+            )
+        } catch (t: Throwable) {
+            VideoMeta(null, null, null, null)
+        } finally {
+            runCatching { retriever.release() }
+        }
+    }
+
+    private fun mergeVideoMetaIntoExtra(
+        existing: String?,
+        meta: VideoMeta,
+        filename: String,
+        mime: String,
+    ): String {
+        val base = existing?.takeIf { it.isNotBlank() } ?: "{}"
+        val parsed = runCatching { Json.parseToJsonElement(base).jsonObject }.getOrNull()
+            ?: JsonObject(emptyMap())
+        val merged = parsed.toMutableMap()
+        meta.durationSec?.let { merged["duration"] = JsonPrimitive(it) }
+        meta.width?.let { merged["width"] = JsonPrimitive(it) }
+        meta.height?.let { merged["height"] = JsonPrimitive(it) }
+        merged.putIfAbsent("filename", JsonPrimitive(filename))
+        merged.putIfAbsent("mime", JsonPrimitive(mime))
+        return JsonObject(merged).toString()
     }
 
     actual suspend fun sendVoiceFromPath(
@@ -1333,6 +1470,63 @@ actual class PrivchatClient private actual constructor() {
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("downloadAttachmentToPath failed", it)) },
+        )
+    }
+
+    actual suspend fun updateMediaDownloaded(messageId: ULong, downloaded: Boolean): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.updateMediaDownloaded(messageId, downloaded) }.fold(
+            onSuccess = { Result.success(Unit) },
+            onFailure = { Result.failure(toSdkError("updateMediaDownloaded failed", it)) },
+        )
+    }
+
+    actual suspend fun startMessageMediaDownload(
+        messageId: ULong,
+        downloadUrl: String,
+        mime: String,
+        filenameHint: String?,
+        createdAtMs: Long,
+    ): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.startMessageMediaDownload(messageId, downloadUrl, mime, filenameHint, createdAtMs)
+            Unit
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("startMessageMediaDownload failed", it)) },
+        )
+    }
+
+    actual suspend fun pauseMessageMediaDownload(messageId: ULong): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.pauseMessageMediaDownload(messageId); Unit }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("pauseMessageMediaDownload failed", it)) },
+        )
+    }
+
+    actual suspend fun resumeMessageMediaDownload(messageId: ULong): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.resumeMessageMediaDownload(messageId); Unit }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("resumeMessageMediaDownload failed", it)) },
+        )
+    }
+
+    actual suspend fun cancelMessageMediaDownload(messageId: ULong): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.cancelMessageMediaDownload(messageId); Unit }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("cancelMessageMediaDownload failed", it)) },
+        )
+    }
+
+    actual suspend fun getMediaDownloadState(messageId: ULong): Result<MediaDownloadState> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { mapCoreMediaDownloadState(c.getMediaDownloadState(messageId)) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("getMediaDownloadState failed", it)) },
         )
     }
 
@@ -1530,17 +1724,17 @@ actual class PrivchatClient private actual constructor() {
 
     private fun inferAttachmentMessageType(pathOrName: String, mimeType: String?): Int {
         val mime = mimeType?.trim()?.lowercase().orEmpty()
-        if (mime.startsWith("image/")) return 1
-        if (mime.startsWith("video/")) return 4
+        if (mime.startsWith("image/")) return ContentMessageType.IMAGE.value
+        if (mime.startsWith("video/")) return ContentMessageType.VIDEO.value
 
         val ext = pathOrName
             .substringAfterLast('/', pathOrName)
             .substringAfterLast('.', "")
             .lowercase()
         return when (ext) {
-            "jpg", "jpeg", "png", "gif", "webp", "bmp", "heic", "heif" -> 1
-            "mp4", "mov", "mkv", "avi", "webm", "m4v", "3gp" -> 4
-            else -> 2
+            "jpg", "jpeg", "png", "gif", "webp", "bmp", "heic", "heif" -> ContentMessageType.IMAGE.value
+            "mp4", "mov", "mkv", "avi", "webm", "m4v", "3gp" -> ContentMessageType.VIDEO.value
+            else -> ContentMessageType.FILE.value
         }
     }
 
@@ -1597,7 +1791,8 @@ private fun StoredMessage.toCommonMessage(
     mimeType = mimeType,
     mediaDownloaded = mediaDownloaded,
     thumbStatus = thumbStatus,
-    localThumbnailPath = if (c != null && uid != null && (messageType == 1 || messageType == 4)) {
+    localThumbnailPath = if (c != null && uid != null &&
+        (messageType == ContentMessageType.IMAGE.value || messageType == ContentMessageType.VIDEO.value)) {
         val resolvedThumb = c.resolveThumbnailPath(uid, messageId.toLong(), createdAt)
         if (resolvedThumb == null) {
             Log.i("PrivchatClient", "[DBG][thumb] msgId=$messageId type=$messageType thumbStatus=$thumbStatus resolved=null content=${content.take(200)} extra=${extra.take(300)}")
@@ -1967,8 +2162,43 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         deliveredAt = event.deliveredAt,
     )
 
+    is CoreSdkEvent.MediaDownloadStateChanged -> {
+        val st = event.state
+        var kind = "idle"
+        var bytes: ULong? = null
+        var total: ULong? = null
+        var path: String? = null
+        var errCode: UInt? = null
+        var errMsg: String? = null
+        when (st) {
+            is CoreMediaDownloadState.Idle -> kind = "idle"
+            is CoreMediaDownloadState.Downloading -> { kind = "downloading"; bytes = st.bytes; total = st.total }
+            is CoreMediaDownloadState.Paused -> { kind = "paused"; bytes = st.bytes; total = st.total }
+            is CoreMediaDownloadState.Done -> { kind = "done"; path = st.path }
+            is CoreMediaDownloadState.Failed -> { kind = "failed"; errCode = st.code; errMsg = st.message }
+        }
+        SdkEventPayload(
+            type = "media_download_state_changed",
+            messageId = event.messageId,
+            mediaDownloadStateKind = kind,
+            mediaDownloadBytes = bytes,
+            mediaDownloadTotal = total,
+            mediaDownloadPath = path,
+            errorCode = errCode,
+            reason = errMsg,
+        )
+    }
+
     CoreSdkEvent.ShutdownStarted -> SdkEventPayload(type = "shutdown_started")
     CoreSdkEvent.ShutdownCompleted -> SdkEventPayload(type = "shutdown_completed")
+}
+
+private fun mapCoreMediaDownloadState(st: CoreMediaDownloadState): MediaDownloadState = when (st) {
+    is CoreMediaDownloadState.Idle -> MediaDownloadState.Idle
+    is CoreMediaDownloadState.Downloading -> MediaDownloadState.Downloading(st.bytes, st.total)
+    is CoreMediaDownloadState.Paused -> MediaDownloadState.Paused(st.bytes, st.total)
+    is CoreMediaDownloadState.Done -> MediaDownloadState.Done(st.path)
+    is CoreMediaDownloadState.Failed -> MediaDownloadState.Failed(st.code, st.message)
 }
 
 private fun parseReadPtsAck(raw: String, fallbackReadPts: ULong): ULong {

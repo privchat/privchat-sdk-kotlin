@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.pages.login
+package com.netonstream.privchat.sdk.kotlin.sample.pages.login
 
 import com.tencent.kuikly.core.annotations.Page
 import com.tencent.kuikly.core.base.*
@@ -8,15 +8,15 @@ import com.tencent.kuikly.core.nvi.serialization.json.JSONObject
 import com.tencent.kuikly.core.timer.setTimeout
 import com.tencent.kuikly.core.views.*
 import com.tencent.kuikly.core.views.compose.Button
-import om.netonstream.privchat.sdk.kotlin.sample.base.BasePager
-import om.netonstream.privchat.sdk.kotlin.sample.privchat.LoginCoroutineDispatcher
-import om.netonstream.privchat.sdk.kotlin.sample.privchat.PrivchatClientHolder
-import om.netonstream.privchat.sdk.kotlin.sample.privchat.PrivchatPlatform
-import om.netonstream.privchat.sdk.kotlin.sample.runOnKuiklyContext
-import om.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
-import om.netonstream.privchat.sdk.PrivchatClient
-import om.netonstream.privchat.sdk.PrivchatConfig
-import om.netonstream.privchat.sdk.parseServerUrl
+import com.netonstream.privchat.sdk.kotlin.sample.base.BasePager
+import com.netonstream.privchat.sdk.kotlin.sample.privchat.LoginCoroutineDispatcher
+import com.netonstream.privchat.sdk.kotlin.sample.privchat.PrivchatClientHolder
+import com.netonstream.privchat.sdk.kotlin.sample.privchat.PrivchatPlatform
+import com.netonstream.privchat.sdk.kotlin.sample.runOnKuiklyContext
+import com.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
+import com.netonstream.privchat.sdk.PrivchatClient
+import com.netonstream.privchat.sdk.PrivchatConfig
+import com.netonstream.privchat.sdk.parseServerUrl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

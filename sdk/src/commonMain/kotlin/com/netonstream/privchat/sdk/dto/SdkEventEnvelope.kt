@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.dto
+package com.netonstream.privchat.sdk.dto
 
 data class SdkEventEnvelope(
     val sequenceId: ULong,
@@ -44,4 +44,9 @@ data class SdkEventPayload(
     val readerId: ULong? = null,
     val readPts: ULong? = null,
     val deliveredAt: ULong? = null,
+    /** One of "idle" | "downloading" | "paused" | "done" | "failed" (only for media_download_state_changed). */
+    val mediaDownloadStateKind: String? = null,
+    val mediaDownloadBytes: ULong? = null,
+    val mediaDownloadTotal: ULong? = null,
+    val mediaDownloadPath: String? = null,
 )

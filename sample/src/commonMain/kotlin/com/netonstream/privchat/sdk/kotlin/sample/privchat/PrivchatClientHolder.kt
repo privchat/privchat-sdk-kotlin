@@ -1,6 +1,6 @@
-package om.netonstream.privchat.sdk.kotlin.sample.privchat
+package com.netonstream.privchat.sdk.kotlin.sample.privchat
 
-import om.netonstream.privchat.sdk.PrivchatClient
+import com.netonstream.privchat.sdk.PrivchatClient
 
 /**
  * 全局 Privchat 客户端持有者

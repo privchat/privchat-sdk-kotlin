@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk
+package com.netonstream.privchat.sdk
 
 enum class NetworkHint {
     Unknown,
@@ -7,4 +7,3 @@ enum class NetworkHint {
     Cellular,
     Ethernet,
 }
-

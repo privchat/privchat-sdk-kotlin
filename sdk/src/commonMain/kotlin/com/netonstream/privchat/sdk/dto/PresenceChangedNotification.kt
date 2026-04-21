@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.dto
+package com.netonstream.privchat.sdk.dto
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

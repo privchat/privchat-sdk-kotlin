@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.base
+package com.netonstream.privchat.sdk.kotlin.sample.base
 
 import com.tencent.kuikly.core.base.toInt
 import com.tencent.kuikly.core.module.CallbackFn

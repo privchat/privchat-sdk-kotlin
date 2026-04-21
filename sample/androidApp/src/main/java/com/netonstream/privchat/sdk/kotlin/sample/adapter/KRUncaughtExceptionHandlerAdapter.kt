@@ -1,8 +1,8 @@
-package om.netonstream.privchat.sdk.kotlin.sample.adapter
+package com.netonstream.privchat.sdk.kotlin.sample.adapter
 
 import android.util.Log
 import com.tencent.kuikly.core.render.android.adapter.IKRUncaughtExceptionHandlerAdapter
-import om.netonstream.privchat.sdk.kotlin.sample.BuildConfig
+import com.netonstream.privchat.sdk.kotlin.sample.BuildConfig
 
 object KRUncaughtExceptionHandlerAdapter : IKRUncaughtExceptionHandlerAdapter {
 

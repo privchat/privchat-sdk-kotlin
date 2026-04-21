@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample
+package com.netonstream.privchat.sdk.kotlin.sample
 
 /**
  * 在 Kuikly 渲染上下文（context queue）上执行 block。

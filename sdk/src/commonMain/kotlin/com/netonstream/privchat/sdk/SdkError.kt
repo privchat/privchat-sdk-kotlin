@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk
+package com.netonstream.privchat.sdk
 
 /**
  * 统一 SDK 错误模型，符合 [SDK_API_CONTRACT](docs/SDK_API_CONTRACT.md)

@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.dto
+package com.netonstream.privchat.sdk.dto
 
 /**
  * 协议标准内容消息类型，对齐 Rust 侧 `privchat_protocol::message::ContentMessageType`。

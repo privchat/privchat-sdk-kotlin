@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.lang
+package com.netonstream.privchat.sdk.kotlin.sample.lang
 
 import com.tencent.kuikly.core.log.KLog
 import com.tencent.kuikly.core.nvi.serialization.json.JSONObject
@@ -8,13 +8,13 @@ object LangManager {
     const val KEY_PREF_LANGUAGE = "lang"
     const val KEY_PARAM_SYSTEM_LANGUAGE = "sysLang"
     const val LANG_CHANGED_EVENT = "langChanged"
-    
+
     val SUPPORTED_LANGUAGES = mapOf(
         "简体中文" to "zh-Hans",
         "繁體中文" to "zh-Hant",
         "English" to "en"
     )
-    
+
     val SETTING_HINTS = mapOf(
         "zh-Hans" to "正在设置语言...",
         "zh-Hant" to "正在設置語言...",
@@ -65,4 +65,3 @@ object LangManager {
         KLog.d(LANG_MANAGER_TAG, "Language changed to: $lang")
     }
 }
-

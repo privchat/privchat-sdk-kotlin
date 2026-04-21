@@ -129,6 +129,7 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `batchGetPresence`(`userIds`: List<kotlin.ULong>): List<PresenceStatus>
     fun `build`(): kotlin.String
     fun `builder`(): kotlin.String
+    suspend fun `cancelMessageMediaDownload`(`messageId`: kotlin.ULong)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `channelBroadcastCreateRemote`(`payload`: ChannelBroadcastCreateInput): ChannelBroadcastCreateView
     
@@ -173,9 +174,21 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `deleteBlacklistEntry`(`blockedUserId`: kotlin.ULong)
     
+    /**
+     * 本地删除 channel：标记隐藏 + 清空所有关联消息与附件文件。不触达服务端。
+     * 返回 true 表示 channel 原本存在；false 表示 channel 不存在或没有消息（幂等）。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `deleteChannelLocal`(`channelId`: kotlin.ULong): kotlin.Boolean
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `deleteChannelMember`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `memberUid`: kotlin.ULong)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `deleteFriend`(`friendId`: kotlin.ULong): kotlin.Boolean
+    
+    /**
+     * 本地删除消息：删 DB 行 + 清附件目录。不触达服务端。
+     * 返回 true 表示确实删到了行；false 表示消息不存在（幂等）。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `deleteMessageLocal`(`messageId`: kotlin.ULong): kotlin.Boolean
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `disconnect`()
     
@@ -211,6 +224,22 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `fileRequestUploadTokenRemote`(`payload`: FileRequestUploadTokenInput): FileRequestUploadTokenView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `fileUploadCallbackRemote`(`payload`: FileUploadCallbackInput): kotlin.Boolean
+    
+    /**
+     * 把指定本地消息转发到目标频道。
+     *
+     * 内部做两件事：
+     * 1. 克隆源消息的 `content / message_type / mime_type / extra`，用当前登录用户作为 `from_uid`，
+     * 通过 `enqueue_local_message` 创建新本地行并加入出站队列（走正常发送链路）。
+     * 2. 若源消息带附件（`mime_type` 非空），则把源消息目录下的所有文件整体复制到新消息目录，
+     * 并把 `media_downloaded` 置为 true，让 UI 立即看到本地缩略图 / 文件。
+     *
+     * 调用方负责限制不可转发的类型（比如 VOICE / 撤回消息）——SDK 会拒绝撤回消息但不做类型过滤。
+     * 可选的 note 文本由调用方自行追加 `send_message` 调用，本接口不负责。
+     *
+     * 返回新消息的 `message_id`（本地 rowid）。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `forwardMessage`(`srcMessageId`: kotlin.ULong, `targetChannelId`: kotlin.ULong, `targetChannelType`: kotlin.Int): kotlin.ULong
     
         @Throws(PrivchatFfiException::class)fun `generateLocalMessageId`(): kotlin.ULong
     
@@ -255,6 +284,7 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getGroupMembers`(`groupId`: kotlin.ULong, `limit`: kotlin.ULong, `offset`: kotlin.ULong): List<StoredGroupMember>
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getGroups`(`limit`: kotlin.ULong, `offset`: kotlin.ULong): List<StoredGroup>
+    suspend fun `getMediaDownloadState`(`messageId`: kotlin.ULong): MediaDownloadState
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getMessageById`(`messageId`: kotlin.ULong): StoredMessage?
     
@@ -418,6 +448,7 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `paginateBack`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `page`: kotlin.ULong, `pageSize`: kotlin.ULong): List<StoredMessage>
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `paginateForward`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `page`: kotlin.ULong, `pageSize`: kotlin.ULong): List<StoredMessage>
+    suspend fun `pauseMessageMediaDownload`(`messageId`: kotlin.ULong)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `peekOutboundFiles`(`queueIndex`: kotlin.ULong, `limit`: kotlin.ULong): List<QueueMessage>
     
@@ -486,6 +517,7 @@ interface PrivchatClientInterface {
     /**
      * 查找本地缩略图路径：{user_root}/files/{yyyymm}/{message_id}/thumb.webp
      */fun `resolveThumbnailPath`(`uid`: kotlin.ULong, `messageId`: kotlin.Long, `createdAtMs`: kotlin.Long): kotlin.String?
+    suspend fun `resumeMessageMediaDownload`(`messageId`: kotlin.ULong)
     fun `retryConfig`(): RetryConfigView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `retryMessage`(`messageId`: kotlin.ULong): kotlin.ULong
@@ -530,6 +562,12 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setChannelFavourite`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `enabled`: kotlin.Boolean)
     
+    /**
+     * 设置本地 channel 隐藏标记（不触达服务端）。
+     * 隐藏后会话列表不再显示该 channel，收到新消息时自动取消隐藏。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setChannelHiddenLocal`(`channelId`: kotlin.ULong, `hidden`: kotlin.Boolean)
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setChannelLowPriority`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `enabled`: kotlin.Boolean)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setChannelNotificationMode`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `mode`: kotlin.Int)
@@ -547,6 +585,13 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `shutdown`()
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `shutdownBlocking`()
+    
+    /**
+     * Start a streaming Telegram-style download for a message's primary attachment.
+     * Delegates to [`PrivchatSdk::start_message_media_download`] — the core SDK owns
+     * the state machine, so the Rust iced UI and the FFI Kotlin/iOS layer share it.
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `startMessageMediaDownload`(`messageId`: kotlin.ULong, `downloadUrl`: kotlin.String, `mime`: kotlin.String, `filenameHint`: kotlin.String?, `createdAtMs`: kotlin.Long)
     
         @Throws(PrivchatFfiException::class)fun `startSupervisedSync`(`intervalSecs`: kotlin.ULong)
     fun `startTransportDisconnectListener`()
@@ -760,6 +805,10 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
 
     
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `cancelMessageMediaDownload`(`messageId`: kotlin.ULong)
+
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `channelBroadcastCreateRemote`(`payload`: ChannelBroadcastCreateInput) : ChannelBroadcastCreateView
@@ -869,6 +918,15 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `deleteBlacklistEntry`(`blockedUserId`: kotlin.ULong)
 
     
+    /**
+     * 本地删除 channel：标记隐藏 + 清空所有关联消息与附件文件。不触达服务端。
+     * 返回 true 表示 channel 原本存在；false 表示 channel 不存在或没有消息（幂等）。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `deleteChannelLocal`(`channelId`: kotlin.ULong) : kotlin.Boolean
+
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `deleteChannelMember`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `memberUid`: kotlin.ULong)
@@ -877,6 +935,15 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `deleteFriend`(`friendId`: kotlin.ULong) : kotlin.Boolean
+
+    
+    /**
+     * 本地删除消息：删 DB 行 + 清附件目录。不触达服务端。
+     * 返回 true 表示确实删到了行；false 表示消息不存在（幂等）。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `deleteMessageLocal`(`messageId`: kotlin.ULong) : kotlin.Boolean
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -967,6 +1034,25 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `fileUploadCallbackRemote`(`payload`: FileUploadCallbackInput) : kotlin.Boolean
+
+    
+    /**
+     * 把指定本地消息转发到目标频道。
+     *
+     * 内部做两件事：
+     * 1. 克隆源消息的 `content / message_type / mime_type / extra`，用当前登录用户作为 `from_uid`，
+     * 通过 `enqueue_local_message` 创建新本地行并加入出站队列（走正常发送链路）。
+     * 2. 若源消息带附件（`mime_type` 非空），则把源消息目录下的所有文件整体复制到新消息目录，
+     * 并把 `media_downloaded` 置为 true，让 UI 立即看到本地缩略图 / 文件。
+     *
+     * 调用方负责限制不可转发的类型（比如 VOICE / 撤回消息）——SDK 会拒绝撤回消息但不做类型过滤。
+     * 可选的 note 文本由调用方自行追加 `send_message` 调用，本接口不负责。
+     *
+     * 返回新消息的 `message_id`（本地 rowid）。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `forwardMessage`(`srcMessageId`: kotlin.ULong, `targetChannelId`: kotlin.ULong, `targetChannelType`: kotlin.Int) : kotlin.ULong
 
     
     @Throws(PrivchatFfiException::class)override fun `generateLocalMessageId`(): kotlin.ULong
@@ -1069,6 +1155,10 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getGroups`(`limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredGroup>
+
+    
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `getMediaDownloadState`(`messageId`: kotlin.ULong) : MediaDownloadState
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -1484,6 +1574,10 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `paginateForward`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `page`: kotlin.ULong, `pageSize`: kotlin.ULong) : List<StoredMessage>
 
     
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `pauseMessageMediaDownload`(`messageId`: kotlin.ULong)
+
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `peekOutboundFiles`(`queueIndex`: kotlin.ULong, `limit`: kotlin.ULong) : List<QueueMessage>
@@ -1650,6 +1744,10 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      */override fun `resolveThumbnailPath`(`uid`: kotlin.ULong, `messageId`: kotlin.Long, `createdAtMs`: kotlin.Long): kotlin.String?
     
 
+    
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `resumeMessageMediaDownload`(`messageId`: kotlin.ULong)
+
     override fun `retryConfig`(): RetryConfigView
     
 
@@ -1760,6 +1858,15 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `setChannelFavourite`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `enabled`: kotlin.Boolean)
 
     
+    /**
+     * 设置本地 channel 隐藏标记（不触达服务端）。
+     * 隐藏后会话列表不再显示该 channel，收到新消息时自动取消隐藏。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `setChannelHiddenLocal`(`channelId`: kotlin.ULong, `hidden`: kotlin.Boolean)
+
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `setChannelLowPriority`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `enabled`: kotlin.Boolean)
@@ -1803,6 +1910,16 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `shutdownBlocking`()
+
+    
+    /**
+     * Start a streaming Telegram-style download for a message's primary attachment.
+     * Delegates to [`PrivchatSdk::start_message_media_download`] — the core SDK owns
+     * the state machine, so the Rust iced UI and the FFI Kotlin/iOS layer share it.
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `startMessageMediaDownload`(`messageId`: kotlin.ULong, `downloadUrl`: kotlin.String, `mime`: kotlin.String, `filenameHint`: kotlin.String?, `createdAtMs`: kotlin.Long)
 
     
     @Throws(PrivchatFfiException::class)override fun `startSupervisedSync`(`intervalSecs`: kotlin.ULong)
@@ -4440,6 +4557,46 @@ enum class ConnectionState {
 
 
 
+sealed class MediaDownloadState {
+    
+    @kotlinx.serialization.Serializable
+    object Idle : MediaDownloadState() 
+    
+    
+    
+    data class Downloading(
+        val `bytes`: kotlin.ULong  , 
+        val `total`: kotlin.ULong?  = null  ) : MediaDownloadState() {
+        
+    }
+    
+    
+    data class Paused(
+        val `bytes`: kotlin.ULong  , 
+        val `total`: kotlin.ULong?  = null  ) : MediaDownloadState() {
+        
+    }
+    
+    
+    data class Done(
+        val `path`: kotlin.String  ) : MediaDownloadState() {
+        
+    }
+    
+    
+    data class Failed(
+        val `code`: kotlin.UInt  , 
+        val `message`: kotlin.String  ) : MediaDownloadState() {
+        
+    }
+    
+}
+
+
+
+
+
+
 
 enum class MediaProcessOp {
     
@@ -4693,6 +4850,13 @@ sealed class SdkEvent {
         val `channelType`: kotlin.Int  , 
         val `serverMessageId`: kotlin.ULong  , 
         val `deliveredAt`: kotlin.ULong  ) : SdkEvent() {
+        
+    }
+    
+    
+    data class MediaDownloadStateChanged(
+        val `messageId`: kotlin.ULong  , 
+        val `state`: MediaDownloadState  ) : SdkEvent() {
         
     }
     

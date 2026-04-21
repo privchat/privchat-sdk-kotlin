@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.privchat
+package com.netonstream.privchat.sdk.kotlin.sample.privchat
 
 import android.content.Context
 import android.content.Intent
@@ -65,7 +65,7 @@ actual object PrivchatPlatform {
         val appCtx = ctx ?: return false
         return runCatching {
             val intent = Intent().apply {
-                setClassName(appCtx.packageName, "om.netonstream.privchat.sdk.kotlin.sample.KuiklyRenderActivity")
+                setClassName(appCtx.packageName, "com.netonstream.privchat.sdk.kotlin.sample.KuiklyRenderActivity")
                 putExtra("pageName", "MainTabPage")
                 putExtra("pageData", "{}")
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)

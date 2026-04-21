@@ -229,8 +229,8 @@ pages/
 建议放在 `SettingPage` 的按钮事件中调用。
 
 ```kotlin
-import om.netonstream.privchat.sdk.kotlin.sample.privchat.PrivchatClientHolder
-import om.netonstream.privchat.sdk.kotlin.sample.privchat.PrivchatMainDispatcher
+import com.netonstream.privchat.sdk.kotlin.sample.privchat.PrivchatClientHolder
+import com.netonstream.privchat.sdk.kotlin.sample.privchat.PrivchatMainDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -253,8 +253,8 @@ private fun debugListLocalAccounts() {
 ```
 
 ```kotlin
-import om.netonstream.privchat.sdk.kotlin.sample.privchat.PrivchatClientHolder
-import om.netonstream.privchat.sdk.kotlin.sample.privchat.PrivchatMainDispatcher
+import com.netonstream.privchat.sdk.kotlin.sample.privchat.PrivchatClientHolder
+import com.netonstream.privchat.sdk.kotlin.sample.privchat.PrivchatMainDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 

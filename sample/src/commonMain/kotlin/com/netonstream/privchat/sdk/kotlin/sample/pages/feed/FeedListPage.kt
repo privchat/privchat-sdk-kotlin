@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.pages.feed
+package com.netonstream.privchat.sdk.kotlin.sample.pages.feed
 
 import com.tencent.kuikly.core.base.*
 import com.tencent.kuikly.core.directives.vfor
@@ -12,11 +12,11 @@ import com.tencent.kuikly.core.views.RefreshViewState
 import com.tencent.kuikly.core.views.FooterRefreshView
 import com.tencent.kuikly.core.views.FooterRefreshState
 import com.tencent.kuikly.core.views.FooterRefreshEndState
-import om.netonstream.privchat.sdk.kotlin.sample.lang.LangManager
-import om.netonstream.privchat.sdk.kotlin.sample.lang.MultiLingualPager
-import om.netonstream.privchat.sdk.kotlin.sample.model.FeedDataManager
-import om.netonstream.privchat.sdk.kotlin.sample.model.FeedType
-import om.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
+import com.netonstream.privchat.sdk.kotlin.sample.lang.LangManager
+import com.netonstream.privchat.sdk.kotlin.sample.lang.MultiLingualPager
+import com.netonstream.privchat.sdk.kotlin.sample.model.FeedDataManager
+import com.netonstream.privchat.sdk.kotlin.sample.model.FeedType
+import com.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
 import com.tencent.kuikly.core.module.CallbackRef
 import com.tencent.kuikly.core.module.NotifyModule
 
@@ -30,29 +30,29 @@ internal class FeedListPage(
 
     // 数据列表
     private var feeds by observableList<FeedItem>()
-    
+
     // 当前页码
     private var curPage by observable(0)
-    
+
     // 下拉刷新组件引用
     private lateinit var refreshRef: ViewRef<RefreshView>
-    
+
     // 上拉加载更多组件引用
     private lateinit var footerRefreshRef: ViewRef<FooterRefreshView>
-    
+
     // 刷新状态文本
     private var refreshText by observable(LangManager.getCurrentResStrings().pullToRefresh)
-    
+
     // 加载更多状态文本
     private var footerRefreshText by observable(LangManager.getCurrentResStrings().loadMore)
-    
+
     // 是否已加载第一页
     private var didLoadFirstFeeds = false
-    
+
     // 主题
     private var theme by observable(ThemeManager.getTheme())
     private lateinit var themeEventCallbackRef: CallbackRef
-    
+
     override fun created() {
         super.created()
         // 注册主题变化监听
@@ -61,7 +61,7 @@ internal class FeedListPage(
                 theme = ThemeManager.getTheme()
             }
     }
-    
+
     override fun pageWillDestroy() {
         super.pageWillDestroy()
         acquireModule<NotifyModule>(NotifyModule.MODULE_NAME)
@@ -97,7 +97,7 @@ internal class FeedListPage(
             resStrings.topBarTrending, "热门" -> FeedType.TRENDING
             else -> FeedType.RECOMMEND
         }
-        
+
         FeedDataManager.requestFeeds(feedTypeEnum, page) { feedList, error ->
             if (error.isEmpty()) {
                 if (page == 0) {
@@ -117,7 +117,7 @@ internal class FeedListPage(
                 flex(1f)
                 backgroundColor(ctx.theme.colors.background)
             }
-            
+
             // 空状态
             vif({ ctx.feeds.isEmpty() }) {
                 View {
@@ -141,7 +141,7 @@ internal class FeedListPage(
                         flex(1f)
                         firstContentLoadMaxIndex(4) // 首次加载最多4条
                     }
-                    
+
                     // 下拉刷新组件
                     Refresh {
                         ref {
@@ -183,7 +183,7 @@ internal class FeedListPage(
                             }
                         }
                     }
-                    
+
                     // 列表项
                     vfor({ ctx.feeds }) { feed ->
                         FeedItemView {
@@ -279,4 +279,3 @@ internal fun ViewContainer<*, *>.FeedListPage(
 ) {
     addChild(FeedListPage(feedType), init)
 }
-

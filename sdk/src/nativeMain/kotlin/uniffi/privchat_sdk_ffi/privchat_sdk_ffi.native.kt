@@ -783,6 +783,24 @@ get() = useContents { `uniffiFree`/* test  Any? */}
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -839,6 +857,8 @@ internal interface UniffiLib {
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_builder(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_cancel_message_media_download(`ptr`: Pointer?,`messageId`: Long,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_channel_broadcast_create_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_channel_broadcast_list_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
@@ -885,9 +905,13 @@ internal interface UniffiLib {
     ): Byte
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_blacklist_entry(`ptr`: Pointer?,`blockedUserId`: Long,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_channel_local(`ptr`: Pointer?,`channelId`: Long,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_channel_member(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`memberUid`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_friend(`ptr`: Pointer?,`friendId`: Long,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_message_local(`ptr`: Pointer?,`messageId`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_disconnect(`ptr`: Pointer?,
     ): Long
@@ -929,6 +953,8 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_upload_callback_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_forward_message(`ptr`: Pointer?,`srcMessageId`: Long,`targetChannelId`: Long,`targetChannelType`: Int,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_generate_local_message_id(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_all_unread_mention_counts(`ptr`: Pointer?,`userId`: Long,
@@ -968,6 +994,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_group_members(`ptr`: Pointer?,`groupId`: Long,`limit`: Long,`offset`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_groups(`ptr`: Pointer?,`limit`: Long,`offset`: Long,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_media_download_state(`ptr`: Pointer?,`messageId`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_message_by_id(`ptr`: Pointer?,`messageId`: Long,
     ): Long
@@ -1143,6 +1171,8 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_paginate_forward(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`page`: Long,`pageSize`: Long,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_pause_message_media_download(`ptr`: Pointer?,`messageId`: Long,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_peek_outbound_files(`ptr`: Pointer?,`queueIndex`: Long,`limit`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_peek_outbound_messages(`ptr`: Pointer?,`limit`: Long,
@@ -1215,6 +1245,8 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_thumbnail_path(`ptr`: Pointer?,`uid`: Long,`messageId`: Long,`createdAtMs`: Long,uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_resume_message_media_download(`ptr`: Pointer?,`messageId`: Long,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_retry_config(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_retry_message(`ptr`: Pointer?,`messageId`: Long,
@@ -1261,6 +1293,8 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_channel_favourite(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`enabled`: Byte,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_channel_hidden_local(`ptr`: Pointer?,`channelId`: Long,`hidden`: Byte,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_channel_low_priority(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`enabled`: Byte,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_channel_notification_mode(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`mode`: Int,
@@ -1278,6 +1312,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_shutdown(`ptr`: Pointer?,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_shutdown_blocking(`ptr`: Pointer?,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download(`ptr`: Pointer?,`messageId`: Long,`downloadUrl`: RustBufferByValue,`mime`: RustBufferByValue,`filenameHint`: RustBufferByValue,`createdAtMs`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_supervised_sync(`ptr`: Pointer?,`intervalSecs`: Long,uniffiCallStatus: UniffiRustCallStatus, 
     ): Unit
@@ -1545,6 +1581,8 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_builder(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_cancel_message_media_download(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_channel_broadcast_create_remote(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_channel_broadcast_list_remote(
@@ -1591,9 +1629,13 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_delete_blacklist_entry(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_delete_channel_local(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_delete_channel_member(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_delete_friend(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_delete_message_local(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_disconnect(
     ): Short
@@ -1635,6 +1677,8 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_upload_callback_remote(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_forward_message(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_generate_local_message_id(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_all_unread_mention_counts(
@@ -1674,6 +1718,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_group_members(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_groups(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_media_download_state(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_message_by_id(
     ): Short
@@ -1849,6 +1895,8 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_paginate_forward(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_pause_message_media_download(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_peek_outbound_files(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_peek_outbound_messages(
@@ -1921,6 +1969,8 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_thumbnail_path(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resume_message_media_download(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_retry_config(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_retry_message(
@@ -1967,6 +2017,8 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_channel_favourite(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_channel_hidden_local(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_channel_low_priority(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_channel_notification_mode(
@@ -1984,6 +2036,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_shutdown(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_shutdown_blocking(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_message_media_download(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_supervised_sync(
     ): Short
@@ -2183,6 +2237,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): RustBufferByValue
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_builder(`ptr`?.inner,uniffiCallStatus.reinterpret(), )as RustBufferByValue
     
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_cancel_message_media_download(`ptr`: Pointer?,`messageId`: Long,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_cancel_message_media_download(`ptr`?.inner,`messageId`,)as Long
+    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_channel_broadcast_create_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_channel_broadcast_create_remote(`ptr`?.inner,`payload` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
@@ -2275,6 +2333,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_blacklist_entry(`ptr`?.inner,`blockedUserId`,)as Long
     
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_channel_local(`ptr`: Pointer?,`channelId`: Long,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_channel_local(`ptr`?.inner,`channelId`,)as Long
+    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_channel_member(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`memberUid`: Long,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_channel_member(`ptr`?.inner,`channelId`,`channelType`,`memberUid`,)as Long
@@ -2282,6 +2344,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_friend(`ptr`: Pointer?,`friendId`: Long,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_friend(`ptr`?.inner,`friendId`,)as Long
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_message_local(`ptr`: Pointer?,`messageId`: Long,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_message_local(`ptr`?.inner,`messageId`,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_disconnect(`ptr`: Pointer?,
     ): Long
@@ -2363,6 +2429,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_upload_callback_remote(`ptr`?.inner,`payload` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
     
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_forward_message(`ptr`: Pointer?,`srcMessageId`: Long,`targetChannelId`: Long,`targetChannelType`: Int,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_forward_message(`ptr`?.inner,`srcMessageId`,`targetChannelId`,`targetChannelType`,)as Long
+    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_generate_local_message_id(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_generate_local_message_id(`ptr`?.inner,uniffiCallStatus.reinterpret(), )as Long
@@ -2442,6 +2512,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_groups(`ptr`: Pointer?,`limit`: Long,`offset`: Long,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_groups(`ptr`?.inner,`limit`,`offset`,)as Long
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_media_download_state(`ptr`: Pointer?,`messageId`: Long,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_media_download_state(`ptr`?.inner,`messageId`,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_message_by_id(`ptr`: Pointer?,`messageId`: Long,
     ): Long
@@ -2791,6 +2865,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_paginate_forward(`ptr`?.inner,`channelId`,`channelType`,`page`,`pageSize`,)as Long
     
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_pause_message_media_download(`ptr`: Pointer?,`messageId`: Long,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_pause_message_media_download(`ptr`?.inner,`messageId`,)as Long
+    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_peek_outbound_files(`ptr`: Pointer?,`queueIndex`: Long,`limit`: Long,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_peek_outbound_files(`ptr`?.inner,`queueIndex`,`limit`,)as Long
@@ -2935,6 +3013,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): RustBufferByValue
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_thumbnail_path(`ptr`?.inner,`uid`,`messageId`,`createdAtMs`,uniffiCallStatus.reinterpret(), )as RustBufferByValue
     
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_resume_message_media_download(`ptr`: Pointer?,`messageId`: Long,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_resume_message_media_download(`ptr`?.inner,`messageId`,)as Long
+    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_retry_config(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_retry_config(`ptr`?.inner,uniffiCallStatus.reinterpret(), )as RustBufferByValue
@@ -3027,6 +3109,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_channel_favourite(`ptr`?.inner,`channelId`,`channelType`,`enabled`,)as Long
     
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_channel_hidden_local(`ptr`: Pointer?,`channelId`: Long,`hidden`: Byte,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_channel_hidden_local(`ptr`?.inner,`channelId`,`hidden`,)as Long
+    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_channel_low_priority(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`enabled`: Byte,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_channel_low_priority(`ptr`?.inner,`channelId`,`channelType`,`enabled`,)as Long
@@ -3062,6 +3148,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_shutdown_blocking(`ptr`: Pointer?,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_shutdown_blocking(`ptr`?.inner,)as Long
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download(`ptr`: Pointer?,`messageId`: Long,`downloadUrl`: RustBufferByValue,`mime`: RustBufferByValue,`filenameHint`: RustBufferByValue,`createdAtMs`: Long,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download(`ptr`?.inner,`messageId`,`downloadUrl` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`mime` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`filenameHint` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`createdAtMs`,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_supervised_sync(`ptr`: Pointer?,`intervalSecs`: Long,uniffiCallStatus: UniffiRustCallStatus, 
     ): Unit
@@ -3595,6 +3685,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_builder()as Short
     
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_cancel_message_media_download(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_cancel_message_media_download()as Short
+    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_channel_broadcast_create_remote(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_channel_broadcast_create_remote()as Short
@@ -3687,6 +3781,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_delete_blacklist_entry()as Short
     
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_delete_channel_local(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_delete_channel_local()as Short
+    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_delete_channel_member(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_delete_channel_member()as Short
@@ -3694,6 +3792,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_delete_friend(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_delete_friend()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_delete_message_local(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_delete_message_local()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_disconnect(
     ): Short
@@ -3775,6 +3877,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_upload_callback_remote()as Short
     
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_forward_message(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_forward_message()as Short
+    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_generate_local_message_id(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_generate_local_message_id()as Short
@@ -3854,6 +3960,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_groups(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_groups()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_media_download_state(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_media_download_state()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_message_by_id(
     ): Short
@@ -4203,6 +4313,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_paginate_forward()as Short
     
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_pause_message_media_download(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_pause_message_media_download()as Short
+    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_peek_outbound_files(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_peek_outbound_files()as Short
@@ -4347,6 +4461,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_thumbnail_path()as Short
     
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resume_message_media_download(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resume_message_media_download()as Short
+    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_retry_config(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_retry_config()as Short
@@ -4439,6 +4557,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_channel_favourite()as Short
     
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_channel_hidden_local(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_channel_hidden_local()as Short
+    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_channel_low_priority(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_channel_low_priority()as Short
@@ -4474,6 +4596,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_shutdown_blocking(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_shutdown_blocking()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_message_media_download(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_message_media_download()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_supervised_sync(
     ): Short
@@ -5401,6 +5527,28 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     
 
     
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `cancelMessageMediaDownload`(`messageId`: kotlin.ULong) {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_cancel_message_media_download(
+                thisPtr,
+                FfiConverterULong.lower(`messageId`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
+        // lift function
+        { Unit },
+        
+        // Error FFI converter
+        UniffiNullRustCallStatusErrorHandler,
+    )
+    }
+
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `channelBroadcastCreateRemote`(`payload`: ChannelBroadcastCreateInput) : ChannelBroadcastCreateView {
@@ -5883,6 +6031,32 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     
+    /**
+     * 本地删除 channel：标记隐藏 + 清空所有关联消息与附件文件。不触达服务端。
+     * 返回 true 表示 channel 原本存在；false 表示 channel 不存在或没有消息（幂等）。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `deleteChannelLocal`(`channelId`: kotlin.ULong) : kotlin.Boolean {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_channel_local(
+                thisPtr,
+                FfiConverterULong.lower(`channelId`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_i8(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_i8(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_i8(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_i8(future) },
+        // lift function
+        { FfiConverterBoolean.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `deleteChannelMember`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `memberUid`: kotlin.ULong) {
@@ -5914,6 +6088,32 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_friend(
                 thisPtr,
                 FfiConverterULong.lower(`friendId`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_i8(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_i8(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_i8(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_i8(future) },
+        // lift function
+        { FfiConverterBoolean.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * 本地删除消息：删 DB 行 + 清附件目录。不触达服务端。
+     * 返回 true 表示确实删到了行；false 表示消息不存在（幂等）。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `deleteMessageLocal`(`messageId`: kotlin.ULong) : kotlin.Boolean {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_message_local(
+                thisPtr,
+                FfiConverterULong.lower(`messageId`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_i8(future, callback, continuation)!! },
@@ -6313,6 +6513,42 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_i8(future) },
         // lift function
         { FfiConverterBoolean.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * 把指定本地消息转发到目标频道。
+     *
+     * 内部做两件事：
+     * 1. 克隆源消息的 `content / message_type / mime_type / extra`，用当前登录用户作为 `from_uid`，
+     * 通过 `enqueue_local_message` 创建新本地行并加入出站队列（走正常发送链路）。
+     * 2. 若源消息带附件（`mime_type` 非空），则把源消息目录下的所有文件整体复制到新消息目录，
+     * 并把 `media_downloaded` 置为 true，让 UI 立即看到本地缩略图 / 文件。
+     *
+     * 调用方负责限制不可转发的类型（比如 VOICE / 撤回消息）——SDK 会拒绝撤回消息但不做类型过滤。
+     * 可选的 note 文本由调用方自行追加 `send_message` 调用，本接口不负责。
+     *
+     * 返回新消息的 `message_id`（本地 rowid）。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `forwardMessage`(`srcMessageId`: kotlin.ULong, `targetChannelId`: kotlin.ULong, `targetChannelType`: kotlin.Int) : kotlin.ULong {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_forward_message(
+                thisPtr,
+                FfiConverterULong.lower(`srcMessageId`),FfiConverterULong.lower(`targetChannelId`),FfiConverterInt.lower(`targetChannelType`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_u64(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_u64(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_u64(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_u64(future) },
+        // lift function
+        { FfiConverterULong.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -6741,6 +6977,27 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { FfiConverterSequenceTypeStoredGroup.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `getMediaDownloadState`(`messageId`: kotlin.ULong) : MediaDownloadState {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_media_download_state(
+                thisPtr,
+                FfiConverterULong.lower(`messageId`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterTypeMediaDownloadState.lift(it!!) },
+        // Error FFI converter
+        UniffiNullRustCallStatusErrorHandler,
     )
     }
 
@@ -8548,6 +8805,28 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `pauseMessageMediaDownload`(`messageId`: kotlin.ULong) {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_pause_message_media_download(
+                thisPtr,
+                FfiConverterULong.lower(`messageId`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
+        // lift function
+        { Unit },
+        
+        // Error FFI converter
+        UniffiNullRustCallStatusErrorHandler,
+    )
+    }
+
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `peekOutboundFiles`(`queueIndex`: kotlin.ULong, `limit`: kotlin.ULong) : List<QueueMessage> {
@@ -9256,6 +9535,28 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     
 
+    
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `resumeMessageMediaDownload`(`messageId`: kotlin.ULong) {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_resume_message_media_download(
+                thisPtr,
+                FfiConverterULong.lower(`messageId`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
+        // lift function
+        { Unit },
+        
+        // Error FFI converter
+        UniffiNullRustCallStatusErrorHandler,
+    )
+    }
+
     actual override fun `retryConfig`(): RetryConfigView {
             return FfiConverterTypeRetryConfigView.lift(
     callWithPointer {
@@ -9737,6 +10038,33 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     
+    /**
+     * 设置本地 channel 隐藏标记（不触达服务端）。
+     * 隐藏后会话列表不再显示该 channel，收到新消息时自动取消隐藏。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `setChannelHiddenLocal`(`channelId`: kotlin.ULong, `hidden`: kotlin.Boolean) {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_channel_hidden_local(
+                thisPtr,
+                FfiConverterULong.lower(`channelId`),FfiConverterBoolean.lower(`hidden`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
+        // lift function
+        { Unit },
+        
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `setChannelLowPriority`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `enabled`: kotlin.Boolean) {
@@ -9929,6 +10257,34 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_shutdown_blocking(
                 thisPtr,
                 
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
+        // lift function
+        { Unit },
+        
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * Start a streaming Telegram-style download for a message's primary attachment.
+     * Delegates to [`PrivchatSdk::start_message_media_download`] — the core SDK owns
+     * the state machine, so the Rust iced UI and the FFI Kotlin/iOS layer share it.
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `startMessageMediaDownload`(`messageId`: kotlin.ULong, `downloadUrl`: kotlin.String, `mime`: kotlin.String, `filenameHint`: kotlin.String?, `createdAtMs`: kotlin.Long) {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download(
+                thisPtr,
+                FfiConverterULong.lower(`messageId`),FfiConverterString.lower(`downloadUrl`),FfiConverterString.lower(`mime`),FfiConverterOptionalString.lower(`filenameHint`),FfiConverterLong.lower(`createdAtMs`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
@@ -15181,6 +15537,108 @@ object FfiConverterTypeConnectionState: FfiConverterRustBuffer<ConnectionState> 
 
 
 
+object FfiConverterTypeMediaDownloadState : FfiConverterRustBuffer<MediaDownloadState>{
+    override fun read(buf: ByteBuffer): MediaDownloadState {
+        return when(buf.getInt()) {
+            1 -> MediaDownloadState.Idle
+            2 -> MediaDownloadState.Downloading(
+                FfiConverterULong.read(buf),
+                FfiConverterOptionalULong.read(buf),
+                )
+            3 -> MediaDownloadState.Paused(
+                FfiConverterULong.read(buf),
+                FfiConverterOptionalULong.read(buf),
+                )
+            4 -> MediaDownloadState.Done(
+                FfiConverterString.read(buf),
+                )
+            5 -> MediaDownloadState.Failed(
+                FfiConverterUInt.read(buf),
+                FfiConverterString.read(buf),
+                )
+            else -> throw RuntimeException("invalid enum value, something is very wrong!!")
+        }
+    }
+
+    override fun allocationSize(value: MediaDownloadState) = when(value) {
+        is MediaDownloadState.Idle -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+            )
+        }
+        is MediaDownloadState.Downloading -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterULong.allocationSize(value.`bytes`)
+                + FfiConverterOptionalULong.allocationSize(value.`total`)
+            )
+        }
+        is MediaDownloadState.Paused -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterULong.allocationSize(value.`bytes`)
+                + FfiConverterOptionalULong.allocationSize(value.`total`)
+            )
+        }
+        is MediaDownloadState.Done -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterString.allocationSize(value.`path`)
+            )
+        }
+        is MediaDownloadState.Failed -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterUInt.allocationSize(value.`code`)
+                + FfiConverterString.allocationSize(value.`message`)
+            )
+        }
+    }
+
+    override fun write(value: MediaDownloadState, buf: ByteBuffer) {
+        when(value) {
+            is MediaDownloadState.Idle -> {
+                buf.putInt(1)
+                Unit
+            }
+            is MediaDownloadState.Downloading -> {
+                buf.putInt(2)
+                FfiConverterULong.write(value.`bytes`, buf)
+                FfiConverterOptionalULong.write(value.`total`, buf)
+                Unit
+            }
+            is MediaDownloadState.Paused -> {
+                buf.putInt(3)
+                FfiConverterULong.write(value.`bytes`, buf)
+                FfiConverterOptionalULong.write(value.`total`, buf)
+                Unit
+            }
+            is MediaDownloadState.Done -> {
+                buf.putInt(4)
+                FfiConverterString.write(value.`path`, buf)
+                Unit
+            }
+            is MediaDownloadState.Failed -> {
+                buf.putInt(5)
+                FfiConverterUInt.write(value.`code`, buf)
+                FfiConverterString.write(value.`message`, buf)
+                Unit
+            }
+        }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }
+    }
+}
+
+
+
+
+
+
+
 object FfiConverterTypeMediaProcessOp: FfiConverterRustBuffer<MediaProcessOp> {
     override fun read(buf: ByteBuffer) = try {
         MediaProcessOp.values()[buf.getInt() - 1]
@@ -15419,8 +15877,12 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            22 -> SdkEvent.ShutdownStarted
-            23 -> SdkEvent.ShutdownCompleted
+            22 -> SdkEvent.MediaDownloadStateChanged(
+                FfiConverterULong.read(buf),
+                FfiConverterTypeMediaDownloadState.read(buf),
+                )
+            23 -> SdkEvent.ShutdownStarted
+            24 -> SdkEvent.ShutdownCompleted
             else -> throw RuntimeException("invalid enum value, something is very wrong!!")
         }
     }
@@ -15622,6 +16084,14 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 + FfiConverterULong.allocationSize(value.`deliveredAt`)
             )
         }
+        is SdkEvent.MediaDownloadStateChanged -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterULong.allocationSize(value.`messageId`)
+                + FfiConverterTypeMediaDownloadState.allocationSize(value.`state`)
+            )
+        }
         is SdkEvent.ShutdownStarted -> {
             // Add the size for the Int that specifies the variant plus the size needed for all fields
             (
@@ -15792,12 +16262,18 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterULong.write(value.`deliveredAt`, buf)
                 Unit
             }
-            is SdkEvent.ShutdownStarted -> {
+            is SdkEvent.MediaDownloadStateChanged -> {
                 buf.putInt(22)
+                FfiConverterULong.write(value.`messageId`, buf)
+                FfiConverterTypeMediaDownloadState.write(value.`state`, buf)
+                Unit
+            }
+            is SdkEvent.ShutdownStarted -> {
+                buf.putInt(23)
                 Unit
             }
             is SdkEvent.ShutdownCompleted -> {
-                buf.putInt(23)
+                buf.putInt(24)
                 Unit
             }
         }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }

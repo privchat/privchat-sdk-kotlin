@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.pages.setting
+package com.netonstream.privchat.sdk.kotlin.sample.pages.setting
 
 import com.tencent.kuikly.core.annotations.Page
 import com.tencent.kuikly.core.base.*
@@ -12,9 +12,9 @@ import com.tencent.kuikly.core.nvi.serialization.json.JSONObject
 import com.tencent.kuikly.core.reactive.handler.observable
 import com.tencent.kuikly.core.timer.setTimeout
 import com.tencent.kuikly.core.views.*
-import om.netonstream.privchat.sdk.kotlin.sample.lang.LangManager
-import om.netonstream.privchat.sdk.kotlin.sample.lang.MultiLingualPager
-import om.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
+import com.netonstream.privchat.sdk.kotlin.sample.lang.LangManager
+import com.netonstream.privchat.sdk.kotlin.sample.lang.MultiLingualPager
+import com.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
 
 /**
  * 设置页面
@@ -48,7 +48,7 @@ internal class SettingPage : MultiLingualPager() {
         val savedLang = spModule.getString(LangManager.KEY_PREF_LANGUAGE)
         val currentLang = savedLang.takeUnless { it.isEmpty() } ?: LangManager.getCurrentLanguage()
         lang = currentLang
-        
+
         // 调试：打印语言列表
         com.tencent.kuikly.core.log.KLog.d("SettingPage", "SUPPORTED_LANGUAGES size: ${LangManager.SUPPORTED_LANGUAGES.size}")
         LangManager.SUPPORTED_LANGUAGES.forEach { (name, code) ->
@@ -59,7 +59,7 @@ internal class SettingPage : MultiLingualPager() {
         themeEventCallbackRef = notifyModule.addNotify(ThemeManager.SKIN_CHANGED_EVENT) { _ ->
             theme = ThemeManager.getTheme()
         }
-        
+
         // 注册语言变化监听
         langEventCallbackRef = notifyModule.addNotify(LangManager.LANG_CHANGED_EVENT) { _ ->
             lang = LangManager.getCurrentLanguage()
@@ -146,7 +146,7 @@ internal class SettingPage : MultiLingualPager() {
                     backgroundColor(ctx.theme.colors.feedBackground)
                     marginTop(12f)
                 }
-                
+
                 // 标题
                 Text {
                     attr {
@@ -222,7 +222,7 @@ internal class SettingPage : MultiLingualPager() {
                     backgroundColor(ctx.theme.colors.feedBackground)
                     marginTop(12f)
                 }
-                
+
                 // 标题
                 Text {
                     attr {
@@ -277,13 +277,13 @@ internal class SettingPage : MultiLingualPager() {
                                         // 显示加载提示
                                         ctx.settingLangHint = LangManager.SETTING_HINTS[langCode] ?: "Setting..."
                                         ctx.showModal = true
-                                        
+
                                         // 切换语言
                                         LangManager.changeLanguage(langCode)
-                                        
+
                                         // 持久化保存
                                         ctx.spModule.setString(LangManager.KEY_PREF_LANGUAGE, langCode)
-                                        
+
                                         // 延迟更新 UI（给用户一个视觉反馈）
                                         setTimeout(500) {
                                             // 更新当前页面的语言状态
@@ -367,7 +367,7 @@ internal class SettingPage : MultiLingualPager() {
                     backgroundColor(ctx.theme.colors.feedBackground)
                     marginTop(12f)
                 }
-                
+
                 // 标题
                 Text {
                     attr {
@@ -378,7 +378,7 @@ internal class SettingPage : MultiLingualPager() {
                         color(ctx.theme.colors.feedContentText)
                     }
                 }
-                
+
                 // 直播测试入口
                 View {
                     attr {
@@ -395,7 +395,7 @@ internal class SettingPage : MultiLingualPager() {
                                 .openPage("LiveStreamTestPage", com.tencent.kuikly.core.nvi.serialization.json.JSONObject())
                         }
                     }
-                    
+
                     Text {
                         attr {
                             text("📹 直播测试")
@@ -403,7 +403,7 @@ internal class SettingPage : MultiLingualPager() {
                             color(ctx.theme.colors.feedContentText)
                         }
                     }
-                    
+
                     View {
                         attr {
                             absolutePosition(right = 16f, top = 0f, bottom = 0f)
@@ -419,7 +419,7 @@ internal class SettingPage : MultiLingualPager() {
                         }
                     }
                 }
-                
+
                 // 分割线
                 View {
                     attr {
@@ -439,7 +439,7 @@ internal class SettingPage : MultiLingualPager() {
                 flex(1f)
                 backgroundColor(ctx.theme.colors.background)
             }
-            
+
             // 顶部导航栏
             ctx.topNavBar().invoke(this)
 
@@ -450,15 +450,15 @@ internal class SettingPage : MultiLingualPager() {
                     flexDirectionColumn()
                     backgroundColor(ctx.theme.colors.background)
                 }
-                
+
                 View {
                     ctx.themeChooseView().invoke(this)
                 }
-                
+
                 View {
                     ctx.langChooseView().invoke(this)
                 }
-                
+
                 View {
                     ctx.developerOptionsView().invoke(this)
                 }
@@ -469,4 +469,3 @@ internal class SettingPage : MultiLingualPager() {
         }
     }
 }
-

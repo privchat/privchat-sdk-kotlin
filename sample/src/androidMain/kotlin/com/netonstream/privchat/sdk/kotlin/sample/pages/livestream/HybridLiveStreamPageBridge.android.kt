@@ -1,10 +1,10 @@
-package om.netonstream.privchat.sdk.kotlin.sample.pages.livestream
+package com.netonstream.privchat.sdk.kotlin.sample.pages.livestream
 
 import com.tencent.kuikly.core.render.android.scheduler.KuiklyRenderCoreContextScheduler
 
 /**
  * Android 平台的 UI 更新调度实现
- * 
+ *
  * 使用 KuiklyRenderCoreContextScheduler 确保在正确的线程上更新 UI
  */
 actual fun platformScheduleUIUpdate(action: () -> Unit) {

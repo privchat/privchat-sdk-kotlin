@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample
+package com.netonstream.privchat.sdk.kotlin.sample
 
 import com.tencent.kuikly.core.annotations.Page
 import com.tencent.kuikly.core.base.*
@@ -10,8 +10,8 @@ import com.tencent.kuikly.core.utils.urlParams
 import com.tencent.kuikly.core.views.*
 import com.tencent.kuikly.core.views.compose.Button
 import com.tencent.kuikly.core.reactive.handler.*
-import om.netonstream.privchat.sdk.kotlin.sample.base.BasePager
-import om.netonstream.privchat.sdk.kotlin.sample.base.bridgeModule
+import com.netonstream.privchat.sdk.kotlin.sample.base.BasePager
+import com.netonstream.privchat.sdk.kotlin.sample.base.bridgeModule
 
 @Page("router", supportInLocal = true)
 internal class RouterPage : BasePager() {

@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.util
+package com.netonstream.privchat.sdk.kotlin.sample.util
 
 /**
  * 会话列表时间格式化

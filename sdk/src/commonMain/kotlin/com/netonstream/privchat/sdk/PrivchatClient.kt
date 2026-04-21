@@ -1,6 +1,6 @@
-package om.netonstream.privchat.sdk
+package com.netonstream.privchat.sdk
 
-import om.netonstream.privchat.sdk.dto.*
+import com.netonstream.privchat.sdk.dto.*
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -51,6 +51,14 @@ expect class PrivchatClient private constructor() {
     suspend fun markAsRead(channelId: ULong, messageId: ULong): Result<Unit>
     suspend fun markFullyReadAt(channelId: ULong, messageId: ULong): Result<Unit>
     suspend fun revokeMessage(messageId: ULong): Result<Unit>
+    /** 本地删除消息：删 DB + 清附件目录，不触达服务端。返回 true 表示实际删除，false 表示消息不存在。 */
+    suspend fun deleteMessageLocal(messageId: ULong): Result<Boolean>
+    /**
+     * 转发消息到目标频道。SDK 内部克隆源消息字段 + 复制附件文件到新消息目录，
+     * 然后走正常出站队列发送。调用方负责过滤不可转发的消息类型（如 VOICE）。
+     * 返回新消息的本地 messageId。
+     */
+    suspend fun forwardMessage(srcMessageId: ULong, targetChannelId: ULong, targetChannelType: Int): Result<ULong>
     suspend fun editMessage(messageId: ULong, newContent: String): Result<Unit>
     suspend fun addReaction(messageId: ULong, emoji: String): Result<Unit>
     suspend fun removeReaction(messageId: ULong, emoji: String): Result<Unit>
@@ -95,6 +103,10 @@ expect class PrivchatClient private constructor() {
     suspend fun markChannelRead(channelId: ULong, channelType: Int): Result<Unit>
     suspend fun pinChannel(channelId: ULong, pin: Boolean): Result<Boolean>
     suspend fun hideChannel(channelId: ULong): Result<Boolean>
+    /** 本地隐藏 channel（不触达服务端）。收到新消息时会自动取消隐藏。 */
+    suspend fun setChannelHiddenLocal(channelId: ULong, hidden: Boolean): Result<Unit>
+    /** 本地删除 channel：隐藏 + 清空所有消息与附件。不触达服务端。返回 true 表示实际删除到行。 */
+    suspend fun deleteChannelLocal(channelId: ULong): Result<Boolean>
     suspend fun muteChannel(channelId: ULong, muted: Boolean): Result<Boolean>
     suspend fun channelUnreadStats(channelId: ULong): Result<UnreadStats>
     suspend fun ownLastRead(channelId: ULong): Result<LastReadPosition>
@@ -141,6 +153,16 @@ expect class PrivchatClient private constructor() {
     suspend fun sendVoiceFromPath(channelId: ULong, path: String, durationMs: Long, options: SendMessageOptions?, progress: ProgressObserver?): Result<Pair<ULong, AttachmentInfo>>
     suspend fun downloadAttachmentToCache(fileId: String, fileUrl: String, progress: ProgressObserver?): Result<String>
     suspend fun downloadAttachmentToPath(fileUrl: String, outputPath: String, progress: ProgressObserver?): Result<Unit>
+    suspend fun updateMediaDownloaded(messageId: ULong, downloaded: Boolean): Result<Unit>
+
+    // ========== Media Download (Telegram-style: stream + Range resume + pause/cancel) ==========
+    /** Start (or no-op if already in-flight) a streaming download. Emits MediaDownloadStateChanged events. */
+    suspend fun startMessageMediaDownload(messageId: ULong, downloadUrl: String, mime: String, filenameHint: String?, createdAtMs: Long): Result<Unit>
+    suspend fun pauseMessageMediaDownload(messageId: ULong): Result<Unit>
+    suspend fun resumeMessageMediaDownload(messageId: ULong): Result<Unit>
+    /** Abort in-flight download. Keeps the `.part` file so a later start() can resume. */
+    suspend fun cancelMessageMediaDownload(messageId: ULong): Result<Unit>
+    suspend fun getMediaDownloadState(messageId: ULong): Result<MediaDownloadState>
 
     fun setVideoProcessHook(hook: VideoProcessHook?)
     fun removeVideoProcessHook()

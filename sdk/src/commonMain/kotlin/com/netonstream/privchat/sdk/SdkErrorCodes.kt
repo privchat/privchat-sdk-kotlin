@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk
+package com.netonstream.privchat.sdk
 
 object SdkErrorCodes {
     const val DOMAIN_MASK: UInt = 0xFF000000u
@@ -26,4 +26,3 @@ object SdkErrorCodes {
 
     fun domain(code: UInt): UInt = (code and DOMAIN_MASK) shr DOMAIN_SHIFT
 }
-

@@ -82,7 +82,7 @@ kotlin {
     }
 }
 
-group = "om.netonstream.privchat.sdk.kotlin.sample"
+group = "com.netonstream.privchat.sdk.kotlin.sample"
 version = System.getenv("kuiklyBizVersion") ?: "1.0.0"
 
 publishing {
@@ -111,7 +111,7 @@ dependencies {
 }
 
 android {
-    namespace = "om.netonstream.privchat.sdk.kotlin.sample.shared"
+    namespace = "com.netonstream.privchat.sdk.kotlin.sample.shared"
     compileSdk = 34
     defaultConfig {
         minSdk = 21

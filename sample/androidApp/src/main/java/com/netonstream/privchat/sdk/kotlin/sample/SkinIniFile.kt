@@ -1,8 +1,8 @@
-package om.netonstream.privchat.sdk.kotlin.sample
+package com.netonstream.privchat.sdk.kotlin.sample
 
 import android.content.Context
 import android.util.Log
-import om.netonstream.privchat.sdk.kotlin.sample.adapter.execOnSubThread
+import com.netonstream.privchat.sdk.kotlin.sample.adapter.execOnSubThread
 import java.io.IOException
 import java.util.regex.Pattern
 

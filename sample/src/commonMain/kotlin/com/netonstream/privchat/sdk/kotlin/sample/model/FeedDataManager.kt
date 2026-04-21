@@ -1,10 +1,10 @@
-package om.netonstream.privchat.sdk.kotlin.sample.model
+package com.netonstream.privchat.sdk.kotlin.sample.model
 
 import com.tencent.kuikly.core.manager.PagerManager
 import com.tencent.kuikly.core.nvi.serialization.json.JSONObject
 import com.tencent.kuikly.core.timer.setTimeout
-import om.netonstream.privchat.sdk.kotlin.sample.base.BridgeModule
-import om.netonstream.privchat.sdk.kotlin.sample.pages.feed.FeedItem
+import com.netonstream.privchat.sdk.kotlin.sample.base.BridgeModule
+import com.netonstream.privchat.sdk.kotlin.sample.pages.feed.FeedItem
 
 enum class FeedType(val value: String) {
     FOLLOW("follow"),      // 关注
@@ -31,13 +31,13 @@ internal object FeedDataManager {
         callback: (List<FeedItem>, String) -> Unit
     ) {
         val key = genKey(type, page)
-        
+
         // 已经在请求中了
         if (callbackMap.containsKey(key)) {
             callback(listOf(), "in request")
             return
         }
-        
+
         // 模拟最多3页数据
         if (page >= 3) {
             callback(listOf(), "")
@@ -45,7 +45,7 @@ internal object FeedDataManager {
         }
 
         callbackMap[key] = callback
-        
+
         // 使用 BridgeModule 读取 assets 中的 JSON 文件
         // 如果没有 JSON 文件，则使用模拟数据
         val pathName = getFileName(type, page)
@@ -155,4 +155,3 @@ internal object FeedDataManager {
     }
 
 }
-

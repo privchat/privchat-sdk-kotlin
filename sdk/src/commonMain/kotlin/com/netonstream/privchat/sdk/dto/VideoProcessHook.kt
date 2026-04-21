@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.dto
+package com.netonstream.privchat.sdk.dto
 
 /** 视频处理钩子（Contract v1.1） */
 interface VideoProcessHook {

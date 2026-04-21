@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.dto
+package com.netonstream.privchat.sdk.dto
 
 /** 反应芯片 - 与 SDK_API_CONTRACT 对齐 */
 data class ReactionChip(

@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.pages.home
+package com.netonstream.privchat.sdk.kotlin.sample.pages.home
 
 import com.tencent.kuikly.core.base.*
 import com.tencent.kuikly.core.module.CallbackRef
@@ -11,8 +11,8 @@ import com.tencent.kuikly.core.views.*
 import com.tencent.kuikly.core.views.PageListView
 import com.tencent.kuikly.core.views.ScrollParams
 import com.tencent.kuikly.core.views.ios.SegmentedControlIOS
-import om.netonstream.privchat.sdk.kotlin.sample.pages.feed.FeedListPage
-import om.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
+import com.netonstream.privchat.sdk.kotlin.sample.pages.feed.FeedListPage
+import com.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
 
 /**
  * 首页 - 实现顶部 Tabs 和左右滑动切换
@@ -22,19 +22,19 @@ internal class HomePage : ComposeView<HomePageAttr, HomePageEvent>() {
 
     // 当前选中的 tab 索引
     private var curIndex: Int by observable(0)
-    
+
     // Tab 标题列表
     private var titles by observableList<String>()
-    
+
     // PageList 的滚动参数，用于与 Tabs 联动
     private var scrollParams: ScrollParams? by observable(null)
-    
+
     // PageList 引用
     private var pageListRef: ViewRef<PageListView<*, *>>? = null
-    
+
     // Tab 头部宽度
     private var tabHeaderWidth by observable(300f)
-    
+
     // 主题
     private var theme by observable(ThemeManager.getTheme())
     private lateinit var themeEventCallbackRef: CallbackRef
@@ -43,14 +43,14 @@ internal class HomePage : ComposeView<HomePageAttr, HomePageEvent>() {
         super.created()
         // 初始化 tab 标题
         titles.addAll(listOf("关注", "推荐", "热门"))
-        
+
         // 注册主题变化监听
         themeEventCallbackRef = acquireModule<NotifyModule>(NotifyModule.MODULE_NAME)
             .addNotify(ThemeManager.SKIN_CHANGED_EVENT) { _ ->
                 theme = ThemeManager.getTheme()
             }
     }
-    
+
     override fun viewWillUnload() {
         super.viewWillUnload()
         acquireModule<NotifyModule>(NotifyModule.MODULE_NAME)
@@ -69,7 +69,7 @@ internal class HomePage : ComposeView<HomePageAttr, HomePageEvent>() {
             attr {
                 backgroundColor(ctx.theme.colors.topBarBackground)
             }
-            
+
             // iOS 平台临时禁用 SegmentedControlIOS，避免崩溃
             // TODO: 等待 KuiklyUI 框架修复 SegmentedControlIOS 的 titles 类型问题
             if (false && PlatformUtils.isIOS() && PlatformUtils.isLiquidGlassSupported()) {
@@ -121,7 +121,7 @@ internal class HomePage : ComposeView<HomePageAttr, HomePageEvent>() {
                             ctx.tabHeaderWidth = width
                         }
                     }
-                    
+
                     // 遍历创建 TabItem
                     for (i in 0 until ctx.titles.size) {
                         TabItem { state ->
@@ -161,7 +161,7 @@ internal class HomePage : ComposeView<HomePageAttr, HomePageEvent>() {
             attr {
                 flex(1f)
             }
-            
+
             // 状态栏占位（使用与导航栏一致的颜色）
             View {
                 attr {
@@ -169,7 +169,7 @@ internal class HomePage : ComposeView<HomePageAttr, HomePageEvent>() {
                     backgroundColor(ctx.theme.colors.topBarBackground)
                 }
             }
-            
+
             // 顶部 Tabs
             ctx.tabsHeader().invoke(this)
 
@@ -198,13 +198,13 @@ internal class HomePage : ComposeView<HomePageAttr, HomePageEvent>() {
                         ctx.curIndex = index
                     }
                 }
-                
+
                 // 关注流
                 FeedListPage("关注") { }
-                
+
                 // 推荐流
                 FeedListPage("推荐") { }
-                
+
                 // 热门流
                 FeedListPage("热门") { }
             }
@@ -222,4 +222,3 @@ internal class HomePageEvent : ComposeEvent()
 internal fun ViewContainer<*, *>.HomePage(init: HomePage.() -> Unit) {
     addChild(HomePage(), init)
 }
-

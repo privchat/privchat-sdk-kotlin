@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.theme
+package com.netonstream.privchat.sdk.kotlin.sample.theme
 
 import com.tencent.kuikly.core.base.attr.ImageUri
 import com.tencent.kuikly.core.nvi.serialization.json.JSONObject
@@ -50,4 +50,3 @@ object ThemeManager {
         return ImageUri.commonAssets("$ASSET_PATH_PREFIX$themeName/$asset")
     }
 }
-

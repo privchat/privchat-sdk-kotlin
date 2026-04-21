@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.pages.profile
+package com.netonstream.privchat.sdk.kotlin.sample.pages.profile
 
 import com.tencent.kuikly.core.annotations.Page
 import com.tencent.kuikly.core.base.*
@@ -12,11 +12,11 @@ import com.tencent.kuikly.core.reactive.handler.observable
 import com.tencent.kuikly.core.views.*
 import com.tencent.kuikly.core.views.Text
 import com.tencent.kuikly.core.views.View
-import om.netonstream.privchat.sdk.kotlin.sample.base.BasePager
-import om.netonstream.privchat.sdk.kotlin.sample.lang.LangManager
-import om.netonstream.privchat.sdk.kotlin.sample.lang.MultiLingualPager
-import om.netonstream.privchat.sdk.kotlin.sample.privchat.PrivchatClientHolder
-import om.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
+import com.netonstream.privchat.sdk.kotlin.sample.base.BasePager
+import com.netonstream.privchat.sdk.kotlin.sample.lang.LangManager
+import com.netonstream.privchat.sdk.kotlin.sample.lang.MultiLingualPager
+import com.netonstream.privchat.sdk.kotlin.sample.privchat.PrivchatClientHolder
+import com.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
 
 /**
  * 个人中心页面（我的页面）
@@ -24,7 +24,7 @@ import om.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
  */
 @Page("ProfilePage")
 internal class ProfilePage : MultiLingualPager() {
-    
+
     var theme by observable(ThemeManager.getTheme())
     private lateinit var themeEventCallbackRef: CallbackRef
     private lateinit var spModule: SharedPreferencesModule
@@ -32,23 +32,23 @@ internal class ProfilePage : MultiLingualPager() {
 
     override fun created() {
         super.created()
-        
+
         // 在 created() 内 acquireModule（官方建议的方式）
         spModule = acquireModule(SharedPreferencesModule.MODULE_NAME)
         notifyModule = acquireModule(NotifyModule.MODULE_NAME)
-        
+
         // 从 SharedPreferences 读取保存的主题
         val colorTheme = spModule.getString(ThemeManager.PREF_KEY_COLOR)
             .takeUnless { it.isEmpty() } ?: "light"
         ThemeManager.changeColorScheme(colorTheme)
         theme = ThemeManager.getTheme()
-        
+
         // 注册主题变化监听
         themeEventCallbackRef = notifyModule.addNotify(ThemeManager.SKIN_CHANGED_EVENT) { _ ->
             theme = ThemeManager.getTheme()
         }
     }
-    
+
     override fun pageWillDestroy() {
         super.pageWillDestroy()
         notifyModule.removeNotify(ThemeManager.SKIN_CHANGED_EVENT, themeEventCallbackRef)
@@ -61,14 +61,14 @@ internal class ProfilePage : MultiLingualPager() {
                 flex(1f)
                 backgroundColor(ctx.theme.colors.background)
             }
-            
+
             // 顶部区域
             View {
                 attr {
                     padding(20f)
                     backgroundColor(ctx.theme.colors.feedBackground)
                 }
-                
+
                 // 头像区域
                 View {
                     attr {
@@ -79,7 +79,7 @@ internal class ProfilePage : MultiLingualPager() {
                     }
                     // 这里可以添加头像 Image 组件
                 }
-                
+
                 // 用户名
                 Text {
                     attr {
@@ -90,7 +90,7 @@ internal class ProfilePage : MultiLingualPager() {
                         marginBottom(8f)
                     }
                 }
-                
+
                 // 用户简介
                 Text {
                     attr {
@@ -100,21 +100,21 @@ internal class ProfilePage : MultiLingualPager() {
                     }
                 }
             }
-            
+
             // 设置列表
             View {
                 attr {
                     flex(1f)
                     marginTop(12f)
                 }
-                
+
                 List {
                     attr {
                         flex(1f)
                         flexDirectionColumn()
                         backgroundColor(ctx.theme.colors.feedBackground)
                     }
-                    
+
                     // 设置项
                     SettingItem {
                         attr {
@@ -146,7 +146,7 @@ internal class ProfilePage : MultiLingualPager() {
                             }
                         }
                     }
-                    
+
                     // 分割线
                     View {
                         attr {
@@ -154,7 +154,7 @@ internal class ProfilePage : MultiLingualPager() {
                             backgroundColor(ctx.theme.colors.background)
                         }
                     }
-                    
+
                     // 其他设置项可以在这里添加
                     // 例如：账号与安全、隐私设置、关于我们等
                 }
@@ -169,7 +169,7 @@ internal class ProfilePage : MultiLingualPager() {
 internal class SettingItem : ComposeView<SettingItemAttr, ComposeEvent>() {
     private var theme by observable(ThemeManager.getTheme())
     private lateinit var themeEventCallbackRef: CallbackRef
-    
+
     override fun created() {
         super.created()
         // 注册主题变化监听
@@ -178,16 +178,16 @@ internal class SettingItem : ComposeView<SettingItemAttr, ComposeEvent>() {
                 theme = ThemeManager.getTheme()
             }
     }
-    
+
     override fun viewWillUnload() {
         super.viewWillUnload()
         acquireModule<NotifyModule>(NotifyModule.MODULE_NAME)
             .removeNotify(ThemeManager.SKIN_CHANGED_EVENT, themeEventCallbackRef)
     }
-    
+
     override fun createAttr(): SettingItemAttr = SettingItemAttr()
     override fun createEvent(): ComposeEvent = ComposeEvent()
-    
+
     override fun body(): ViewBuilder {
         val ctx = this
         return {
@@ -199,7 +199,7 @@ internal class SettingItem : ComposeView<SettingItemAttr, ComposeEvent>() {
                 paddingLeft(16f)
                 paddingRight(16f)
             }
-            
+
             Text {
                 attr {
                     text(ctx.attr.title)
@@ -207,7 +207,7 @@ internal class SettingItem : ComposeView<SettingItemAttr, ComposeEvent>() {
                     color(ctx.theme.colors.feedContentText)
                 }
             }
-            
+
             vif({ ctx.attr.showArrow }) {
                 View {
                     attr {

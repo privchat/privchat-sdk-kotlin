@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample
+package com.netonstream.privchat.sdk.kotlin.sample
 
 /**
  * 由 Swift 通过 registerKuiklyContextScheduler 注入的 Kuikly context 队列调度器。

@@ -1,9 +1,9 @@
-package om.netonstream.privchat.sdk.kotlin.sample.adapter
+package com.netonstream.privchat.sdk.kotlin.sample.adapter
 
 import android.app.Activity
 import android.content.Context
 import com.tencent.kuikly.core.render.android.adapter.IKRRouterAdapter
-import om.netonstream.privchat.sdk.kotlin.sample.KuiklyRenderActivity
+import com.netonstream.privchat.sdk.kotlin.sample.KuiklyRenderActivity
 import org.json.JSONObject
 
 object KRRouterAdapter : IKRRouterAdapter {

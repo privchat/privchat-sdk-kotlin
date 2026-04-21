@@ -1,21 +1,21 @@
-package om.netonstream.privchat.sdk.kotlin.sample.pages.livestream
+package com.netonstream.privchat.sdk.kotlin.sample.pages.livestream
 
 import com.tencent.kuikly.core.annotations.Page
 import com.tencent.kuikly.core.base.*
 import com.tencent.kuikly.core.module.RouterModule
 import com.tencent.kuikly.core.reactive.handler.observable
 import com.tencent.kuikly.core.views.*
-import om.netonstream.privchat.sdk.kotlin.sample.lang.MultiLingualPager
-import om.netonstream.privchat.sdk.kotlin.sample.LiveStreamBridge
-import om.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
+import com.netonstream.privchat.sdk.kotlin.sample.lang.MultiLingualPager
+import com.netonstream.privchat.sdk.kotlin.sample.LiveStreamBridge
+import com.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
 
 /**
  * 混合直播页面（调试版本）
- * 
+ *
  * 架构：
  * - 底层：原生 VideoView（全屏视频背景）
  * - 上层：本页面（透明背景 + 调试UI）
- * 
+ *
  * 显示内容：
  * 1. 测试提示框
  * 2. LiveKit 连接日志
@@ -23,41 +23,41 @@ import om.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
  */
 @Page("HybridLiveStreamPage")
 internal class HybridLiveStreamPage : MultiLingualPager() {
-    
+
     companion object {
         // 当前活动的页面实例（用于原生层更新 UI）
         private var currentInstance: HybridLiveStreamPage? = null
-        
+
         /**
          * 获取当前页面实例（公共 API，供原生层调用）
          */
         fun getCurrentPage(): HybridLiveStreamPage? = currentInstance
     }
-    
+
     init {
         // 注册当前实例
         currentInstance = this
         println("📱 [HybridLiveStreamPage] 页面实例已创建并注册")
     }
-    
+
     private var theme by observable(ThemeManager.getTheme())
-    
+
     // 连接状态
     private var connectionStatus by observable("正在初始化...")
     private var roomInfo by observable("")
     private var participantsCount by observable(0)
     private var connectionQuality by observable("未知")  // 连接质量
-    
+
     // 日志列表（最多显示 8 条）
     private var logs by observable<List<String>>(listOf(
         "📱 调试界面已加载",
         "🎥 视频背景由原生层提供",
         "📦 UI 由 KuiklyUI 渲染（跨平台）"
     ))
-    
+
     // 日志计数器（用于简单排序）
     private var logCounter by observable(0)
-    
+
     /**
      * 添加日志
      */
@@ -66,7 +66,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
         val newLog = "[$logCounter] $message"
         logs = (listOf(newLog) + logs).take(8)
     }
-    
+
     /**
      * 更新连接状态
      */
@@ -74,7 +74,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
         connectionStatus = status
         addLog("📡 $status")
     }
-    
+
     /**
      * 更新房间信息
      */
@@ -82,7 +82,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
         roomInfo = info
         addLog("🏠 $info")
     }
-    
+
     /**
      * 更新参与者数量
      */
@@ -90,7 +90,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
         participantsCount = count
         addLog("👥 参与者: $count")
     }
-    
+
     /**
      * 更新连接质量
      */
@@ -98,7 +98,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
         connectionQuality = quality
         addLog("📊 连接质量: $quality")
     }
-    
+
     /**
      * 顶部测试信息框
      */
@@ -116,7 +116,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
                     borderRadius(12f)
                     backgroundColor(Color(0x80000000))  // 半透明黑色
                 }
-                
+
                 Text {
                     attr {
                         text("🎥 混合直播测试")
@@ -126,7 +126,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
                         marginBottom(8f)
                     }
                 }
-                
+
                 Text {
                     attr {
                         text("底层：LiveKit 原生视频渲染")
@@ -135,7 +135,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
                         marginBottom(4f)
                     }
                 }
-                
+
                 Text {
                     attr {
                         text("上层：KuiklyUI 跨平台覆盖层")
@@ -146,7 +146,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
             }
         }
     }
-    
+
     /**
      * 连接状态显示
      */
@@ -165,7 +165,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
                     borderRadius(8f)
                     backgroundColor(Color(0x80000000))
                 }
-                
+
                 // 连接状态
                 Text {
                     attr {
@@ -176,7 +176,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
                         marginBottom(6f)
                     }
                 }
-                
+
                 // 房间信息
                 if (ctx.roomInfo.isNotEmpty()) {
                     Text {
@@ -188,7 +188,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
                         }
                     }
                 }
-                
+
                 // 参与者信息
                 Text {
                     attr {
@@ -198,7 +198,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
                         marginBottom(4f)
                     }
                 }
-                
+
                 // 连接质量
                 Text {
                     attr {
@@ -216,7 +216,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
             }
         }
     }
-    
+
     /**
      * 日志显示区域
      */
@@ -236,7 +236,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
                     backgroundColor(Color(0x80000000))
                     maxHeight(200f)
                 }
-                
+
                 Text {
                     attr {
                         text("📋 实时日志")
@@ -246,7 +246,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
                         marginBottom(8f)
                     }
                 }
-                
+
                 // 日志列表
                 for (log in ctx.logs) {
                     Text {
@@ -261,7 +261,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
             }
         }
     }
-    
+
     /**
      * 控制按钮（翻转摄像头 + 关闭）
      */
@@ -274,7 +274,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
                     marginTop(20f)
                     marginBottom(40f)
                 }
-                
+
                 // 翻转摄像头按钮
                 View {
                     attr {
@@ -290,7 +290,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
                             LiveStreamBridge.switchCamera()
                         }
                     }
-                    
+
                     Text {
                         attr {
                             text("🔄 翻转")
@@ -300,7 +300,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
                         }
                     }
                 }
-                
+
                 // 关闭按钮
                 View {
                     attr {
@@ -315,7 +315,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
                             LiveStreamBridge.closeStream()
                         }
                     }
-                    
+
                     Text {
                         attr {
                             text("❌ 关闭")
@@ -328,7 +328,7 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
             }
         }
     }
-    
+
     override fun body(): ViewBuilder {
         val ctx = this
         return {
@@ -337,23 +337,23 @@ internal class HybridLiveStreamPage : MultiLingualPager() {
                 backgroundColor(Color.TRANSPARENT)  // 完全透明
                 flexDirectionColumn()
             }
-            
+
             // 顶部测试提示框
             ctx.testInfoBox().invoke(this)
-            
+
             // 连接状态
             ctx.connectionStatusView().invoke(this)
-            
+
             // 日志显示
             ctx.logView().invoke(this)
-            
+
             // 占位空间（将关闭按钮推到底部）
             View {
                 attr {
                     flex(1f)
                 }
             }
-            
+
             // 底部控制按钮
             ctx.controlButtons().invoke(this)
         }

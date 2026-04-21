@@ -1,6 +1,6 @@
-package om.netonstream.privchat.sdk.kotlin.sample.adapter
+package com.netonstream.privchat.sdk.kotlin.sample.adapter
 
-import om.netonstream.privchat.sdk.kotlin.sample.KRApplication
+import com.netonstream.privchat.sdk.kotlin.sample.KRApplication
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Bitmap

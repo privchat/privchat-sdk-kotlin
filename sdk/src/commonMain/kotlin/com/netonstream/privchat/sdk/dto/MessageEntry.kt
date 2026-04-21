@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.dto
+package com.netonstream.privchat.sdk.dto
 
 /** 消息状态 - 与 SDK_API_CONTRACT 对齐 */
 enum class MessageStatus { Pending, Sending, Sent, Failed, Read }

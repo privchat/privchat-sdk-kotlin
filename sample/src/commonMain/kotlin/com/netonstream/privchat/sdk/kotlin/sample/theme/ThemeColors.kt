@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.theme
+package com.netonstream.privchat.sdk.kotlin.sample.theme
 
 import com.tencent.kuikly.core.base.Color
 import com.tencent.kuikly.core.nvi.serialization.json.JSONObject
@@ -102,4 +102,3 @@ val darkColorScheme = ThemeColors(
     feedContentText = Color(0xFFF2F2F7), // iOS 系统浅色文字
     feedContentDivider = Color(0xFF38383A) // iOS 系统暗色分割线
 )
-

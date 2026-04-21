@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.module
+package com.netonstream.privchat.sdk.kotlin.sample.module
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -7,8 +7,8 @@ import android.util.Log
 import android.widget.Toast
 import com.tencent.kuikly.core.render.android.export.KuiklyRenderBaseModule
 import com.tencent.kuikly.core.render.android.export.KuiklyRenderCallback
-import om.netonstream.privchat.sdk.kotlin.sample.KRApplication
-import om.netonstream.privchat.sdk.kotlin.sample.KuiklyRenderActivity
+import com.netonstream.privchat.sdk.kotlin.sample.KRApplication
+import com.netonstream.privchat.sdk.kotlin.sample.KuiklyRenderActivity
 import org.json.JSONArray
 import org.json.JSONObject
 import java.text.SimpleDateFormat

@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample
+package com.netonstream.privchat.sdk.kotlin.sample
 
 /**
  * iOS 平台的 Sample 状态管理

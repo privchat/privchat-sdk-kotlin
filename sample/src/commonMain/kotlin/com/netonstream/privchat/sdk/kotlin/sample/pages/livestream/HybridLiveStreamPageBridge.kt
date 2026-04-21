@@ -1,15 +1,15 @@
-package om.netonstream.privchat.sdk.kotlin.sample.pages.livestream
+package com.netonstream.privchat.sdk.kotlin.sample.pages.livestream
 
 /**
  * HybridLiveStreamPage 的公共桥接（供原生层调用）
- * 
+ *
  * 由于 HybridLiveStreamPage 是 internal 的，原生层无法直接访问，
  * 因此创建这个公共对象来提供 UI 更新接口
- * 
+ *
  * 这些方法可以在任何线程上安全调用
  */
 object HybridLiveStreamPageBridge {
-    
+
     /**
      * 更新连接状态（线程安全）
      */
@@ -18,7 +18,7 @@ object HybridLiveStreamPageBridge {
             HybridLiveStreamPage.getCurrentPage()?.updateConnectionStatus(status)
         }
     }
-    
+
     /**
      * 更新房间信息（线程安全）
      */
@@ -27,7 +27,7 @@ object HybridLiveStreamPageBridge {
             HybridLiveStreamPage.getCurrentPage()?.updateRoomInfo(info)
         }
     }
-    
+
     /**
      * 更新参与者数量（线程安全）
      */
@@ -36,7 +36,7 @@ object HybridLiveStreamPageBridge {
             HybridLiveStreamPage.getCurrentPage()?.updateParticipants(count)
         }
     }
-    
+
     /**
      * 更新连接质量（线程安全）
      */
@@ -45,7 +45,7 @@ object HybridLiveStreamPageBridge {
             HybridLiveStreamPage.getCurrentPage()?.updateConnectionQuality(quality)
         }
     }
-    
+
     /**
      * 添加日志（线程安全）
      */
@@ -54,7 +54,7 @@ object HybridLiveStreamPageBridge {
             HybridLiveStreamPage.getCurrentPage()?.addLog(message)
         }
     }
-    
+
     /**
      * 调度 UI 更新到 KuiklyUI 的渲染线程
      */

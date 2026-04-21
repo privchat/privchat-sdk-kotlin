@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk
+package com.netonstream.privchat.sdk
 
 /**
  * 配置 - 与 SDK_API_CONTRACT 对齐，commonMain 使用纯 Kotlin 类型

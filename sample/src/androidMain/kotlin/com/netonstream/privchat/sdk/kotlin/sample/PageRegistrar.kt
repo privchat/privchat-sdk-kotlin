@@ -1,13 +1,13 @@
-package om.netonstream.privchat.sdk.kotlin.sample
+package com.netonstream.privchat.sdk.kotlin.sample
 
 import com.tencent.kuikly.core.manager.PagerManager
-import om.netonstream.privchat.sdk.kotlin.sample.pages.DetailPage
-import om.netonstream.privchat.sdk.kotlin.sample.pages.MainTabPage
-import om.netonstream.privchat.sdk.kotlin.sample.pages.friend.FriendsPage
-import om.netonstream.privchat.sdk.kotlin.sample.pages.login.LoginPage
-import om.netonstream.privchat.sdk.kotlin.sample.pages.profile.ProfilePage
-import om.netonstream.privchat.sdk.kotlin.sample.pages.profile.SwitchAccountPage
-import om.netonstream.privchat.sdk.kotlin.sample.pages.session.SessionsPage
+import com.netonstream.privchat.sdk.kotlin.sample.pages.DetailPage
+import com.netonstream.privchat.sdk.kotlin.sample.pages.MainTabPage
+import com.netonstream.privchat.sdk.kotlin.sample.pages.friend.FriendsPage
+import com.netonstream.privchat.sdk.kotlin.sample.pages.login.LoginPage
+import com.netonstream.privchat.sdk.kotlin.sample.pages.profile.ProfilePage
+import com.netonstream.privchat.sdk.kotlin.sample.pages.profile.SwitchAccountPage
+import com.netonstream.privchat.sdk.kotlin.sample.pages.session.SessionsPage
 
 /**
  * 手动注册 Kuikly 页面（KSP 未正确生成 triggerRegisterPages 时的兜底方案）

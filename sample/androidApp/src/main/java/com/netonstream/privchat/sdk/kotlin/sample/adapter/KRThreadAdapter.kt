@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.adapter
+package com.netonstream.privchat.sdk.kotlin.sample.adapter
 
 import com.tencent.kuikly.core.render.android.adapter.IKRThreadAdapter
 import java.util.concurrent.Executors

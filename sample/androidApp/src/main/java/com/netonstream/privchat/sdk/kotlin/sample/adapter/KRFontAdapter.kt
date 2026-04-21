@@ -1,8 +1,8 @@
-package om.netonstream.privchat.sdk.kotlin.sample.adapter
+package com.netonstream.privchat.sdk.kotlin.sample.adapter
 
 import android.graphics.Typeface
 import com.tencent.kuikly.core.render.android.adapter.IKRFontAdapter
-import om.netonstream.privchat.sdk.kotlin.sample.KRApplication
+import com.netonstream.privchat.sdk.kotlin.sample.KRApplication
 
 object KRFontAdapter : IKRFontAdapter {
 

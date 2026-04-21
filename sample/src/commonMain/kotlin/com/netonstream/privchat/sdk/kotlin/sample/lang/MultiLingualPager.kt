@@ -1,10 +1,10 @@
-package om.netonstream.privchat.sdk.kotlin.sample.lang
+package com.netonstream.privchat.sdk.kotlin.sample.lang
 
 import com.tencent.kuikly.core.module.CallbackRef
 import com.tencent.kuikly.core.module.NotifyModule
 import com.tencent.kuikly.core.module.SharedPreferencesModule
 import com.tencent.kuikly.core.reactive.handler.observable
-import om.netonstream.privchat.sdk.kotlin.sample.base.BasePager
+import com.netonstream.privchat.sdk.kotlin.sample.base.BasePager
 
 internal abstract class MultiLingualPager : BasePager() {
     var resStrings by observable(LangManager.getCurrentResStrings())
@@ -42,4 +42,3 @@ internal abstract class MultiLingualPager : BasePager() {
         notifyModule.removeNotify(LangManager.LANG_CHANGED_EVENT, langEventCallbackRef)
     }
 }
-

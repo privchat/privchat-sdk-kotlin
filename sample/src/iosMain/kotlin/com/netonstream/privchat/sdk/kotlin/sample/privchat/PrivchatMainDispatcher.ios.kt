@@ -1,4 +1,4 @@
-package om.netonstream.privchat.sdk.kotlin.sample.privchat
+package com.netonstream.privchat.sdk.kotlin.sample.privchat
 
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
