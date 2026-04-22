@@ -167,6 +167,9 @@ expect class PrivchatClient private constructor() {
     fun setVideoProcessHook(hook: VideoProcessHook?)
     fun removeVideoProcessHook()
 
+    /** Plan 2: reply to [SdkEventPayload] of type `media_job_requested`. */
+    fun submitMediaJobResult(jobId: String, result: MediaJobResult): Result<Unit>
+
     companion object {
         fun create(config: PrivchatConfig): Result<PrivchatClient>
     }

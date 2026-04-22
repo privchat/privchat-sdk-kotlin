@@ -242,7 +242,11 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_connection_timeout(void
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_create_group(void * ptr, RustBuffer name, RustBuffer description, RustBuffer memberIds
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_create_local_attachment_placeholder(void * ptr, RustBuffer input, RustBuffer localMessageId
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_create_local_message(void * ptr, RustBuffer input
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_create_local_message_with_id(void * ptr, RustBuffer input, RustBuffer localMessageId
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_data_dir(void * ptr
 );
@@ -297,6 +301,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_fetch_group_members_rem
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_request_upload_token_remote(void * ptr, RustBuffer payload
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_upload_callback_remote(void * ptr, RustBuffer payload
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_finalize_local_attachment(void * ptr, int64_t messageId, RustBuffer content, int32_t thumbStatus
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_forward_message(void * ptr, int64_t srcMessageId, int64_t targetChannelId, int32_t targetChannelType
 );
@@ -678,6 +684,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_stop_typing(void * ptr,
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_storage(void * ptr
 );
+void uniffi_privchat_sdk_ffi_fn_method_privchatclient_submit_media_job_result(void * ptr, RustBuffer jobId, RustBuffer result, UniffiRustCallStatus *_Nonnull out_status
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_channel(void * ptr, int64_t channelId, int8_t channelType, RustBuffer token
 );
 int8_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_events(void * ptr, UniffiRustCallStatus *_Nonnull out_status
@@ -1010,7 +1018,13 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_connection_timeou
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_create_group(void
     
 );
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_create_local_attachment_placeholder(void
+    
+);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_create_local_message(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_create_local_message_with_id(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_data_dir(void
@@ -1092,6 +1106,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_request_uplo
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_upload_callback_remote(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_finalize_local_attachment(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_forward_message(void
@@ -1662,6 +1679,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_stop_typing(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_storage(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_submit_media_job_result(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_channel(void

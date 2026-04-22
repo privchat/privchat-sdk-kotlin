@@ -6,4 +6,5 @@ package com.netonstream.privchat.sdk
  */
 interface ProgressObserver {
     fun onProgress(current: ULong, total: ULong?)
+    fun onPrepComplete() {}
 }

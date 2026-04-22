@@ -167,7 +167,11 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `createGroup`(`name`: kotlin.String, `description`: kotlin.String?, `memberIds`: List<kotlin.ULong>?): GroupCreateResult
     
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `createLocalAttachmentPlaceholder`(`input`: NewMessage, `localMessageId`: kotlin.ULong?): kotlin.ULong
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `createLocalMessage`(`input`: NewMessage): kotlin.ULong
+    
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `createLocalMessageWithId`(`input`: NewMessage, `localMessageId`: kotlin.ULong?): kotlin.ULong
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `dataDir`(): kotlin.String
     fun `debugMode`(): kotlin.Boolean
@@ -224,6 +228,8 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `fileRequestUploadTokenRemote`(`payload`: FileRequestUploadTokenInput): FileRequestUploadTokenView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `fileUploadCallbackRemote`(`payload`: FileUploadCallbackInput): kotlin.Boolean
+    
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `finalizeLocalAttachment`(`messageId`: kotlin.ULong, `content`: kotlin.String, `thumbStatus`: kotlin.Int)
     
     /**
      * 把指定本地消息转发到目标频道。
@@ -610,6 +616,11 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `storage`(): UserStoragePaths
     
     /**
+     * Plan 2：宿主处理完 `SdkEvent::MediaJobRequested` 后回传结果。
+     */
+        @Throws(PrivchatFfiException::class)fun `submitMediaJobResult`(`jobId`: kotlin.String, `result`: MediaJobResult)
+    
+    /**
      * 订阅频道事件（进入聊天页面时调用，接收 typing / presence 等状态事件）
      * channel_type: 0=Private, 1=Group, 2=Room
      * token: 可选，Room 类型订阅时传入业务 API 签发的 ticket（JWT）
@@ -902,7 +913,17 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `createLocalAttachmentPlaceholder`(`input`: NewMessage, `localMessageId`: kotlin.ULong?) : kotlin.ULong
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `createLocalMessage`(`input`: NewMessage) : kotlin.ULong
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `createLocalMessageWithId`(`input`: NewMessage, `localMessageId`: kotlin.ULong?) : kotlin.ULong
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -1034,6 +1055,11 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `fileUploadCallbackRemote`(`payload`: FileUploadCallbackInput) : kotlin.Boolean
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `finalizeLocalAttachment`(`messageId`: kotlin.ULong, `content`: kotlin.String, `thumbStatus`: kotlin.Int)
 
     
     /**
@@ -1960,6 +1986,13 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `storage`() : UserStoragePaths
+
+    
+    /**
+     * Plan 2：宿主处理完 `SdkEvent::MediaJobRequested` 后回传结果。
+     */
+    @Throws(PrivchatFfiException::class)override fun `submitMediaJobResult`(`jobId`: kotlin.String, `result`: MediaJobResult)
+    
 
     
     /**
@@ -3067,6 +3100,20 @@ data class LoginResult (
          = null , 
     var `expiresAt`: kotlin.ULong
         
+) {
+    
+    companion object
+}
+
+
+
+data class MediaJobResult (
+    var `ok`: kotlin.Boolean
+        , 
+    var `outputPath`: kotlin.String?
+         = null , 
+    var `error`: kotlin.String?
+         = null 
 ) {
     
     companion object
@@ -4857,6 +4904,18 @@ sealed class SdkEvent {
     data class MediaDownloadStateChanged(
         val `messageId`: kotlin.ULong  , 
         val `state`: MediaDownloadState  ) : SdkEvent() {
+        
+    }
+    
+    
+    data class MediaJobRequested(
+        val `jobId`: kotlin.String  , 
+        val `jobKind`: kotlin.String  , 
+        val `sourcePath`: kotlin.String  , 
+        val `outputPath`: kotlin.String  , 
+        val `mimeType`: kotlin.String  , 
+        val `messageId`: kotlin.ULong  , 
+        val `timeoutMs`: kotlin.ULong  ) : SdkEvent() {
         
     }
     

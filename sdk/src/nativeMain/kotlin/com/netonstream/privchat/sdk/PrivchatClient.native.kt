@@ -1460,6 +1460,23 @@ actual class PrivchatClient private actual constructor() {
         videoHook = null
     }
 
+    actual fun submitMediaJobResult(jobId: String, result: MediaJobResult): Result<Unit> {
+        val client = coreClient ?: return Result.failure(SdkError.NotInitialized)
+        return runCatching {
+            client.submitMediaJobResult(
+                jobId = jobId,
+                result = uniffi.privchat_sdk_ffi.MediaJobResult(
+                    ok = result.ok,
+                    outputPath = result.outputPath,
+                    error = result.error,
+                ),
+            )
+        }.fold(
+            onSuccess = { Result.success(Unit) },
+            onFailure = { Result.failure(toSdkError("submitMediaJobResult failed", it)) },
+        )
+    }
+
     actual companion object {
         actual fun create(config: PrivchatConfig): Result<PrivchatClient> {
             if (config.serverEndpoints.isEmpty()) {
@@ -1993,6 +2010,17 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
             reason = errMsg,
         )
     }
+
+    is CoreSdkEvent.MediaJobRequested -> SdkEventPayload(
+        type = "media_job_requested",
+        messageId = event.messageId,
+        jobId = event.jobId,
+        jobKind = event.jobKind,
+        sourcePath = event.sourcePath,
+        outputPath = event.outputPath,
+        mimeType = event.mimeType,
+        timeoutMs = event.timeoutMs,
+    )
 
     CoreSdkEvent.ShutdownStarted -> SdkEventPayload(type = "shutdown_started")
     CoreSdkEvent.ShutdownCompleted -> SdkEventPayload(type = "shutdown_completed")

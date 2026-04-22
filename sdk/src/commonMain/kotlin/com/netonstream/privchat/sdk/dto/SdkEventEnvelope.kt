@@ -49,4 +49,11 @@ data class SdkEventPayload(
     val mediaDownloadBytes: ULong? = null,
     val mediaDownloadTotal: ULong? = null,
     val mediaDownloadPath: String? = null,
+    /** Plan 2 media job (only for media_job_requested). */
+    val jobId: String? = null,
+    val jobKind: String? = null,
+    val sourcePath: String? = null,
+    val outputPath: String? = null,
+    val mimeType: String? = null,
+    val timeoutMs: ULong? = null,
 )

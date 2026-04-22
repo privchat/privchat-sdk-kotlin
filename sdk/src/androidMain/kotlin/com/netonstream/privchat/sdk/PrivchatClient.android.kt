@@ -1182,68 +1182,81 @@ actual class PrivchatClient private actual constructor() {
             val originalFilename = srcFile.name
             val createdAtMs = System.currentTimeMillis()
 
-            // Spec §7.5 v2: canonical payload filename
             val mime = guessMimeFromFilename(originalFilename)
             val canonicalFilename = payloadFilename(mime, originalFilename)
 
-            // 视频消息补齐 duration/width/height 到 extra，UI 侧才能显示时长与占位比例
-            val extraJson = if (messageType == ContentMessageType.VIDEO.value) {
-                val meta = extractVideoMetadata(path)
-                mergeVideoMetaIntoExtra(options?.extraJson, meta, originalFilename, mime)
+            // snowflake 仍然用来写 local_message_id 列（历史语义保留），UI/文件路径不再用它，统一用 DB 自增 id。
+            val localMessageId = c.generateLocalMessageId()
+
+            // 1. 视频先读时长/宽高（不抽帧），把这些元信息带进 extra。抽帧留到 /{dbid}/ 目录建好之后。
+            val videoDims = if (messageType == ContentMessageType.VIDEO.value) {
+                kotlinx.coroutines.withContext(Dispatchers.IO) { readVideoDimensions(path) }
+            } else null
+            val attachmentDuration: UInt? = videoDims?.durationSec?.toUInt()
+            val attachmentWidth: UInt? = videoDims?.width?.toUInt()
+            val attachmentHeight: UInt? = videoDims?.height?.toUInt()
+            val extraJson = if (videoDims != null) {
+                mergeVideoMetaIntoExtra(
+                    options?.extraJson,
+                    VideoMeta(videoDims.durationSec, videoDims.width, videoDims.height, thumbReady = false),
+                    originalFilename,
+                    mime,
+                )
             } else {
                 options?.extraJson ?: "{}"
             }
 
-            // 1. 创建本地消息获取真实 ID
-            val messageId = c.createLocalMessage(
+            // 2. 静默 INSERT：只为了拿 DB 自增 id，不 emit 事件。
+            //    真正让 UI 看到这条消息的是后面 finalize 的 outbound_prep_complete。
+            //    这样气泡出现时就是完整态（content+thumb+media 都齐），不会有 "空气泡 → 带缩略图" 的闪动。
+            val insertedId = c.createLocalAttachmentPlaceholder(
                 NewMessage(
                     channelId = channelId,
                     channelType = channelType,
                     fromUid = uid,
                     messageType = messageType,
-                    content = path,
+                    content = "",
                     searchableWord = originalFilename,
                     setting = 0,
                     extra = extraJson,
                     mediaDownloaded = false,
                     thumbStatus = 0,
-                )
+                ),
+                localMessageId,
             )
 
-            // 2. 获取规范附件目录并复制文件（使用 payload.{ext} 命名）
-            val targetDir = c.getAttachmentTargetDir(uid, messageId.toLong(), createdAtMs)
-            val targetFile = java.io.File(targetDir, canonicalFilename)
-            srcFile.copyTo(targetFile, overwrite = true)
-            val localFilePath = targetFile.absolutePath
+            // 3. 按 DB id 写文件 + 抽缩略图到规范目录。
+            val (localFilePath, videoMeta) = kotlinx.coroutines.withContext(Dispatchers.IO) {
+                val targetDir = c.getAttachmentTargetDir(uid, insertedId.toLong(), createdAtMs)
+                val targetFile = java.io.File(targetDir, canonicalFilename)
+                srcFile.copyTo(targetFile, overwrite = true)
 
-            // 2.5 视频消息：抽帧并保存本地缩略图，发送者侧立即可见
-            val attachmentDuration: UInt?
-            val attachmentWidth: UInt?
-            val attachmentHeight: UInt?
-            if (messageType == ContentMessageType.VIDEO.value) {
-                val meta = extractVideoMetadata(path)
-                attachmentDuration = meta.durationSec?.toUInt()
-                attachmentWidth = meta.width?.toUInt()
-                attachmentHeight = meta.height?.toUInt()
-                meta.thumbnailBitmap?.let { bmp ->
-                    runCatching {
-                        val thumbFile = java.io.File(targetDir, "thumb.webp")
-                        java.io.FileOutputStream(thumbFile).use { out ->
-                            @Suppress("DEPRECATION")
-                            bmp.compress(android.graphics.Bitmap.CompressFormat.WEBP, 85, out)
-                        }
-                    }
-                    bmp.recycle()
-                }
-            } else {
-                attachmentDuration = null
-                attachmentWidth = null
-                attachmentHeight = null
+                val meta = if (messageType == ContentMessageType.VIDEO.value) {
+                    extractVideoMetadata(path, targetDir)
+                } else null
+
+                targetFile.absolutePath to meta
             }
 
-            // 3. 从规范目录路径入队
+            val thumbStatus = when {
+                messageType != ContentMessageType.VIDEO.value -> 0
+                videoMeta?.thumbReady == true -> 1
+                else -> 3
+            }
+
+            // 4. 文件已经落到 /{insertedId}/ 目录，一次性回写 content/thumb_status/media_downloaded
+            //    并 emit outbound_prep_complete，让 UI 把气泡里的路径换成真实文件。
+            c.finalizeLocalAttachment(insertedId, "file://$localFilePath", thumbStatus)
+            // 给 UI 订阅者一个 tick 吸收 outbound_prep_complete 事件，避免 modal dismiss
+            // 后 MessageEntry 还停留在空 content 的瞬时态。
+            kotlinx.coroutines.delay(32)
+
+            // 5. 关闭 loading 弹窗，气泡此时已有真实路径。
+            progress?.onPrepComplete()
+
+            // 6. 入队发送。
             val routeKey = c.toClientEndpoint() ?: ""
-            val queueRef = c.sendAttachmentFromPath(messageId, routeKey, localFilePath)
+            val queueRef = c.sendAttachmentFromPath(insertedId, routeKey, localFilePath)
             progress?.onProgress(1uL, 1uL)
             queueRef.messageId to AttachmentInfo(
                 url = localFilePath,
@@ -1266,10 +1279,19 @@ actual class PrivchatClient private actual constructor() {
         val durationSec: Long?,
         val width: Int?,
         val height: Int?,
-        val thumbnailBitmap: android.graphics.Bitmap?,
+        val thumbReady: Boolean,
     )
 
-    private fun extractVideoMetadata(path: String): VideoMeta {
+    private data class VideoDimensions(
+        val durationSec: Long?,
+        val width: Int?,
+        val height: Int?,
+    )
+
+    /**
+     * 只读取视频时长/宽高，不抽帧。用在 INSERT 之前，让 message.extra 能包含这些元信息。
+     */
+    private fun readVideoDimensions(path: String): VideoDimensions {
         val retriever = android.media.MediaMetadataRetriever()
         return try {
             retriever.setDataSource(path)
@@ -1282,20 +1304,80 @@ actual class PrivchatClient private actual constructor() {
             val height = retriever
                 .extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
                 ?.toIntOrNull()
+            VideoDimensions(
+                durationSec = durationMs?.let { (it / 1000).coerceAtLeast(1) },
+                width = width,
+                height = height,
+            )
+        } catch (_: Throwable) {
+            VideoDimensions(null, null, null)
+        } finally {
+            runCatching { retriever.release() }
+        }
+    }
+
+    /**
+     * 抽帧首帧，缩放到目标尺寸后以 WEBP 写入 targetDir/thumb.webp。
+     * 整个过程 ~100–300ms（使用 getScaledFrameAtTime 直接拿缩略图，不解码 4K 全帧）。
+     */
+    private fun extractVideoMetadata(path: String, targetDir: String): VideoMeta {
+        val retriever = android.media.MediaMetadataRetriever()
+        return try {
+            retriever.setDataSource(path)
+            val durationMs = retriever
+                .extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_DURATION)
+                ?.toLongOrNull()
+            val width = retriever
+                .extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
+                ?.toIntOrNull()
+            val height = retriever
+                .extractMetadata(android.media.MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
+                ?.toIntOrNull()
+
+            val thumbMax = 480
+            val (dstW, dstH) = computeThumbSize(width, height, thumbMax)
             val bitmap = runCatching {
-                retriever.getFrameAtTime(0L, android.media.MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O_MR1 && dstW > 0 && dstH > 0) {
+                    retriever.getScaledFrameAtTime(
+                        0L,
+                        android.media.MediaMetadataRetriever.OPTION_CLOSEST_SYNC,
+                        dstW,
+                        dstH,
+                    )
+                } else {
+                    retriever.getFrameAtTime(0L, android.media.MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
+                }
             }.getOrNull()
+
+            val thumbReady = if (bitmap != null) {
+                runCatching {
+                    val thumbFile = java.io.File(targetDir, "thumb.webp")
+                    java.io.FileOutputStream(thumbFile).use { out ->
+                        @Suppress("DEPRECATION")
+                        bitmap.compress(android.graphics.Bitmap.CompressFormat.WEBP, 80, out)
+                    }
+                    thumbFile.length() > 0
+                }.getOrDefault(false).also { bitmap.recycle() }
+            } else false
+
             VideoMeta(
                 durationSec = durationMs?.let { (it / 1000).coerceAtLeast(1) },
                 width = width,
                 height = height,
-                thumbnailBitmap = bitmap,
+                thumbReady = thumbReady,
             )
         } catch (t: Throwable) {
-            VideoMeta(null, null, null, null)
+            VideoMeta(null, null, null, false)
         } finally {
             runCatching { retriever.release() }
         }
+    }
+
+    private fun computeThumbSize(srcW: Int?, srcH: Int?, maxDim: Int): Pair<Int, Int> {
+        if (srcW == null || srcH == null || srcW <= 0 || srcH <= 0) return maxDim to maxDim
+        val scale = maxDim.toFloat() / maxOf(srcW, srcH).toFloat()
+        if (scale >= 1f) return srcW to srcH
+        return (srcW * scale).toInt().coerceAtLeast(1) to (srcH * scale).toInt().coerceAtLeast(1)
     }
 
     private fun mergeVideoMetaIntoExtra(
@@ -1558,6 +1640,23 @@ actual class PrivchatClient private actual constructor() {
         videoHook = null
     }
 
+    actual fun submitMediaJobResult(jobId: String, result: MediaJobResult): Result<Unit> {
+        val client = coreClient ?: return Result.failure(SdkError.NotInitialized)
+        return runCatching {
+            client.submitMediaJobResult(
+                jobId = jobId,
+                result = uniffi.privchat_sdk_ffi.MediaJobResult(
+                    ok = result.ok,
+                    outputPath = result.outputPath,
+                    error = result.error,
+                ),
+            )
+        }.fold(
+            onSuccess = { Result.success(Unit) },
+            onFailure = { Result.failure(toSdkError("submitMediaJobResult failed", it)) },
+        )
+    }
+
     actual companion object {
         actual fun create(config: PrivchatConfig): Result<PrivchatClient> {
             if (config.serverEndpoints.isEmpty()) {
@@ -1768,44 +1867,43 @@ private fun mapFfiCodeToSdkError(prefix: String, code: UInt, detail: String): Sd
 private fun StoredMessage.toCommonMessage(
     c: CorePrivchatClient? = null,
     uid: ULong? = null,
-) = MessageEntry(
-    id = messageId,
-    serverMessageId = serverMessageId,
-    localMessageId = localMessageId,
-    channelId = channelId,
-    channelType = channelType,
-    fromUid = fromUid,
-    content = content,
-    status = when (status) {
-        0 -> MessageStatus.Pending
-        1 -> MessageStatus.Sending
-        2 -> MessageStatus.Sent
-        3 -> MessageStatus.Failed
-        else -> MessageStatus.Read
-    },
-    timestamp = createdAt.toULong(),
-    messageType = messageType,
-    extra = extra,
-    isRevoked = revoked,
-    revoker = revokedBy,
-    mimeType = mimeType,
-    mediaDownloaded = mediaDownloaded,
-    thumbStatus = thumbStatus,
-    localThumbnailPath = if (c != null && uid != null &&
+): MessageEntry {
+    val resolvedThumb = if (c != null && uid != null &&
         (messageType == ContentMessageType.IMAGE.value || messageType == ContentMessageType.VIDEO.value)) {
-        val resolvedThumb = c.resolveThumbnailPath(uid, messageId.toLong(), createdAt)
-        if (resolvedThumb == null) {
-            Log.i("PrivchatClient", "[DBG][thumb] msgId=$messageId type=$messageType thumbStatus=$thumbStatus resolved=null content=${content.take(200)} extra=${extra.take(300)}")
-        } else {
-            Log.i("PrivchatClient", "[DBG][thumb] msgId=$messageId type=$messageType thumbStatus=$thumbStatus resolved=$resolvedThumb")
-        }
-        resolvedThumb
-    } else null,
-    localMediaPath = if (c != null && uid != null)
-        c.resolveAttachmentPath(uid, messageId.toLong(), createdAt, null) else null,
-    delivered = delivered,
-    pts = pts,
-)
+        c.resolveThumbnailPath(uid, messageId.toLong(), createdAt)
+    } else null
+    val resolvedMedia = if (c != null && uid != null) {
+        c.resolveAttachmentPath(uid, messageId.toLong(), createdAt, null)
+    } else null
+    return MessageEntry(
+        id = messageId,
+        serverMessageId = serverMessageId,
+        localMessageId = localMessageId,
+        channelId = channelId,
+        channelType = channelType,
+        fromUid = fromUid,
+        content = content,
+        status = when (status) {
+            0 -> MessageStatus.Pending
+            1 -> MessageStatus.Sending
+            2 -> MessageStatus.Sent
+            3 -> MessageStatus.Failed
+            else -> MessageStatus.Read
+        },
+        timestamp = createdAt.toULong(),
+        messageType = messageType,
+        extra = extra,
+        isRevoked = revoked,
+        revoker = revokedBy,
+        mimeType = mimeType,
+        mediaDownloaded = mediaDownloaded,
+        thumbStatus = thumbStatus,
+        localThumbnailPath = resolvedThumb,
+        localMediaPath = resolvedMedia,
+        delivered = delivered,
+        pts = pts,
+    )
+}
 
 private fun StoredChannel.toCommonChannel() = ChannelListEntry(
     channelId = channelId,
@@ -2188,6 +2286,17 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
             reason = errMsg,
         )
     }
+
+    is CoreSdkEvent.MediaJobRequested -> SdkEventPayload(
+        type = "media_job_requested",
+        messageId = event.messageId,
+        jobId = event.jobId,
+        jobKind = event.jobKind,
+        sourcePath = event.sourcePath,
+        outputPath = event.outputPath,
+        mimeType = event.mimeType,
+        timeoutMs = event.timeoutMs,
+    )
 
     CoreSdkEvent.ShutdownStarted -> SdkEventPayload(type = "shutdown_started")
     CoreSdkEvent.ShutdownCompleted -> SdkEventPayload(type = "shutdown_completed")
