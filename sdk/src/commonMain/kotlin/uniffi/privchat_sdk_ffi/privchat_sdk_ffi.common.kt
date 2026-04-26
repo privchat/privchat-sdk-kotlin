@@ -368,6 +368,12 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `joinGroupByQrcode`(`qrKey`: kotlin.String): GroupQrCodeJoinResult
     
+    /**
+     * 读取最近一次 Terminal 认证错误快照。
+     * `None` 表示当前没有未清的 ForcedLogout 记录（例如已成功 Connect 一次）。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `lastTerminalReason`(): TerminalReason?
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `leaveChannel`(`channelId`: kotlin.ULong): kotlin.Boolean
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `leaveGroup`(`groupId`: kotlin.ULong): kotlin.Boolean
@@ -1377,6 +1383,15 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `joinGroupByQrcode`(`qrKey`: kotlin.String) : GroupQrCodeJoinResult
+
+    
+    /**
+     * 读取最近一次 Terminal 认证错误快照。
+     * `None` 表示当前没有未清的 ForcedLogout 记录（例如已成功 Connect 一次）。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `lastTerminalReason`() : TerminalReason?
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -3985,7 +4000,17 @@ data class StoredMessage (
     var `delivered`: kotlin.Boolean
         , 
     var `pts`: kotlin.ULong?
-         = null 
+         = null , 
+    /**
+     * 引用消息的 server_message_id（envelope.reply_to_message_id）
+     */
+    var `replyToMessageId`: kotlin.String?
+         = null , 
+    /**
+     * @ 提及的用户 ID 列表（envelope.mentioned_user_ids）
+     */
+    var `mentionedUserIds`: List<kotlin.ULong>
+        
 ) {
     
     companion object
@@ -4225,6 +4250,25 @@ data class SyncSubmitView (
     var `hasGap`: kotlin.Boolean
         , 
     var `currentPts`: kotlin.ULong
+        
+) {
+    
+    companion object
+}
+
+
+
+data class TerminalReason (
+    /**
+     * `privchat_protocol::ErrorCode` 对应的 u32 码；未携带时为 0。
+     */
+    var `code`: kotlin.UInt
+        , 
+    var `message`: kotlin.String
+        , 
+    var `source`: ForcedLogoutSource
+        , 
+    var `atMs`: kotlin.Long
         
 ) {
     
@@ -4595,7 +4639,26 @@ enum class ConnectionState {
     CONNECTED,
     LOGGED_IN,
     AUTHENTICATED,
+    /**
+     * 服务端判定本次登录态不可自愈（token 过期/撤销/设备不匹配）。
+     * SDK 已断开并停止自动重连；UI 必须重新登录才能回到 New。
+     */
+    TERMINATED,
     SHUTDOWN;
+    companion object
+}
+
+
+
+
+
+
+
+enum class ForcedLogoutSource {
+    
+    CONNECT_AUTH,
+    RPC_AUTH,
+    MANUAL;
     companion object
 }
 
@@ -4919,6 +4982,17 @@ sealed class SdkEvent {
         
     }
     
+    
+    data class ForcedLogout(
+        /**
+         * `privchat_protocol::ErrorCode` 对应的 u32 码；未携带时为 0。
+         */
+        val `code`: kotlin.UInt  , 
+        val `message`: kotlin.String  , 
+        val `source`: ForcedLogoutSource  ) : SdkEvent() {
+        
+    }
+    
     @kotlinx.serialization.Serializable
     object ShutdownStarted : SdkEvent() 
     
@@ -4972,6 +5046,8 @@ interface VideoProcessHook {
     
     companion object
 }
+
+
 
 
 

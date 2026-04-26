@@ -809,6 +809,8 @@ get() = useContents { `uniffiFree`/* test  Any? */}
 
 
 
+
+
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -1090,6 +1092,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_supervised_sync_running(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
     ): Byte
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_join_group_by_qrcode(`ptr`: Pointer?,`qrKey`: RustBufferByValue,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_last_terminal_reason(`ptr`: Pointer?,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_leave_channel(`ptr`: Pointer?,`channelId`: Long,
     ): Long
@@ -1822,6 +1826,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_is_supervised_sync_running(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_join_group_by_qrcode(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_last_terminal_reason(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_leave_channel(
     ): Short
@@ -2712,6 +2718,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_join_group_by_qrcode(`ptr`: Pointer?,`qrKey`: RustBufferByValue,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_join_group_by_qrcode(`ptr`?.inner,`qrKey` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_last_terminal_reason(`ptr`: Pointer?,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_last_terminal_reason(`ptr`?.inner,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_leave_channel(`ptr`: Pointer?,`channelId`: Long,
     ): Long
@@ -4176,6 +4186,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_join_group_by_qrcode(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_join_group_by_qrcode()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_last_terminal_reason(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_last_terminal_reason()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_leave_channel(
     ): Short
@@ -7959,6 +7973,32 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
         { FfiConverterTypeGroupQrCodeJoinResult.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * 读取最近一次 Terminal 认证错误快照。
+     * `None` 表示当前没有未清的 ForcedLogout 记录（例如已成功 Connect 一次）。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `lastTerminalReason`() : TerminalReason? {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_last_terminal_reason(
+                thisPtr,
+                
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterOptionalTypeTerminalReason.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -14633,6 +14673,8 @@ object FfiConverterTypeStoredMessage: FfiConverterRustBuffer<StoredMessage> {
             FfiConverterInt.read(buf),
             FfiConverterBoolean.read(buf),
             FfiConverterOptionalULong.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterSequenceULong.read(buf),
         )
     }
 
@@ -14655,7 +14697,9 @@ object FfiConverterTypeStoredMessage: FfiConverterRustBuffer<StoredMessage> {
             FfiConverterBoolean.allocationSize(value.`mediaDownloaded`) +
             FfiConverterInt.allocationSize(value.`thumbStatus`) +
             FfiConverterBoolean.allocationSize(value.`delivered`) +
-            FfiConverterOptionalULong.allocationSize(value.`pts`)
+            FfiConverterOptionalULong.allocationSize(value.`pts`) +
+            FfiConverterOptionalString.allocationSize(value.`replyToMessageId`) +
+            FfiConverterSequenceULong.allocationSize(value.`mentionedUserIds`)
     )
 
     override fun write(value: StoredMessage, buf: ByteBuffer) {
@@ -14678,6 +14722,8 @@ object FfiConverterTypeStoredMessage: FfiConverterRustBuffer<StoredMessage> {
             FfiConverterInt.write(value.`thumbStatus`, buf)
             FfiConverterBoolean.write(value.`delivered`, buf)
             FfiConverterOptionalULong.write(value.`pts`, buf)
+            FfiConverterOptionalString.write(value.`replyToMessageId`, buf)
+            FfiConverterSequenceULong.write(value.`mentionedUserIds`, buf)
     }
 }
 
@@ -15078,6 +15124,34 @@ object FfiConverterTypeSyncSubmitView: FfiConverterRustBuffer<SyncSubmitView> {
             FfiConverterULong.write(value.`localMessageId`, buf)
             FfiConverterBoolean.write(value.`hasGap`, buf)
             FfiConverterULong.write(value.`currentPts`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeTerminalReason: FfiConverterRustBuffer<TerminalReason> {
+    override fun read(buf: ByteBuffer): TerminalReason {
+        return TerminalReason(
+            FfiConverterUInt.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterTypeForcedLogoutSource.read(buf),
+            FfiConverterLong.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: TerminalReason) = (
+            FfiConverterUInt.allocationSize(value.`code`) +
+            FfiConverterString.allocationSize(value.`message`) +
+            FfiConverterTypeForcedLogoutSource.allocationSize(value.`source`) +
+            FfiConverterLong.allocationSize(value.`atMs`)
+    )
+
+    override fun write(value: TerminalReason, buf: ByteBuffer) {
+            FfiConverterUInt.write(value.`code`, buf)
+            FfiConverterString.write(value.`message`, buf)
+            FfiConverterTypeForcedLogoutSource.write(value.`source`, buf)
+            FfiConverterLong.write(value.`atMs`, buf)
     }
 }
 
@@ -15700,6 +15774,26 @@ object FfiConverterTypeConnectionState: FfiConverterRustBuffer<ConnectionState> 
 
 
 
+object FfiConverterTypeForcedLogoutSource: FfiConverterRustBuffer<ForcedLogoutSource> {
+    override fun read(buf: ByteBuffer) = try {
+        ForcedLogoutSource.values()[buf.getInt() - 1]
+    } catch (e: IndexOutOfBoundsException) {
+        throw RuntimeException("invalid enum value, something is very wrong!!", e)
+    }
+
+    override fun allocationSize(value: ForcedLogoutSource) = 4UL
+
+    override fun write(value: ForcedLogoutSource, buf: ByteBuffer) {
+        buf.putInt(value.ordinal + 1)
+    }
+}
+
+
+
+
+
+
+
 object FfiConverterTypeMediaDownloadState : FfiConverterRustBuffer<MediaDownloadState>{
     override fun read(buf: ByteBuffer): MediaDownloadState {
         return when(buf.getInt()) {
@@ -16053,8 +16147,13 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            24 -> SdkEvent.ShutdownStarted
-            25 -> SdkEvent.ShutdownCompleted
+            24 -> SdkEvent.ForcedLogout(
+                FfiConverterUInt.read(buf),
+                FfiConverterString.read(buf),
+                FfiConverterTypeForcedLogoutSource.read(buf),
+                )
+            25 -> SdkEvent.ShutdownStarted
+            26 -> SdkEvent.ShutdownCompleted
             else -> throw RuntimeException("invalid enum value, something is very wrong!!")
         }
     }
@@ -16277,6 +16376,15 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 + FfiConverterULong.allocationSize(value.`timeoutMs`)
             )
         }
+        is SdkEvent.ForcedLogout -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterUInt.allocationSize(value.`code`)
+                + FfiConverterString.allocationSize(value.`message`)
+                + FfiConverterTypeForcedLogoutSource.allocationSize(value.`source`)
+            )
+        }
         is SdkEvent.ShutdownStarted -> {
             // Add the size for the Int that specifies the variant plus the size needed for all fields
             (
@@ -16464,12 +16572,19 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterULong.write(value.`timeoutMs`, buf)
                 Unit
             }
-            is SdkEvent.ShutdownStarted -> {
+            is SdkEvent.ForcedLogout -> {
                 buf.putInt(24)
+                FfiConverterUInt.write(value.`code`, buf)
+                FfiConverterString.write(value.`message`, buf)
+                FfiConverterTypeForcedLogoutSource.write(value.`source`, buf)
+                Unit
+            }
+            is SdkEvent.ShutdownStarted -> {
+                buf.putInt(25)
                 Unit
             }
             is SdkEvent.ShutdownCompleted -> {
-                buf.putInt(25)
+                buf.putInt(26)
                 Unit
             }
         }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }
@@ -17022,6 +17137,35 @@ public object FfiConverterOptionalTypeStoredUser: FfiConverterRustBuffer<StoredU
         } else {
             buf.put(1)
             FfiConverterTypeStoredUser.write(value, buf)
+        }
+    }
+}
+
+
+
+
+public object FfiConverterOptionalTypeTerminalReason: FfiConverterRustBuffer<TerminalReason?> {
+    override fun read(buf: ByteBuffer): TerminalReason? {
+        if (buf.get().toInt() == 0) {
+            return null
+        }
+        return FfiConverterTypeTerminalReason.read(buf)
+    }
+
+    override fun allocationSize(value: TerminalReason?): ULong {
+        if (value == null) {
+            return 1UL
+        } else {
+            return 1UL + FfiConverterTypeTerminalReason.allocationSize(value)
+        }
+    }
+
+    override fun write(value: TerminalReason?, buf: ByteBuffer) {
+        if (value == null) {
+            buf.put(0)
+        } else {
+            buf.put(1)
+            FfiConverterTypeTerminalReason.write(value, buf)
         }
     }
 }

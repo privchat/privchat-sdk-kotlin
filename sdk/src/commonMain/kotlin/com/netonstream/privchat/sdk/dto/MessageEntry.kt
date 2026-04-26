@@ -36,4 +36,8 @@ data class MessageEntry(
     val delivered: Boolean = false,
     /** 消息在所属 channel timeline 内的序号，用于 Read 投影 */
     val pts: ULong? = null,
+    /** 引用消息的 server_message_id（REPLY_SPEC），为 null 表示非回复消息 */
+    val replyToServerMessageId: String? = null,
+    /** @ 提及的用户 ID 列表（MENTION_SPEC），空列表表示无 @ */
+    val mentionedUserIds: List<ULong> = emptyList(),
 )

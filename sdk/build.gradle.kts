@@ -1,6 +1,8 @@
 import org.gradle.internal.os.OperatingSystem
 import javax.inject.Inject
 import java.util.Properties
+import java.time.OffsetDateTime
+import java.time.format.DateTimeFormatter
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -121,12 +123,30 @@ val cargoPath = localProps.getProperty("cargo.dir")?.let { "$it/cargo${if (os.is
     ?: "${System.getProperty("user.home")}/.cargo/bin/cargo${if (os.isWindows) ".exe" else ""}"
 val privchatFfiManifest = privchatRustDir.file("Cargo.toml")
 
+fun runGitInSdk(vararg args: String): String = try {
+    val p = ProcessBuilder(listOf("git") + args)
+        .directory(privchatSdkDir.asFile)
+        .redirectErrorStream(true)
+        .start()
+    val out = p.inputStream.bufferedReader().readText().trim()
+    p.waitFor()
+    if (p.exitValue() == 0) out else ""
+} catch (_: Exception) { "" }
+
+val sdkGitShaProvider = providers.provider {
+    val sha = runGitInSdk("rev-parse", "--short=8", "HEAD")
+    val dirty = runGitInSdk("status", "--porcelain").lines().any { it.isNotBlank() }
+    val base = sha.ifEmpty { "unknown" }
+    if (dirty && base != "unknown") "$base-dirty" else base
+}
+
 val cargoBuildAndroid = tasks.register<CargoNdkTask>("privchatCargoBuildAndroid") {
     abis.set(targetAbis)
     cargoBin.set(providers.provider { cargoPath })
     rustDir.set(privchatRustDir)
     jniOut.set(layout.buildDirectory.dir("generated/jniLibs"))
     ndkDir.set(ndkDirPath ?: "")
+    gitSha.set(sdkGitShaProvider)
 }
 
 val cargoBuildHost = tasks.register<CargoHostTask>("privchatCargoBuildHost") {
@@ -134,6 +154,7 @@ val cargoBuildHost = tasks.register<CargoHostTask>("privchatCargoBuildHost") {
     rustDir.set(privchatRustDir)
     sdkSourceDir.set(privchatSdkDir)
     jniOut.set(layout.buildDirectory.dir("nativeLibs/privchat"))
+    gitSha.set(sdkGitShaProvider)
 }
 
 tasks.named("preBuild") { dependsOn(cargoBuildAndroid) }
@@ -147,7 +168,12 @@ fun registerAppleFfiBuildTask(taskName: String, targetTriple: String) = tasks.re
     description = "Build privchat-sdk-ffi for $targetTriple"
     workingDir = rootProject.file("../privchat-sdk")
     inputs.file(privchatFfiManifest)
+    inputs.property("gitSha", sdkGitShaProvider)
     outputs.file(outputLib)
+    doFirst {
+        environment("GIT_SHA", sdkGitShaProvider.get())
+        environment("FFI_BUILD_TIMESTAMP", OffsetDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss XXX")))
+    }
     commandLine(
         cargoPath,
         "build",
@@ -176,11 +202,19 @@ abstract class CargoHostTask @Inject constructor(private val execOps: org.gradle
     @get:InputDirectory abstract val rustDir: DirectoryProperty
     @get:Optional @get:InputDirectory abstract val sdkSourceDir: DirectoryProperty
     @get:OutputDirectory abstract val jniOut: DirectoryProperty
+    @get:Input abstract val gitSha: Property<String>
 
     @TaskAction
     fun run() {
         val rustDirFile = rustDir.get().asFile
-        execOps.exec { workingDir = rustDirFile; commandLine(cargoBin.get(), "build", "--release") }
+        val buildTime = OffsetDateTime.now()
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss XXX"))
+        execOps.exec {
+            workingDir = rustDirFile
+            environment("GIT_SHA", gitSha.get())
+            environment("FFI_BUILD_TIMESTAMP", buildTime)
+            commandLine(cargoBin.get(), "build", "--release")
+        }
         val libName = when {
             OperatingSystem.current().isMacOsX -> "libprivchat_sdk_ffi.dylib"
             OperatingSystem.current().isWindows -> "privchat_sdk_ffi.dll"
@@ -200,6 +234,7 @@ abstract class CargoNdkTask @Inject constructor(private val execOps: org.gradle.
     @get:InputDirectory abstract val rustDir: DirectoryProperty
     @get:OutputDirectory abstract val jniOut: DirectoryProperty
     @get:Optional @get:Input abstract val ndkDir: Property<String>
+    @get:Input abstract val gitSha: Property<String>
 
     @TaskAction
     fun run() {
@@ -208,10 +243,14 @@ abstract class CargoNdkTask @Inject constructor(private val execOps: org.gradle.
         outDir.mkdirs()
         val ndk = ndkDir.get().takeIf { it.isNotEmpty() }
             ?: throw GradleException("NDK path not found. Add ndk.dir to local.properties or ensure sdk.dir points to Android SDK with NDK installed.")
+        val buildTime = OffsetDateTime.now()
+            .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss XXX"))
         abis.get().forEach { abi ->
             execOps.exec {
                 workingDir = rustDirFile
                 environment("ANDROID_NDK_HOME", ndk)
+                environment("GIT_SHA", gitSha.get())
+                environment("FFI_BUILD_TIMESTAMP", buildTime)
                 commandLine(cargoBin.get(), "ndk", "-t", abi, "-o", outDir.absolutePath, "build", "--release")
             }
         }

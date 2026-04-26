@@ -302,6 +302,14 @@ actual class PrivchatClient private actual constructor() {
         }
     }
 
+    actual suspend fun lastTerminalReason(): Result<TerminalReason?> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.lastTerminalReason()?.let(::mapCoreTerminalReason) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("lastTerminalReason failed", it)) },
+        )
+    }
+
     actual fun generateLocalMessageId(): Result<ULong> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching { c.generateLocalMessageId() }.fold(
@@ -1902,6 +1910,8 @@ private fun StoredMessage.toCommonMessage(
         localMediaPath = resolvedMedia,
         delivered = delivered,
         pts = pts,
+        replyToServerMessageId = replyToMessageId,
+        mentionedUserIds = mentionedUserIds,
     )
 }
 
@@ -2024,6 +2034,9 @@ private fun CoreConnectionState.toCommonConnectionState(): ConnectionState = whe
     CoreConnectionState.CONNECTED -> ConnectionState.Connected
     CoreConnectionState.LOGGED_IN -> ConnectionState.Connected
     CoreConnectionState.AUTHENTICATED -> ConnectionState.Connected
+    // Terminated = 认证终局：SDK 已断开且不会自动重连；UI 必须靠 forced_logout 事件处理，
+    // ConnectionState 这一层仅报"断开"以避免把 Reconnecting/Failed 的语义误传到上层。
+    CoreConnectionState.TERMINATED -> ConnectionState.Disconnected
     CoreConnectionState.SHUTDOWN -> ConnectionState.Disconnected
 }
 
@@ -2097,8 +2110,9 @@ private fun buildJsonObject(builder: MutableMap<String, JsonElement?>.() -> Unit
 }
 
 private operator fun MutableMap<String, JsonElement?>.set(key: String, value: Any?) {
-    this[key] = when (value) {
+    val element: JsonElement? = when (value) {
         null -> null
+        is JsonElement -> value
         is String -> JsonPrimitive(value)
         is Boolean -> JsonPrimitive(value)
         is ULong -> JsonPrimitive(value.toString())
@@ -2106,6 +2120,7 @@ private operator fun MutableMap<String, JsonElement?>.set(key: String, value: An
         is List<*> -> JsonArray(value.mapNotNull { it?.let { e -> JsonPrimitive(e.toString()) } })
         else -> JsonPrimitive(value.toString())
     }
+    put(key, element)
 }
 
 private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
@@ -2298,9 +2313,29 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         timeoutMs = event.timeoutMs,
     )
 
+    is CoreSdkEvent.ForcedLogout -> SdkEventPayload(
+        type = "forced_logout",
+        code = event.code,
+        reason = event.message,
+        source = event.source.name,
+    )
+
     CoreSdkEvent.ShutdownStarted -> SdkEventPayload(type = "shutdown_started")
     CoreSdkEvent.ShutdownCompleted -> SdkEventPayload(type = "shutdown_completed")
 }
+
+private fun mapCoreForcedLogoutSource(source: uniffi.privchat_sdk_ffi.ForcedLogoutSource): ForcedLogoutSource = when (source) {
+    uniffi.privchat_sdk_ffi.ForcedLogoutSource.CONNECT_AUTH -> ForcedLogoutSource.ConnectAuth
+    uniffi.privchat_sdk_ffi.ForcedLogoutSource.RPC_AUTH -> ForcedLogoutSource.RpcAuth
+    uniffi.privchat_sdk_ffi.ForcedLogoutSource.MANUAL -> ForcedLogoutSource.Manual
+}
+
+private fun mapCoreTerminalReason(reason: uniffi.privchat_sdk_ffi.TerminalReason): TerminalReason = TerminalReason(
+    code = reason.code,
+    message = reason.message,
+    source = mapCoreForcedLogoutSource(reason.source),
+    atMs = reason.atMs,
+)
 
 private fun mapCoreMediaDownloadState(st: CoreMediaDownloadState): MediaDownloadState = when (st) {
     is CoreMediaDownloadState.Idle -> MediaDownloadState.Idle

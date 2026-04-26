@@ -56,4 +56,11 @@ data class SdkEventPayload(
     val outputPath: String? = null,
     val mimeType: String? = null,
     val timeoutMs: ULong? = null,
+    /**
+     * 强制登出相关字段（仅 `forced_logout` 事件使用）。
+     * - [code] 对应 `privchat_protocol::ErrorCode` 的 u32 码，和 [com.netonstream.privchat.sdk.dto.TerminalReason.code] 对齐；0 表示未携带码。
+     * - [source] 取值 `"ConnectAuth"` / `"RpcAuth"` / `"Manual"`；Manual 表示宿主主动触发 authenticate，UI 不应再弹错误提示。
+     */
+    val code: UInt? = null,
+    val source: String? = null,
 )

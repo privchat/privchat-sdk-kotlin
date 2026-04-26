@@ -39,6 +39,12 @@ expect class PrivchatClient private constructor() {
     suspend fun updateDevicePushState(deviceId: String, apnsArmed: Boolean, pushToken: String?): Result<Unit>
     suspend fun restoreLocalSession(): Result<Boolean>
     suspend fun logout(): Result<Unit>
+    /**
+     * 查询上一次 ForcedLogout 终局记录。成功 Connect 后会被清空。
+     * 用途：冷启动时如果返回非 null，说明旧 token 已被服务端拒掉；UI 应直接跳登录页，
+     * 不要继续按旧凭据触发自动重连。
+     */
+    suspend fun lastTerminalReason(): Result<TerminalReason?>
 
     // ========== Messaging ==========
     fun generateLocalMessageId(): Result<ULong>
