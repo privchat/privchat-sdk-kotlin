@@ -122,8 +122,6 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `authLogoutRemote`(): kotlin.Boolean
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `authRefreshRemote`(`payload`: AuthRefreshInput): LoginResult
-    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `authenticate`(`userId`: kotlin.ULong, `token`: kotlin.String, `deviceId`: kotlin.String)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `batchGetPresence`(`userIds`: List<kotlin.ULong>): List<PresenceStatus>
@@ -274,6 +272,12 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getConnectionState`(): ConnectionState
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getConnectionSummary`(): ConnectionSummary
+    
+    /**
+     * 读取当前会话的 access token（只读拉取模式）。
+     * SDK 权威地管理 token；app 层通常无需直接使用，仅在需要透传给外部服务时调用。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getCurrentAccessToken`(): kotlin.String?
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getDevicePushStatus`(`deviceId`: kotlin.String?): DevicePushStatusView
     
@@ -497,6 +501,19 @@ interface PrivchatClientInterface {
     fun `recentTimelinePlainEvents`(`limit`: kotlin.ULong): List<SdkEvent>
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `recordMention`(`input`: MentionInput): kotlin.ULong
+    
+    /**
+     * Refresh access token via privchat-server `account/auth/refresh` RPC.
+     *
+     * Pure RPC wrapper. **MUST NOT** read/write SDK store, modify state, or
+     * auto-call authenticate. Caller must:
+     * 1) provide `refresh_token` (read from caller's own secure storage);
+     * 2) handle errors (10009/10010 → user re-login; transport → retry);
+     * 3) call `authenticate(uid, result.access_token, device_id)` to apply.
+     *
+     * 详见 TOKEN_REFRESH_SPEC v1.0 §5。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `refreshAccessToken`(`input`: RefreshAccessTokenInput): RefreshAccessTokenResult
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `register`(`username`: kotlin.String, `password`: kotlin.String, `deviceId`: kotlin.String): LoginResult
     fun `registerLifecycleHook`()
@@ -799,11 +816,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `authLogoutRemote`() : kotlin.Boolean
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `authRefreshRemote`(`payload`: AuthRefreshInput) : LoginResult
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -1147,6 +1159,15 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getConnectionSummary`() : ConnectionSummary
+
+    
+    /**
+     * 读取当前会话的 access token（只读拉取模式）。
+     * SDK 权威地管理 token；app 层通常无需直接使用，仅在需要透传给外部服务时调用。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `getCurrentAccessToken`() : kotlin.String?
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -1710,6 +1731,22 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `recordMention`(`input`: MentionInput) : kotlin.ULong
+
+    
+    /**
+     * Refresh access token via privchat-server `account/auth/refresh` RPC.
+     *
+     * Pure RPC wrapper. **MUST NOT** read/write SDK store, modify state, or
+     * auto-call authenticate. Caller must:
+     * 1) provide `refresh_token` (read from caller's own secure storage);
+     * 2) handle errors (10009/10010 → user re-login; transport → retry);
+     * 3) call `authenticate(uid, result.access_token, device_id)` to apply.
+     *
+     * 详见 TOKEN_REFRESH_SPEC v1.0 §5。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `refreshAccessToken`(`input`: RefreshAccessTokenInput) : RefreshAccessTokenResult
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -2316,18 +2353,6 @@ data class AccountUserUpdateInput (
     var `avatarUrl`: kotlin.String?
          = null , 
     var `bio`: kotlin.String?
-         = null 
-) {
-    
-    companion object
-}
-
-
-
-data class AuthRefreshInput (
-    var `refreshToken`: kotlin.String
-        , 
-    var `deviceId`: kotlin.String?
          = null 
 ) {
     
@@ -3581,6 +3606,46 @@ data class ReactionsBatchItemView (
 data class ReactionsBatchView (
     var `items`: List<ReactionsBatchItemView>
         
+) {
+    
+    companion object
+}
+
+
+
+/**
+ * Input for `refresh_access_token` FFI (TOKEN_REFRESH_SPEC v1.0 §5).
+ *
+ * Both fields are required: caller already knows the device_id (passed at login),
+ * and refresh_token is owned by the caller (SDK doesn't store it).
+ */
+data class RefreshAccessTokenInput (
+    var `refreshToken`: kotlin.String
+        , 
+    var `deviceId`: kotlin.String
+        
+) {
+    
+    companion object
+}
+
+
+
+/**
+ * Result of `refresh_access_token` FFI.
+ *
+ * `refresh_token` is `None` when the server doesn't rotate (B1 default).
+ * `refresh_expires_at` is reserved for B2 rotation; B1 may not return it.
+ */
+data class RefreshAccessTokenResult (
+    var `accessToken`: kotlin.String
+        , 
+    var `refreshToken`: kotlin.String?
+         = null , 
+    var `expiresAt`: kotlin.ULong
+        , 
+    var `refreshExpiresAt`: kotlin.ULong?
+         = null 
 ) {
     
     companion object
@@ -4979,6 +5044,19 @@ sealed class SdkEvent {
         val `mimeType`: kotlin.String  , 
         val `messageId`: kotlin.ULong  , 
         val `timeoutMs`: kotlin.ULong  ) : SdkEvent() {
+        
+    }
+    
+    /**
+     * Access token 已由 SDK 自动续期成功。不携带 token 内容——宿主如需使用，
+     * 请调用 `PrivchatSdk::get_current_access_token()` 主动拉取。
+     */
+    
+    data class TokenRefreshed(
+        /**
+         * 新 access_token 过期时间（Unix 毫秒，服务端下发）。
+         */
+        val `expiresAt`: kotlin.ULong  ) : SdkEvent() {
         
     }
     

@@ -811,6 +811,8 @@ get() = useContents { `uniffiFree`/* test  Any? */}
 
 
 
+
+
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -856,8 +858,6 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_assets_dir(`ptr`: Pointer?,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_auth_logout_remote(`ptr`: Pointer?,
-    ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_auth_refresh_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_authenticate(`ptr`: Pointer?,`userId`: Long,`token`: RustBufferByValue,`deviceId`: RustBufferByValue,
     ): Long
@@ -994,6 +994,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_connection_state(`ptr`: Pointer?,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_connection_summary(`ptr`: Pointer?,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_current_access_token(`ptr`: Pointer?,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_device_push_status(`ptr`: Pointer?,`deviceId`: RustBufferByValue,
     ): Long
@@ -1232,6 +1234,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recent_timeline_plain_events(`ptr`: Pointer?,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_record_mention(`ptr`: Pointer?,`input`: RustBufferByValue,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_refresh_access_token(`ptr`: Pointer?,`input`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_register(`ptr`: Pointer?,`username`: RustBufferByValue,`password`: RustBufferByValue,`deviceId`: RustBufferByValue,
     ): Long
@@ -1591,8 +1595,6 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_auth_logout_remote(
     ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_auth_refresh_remote(
-    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_authenticate(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_batch_get_presence(
@@ -1728,6 +1730,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_connection_state(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_connection_summary(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_current_access_token(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_device_push_status(
     ): Short
@@ -1966,6 +1970,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recent_timeline_plain_events(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_record_mention(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_refresh_access_token(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_register(
     ): Short
@@ -2247,10 +2253,6 @@ internal class UniffiLibInstance: UniffiLib {
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_auth_logout_remote(`ptr`?.inner,)as Long
     
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_auth_refresh_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
-    ): Long
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_auth_refresh_remote(`ptr`?.inner,`payload` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
-    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_authenticate(`ptr`: Pointer?,`userId`: Long,`token`: RustBufferByValue,`deviceId`: RustBufferByValue,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_authenticate(`ptr`?.inner,`userId`,`token` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`deviceId` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
@@ -2522,6 +2524,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_connection_summary(`ptr`: Pointer?,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_connection_summary(`ptr`?.inner,)as Long
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_current_access_token(`ptr`: Pointer?,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_current_access_token(`ptr`?.inner,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_device_push_status(`ptr`: Pointer?,`deviceId`: RustBufferByValue,
     ): Long
@@ -2998,6 +3004,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_record_mention(`ptr`: Pointer?,`input`: RustBufferByValue,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_record_mention(`ptr`?.inner,`input` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_refresh_access_token(`ptr`: Pointer?,`input`: RustBufferByValue,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_refresh_access_token(`ptr`?.inner,`input` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_register(`ptr`: Pointer?,`username`: RustBufferByValue,`password`: RustBufferByValue,`deviceId`: RustBufferByValue,
     ): Long
@@ -3715,10 +3725,6 @@ internal class UniffiLibInstance: UniffiLib {
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_auth_logout_remote()as Short
     
-    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_auth_refresh_remote(
-    ): Short
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_auth_refresh_remote()as Short
-    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_authenticate(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_authenticate()as Short
@@ -3990,6 +3996,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_connection_summary(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_connection_summary()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_current_access_token(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_current_access_token()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_device_push_status(
     ): Short
@@ -4466,6 +4476,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_record_mention(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_record_mention()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_refresh_access_token(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_refresh_access_token()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_register(
     ): Short
@@ -5500,28 +5514,6 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_i8(future) },
         // lift function
         { FfiConverterBoolean.lift(it!!) },
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `authRefreshRemote`(`payload`: AuthRefreshInput) : LoginResult {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_auth_refresh_remote(
-                thisPtr,
-                FfiConverterTypeAuthRefreshInput.lower(`payload`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
-        // lift function
-        { FfiConverterTypeLoginResult.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -6936,6 +6928,32 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
         { FfiConverterTypeConnectionSummary.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * 读取当前会话的 access token（只读拉取模式）。
+     * SDK 权威地管理 token；app 层通常无需直接使用，仅在需要透传给外部服务时调用。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `getCurrentAccessToken`() : kotlin.String? {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_current_access_token(
+                thisPtr,
+                
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterOptionalString.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -9393,6 +9411,39 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     
+    /**
+     * Refresh access token via privchat-server `account/auth/refresh` RPC.
+     *
+     * Pure RPC wrapper. **MUST NOT** read/write SDK store, modify state, or
+     * auto-call authenticate. Caller must:
+     * 1) provide `refresh_token` (read from caller's own secure storage);
+     * 2) handle errors (10009/10010 → user re-login; transport → retry);
+     * 3) call `authenticate(uid, result.access_token, device_id)` to apply.
+     *
+     * 详见 TOKEN_REFRESH_SPEC v1.0 §5。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `refreshAccessToken`(`input`: RefreshAccessTokenInput) : RefreshAccessTokenResult {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_refresh_access_token(
+                thisPtr,
+                FfiConverterTypeRefreshAccessTokenInput.lower(`input`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterTypeRefreshAccessTokenResult.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `register`(`username`: kotlin.String, `password`: kotlin.String, `deviceId`: kotlin.String) : LoginResult {
@@ -11817,28 +11868,6 @@ object FfiConverterTypeAccountUserUpdateInput: FfiConverterRustBuffer<AccountUse
 
 
 
-object FfiConverterTypeAuthRefreshInput: FfiConverterRustBuffer<AuthRefreshInput> {
-    override fun read(buf: ByteBuffer): AuthRefreshInput {
-        return AuthRefreshInput(
-            FfiConverterString.read(buf),
-            FfiConverterOptionalString.read(buf),
-        )
-    }
-
-    override fun allocationSize(value: AuthRefreshInput) = (
-            FfiConverterString.allocationSize(value.`refreshToken`) +
-            FfiConverterOptionalString.allocationSize(value.`deviceId`)
-    )
-
-    override fun write(value: AuthRefreshInput, buf: ByteBuffer) {
-            FfiConverterString.write(value.`refreshToken`, buf)
-            FfiConverterOptionalString.write(value.`deviceId`, buf)
-    }
-}
-
-
-
-
 object FfiConverterTypeBatchGetChannelPtsInput: FfiConverterRustBuffer<BatchGetChannelPtsInput> {
     override fun read(buf: ByteBuffer): BatchGetChannelPtsInput {
         return BatchGetChannelPtsInput(
@@ -14021,6 +14050,56 @@ object FfiConverterTypeReactionsBatchView: FfiConverterRustBuffer<ReactionsBatch
 
 
 
+object FfiConverterTypeRefreshAccessTokenInput: FfiConverterRustBuffer<RefreshAccessTokenInput> {
+    override fun read(buf: ByteBuffer): RefreshAccessTokenInput {
+        return RefreshAccessTokenInput(
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: RefreshAccessTokenInput) = (
+            FfiConverterString.allocationSize(value.`refreshToken`) +
+            FfiConverterString.allocationSize(value.`deviceId`)
+    )
+
+    override fun write(value: RefreshAccessTokenInput, buf: ByteBuffer) {
+            FfiConverterString.write(value.`refreshToken`, buf)
+            FfiConverterString.write(value.`deviceId`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeRefreshAccessTokenResult: FfiConverterRustBuffer<RefreshAccessTokenResult> {
+    override fun read(buf: ByteBuffer): RefreshAccessTokenResult {
+        return RefreshAccessTokenResult(
+            FfiConverterString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterOptionalULong.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: RefreshAccessTokenResult) = (
+            FfiConverterString.allocationSize(value.`accessToken`) +
+            FfiConverterOptionalString.allocationSize(value.`refreshToken`) +
+            FfiConverterULong.allocationSize(value.`expiresAt`) +
+            FfiConverterOptionalULong.allocationSize(value.`refreshExpiresAt`)
+    )
+
+    override fun write(value: RefreshAccessTokenResult, buf: ByteBuffer) {
+            FfiConverterString.write(value.`accessToken`, buf)
+            FfiConverterOptionalString.write(value.`refreshToken`, buf)
+            FfiConverterULong.write(value.`expiresAt`, buf)
+            FfiConverterOptionalULong.write(value.`refreshExpiresAt`, buf)
+    }
+}
+
+
+
+
 object FfiConverterTypeRetryConfigView: FfiConverterRustBuffer<RetryConfigView> {
     override fun read(buf: ByteBuffer): RetryConfigView {
         return RetryConfigView(
@@ -16147,13 +16226,16 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            24 -> SdkEvent.ForcedLogout(
+            24 -> SdkEvent.TokenRefreshed(
+                FfiConverterULong.read(buf),
+                )
+            25 -> SdkEvent.ForcedLogout(
                 FfiConverterUInt.read(buf),
                 FfiConverterString.read(buf),
                 FfiConverterTypeForcedLogoutSource.read(buf),
                 )
-            25 -> SdkEvent.ShutdownStarted
-            26 -> SdkEvent.ShutdownCompleted
+            26 -> SdkEvent.ShutdownStarted
+            27 -> SdkEvent.ShutdownCompleted
             else -> throw RuntimeException("invalid enum value, something is very wrong!!")
         }
     }
@@ -16376,6 +16458,13 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 + FfiConverterULong.allocationSize(value.`timeoutMs`)
             )
         }
+        is SdkEvent.TokenRefreshed -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterULong.allocationSize(value.`expiresAt`)
+            )
+        }
         is SdkEvent.ForcedLogout -> {
             // Add the size for the Int that specifies the variant plus the size needed for all fields
             (
@@ -16572,19 +16661,24 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterULong.write(value.`timeoutMs`, buf)
                 Unit
             }
-            is SdkEvent.ForcedLogout -> {
+            is SdkEvent.TokenRefreshed -> {
                 buf.putInt(24)
+                FfiConverterULong.write(value.`expiresAt`, buf)
+                Unit
+            }
+            is SdkEvent.ForcedLogout -> {
+                buf.putInt(25)
                 FfiConverterUInt.write(value.`code`, buf)
                 FfiConverterString.write(value.`message`, buf)
                 FfiConverterTypeForcedLogoutSource.write(value.`source`, buf)
                 Unit
             }
             is SdkEvent.ShutdownStarted -> {
-                buf.putInt(25)
+                buf.putInt(26)
                 Unit
             }
             is SdkEvent.ShutdownCompleted -> {
-                buf.putInt(26)
+                buf.putInt(27)
                 Unit
             }
         }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }

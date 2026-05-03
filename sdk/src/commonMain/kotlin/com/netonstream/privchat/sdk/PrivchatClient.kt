@@ -35,6 +35,14 @@ expect class PrivchatClient private constructor() {
     suspend fun register(username: String, password: String, deviceId: String): Result<AuthResult>
     suspend fun login(username: String, password: String, deviceId: String): Result<AuthResult>
     suspend fun authenticate(userId: ULong, token: String, deviceId: String): Result<Unit>
+    /**
+     * 调 privchat-server `account/auth/refresh` RPC 续期 access token。
+     * 业务层 catch 10002 错误时调用：拿到新 access token 后再调 [authenticate] 应用。
+     * 业务层负责 refresh_token 的存储（从 [AuthResult.refreshToken] 捕获），
+     * SDK 不负责持久化 refresh_token——这样 SDK 适配第一方 / 第三方业务两种 login 流程。
+     * 详见 TOKEN_REFRESH_SPEC v1.0 §5。
+     */
+    suspend fun refreshAccessToken(refreshToken: String, deviceId: String): Result<RefreshAccessTokenResult>
     suspend fun updateProfile(displayName: String?, avatarUrl: String? = null, bio: String? = null): Result<Unit>
     suspend fun updateDevicePushState(deviceId: String, apnsArmed: Boolean, pushToken: String?): Result<Unit>
     suspend fun restoreLocalSession(): Result<Boolean>

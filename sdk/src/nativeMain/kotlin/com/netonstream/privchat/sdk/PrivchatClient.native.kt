@@ -220,7 +220,13 @@ actual class PrivchatClient private actual constructor() {
         return runCatching {
             val result = c.register(username, password, deviceId)
             cachedUserId = result.userId
-            AuthResult(userId = result.userId, token = result.token)
+            AuthResult(
+                userId = result.userId,
+                token = result.token,
+                refreshToken = result.refreshToken,
+                deviceId = result.deviceId,
+                expiresAt = result.expiresAt,
+            )
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("Register failed", it)) },
@@ -234,7 +240,13 @@ actual class PrivchatClient private actual constructor() {
             val result = c.login(username, password, deviceId)
             cachedUserId = result.userId
             cachedConnectionState = ConnectionState.Connected
-            AuthResult(userId = result.userId, token = result.token)
+            AuthResult(
+                userId = result.userId,
+                token = result.token,
+                refreshToken = result.refreshToken,
+                deviceId = result.deviceId,
+                expiresAt = result.expiresAt,
+            )
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("Login failed", it)) },
@@ -248,6 +260,30 @@ actual class PrivchatClient private actual constructor() {
             cachedUserId = userId
             cachedConnectionState = ConnectionState.Connected
         }
+    }
+
+    actual suspend fun refreshAccessToken(
+        refreshToken: String,
+        deviceId: String,
+    ): Result<RefreshAccessTokenResult> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val resp = c.refreshAccessToken(
+                uniffi.privchat_sdk_ffi.RefreshAccessTokenInput(
+                    refreshToken = refreshToken,
+                    deviceId = deviceId,
+                )
+            )
+            RefreshAccessTokenResult(
+                accessToken = resp.accessToken,
+                refreshToken = resp.refreshToken,
+                expiresAt = resp.expiresAt,
+                refreshExpiresAt = resp.refreshExpiresAt,
+            )
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("refreshAccessToken failed", it)) },
+        )
     }
 
     actual suspend fun updateProfile(displayName: String?, avatarUrl: String?, bio: String?): Result<Unit> {
@@ -2043,6 +2079,8 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         reason = event.message,
         source = event.source.name,
     )
+
+    is CoreSdkEvent.TokenRefreshed -> SdkEventPayload(type = "token_refreshed")
 
     CoreSdkEvent.ShutdownStarted -> SdkEventPayload(type = "shutdown_started")
     CoreSdkEvent.ShutdownCompleted -> SdkEventPayload(type = "shutdown_completed")

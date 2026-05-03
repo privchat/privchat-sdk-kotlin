@@ -192,8 +192,6 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_assets_dir(void * ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_auth_logout_remote(void * ptr
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_auth_refresh_remote(void * ptr, RustBuffer payload
-);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_authenticate(void * ptr, int64_t userId, RustBuffer token, RustBuffer deviceId
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_batch_get_presence(void * ptr, RustBuffer userIds
@@ -329,6 +327,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_channels(void * ptr
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_connection_state(void * ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_connection_summary(void * ptr
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_current_access_token(void * ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_device_push_status(void * ptr, RustBuffer deviceId
 );
@@ -567,6 +567,8 @@ RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_recent_timeline_even
 RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_recent_timeline_plain_events(void * ptr, int64_t limit, UniffiRustCallStatus *_Nonnull out_status
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_record_mention(void * ptr, RustBuffer input
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_refresh_access_token(void * ptr, RustBuffer input
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_register(void * ptr, RustBuffer username, RustBuffer password, RustBuffer deviceId
 );
@@ -945,9 +947,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_assets_dir(void
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_auth_logout_remote(void
     
 );
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_auth_refresh_remote(void
-    
-);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_authenticate(void
     
 );
@@ -1150,6 +1149,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_connection_st
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_connection_summary(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_current_access_token(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_device_push_status(void
@@ -1507,6 +1509,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recent_timeline_p
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_record_mention(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_refresh_access_token(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_register(void
