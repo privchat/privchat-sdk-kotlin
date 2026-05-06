@@ -2082,6 +2082,12 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
 
     is CoreSdkEvent.TokenRefreshed -> SdkEventPayload(type = "token_refreshed")
 
+    is CoreSdkEvent.AccessTokenRefreshNeeded -> SdkEventPayload(
+        type = "access_token_refresh_needed",
+        code = event.code,
+        reason = event.message,
+    )
+
     CoreSdkEvent.ShutdownStarted -> SdkEventPayload(type = "shutdown_started")
     CoreSdkEvent.ShutdownCompleted -> SdkEventPayload(type = "shutdown_completed")
 }

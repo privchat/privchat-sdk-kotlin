@@ -5060,6 +5060,23 @@ sealed class SdkEvent {
         
     }
     
+    /**
+     * auto-reconnect 握手撞到 Recoverable auth 错（典型 10002）；SDK 已暂停 auto-reconnect。
+     * 业务层应调用自家 mode-aware refresh 入口（详见 TOKEN_REFRESH_SPEC §3.1）。
+     */
+    
+    data class AccessTokenRefreshNeeded(
+        /**
+         * 服务端原始错误码，典型 10002。
+         */
+        val `code`: kotlin.UInt  , 
+        /**
+         * 服务端原始 message，仅作日志/审计。
+         */
+        val `message`: kotlin.String  ) : SdkEvent() {
+        
+    }
+    
     
     data class ForcedLogout(
         /**

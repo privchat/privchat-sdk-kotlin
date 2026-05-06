@@ -14191,13 +14191,17 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
             24 -> SdkEvent.TokenRefreshed(
                 FfiConverterULong.read(buf),
                 )
-            25 -> SdkEvent.ForcedLogout(
+            25 -> SdkEvent.AccessTokenRefreshNeeded(
+                FfiConverterUInt.read(buf),
+                FfiConverterString.read(buf),
+                )
+            26 -> SdkEvent.ForcedLogout(
                 FfiConverterUInt.read(buf),
                 FfiConverterString.read(buf),
                 FfiConverterTypeForcedLogoutSource.read(buf),
                 )
-            26 -> SdkEvent.ShutdownStarted
-            27 -> SdkEvent.ShutdownCompleted
+            27 -> SdkEvent.ShutdownStarted
+            28 -> SdkEvent.ShutdownCompleted
             else -> throw RuntimeException("invalid enum value, something is very wrong!!")
         }
     }
@@ -14427,6 +14431,14 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 + FfiConverterULong.allocationSize(value.`expiresAt`)
             )
         }
+        is SdkEvent.AccessTokenRefreshNeeded -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterUInt.allocationSize(value.`code`)
+                + FfiConverterString.allocationSize(value.`message`)
+            )
+        }
         is SdkEvent.ForcedLogout -> {
             // Add the size for the Int that specifies the variant plus the size needed for all fields
             (
@@ -14628,19 +14640,25 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterULong.write(value.`expiresAt`, buf)
                 Unit
             }
-            is SdkEvent.ForcedLogout -> {
+            is SdkEvent.AccessTokenRefreshNeeded -> {
                 buf.putInt(25)
+                FfiConverterUInt.write(value.`code`, buf)
+                FfiConverterString.write(value.`message`, buf)
+                Unit
+            }
+            is SdkEvent.ForcedLogout -> {
+                buf.putInt(26)
                 FfiConverterUInt.write(value.`code`, buf)
                 FfiConverterString.write(value.`message`, buf)
                 FfiConverterTypeForcedLogoutSource.write(value.`source`, buf)
                 Unit
             }
             is SdkEvent.ShutdownStarted -> {
-                buf.putInt(26)
+                buf.putInt(27)
                 Unit
             }
             is SdkEvent.ShutdownCompleted -> {
-                buf.putInt(27)
+                buf.putInt(28)
                 Unit
             }
         }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }

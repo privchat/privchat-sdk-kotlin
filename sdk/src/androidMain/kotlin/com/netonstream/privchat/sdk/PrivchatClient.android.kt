@@ -2361,6 +2361,12 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         // expires_at 字段在 SdkEventPayload 里没专门字段，仅作 type 透出供宿主感知。
     )
 
+    is CoreSdkEvent.AccessTokenRefreshNeeded -> SdkEventPayload(
+        type = "access_token_refresh_needed",
+        code = event.code,
+        reason = event.message,
+    )
+
     CoreSdkEvent.ShutdownStarted -> SdkEventPayload(type = "shutdown_started")
     CoreSdkEvent.ShutdownCompleted -> SdkEventPayload(type = "shutdown_completed")
 }
