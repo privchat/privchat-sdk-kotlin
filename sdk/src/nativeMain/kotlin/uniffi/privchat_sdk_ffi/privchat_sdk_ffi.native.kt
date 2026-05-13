@@ -813,6 +813,16 @@ get() = useContents { `uniffiFree`/* test  Any? */}
 
 
 
+
+
+
+
+
+
+
+
+
+
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -968,6 +978,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_upload_callback_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_finalize_local_attachment(`ptr`: Pointer?,`messageId`: Long,`content`: RustBufferByValue,`thumbStatus`: Int,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_follow_bot(`ptr`: Pointer?,`botUserId`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_forward_message(`ptr`: Pointer?,`srcMessageId`: Long,`targetChannelId`: Long,`targetChannelType`: Int,
     ): Long
@@ -1197,6 +1209,8 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_peek_outbound_messages(`ptr`: Pointer?,`limit`: Long,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_persist_user_profile_local(`ptr`: Pointer?,`targetUserId`: Long,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_pin_channel(`ptr`: Pointer?,`channelId`: Long,`pinned`: Byte,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_ping(`ptr`: Pointer?,
@@ -1395,6 +1409,10 @@ internal interface UniffiLib {
     ): Int
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_to_client_endpoint(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_transfer(`ptr`: Pointer?,`channelId`: Long,`route`: RustBufferByValue,`body`: RustBufferByValue,`timeoutMs`: Long,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_unfollow_bot(`ptr`: Pointer?,`botUserId`: Long,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_unsubscribe_channel(`ptr`: Pointer?,`channelId`: Long,`channelType`: Byte,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_device_push_state(`ptr`: Pointer?,`deviceId`: RustBufferByValue,`apnsArmed`: Byte,`pushToken`: RustBufferByValue,
@@ -1448,6 +1466,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_func_build_time(uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_func_git_sha(uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
+    fun uniffi_privchat_sdk_ffi_fn_func_qr_decode_luma(`width`: Int,`height`: Int,`luma`: RustBufferByValue,uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_func_sdk_version(uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
@@ -1566,6 +1586,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_func_build_time(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_func_git_sha(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_func_qr_decode_luma(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_func_sdk_version(
     ): Short
@@ -1704,6 +1726,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_upload_callback_remote(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_finalize_local_attachment(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_follow_bot(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_forward_message(
     ): Short
@@ -1933,6 +1957,8 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_peek_outbound_messages(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_persist_user_profile_local(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_pin_channel(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_ping(
@@ -2130,6 +2156,10 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_timezone_seconds(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_to_client_endpoint(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_transfer(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unfollow_bot(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unsubscribe_channel(
     ): Short
@@ -2472,6 +2502,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_finalize_local_attachment(`ptr`: Pointer?,`messageId`: Long,`content`: RustBufferByValue,`thumbStatus`: Int,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_finalize_local_attachment(`ptr`?.inner,`messageId`,`content` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`thumbStatus`,)as Long
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_follow_bot(`ptr`: Pointer?,`botUserId`: Long,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_follow_bot(`ptr`?.inner,`botUserId`,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_forward_message(`ptr`: Pointer?,`srcMessageId`: Long,`targetChannelId`: Long,`targetChannelType`: Int,
     ): Long
@@ -2929,6 +2963,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_peek_outbound_messages(`ptr`?.inner,`limit`,)as Long
     
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_persist_user_profile_local(`ptr`: Pointer?,`targetUserId`: Long,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_persist_user_profile_local(`ptr`?.inner,`targetUserId`,)as Long
+    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_pin_channel(`ptr`: Pointer?,`channelId`: Long,`pinned`: Byte,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_pin_channel(`ptr`?.inner,`channelId`,`pinned`,)as Long
@@ -3325,6 +3363,14 @@ internal class UniffiLibInstance: UniffiLib {
     ): RustBufferByValue
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_to_client_endpoint(`ptr`?.inner,uniffiCallStatus.reinterpret(), )as RustBufferByValue
     
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_transfer(`ptr`: Pointer?,`channelId`: Long,`route`: RustBufferByValue,`body`: RustBufferByValue,`timeoutMs`: Long,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_transfer(`ptr`?.inner,`channelId`,`route` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`body` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`timeoutMs`,)as Long
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_unfollow_bot(`ptr`: Pointer?,`botUserId`: Long,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_unfollow_bot(`ptr`?.inner,`botUserId`,)as Long
+    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_unsubscribe_channel(`ptr`: Pointer?,`channelId`: Long,`channelType`: Byte,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_unsubscribe_channel(`ptr`?.inner,`channelId`,`channelType`,)as Long
@@ -3432,6 +3478,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_func_git_sha(uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_func_git_sha(uniffiCallStatus.reinterpret(), )as RustBufferByValue
+    
+    override fun uniffi_privchat_sdk_ffi_fn_func_qr_decode_luma(`width`: Int,`height`: Int,`luma`: RustBufferByValue,uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_func_qr_decode_luma(`width`,`height`,`luma` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,uniffiCallStatus.reinterpret(), )as RustBufferByValue
     
     override fun uniffi_privchat_sdk_ffi_fn_func_sdk_version(uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
@@ -3668,6 +3718,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_func_git_sha(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_func_git_sha()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_func_qr_decode_luma(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_func_qr_decode_luma()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_func_sdk_version(
     ): Short
@@ -3944,6 +3998,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_finalize_local_attachment(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_finalize_local_attachment()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_follow_bot(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_follow_bot()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_forward_message(
     ): Short
@@ -4401,6 +4459,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_peek_outbound_messages()as Short
     
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_persist_user_profile_local(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_persist_user_profile_local()as Short
+    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_pin_channel(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_pin_channel()as Short
@@ -4796,6 +4858,14 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_to_client_endpoint(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_to_client_endpoint()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_transfer(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_transfer()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unfollow_bot(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unfollow_bot()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unsubscribe_channel(
     ): Short
@@ -6642,6 +6712,34 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         // lift function
         { Unit },
         
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * 关注一个 Bot（user_type=2）；server 写 `privchat_bot_follow` + 通知 application
+     * 写 `privchat_business_channel` binding。返回 channel_id 后即可 Subscribe + Transfer。
+     *
+     * Spec: `02-server/SERVICE_ACCOUNT_FOLLOW_SPEC` §3.1。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `followBot`(`botUserId`: kotlin.ULong) : BotFollowResult {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_follow_bot(
+                thisPtr,
+                FfiConverterULong.lower(`botUserId`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterTypeBotFollowResult.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -9052,6 +9150,33 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     
+    /**
+     * 拉一次 `account/user/detail` 并把对端用户写入本地 users 表。
+     * 用于 follow 后让会话头显示昵称/头像，spec BOT_INTERACTION_SPEC §3.0。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `persistUserProfileLocal`(`targetUserId`: kotlin.ULong) {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_persist_user_profile_local(
+                thisPtr,
+                FfiConverterULong.lower(`targetUserId`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
+        // lift function
+        { Unit },
+        
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `pinChannel`(`channelId`: kotlin.ULong, `pinned`: kotlin.Boolean) : kotlin.Boolean {
@@ -11045,6 +11170,62 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
 
     
     /**
+     * Channel Transfer client→app RPC. Sends a wire `TransferRequest`
+     * (biz_type=19) and awaits the matching `TransferResponse` (biz_type=20).
+     * `timeout_ms = 0` falls back to the SDK default (5000 ms).
+     * See `02-server/CHANNEL_TRANSFER_SPEC.md` v2.0 and
+     * `07-application/BOT_INTERACTION_SPEC.md` for typical routes.
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `transfer`(`channelId`: kotlin.ULong, `route`: kotlin.String, `body`: kotlin.ByteArray, `timeoutMs`: kotlin.ULong) : TransferReplyView {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_transfer(
+                thisPtr,
+                FfiConverterULong.lower(`channelId`),FfiConverterString.lower(`route`),FfiConverterByteArray.lower(`body`),FfiConverterULong.lower(`timeoutMs`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterTypeTransferReplyView.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * 取消关注 Bot；server 切 status=0 但**不**删 channel / 历史 / application 业务行。
+     *
+     * Spec: `02-server/SERVICE_ACCOUNT_FOLLOW_SPEC` §3.2。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `unfollowBot`(`botUserId`: kotlin.ULong) : BotUnfollowResult {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_unfollow_bot(
+                thisPtr,
+                FfiConverterULong.lower(`botUserId`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterTypeBotUnfollowResult.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
      * 取消订阅频道事件（离开聊天页面时调用）
      * channel_type: 0=Private, 1=Group, 2=Room
      */
@@ -11783,6 +11964,7 @@ object FfiConverterTypeAccountUserDetailView: FfiConverterRustBuffer<AccountUser
             FfiConverterBoolean.read(buf),
             FfiConverterString.read(buf),
             FfiConverterString.read(buf),
+            FfiConverterBoolean.read(buf),
         )
     }
 
@@ -11797,7 +11979,8 @@ object FfiConverterTypeAccountUserDetailView: FfiConverterRustBuffer<AccountUser
             FfiConverterBoolean.allocationSize(value.`isFriend`) +
             FfiConverterBoolean.allocationSize(value.`canSendMessage`) +
             FfiConverterString.allocationSize(value.`sourceType`) +
-            FfiConverterString.allocationSize(value.`sourceId`)
+            FfiConverterString.allocationSize(value.`sourceId`) +
+            FfiConverterBoolean.allocationSize(value.`isFollow`)
     )
 
     override fun write(value: AccountUserDetailView, buf: ByteBuffer) {
@@ -11812,6 +11995,7 @@ object FfiConverterTypeAccountUserDetailView: FfiConverterRustBuffer<AccountUser
             FfiConverterBoolean.write(value.`canSendMessage`, buf)
             FfiConverterString.write(value.`sourceType`, buf)
             FfiConverterString.write(value.`sourceId`, buf)
+            FfiConverterBoolean.write(value.`isFollow`, buf)
     }
 }
 
@@ -11919,6 +12103,62 @@ object FfiConverterTypeBlacklistCheckResult: FfiConverterRustBuffer<BlacklistChe
 
     override fun write(value: BlacklistCheckResult, buf: ByteBuffer) {
             FfiConverterBoolean.write(value.`isBlocked`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeBotFollowResult: FfiConverterRustBuffer<BotFollowResult> {
+    override fun read(buf: ByteBuffer): BotFollowResult {
+        return BotFollowResult(
+            FfiConverterULong.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterInt.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterBoolean.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: BotFollowResult) = (
+            FfiConverterULong.allocationSize(value.`botUserId`) +
+            FfiConverterULong.allocationSize(value.`channelId`) +
+            FfiConverterInt.allocationSize(value.`accountUserType`) +
+            FfiConverterBoolean.allocationSize(value.`followed`) +
+            FfiConverterBoolean.allocationSize(value.`created`)
+    )
+
+    override fun write(value: BotFollowResult, buf: ByteBuffer) {
+            FfiConverterULong.write(value.`botUserId`, buf)
+            FfiConverterULong.write(value.`channelId`, buf)
+            FfiConverterInt.write(value.`accountUserType`, buf)
+            FfiConverterBoolean.write(value.`followed`, buf)
+            FfiConverterBoolean.write(value.`created`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeBotUnfollowResult: FfiConverterRustBuffer<BotUnfollowResult> {
+    override fun read(buf: ByteBuffer): BotUnfollowResult {
+        return BotUnfollowResult(
+            FfiConverterULong.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterBoolean.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: BotUnfollowResult) = (
+            FfiConverterULong.allocationSize(value.`botUserId`) +
+            FfiConverterULong.allocationSize(value.`channelId`) +
+            FfiConverterBoolean.allocationSize(value.`unfollowed`)
+    )
+
+    override fun write(value: BotUnfollowResult, buf: ByteBuffer) {
+            FfiConverterULong.write(value.`botUserId`, buf)
+            FfiConverterULong.write(value.`channelId`, buf)
+            FfiConverterBoolean.write(value.`unfollowed`, buf)
     }
 }
 
@@ -14133,6 +14373,7 @@ object FfiConverterTypeSearchUserEntry: FfiConverterRustBuffer<SearchUserEntry> 
             FfiConverterULong.read(buf),
             FfiConverterBoolean.read(buf),
             FfiConverterBoolean.read(buf),
+            FfiConverterBoolean.read(buf),
         )
     }
 
@@ -14144,7 +14385,8 @@ object FfiConverterTypeSearchUserEntry: FfiConverterRustBuffer<SearchUserEntry> 
             FfiConverterInt.allocationSize(value.`userType`) +
             FfiConverterULong.allocationSize(value.`searchSessionId`) +
             FfiConverterBoolean.allocationSize(value.`isFriend`) +
-            FfiConverterBoolean.allocationSize(value.`canSendMessage`)
+            FfiConverterBoolean.allocationSize(value.`canSendMessage`) +
+            FfiConverterBoolean.allocationSize(value.`isFollow`)
     )
 
     override fun write(value: SearchUserEntry, buf: ByteBuffer) {
@@ -14156,6 +14398,7 @@ object FfiConverterTypeSearchUserEntry: FfiConverterRustBuffer<SearchUserEntry> 
             FfiConverterULong.write(value.`searchSessionId`, buf)
             FfiConverterBoolean.write(value.`isFriend`, buf)
             FfiConverterBoolean.write(value.`canSendMessage`, buf)
+            FfiConverterBoolean.write(value.`isFollow`, buf)
     }
 }
 
@@ -15237,6 +15480,37 @@ object FfiConverterTypeTerminalReason: FfiConverterRustBuffer<TerminalReason> {
 
 
 
+object FfiConverterTypeTransferReplyView: FfiConverterRustBuffer<TransferReplyView> {
+    override fun read(buf: ByteBuffer): TransferReplyView {
+        return TransferReplyView(
+            FfiConverterString.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterInt.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterByteArray.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: TransferReplyView) = (
+            FfiConverterString.allocationSize(value.`requestId`) +
+            FfiConverterULong.allocationSize(value.`channelId`) +
+            FfiConverterInt.allocationSize(value.`code`) +
+            FfiConverterString.allocationSize(value.`message`) +
+            FfiConverterByteArray.allocationSize(value.`data`)
+    )
+
+    override fun write(value: TransferReplyView, buf: ByteBuffer) {
+            FfiConverterString.write(value.`requestId`, buf)
+            FfiConverterULong.write(value.`channelId`, buf)
+            FfiConverterInt.write(value.`code`, buf)
+            FfiConverterString.write(value.`message`, buf)
+            FfiConverterByteArray.write(value.`data`, buf)
+    }
+}
+
+
+
+
 object FfiConverterTypeTypingChannelView: FfiConverterRustBuffer<TypingChannelView> {
     override fun read(buf: ByteBuffer): TypingChannelView {
         return TypingChannelView(
@@ -16047,6 +16321,66 @@ object FfiConverterTypePrivchatFfiError : FfiConverterRustBuffer<PrivchatFfiExce
             is PrivchatFfiException.SdkException -> {
                 buf.putInt(1)
                 FfiConverterUInt.write(value.`code`, buf)
+                FfiConverterString.write(value.`detail`, buf)
+                Unit
+            }
+        }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }
+    }
+
+}
+
+
+
+
+object QrDecodeExceptionErrorHandler : UniffiRustCallStatusErrorHandler<QrDecodeException> {
+    override fun lift(errorBuf: RustBufferByValue): QrDecodeException = FfiConverterTypeQrDecodeError.lift(errorBuf)
+}
+
+object FfiConverterTypeQrDecodeError : FfiConverterRustBuffer<QrDecodeException> {
+    override fun read(buf: ByteBuffer): QrDecodeException {
+        
+
+        return when(buf.getInt()) {
+            1 -> QrDecodeException.InvalidDimensions(
+                FfiConverterUInt.read(buf),
+                FfiConverterUInt.read(buf),
+                FfiConverterUInt.read(buf),
+                )
+            2 -> QrDecodeException.DecoderException(
+                FfiConverterString.read(buf),
+                )
+            else -> throw RuntimeException("invalid error enum value, something is very wrong!!")
+        }
+    }
+
+    override fun allocationSize(value: QrDecodeException): ULong {
+        return when(value) {
+            is QrDecodeException.InvalidDimensions -> (
+                // Add the size for the Int that specifies the variant plus the size needed for all fields
+                4UL
+                + FfiConverterUInt.allocationSize(value.`width`)
+                + FfiConverterUInt.allocationSize(value.`height`)
+                + FfiConverterUInt.allocationSize(value.`lumaLen`)
+            )
+            is QrDecodeException.DecoderException -> (
+                // Add the size for the Int that specifies the variant plus the size needed for all fields
+                4UL
+                + FfiConverterString.allocationSize(value.`detail`)
+            )
+        }
+    }
+
+    override fun write(value: QrDecodeException, buf: ByteBuffer) {
+        when(value) {
+            is QrDecodeException.InvalidDimensions -> {
+                buf.putInt(1)
+                FfiConverterUInt.write(value.`width`, buf)
+                FfiConverterUInt.write(value.`height`, buf)
+                FfiConverterUInt.write(value.`lumaLen`, buf)
+                Unit
+            }
+            is QrDecodeException.DecoderException -> {
+                buf.putInt(2)
                 FfiConverterString.write(value.`detail`, buf)
                 Unit
             }
@@ -18372,6 +18706,29 @@ actual fun `gitSha`(): kotlin.String {
     uniffiRustCall() { _status ->
     UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_func_git_sha(
         _status)!!
+}
+    )
+    }
+    
+
+
+
+        /**
+         * Decode a QR code from an 8-bit grayscale image (Y plane of a YUV
+         * camera frame, or `0.299*R + 0.587*G + 0.114*B` of an RGB photo).
+         *
+         * `luma` must be exactly `width * height` bytes, row-major.
+         *
+         * - `Ok(Some(text))` — QR found
+         * - `Ok(None)`       — no QR in this frame (steady-state during live scan)
+         * - `Err(InvalidDimensions)` — caller-side dimensions / length mismatch
+         * - `Err(DecoderError)` — rxing internal failure (rare)
+         */
+    @Throws(QrDecodeException::class)actual fun `qrDecodeLuma`(`width`: kotlin.UInt, `height`: kotlin.UInt, `luma`: kotlin.ByteArray): kotlin.String? {
+            return FfiConverterOptionalString.lift(
+    uniffiRustCallWithError(QrDecodeExceptionErrorHandler) { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_func_qr_decode_luma(
+        FfiConverterUInt.lower(`width`),FfiConverterUInt.lower(`height`),FfiConverterByteArray.lower(`luma`),_status)!!
 }
     )
     }

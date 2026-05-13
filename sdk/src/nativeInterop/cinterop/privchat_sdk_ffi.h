@@ -302,6 +302,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_upload_callback_re
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_finalize_local_attachment(void * ptr, int64_t messageId, RustBuffer content, int32_t thumbStatus
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_follow_bot(void * ptr, int64_t botUserId
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_forward_message(void * ptr, int64_t srcMessageId, int64_t targetChannelId, int32_t targetChannelType
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_generate_local_message_id(void * ptr, UniffiRustCallStatus *_Nonnull out_status
@@ -530,6 +532,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_peek_outbound_files(voi
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_peek_outbound_messages(void * ptr, int64_t limit
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_persist_user_profile_local(void * ptr, int64_t targetUserId
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_pin_channel(void * ptr, int64_t channelId, int8_t pinned
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_ping(void * ptr
@@ -728,6 +732,10 @@ int32_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_timezone_seconds(void *
 );
 RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_to_client_endpoint(void * ptr, UniffiRustCallStatus *_Nonnull out_status
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_transfer(void * ptr, int64_t channelId, RustBuffer route, RustBuffer body, int64_t timeoutMs
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_unfollow_bot(void * ptr, int64_t botUserId
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_unsubscribe_channel(void * ptr, int64_t channelId, int8_t channelType
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_device_push_state(void * ptr, RustBuffer deviceId, int8_t apnsArmed, RustBuffer pushToken
@@ -783,6 +791,8 @@ RustBuffer uniffi_privchat_sdk_ffi_fn_func_build_time(UniffiRustCallStatus *_Non
 );
 RustBuffer uniffi_privchat_sdk_ffi_fn_func_git_sha(UniffiRustCallStatus *_Nonnull out_status
     
+);
+RustBuffer uniffi_privchat_sdk_ffi_fn_func_qr_decode_luma(int32_t width, int32_t height, RustBuffer luma, UniffiRustCallStatus *_Nonnull out_status
 );
 RustBuffer uniffi_privchat_sdk_ffi_fn_func_sdk_version(UniffiRustCallStatus *_Nonnull out_status
     
@@ -903,6 +913,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_func_build_time(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_func_git_sha(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_func_qr_decode_luma(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_func_sdk_version(void
@@ -1110,6 +1123,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_upload_callb
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_finalize_local_attachment(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_follow_bot(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_forward_message(void
@@ -1454,6 +1470,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_peek_outbound_fil
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_peek_outbound_messages(void
     
 );
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_persist_user_profile_local(void
+    
+);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_pin_channel(void
     
 );
@@ -1749,6 +1768,12 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_timezone_seconds(
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_to_client_endpoint(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_transfer(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unfollow_bot(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unsubscribe_channel(void

@@ -16,4 +16,6 @@ data class SearchedUserDto(
     val searchSessionId: ULong,
     val isFriend: Boolean,
     val canSendMessage: Boolean,
+    /** 是否已关注（仅 userType=2 (Bot) 有意义；非 bot 永远 false） */
+    val isFollow: Boolean = false,
 )

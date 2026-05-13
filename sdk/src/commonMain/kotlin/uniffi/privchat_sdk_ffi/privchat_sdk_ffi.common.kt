@@ -230,6 +230,14 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `finalizeLocalAttachment`(`messageId`: kotlin.ULong, `content`: kotlin.String, `thumbStatus`: kotlin.Int)
     
     /**
+     * 关注一个 Bot（user_type=2）；server 写 `privchat_bot_follow` + 通知 application
+     * 写 `privchat_business_channel` binding。返回 channel_id 后即可 Subscribe + Transfer。
+     *
+     * Spec: `02-server/SERVICE_ACCOUNT_FOLLOW_SPEC` §3.1。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `followBot`(`botUserId`: kotlin.ULong): BotFollowResult
+    
+    /**
      * 把指定本地消息转发到目标频道。
      *
      * 内部做两件事：
@@ -470,6 +478,12 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `peekOutboundMessages`(`limit`: kotlin.ULong): List<QueueMessage>
     
+    /**
+     * 拉一次 `account/user/detail` 并把对端用户写入本地 users 表。
+     * 用于 follow 后让会话头显示昵称/头像，spec BOT_INTERACTION_SPEC §3.0。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `persistUserProfileLocal`(`targetUserId`: kotlin.ULong)
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `pinChannel`(`channelId`: kotlin.ULong, `pinned`: kotlin.Boolean): kotlin.Boolean
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `ping`()
@@ -677,6 +691,22 @@ interface PrivchatClientInterface {
     fun `timezoneMinutes`(): kotlin.Int
     fun `timezoneSeconds`(): kotlin.Int
     fun `toClientEndpoint`(): kotlin.String?
+    
+    /**
+     * Channel Transfer client→app RPC. Sends a wire `TransferRequest`
+     * (biz_type=19) and awaits the matching `TransferResponse` (biz_type=20).
+     * `timeout_ms = 0` falls back to the SDK default (5000 ms).
+     * See `02-server/CHANNEL_TRANSFER_SPEC.md` v2.0 and
+     * `07-application/BOT_INTERACTION_SPEC.md` for typical routes.
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `transfer`(`channelId`: kotlin.ULong, `route`: kotlin.String, `body`: kotlin.ByteArray, `timeoutMs`: kotlin.ULong): TransferReplyView
+    
+    /**
+     * 取消关注 Bot；server 切 status=0 但**不**删 channel / 历史 / application 业务行。
+     *
+     * Spec: `02-server/SERVICE_ACCOUNT_FOLLOW_SPEC` §3.2。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `unfollowBot`(`botUserId`: kotlin.ULong): BotUnfollowResult
     
     /**
      * 取消订阅频道事件（离开聊天页面时调用）
@@ -1078,6 +1108,17 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `finalizeLocalAttachment`(`messageId`: kotlin.ULong, `content`: kotlin.String, `thumbStatus`: kotlin.Int)
+
+    
+    /**
+     * 关注一个 Bot（user_type=2）；server 写 `privchat_bot_follow` + 通知 application
+     * 写 `privchat_business_channel` binding。返回 channel_id 后即可 Subscribe + Transfer。
+     *
+     * Spec: `02-server/SERVICE_ACCOUNT_FOLLOW_SPEC` §3.1。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `followBot`(`botUserId`: kotlin.ULong) : BotFollowResult
 
     
     /**
@@ -1650,6 +1691,15 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `peekOutboundMessages`(`limit`: kotlin.ULong) : List<QueueMessage>
 
     
+    /**
+     * 拉一次 `account/user/detail` 并把对端用户写入本地 users 表。
+     * 用于 follow 后让会话头显示昵称/头像，spec BOT_INTERACTION_SPEC §3.0。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `persistUserProfileLocal`(`targetUserId`: kotlin.ULong)
+
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `pinChannel`(`channelId`: kotlin.ULong, `pinned`: kotlin.Boolean) : kotlin.Boolean
@@ -2132,6 +2182,28 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
 
     
     /**
+     * Channel Transfer client→app RPC. Sends a wire `TransferRequest`
+     * (biz_type=19) and awaits the matching `TransferResponse` (biz_type=20).
+     * `timeout_ms = 0` falls back to the SDK default (5000 ms).
+     * See `02-server/CHANNEL_TRANSFER_SPEC.md` v2.0 and
+     * `07-application/BOT_INTERACTION_SPEC.md` for typical routes.
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `transfer`(`channelId`: kotlin.ULong, `route`: kotlin.String, `body`: kotlin.ByteArray, `timeoutMs`: kotlin.ULong) : TransferReplyView
+
+    
+    /**
+     * 取消关注 Bot；server 切 status=0 但**不**删 channel / 历史 / application 业务行。
+     *
+     * Spec: `02-server/SERVICE_ACCOUNT_FOLLOW_SPEC` §3.2。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `unfollowBot`(`botUserId`: kotlin.ULong) : BotUnfollowResult
+
+    
+    /**
      * 取消订阅频道事件（离开聊天页面时调用）
      * channel_type: 0=Private, 1=Group, 2=Room
      */
@@ -2325,6 +2397,11 @@ data class AccountUserDetailView (
     var `sourceType`: kotlin.String
         , 
     var `sourceId`: kotlin.String
+        , 
+    /**
+     * 是否已关注（仅 user_type=2 Bot 有意义；非 bot 永远 false）
+     */
+    var `isFollow`: kotlin.Boolean
         
 ) {
     
@@ -2383,6 +2460,59 @@ data class BatchGetChannelPtsView (
 
 data class BlacklistCheckResult (
     var `isBlocked`: kotlin.Boolean
+        
+) {
+    
+    companion object
+}
+
+
+
+/**
+ * Bot follow 结果（spec SERVICE_ACCOUNT_FOLLOW_SPEC §2.2）。
+ */
+data class BotFollowResult (
+    var `botUserId`: kotlin.ULong
+        , 
+    /**
+     * 与该 bot 之间的 direct channel id；后续 Subscribe / Transfer / SendMessage 都用它。
+     */
+    var `channelId`: kotlin.ULong
+        , 
+    /**
+     * v1.0 固定 2 (Bot)；保留以兼容未来扩展。
+     */
+    var `accountUserType`: kotlin.Int
+        , 
+    var `followed`: kotlin.Boolean
+        , 
+    /**
+     * `true` = 新建关系或从 unfollowed 复活；`false` = 已 followed 幂等复用。
+     */
+    var `created`: kotlin.Boolean
+        
+) {
+    
+    companion object
+}
+
+
+
+/**
+ * Bot unfollow 结果。
+ */
+data class BotUnfollowResult (
+    var `botUserId`: kotlin.ULong
+        , 
+    /**
+     * 已存在的 direct channel id（保留，**不**删除）；`0` = 原本就没关注过。
+     */
+    var `channelId`: kotlin.ULong
+        , 
+    /**
+     * `true` = 已取消关注；`false` = 原本就没关注，no-op。
+     */
+    var `unfollowed`: kotlin.Boolean
         
 ) {
     
@@ -3681,6 +3811,11 @@ data class SearchUserEntry (
     var `isFriend`: kotlin.Boolean
         , 
     var `canSendMessage`: kotlin.Boolean
+        , 
+    /**
+     * 是否已关注（仅 user_type=2 Bot 有意义；非 bot 永远 false）
+     */
+    var `isFollow`: kotlin.Boolean
         
 ) {
     
@@ -4342,6 +4477,28 @@ data class TerminalReason (
 
 
 
+/**
+ * Channel Transfer client→app reply (decoded from wire `TransferResponse`).
+ * See `02-server/CHANNEL_TRANSFER_SPEC.md` v2.0.
+ */
+data class TransferReplyView (
+    var `requestId`: kotlin.String
+        , 
+    var `channelId`: kotlin.ULong
+        , 
+    var `code`: kotlin.Int
+        , 
+    var `message`: kotlin.String
+        , 
+    var `data`: kotlin.ByteArray
+        
+) {
+    
+    companion object
+}
+
+
+
 data class TypingChannelView (
     var `channelId`: kotlin.ULong
         , 
@@ -4822,6 +4979,42 @@ sealed class PrivchatFfiException: kotlin.Exception() {
 
 
 
+/**
+ * Errors surfaced through UniFFI to Kotlin / Swift callers of
+ * [`qr_decode_luma`]. See `crate::qr::QrDecodeError`.
+ */
+sealed class QrDecodeException: kotlin.Exception() {
+    
+    class InvalidDimensions(
+        
+        val `width`: kotlin.UInt, 
+        
+        val `height`: kotlin.UInt, 
+        
+        val `lumaLen`: kotlin.UInt
+        ) : QrDecodeException() {
+        override val message
+            get() = "width=${ `width` }, height=${ `height` }, lumaLen=${ `lumaLen` }"
+
+        
+    }
+    
+    class DecoderException(
+        
+        val `detail`: kotlin.String
+        ) : QrDecodeException() {
+        override val message
+            get() = "detail=${ `detail` }"
+
+        
+    }
+    
+}
+
+
+
+
+
 enum class ResumeEscalationScope {
     
     RETRY,
@@ -5273,6 +5466,21 @@ expect fun `buildTime`(): kotlin.String
     
 
 expect fun `gitSha`(): kotlin.String
+    
+
+
+        /**
+         * Decode a QR code from an 8-bit grayscale image (Y plane of a YUV
+         * camera frame, or `0.299*R + 0.587*G + 0.114*B` of an RGB photo).
+         *
+         * `luma` must be exactly `width * height` bytes, row-major.
+         *
+         * - `Ok(Some(text))` — QR found
+         * - `Ok(None)`       — no QR in this frame (steady-state during live scan)
+         * - `Err(InvalidDimensions)` — caller-side dimensions / length mismatch
+         * - `Err(DecoderError)` — rxing internal failure (rare)
+         */
+    @Throws(QrDecodeException::class)expect fun `qrDecodeLuma`(`width`: kotlin.UInt, `height`: kotlin.UInt, `luma`: kotlin.ByteArray): kotlin.String?
     
 
 expect fun `sdkVersion`(): kotlin.String

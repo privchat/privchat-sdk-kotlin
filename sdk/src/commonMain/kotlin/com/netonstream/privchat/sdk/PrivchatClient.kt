@@ -132,6 +132,10 @@ expect class PrivchatClient private constructor() {
     suspend fun searchUsers(query: String): Result<List<UserEntry>>
     suspend fun getUserProfileLocalFirst(userId: ULong): Result<SearchedUserDto>
     suspend fun listUsersByIds(userIds: List<ULong>): Result<List<UserEntry>>
+    /** 关注 Bot：server 写 follow 表 + 通知 application 写 binding。详见 SERVICE_ACCOUNT_FOLLOW_SPEC §3.1。 */
+    suspend fun followBot(botUserId: ULong): Result<BotFollowOutcome>
+    /** 取消关注 Bot：server 切 status=0，**不**删 channel / 历史。详见 spec §3.2。 */
+    suspend fun unfollowBot(botUserId: ULong): Result<BotUnfollowOutcome>
     suspend fun sendFriendRequest(toUserId: ULong, remark: String?, searchSessionId: String?): Result<ULong>
     suspend fun acceptFriendRequest(fromUserId: ULong): Result<ULong>
     suspend fun rejectFriendRequest(fromUserId: ULong): Result<Boolean>
@@ -154,6 +158,21 @@ expect class PrivchatClient private constructor() {
     // ========== Channel Event Subscription ==========
     suspend fun subscribeChannel(channelId: ULong, channelType: UByte, token: String? = null): Result<Unit>
     suspend fun unsubscribeChannel(channelId: ULong, channelType: UByte): Result<Unit>
+
+    // ========== Channel Transfer (client→app RPC) ==========
+    /**
+     * Channel Transfer client→app RPC. Sends a wire `TransferRequest` (biz_type=19)
+     * on the given channel and awaits the matching `TransferResponse`. `body` is
+     * route-defined opaque bytes; `timeoutMs = 0` falls back to the SDK default.
+     * See `02-server/CHANNEL_TRANSFER_SPEC.md` v2.0 and
+     * `07-application/BOT_INTERACTION_SPEC.md` (e.g. route `bot/menu/get`).
+     */
+    suspend fun transfer(
+        channelId: ULong,
+        route: String,
+        body: ByteArray,
+        timeoutMs: ULong = 0u,
+    ): Result<TransferReply>
 
     // ========== File ==========
     suspend fun sendAttachmentFromPath(channelId: ULong, path: String, options: SendMessageOptions?, progress: ProgressObserver?): Result<Pair<ULong, AttachmentInfo>>

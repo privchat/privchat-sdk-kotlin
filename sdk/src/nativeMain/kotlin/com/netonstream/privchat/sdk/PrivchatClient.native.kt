@@ -976,6 +976,7 @@ actual class PrivchatClient private actual constructor() {
                     canSendMessage = it.canSendMessage,
                     searchSessionId = it.searchSessionId,
                     isOnline = null,
+                    isFollow = it.isFollow,
                 )
             }
         }.fold(
@@ -1015,6 +1016,38 @@ actual class PrivchatClient private actual constructor() {
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("listUsersByIds failed", it)) },
+        )
+    }
+
+    actual suspend fun followBot(botUserId: ULong): Result<BotFollowOutcome> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val resp = c.followBot(botUserId)
+            BotFollowOutcome(
+                botUserId = resp.botUserId,
+                channelId = resp.channelId,
+                accountUserType = resp.accountUserType,
+                followed = resp.followed,
+                created = resp.created,
+            )
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("followBot failed", it)) },
+        )
+    }
+
+    actual suspend fun unfollowBot(botUserId: ULong): Result<BotUnfollowOutcome> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val resp = c.unfollowBot(botUserId)
+            BotUnfollowOutcome(
+                botUserId = resp.botUserId,
+                channelId = resp.channelId,
+                unfollowed = resp.unfollowed,
+            )
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("unfollowBot failed", it)) },
         )
     }
 
@@ -1075,6 +1108,7 @@ actual class PrivchatClient private actual constructor() {
                         searchSessionId = it.user.searchSessionId,
                         isFriend = it.user.isFriend,
                         canSendMessage = it.user.canSendMessage,
+                        isFollow = it.user.isFollow,
                     ),
                     message = it.message,
                     createdAt = it.createdAt,
@@ -1189,6 +1223,28 @@ actual class PrivchatClient private actual constructor() {
     actual suspend fun unsubscribeChannel(channelId: ULong, channelType: UByte): Result<Unit> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return callAsync("unsubscribeChannel failed") { c.unsubscribeChannel(channelId, channelType) }
+    }
+
+    actual suspend fun transfer(
+        channelId: ULong,
+        route: String,
+        body: ByteArray,
+        timeoutMs: ULong,
+    ): Result<TransferReply> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val view = c.transfer(channelId, route, body, timeoutMs)
+            TransferReply(
+                requestId = view.requestId,
+                channelId = view.channelId,
+                code = view.code,
+                message = view.message,
+                data = view.data,
+            )
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("transfer failed", it)) },
+        )
     }
 
     actual suspend fun sendAttachmentFromPath(
@@ -1746,6 +1802,7 @@ private fun AccountUserDetailView.toSearchedUserDto() = SearchedUserDto(
     searchSessionId = 0u,
     isFriend = isFriend,
     canSendMessage = canSendMessage,
+    isFollow = isFollow,
 )
 
 private fun AccountUserDetailView.toCoreUpsertUserInput(local: StoredUser?) = CoreUpsertUserInput(
