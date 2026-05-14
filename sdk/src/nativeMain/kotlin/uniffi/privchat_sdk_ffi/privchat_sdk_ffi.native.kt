@@ -14719,6 +14719,8 @@ object FfiConverterTypeStoredChannel: FfiConverterRustBuffer<StoredChannel> {
             FfiConverterString.read(buf),
             FfiConverterLong.read(buf),
             FfiConverterOptionalULong.read(buf),
+            FfiConverterOptionalInt.read(buf),
+            FfiConverterBoolean.read(buf),
         )
     }
 
@@ -14735,7 +14737,9 @@ object FfiConverterTypeStoredChannel: FfiConverterRustBuffer<StoredChannel> {
             FfiConverterULong.allocationSize(value.`lastLocalMessageId`) +
             FfiConverterString.allocationSize(value.`lastMsgContent`) +
             FfiConverterLong.allocationSize(value.`updatedAt`) +
-            FfiConverterOptionalULong.allocationSize(value.`peerUserId`)
+            FfiConverterOptionalULong.allocationSize(value.`peerUserId`) +
+            FfiConverterOptionalInt.allocationSize(value.`lastMessageType`) +
+            FfiConverterBoolean.allocationSize(value.`lastMessageIsRevoked`)
     )
 
     override fun write(value: StoredChannel, buf: ByteBuffer) {
@@ -14752,6 +14756,8 @@ object FfiConverterTypeStoredChannel: FfiConverterRustBuffer<StoredChannel> {
             FfiConverterString.write(value.`lastMsgContent`, buf)
             FfiConverterLong.write(value.`updatedAt`, buf)
             FfiConverterOptionalULong.write(value.`peerUserId`, buf)
+            FfiConverterOptionalInt.write(value.`lastMessageType`, buf)
+            FfiConverterBoolean.write(value.`lastMessageIsRevoked`, buf)
     }
 }
 

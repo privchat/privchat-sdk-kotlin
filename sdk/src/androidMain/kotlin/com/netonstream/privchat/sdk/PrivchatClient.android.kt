@@ -1071,10 +1071,15 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
-    actual suspend fun sendFriendRequest(toUserId: ULong, remark: String?, searchSessionId: String?): Result<ULong> {
+    actual suspend fun sendFriendRequest(
+        toUserId: ULong,
+        remark: String?,
+        source: String?,
+        sourceId: String?,
+    ): Result<ULong> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
-            val resp = c.sendFriendRequest(toUserId, remark, "search", searchSessionId)
+            val resp = c.sendFriendRequest(toUserId, remark, source, sourceId)
             resp.userId
         }.fold(
             onSuccess = { Result.success(it) },
@@ -2028,6 +2033,8 @@ private fun StoredChannel.toCommonChannel() = ChannelListEntry(
             eventType = "message",
             content = it,
             timestamp = lastMsgTimestamp.toULong(),
+            messageType = lastMessageType,
+            isRevoked = lastMessageIsRevoked,
         )
     },
     peerUserId = peerUserId,

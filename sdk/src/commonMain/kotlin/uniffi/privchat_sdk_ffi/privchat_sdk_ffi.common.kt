@@ -4019,12 +4019,26 @@ data class StoredChannel (
         , 
     var `lastLocalMessageId`: kotlin.ULong
         , 
+    /**
+     * 最后一条消息的原始 content（TEXT = 纯文本，其他类型 = 结构化 JSON）。
+     * UI 层基于 `last_message_type` + content + i18n 自行渲染预览，**SDK 不做改写**。
+     */
     var `lastMsgContent`: kotlin.String
         , 
     var `updatedAt`: kotlin.Long
         , 
     var `peerUserId`: kotlin.ULong?
-         = null 
+         = null , 
+    /**
+     * 最后一条消息的协议 message_type（ContentMessageType 整型值）。
+     */
+    var `lastMessageType`: kotlin.Int?
+         = null , 
+    /**
+     * 最后一条消息是否已撤回。
+     */
+    var `lastMessageIsRevoked`: kotlin.Boolean
+        
 ) {
     
     companion object

@@ -136,7 +136,22 @@ expect class PrivchatClient private constructor() {
     suspend fun followBot(botUserId: ULong): Result<BotFollowOutcome>
     /** 取消关注 Bot：server 切 status=0，**不**删 channel / 历史。详见 spec §3.2。 */
     suspend fun unfollowBot(botUserId: ULong): Result<BotUnfollowOutcome>
-    suspend fun sendFriendRequest(toUserId: ULong, remark: String?, searchSessionId: String?): Result<ULong>
+    /**
+     * 发送好友申请。
+     *
+     * @param source 来源类型字符串：`search` / `group` / `card_share` / `friend` / `conversation` 之一。
+     *               null 时服务端只接受 qrcode / phone 等替代路径；通常 UI 必须给出。
+     * @param sourceId 与 [source] 对应的 ID 字符串：search→搜索会话 ID，conversation→channel_id，
+     *                 group→群 ID，card_share→分享 ID，friend→好友 user_id。
+     *
+     * 服务端按 (source, sourceId) 做权限校验，详见 spec/05-feature/RELATION_BUILDING_SPEC。
+     */
+    suspend fun sendFriendRequest(
+        toUserId: ULong,
+        remark: String?,
+        source: String?,
+        sourceId: String?,
+    ): Result<ULong>
     suspend fun acceptFriendRequest(fromUserId: ULong): Result<ULong>
     suspend fun rejectFriendRequest(fromUserId: ULong): Result<Boolean>
     suspend fun deleteFriend(userId: ULong): Result<Boolean>
