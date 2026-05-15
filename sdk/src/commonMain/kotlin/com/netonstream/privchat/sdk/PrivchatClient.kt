@@ -166,6 +166,22 @@ expect class PrivchatClient private constructor() {
     suspend fun deleteFriend(userId: ULong): Result<Boolean>
     suspend fun updateUserAlias(userId: ULong, alias: String?): Result<Unit>
     suspend fun listFriendPendingRequests(): Result<List<FriendPendingEntry>>
+
+    /**
+     * F-sync.3: 从本地 friendships 投影读好友申请（非 accepted 行）。
+     *
+     * 这是 [listFriendPendingRequests] 的本地化版本——不走 RPC，直接读 SDK 通过
+     * `entity/sync_entities("friend")` 同步到本地的 friend 表。
+     *
+     * @param outgoing true=我发出的（Sent tab）；false=我收到的（Received tab）。
+     * @param statuses 按 status 过滤；空列表 = 所有非-accepted 态（0/3/4/5）。
+     */
+    suspend fun listFriendRequests(
+        outgoing: Boolean,
+        statuses: List<Short> = emptyList(),
+        limit: Long = 200,
+        offset: Long = 0,
+    ): Result<List<FriendRequestEntry>>
     suspend fun createGroup(name: String, memberIds: List<ULong>): Result<GroupCreateResult>
     suspend fun inviteToGroup(groupId: ULong, userIds: List<ULong>): Result<Boolean>
     suspend fun removeGroupMember(groupId: ULong, userId: ULong): Result<Boolean>

@@ -4157,6 +4157,26 @@ data class StoredChannelMember (
 data class StoredFriend (
     var `userId`: kotlin.ULong
         , 
+    /**
+     * 用户名（来自 LEFT JOIN user，可能为空——例如 user profile 还没同步）。
+     */
+    var `username`: kotlin.String?
+         = null , 
+    /**
+     * 昵称（同上）。
+     */
+    var `nickname`: kotlin.String?
+         = null , 
+    /**
+     * 备注名（仅 accepted 行有意义；request 态 server 不填）。
+     */
+    var `alias`: kotlin.String?
+         = null , 
+    /**
+     * 头像 URL。空串表示无头像。
+     */
+    var `avatar`: kotlin.String
+        , 
     var `tags`: kotlin.String?
          = null , 
     var `isPinned`: kotlin.Boolean

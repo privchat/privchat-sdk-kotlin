@@ -1153,6 +1153,22 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun listFriendRequests(
+        outgoing: Boolean,
+        statuses: List<Short>,
+        limit: Long,
+        offset: Long,
+    ): Result<List<FriendRequestEntry>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.listFriendRequests(outgoing, statuses, limit.toULong(), offset.toULong())
+                .map { it.toFriendRequestEntry() }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("listFriendRequests failed", it)) },
+        )
+    }
+
     actual suspend fun createGroup(name: String, memberIds: List<ULong>): Result<GroupCreateResult> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
@@ -2058,6 +2074,29 @@ private fun StoredFriend.toCommonFriend(user: StoredUser?) = FriendEntry(
     addedAt = createdAt,
     remark = user?.alias?.takeIf { it.isNotBlank() } ?: tags,
 )
+
+/**
+ * F-sync.3: StoredFriend → UI 用的 FriendRequestEntry。
+ *
+ * StoredFriend 经过 F-sync.2 扩展，username/nickname/avatar 已由 Rust SDK 端
+ * LEFT JOIN user 一并返回；此处直接读，不需要额外查 StoredUser。
+ */
+private fun StoredFriend.toFriendRequestEntry(): FriendRequestEntry {
+    return FriendRequestEntry(
+        userId = userId,
+        username = username?.takeIf { it.isNotBlank() } ?: userId.toString(),
+        nickname = nickname?.takeIf { it.isNotBlank() },
+        avatarUrl = avatar.takeIf { it.isNotBlank() },
+        status = status,
+        // listFriendRequests 调 server 永远填 is_outgoing；防御性兜底 false（received）。
+        isOutgoing = isOutgoing ?: false,
+        message = requestMessage,
+        source = requestSource,
+        sourceId = requestSourceId,
+        createdAt = createdAt,
+        updatedAt = updatedAt,
+    )
+}
 
 private fun StoredUser.toCommonUser() = UserEntry(
     userId = userId,

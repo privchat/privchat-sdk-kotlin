@@ -14962,6 +14962,10 @@ object FfiConverterTypeStoredFriend: FfiConverterRustBuffer<StoredFriend> {
         return StoredFriend(
             FfiConverterULong.read(buf),
             FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterOptionalString.read(buf),
             FfiConverterBoolean.read(buf),
             FfiConverterLong.read(buf),
             FfiConverterLong.read(buf),
@@ -14975,6 +14979,10 @@ object FfiConverterTypeStoredFriend: FfiConverterRustBuffer<StoredFriend> {
 
     override fun allocationSize(value: StoredFriend) = (
             FfiConverterULong.allocationSize(value.`userId`) +
+            FfiConverterOptionalString.allocationSize(value.`username`) +
+            FfiConverterOptionalString.allocationSize(value.`nickname`) +
+            FfiConverterOptionalString.allocationSize(value.`alias`) +
+            FfiConverterString.allocationSize(value.`avatar`) +
             FfiConverterOptionalString.allocationSize(value.`tags`) +
             FfiConverterBoolean.allocationSize(value.`isPinned`) +
             FfiConverterLong.allocationSize(value.`createdAt`) +
@@ -14988,6 +14996,10 @@ object FfiConverterTypeStoredFriend: FfiConverterRustBuffer<StoredFriend> {
 
     override fun write(value: StoredFriend, buf: ByteBuffer) {
             FfiConverterULong.write(value.`userId`, buf)
+            FfiConverterOptionalString.write(value.`username`, buf)
+            FfiConverterOptionalString.write(value.`nickname`, buf)
+            FfiConverterOptionalString.write(value.`alias`, buf)
+            FfiConverterString.write(value.`avatar`, buf)
             FfiConverterOptionalString.write(value.`tags`, buf)
             FfiConverterBoolean.write(value.`isPinned`, buf)
             FfiConverterLong.write(value.`createdAt`, buf)
