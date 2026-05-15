@@ -396,6 +396,15 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `listChannels`(`limit`: kotlin.ULong, `offset`: kotlin.ULong): List<StoredChannel>
     
+    /**
+     * F-sync.2: 列出好友申请（非 accepted 行）。
+     *
+     * - `outgoing=true`：我发出的（is_outgoing=true）；`outgoing=false`：我收到的。
+     * - `statuses` 留空 = 全要 pending/rejected/recalled/expired；具体传如
+     * [0] 只看 pending、[0,3] pending+rejected 等。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `listFriendRequests`(`outgoing`: kotlin.Boolean, `statuses`: List<kotlin.Short>, `limit`: kotlin.ULong, `offset`: kotlin.ULong): List<StoredFriend>
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `listFriends`(`limit`: kotlin.ULong, `offset`: kotlin.ULong): List<StoredFriend>
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `listGroupMembers`(`groupId`: kotlin.ULong, `limit`: kotlin.ULong, `offset`: kotlin.ULong): List<StoredGroupMember>
@@ -504,6 +513,15 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `reactions`(`serverMessageId`: kotlin.ULong): MessageReactionListView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `reactionsBatch`(`serverMessageIds`: List<kotlin.ULong>): ReactionsBatchView
+    
+    /**
+     * F-sync.2: 撤回自己发出的、尚未处理的好友申请。
+     *
+     * server 把 friendships.(user_id=me, friend_id=target, status=0) 改成
+     * Recalled(4)，并通过 push + entity sync 广播给双方所有设备。本地状态由
+     * entity sync 拉到 friend 表（status=4），UI Sent tab 据此显示"已撤回"。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `recallFriendRequest`(`targetUserId`: kotlin.ULong): kotlin.Boolean
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `recallMessage`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong): kotlin.Boolean
     
@@ -1481,6 +1499,18 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `listChannels`(`limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredChannel>
 
     
+    /**
+     * F-sync.2: 列出好友申请（非 accepted 行）。
+     *
+     * - `outgoing=true`：我发出的（is_outgoing=true）；`outgoing=false`：我收到的。
+     * - `statuses` 留空 = 全要 pending/rejected/recalled/expired；具体传如
+     * [0] 只看 pending、[0,3] pending+rejected 等。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `listFriendRequests`(`outgoing`: kotlin.Boolean, `statuses`: List<kotlin.Short>, `limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredFriend>
+
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `listFriends`(`limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredFriend>
@@ -1751,6 +1781,18 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `reactionsBatch`(`serverMessageIds`: List<kotlin.ULong>) : ReactionsBatchView
+
+    
+    /**
+     * F-sync.2: 撤回自己发出的、尚未处理的好友申请。
+     *
+     * server 把 friendships.(user_id=me, friend_id=target, status=0) 改成
+     * Recalled(4)，并通过 push + entity sync 广播给双方所有设备。本地状态由
+     * entity sync 拉到 friend 表（status=4），UI Sent tab 据此显示"已撤回"。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `recallFriendRequest`(`targetUserId`: kotlin.ULong) : kotlin.Boolean
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -4122,7 +4164,24 @@ data class StoredFriend (
     var `createdAt`: kotlin.Long
         , 
     var `updatedAt`: kotlin.Long
-        
+        , 
+    /**
+     * F-sync.2: 0=pending / 1=accepted / 2=blocked / 3=rejected / 4=recalled / 5=expired.
+     * `list_friends` 只返 status=1；其它态从 `list_friend_requests` 拿。
+     */
+    var `status`: kotlin.Short
+        , 
+    /**
+     * 申请态下 viewer 是不是 requester：true=我发出的，false=我收到的；accepted=null。
+     */
+    var `isOutgoing`: kotlin.Boolean?
+         = null , 
+    var `requestMessage`: kotlin.String?
+         = null , 
+    var `requestSource`: kotlin.String?
+         = null , 
+    var `requestSourceId`: kotlin.String?
+         = null 
 ) {
     
     companion object
@@ -5348,6 +5407,8 @@ interface VideoProcessHook {
     
     companion object
 }
+
+
 
 
 

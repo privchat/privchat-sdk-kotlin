@@ -1105,6 +1105,14 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun recallFriendRequest(targetUserId: ULong): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.recallFriendRequest(targetUserId) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("recallFriendRequest failed", it)) },
+        )
+    }
+
     actual suspend fun deleteFriend(userId: ULong): Result<Boolean> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching { c.deleteFriend(userId) }.fold(

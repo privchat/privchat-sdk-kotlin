@@ -154,6 +154,15 @@ expect class PrivchatClient private constructor() {
     ): Result<ULong>
     suspend fun acceptFriendRequest(fromUserId: ULong): Result<ULong>
     suspend fun rejectFriendRequest(fromUserId: ULong): Result<Boolean>
+    /**
+     * F-sync.2: 撤回我发出的、尚未被处理的好友申请。
+     *
+     * Server 把对应 friendships row 改成 status=4 (Recalled)，row 保留以参与
+     * entity sync 多端分发；本地 friend 表更新走 sync_entities("friend")。
+     * 重新申请：再次调 [sendFriendRequest] 即可（server ON CONFLICT 把
+     * status 改回 0=pending）。
+     */
+    suspend fun recallFriendRequest(targetUserId: ULong): Result<Boolean>
     suspend fun deleteFriend(userId: ULong): Result<Boolean>
     suspend fun updateUserAlias(userId: ULong, alias: String?): Result<Unit>
     suspend fun listFriendPendingRequests(): Result<List<FriendPendingEntry>>

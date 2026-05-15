@@ -823,6 +823,10 @@ get() = useContents { `uniffiFree`/* test  Any? */}
 
 
 
+
+
+
+
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -1119,6 +1123,8 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_channels(`ptr`: Pointer?,`limit`: Long,`offset`: Long,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_friend_requests(`ptr`: Pointer?,`outgoing`: Byte,`statuses`: RustBufferByValue,`limit`: Long,`offset`: Long,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_friends(`ptr`: Pointer?,`limit`: Long,`offset`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_group_members(`ptr`: Pointer?,`groupId`: Long,`limit`: Long,`offset`: Long,
@@ -1232,6 +1238,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_reactions(`ptr`: Pointer?,`serverMessageId`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_reactions_batch(`ptr`: Pointer?,`serverMessageIds`: RustBufferByValue,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recall_friend_request(`ptr`: Pointer?,`targetUserId`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recall_message(`ptr`: Pointer?,`serverMessageId`: Long,`channelId`: Long,
     ): Long
@@ -1867,6 +1875,8 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_channels(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_friend_requests(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_friends(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_group_members(
@@ -1980,6 +1990,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_reactions(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_reactions_batch(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recall_friend_request(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recall_message(
     ): Short
@@ -2783,6 +2795,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_channels(`ptr`?.inner,`limit`,`offset`,)as Long
     
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_friend_requests(`ptr`: Pointer?,`outgoing`: Byte,`statuses`: RustBufferByValue,`limit`: Long,`offset`: Long,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_friend_requests(`ptr`?.inner,`outgoing`,`statuses` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`limit`,`offset`,)as Long
+    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_friends(`ptr`: Pointer?,`limit`: Long,`offset`: Long,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_friends(`ptr`?.inner,`limit`,`offset`,)as Long
@@ -3010,6 +3026,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_reactions_batch(`ptr`: Pointer?,`serverMessageIds`: RustBufferByValue,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_reactions_batch(`ptr`?.inner,`serverMessageIds` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recall_friend_request(`ptr`: Pointer?,`targetUserId`: Long,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_recall_friend_request(`ptr`?.inner,`targetUserId`,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recall_message(`ptr`: Pointer?,`serverMessageId`: Long,`channelId`: Long,
     ): Long
@@ -4279,6 +4299,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_channels()as Short
     
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_friend_requests(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_friend_requests()as Short
+    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_friends(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_friends()as Short
@@ -4506,6 +4530,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_reactions_batch(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_reactions_batch()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recall_friend_request(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recall_friend_request()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recall_message(
     ): Short
@@ -8231,6 +8259,35 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     
+    /**
+     * F-sync.2: 列出好友申请（非 accepted 行）。
+     *
+     * - `outgoing=true`：我发出的（is_outgoing=true）；`outgoing=false`：我收到的。
+     * - `statuses` 留空 = 全要 pending/rejected/recalled/expired；具体传如
+     * [0] 只看 pending、[0,3] pending+rejected 等。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `listFriendRequests`(`outgoing`: kotlin.Boolean, `statuses`: List<kotlin.Short>, `limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredFriend> {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_friend_requests(
+                thisPtr,
+                FfiConverterBoolean.lower(`outgoing`),FfiConverterSequenceShort.lower(`statuses`),FfiConverterULong.lower(`limit`),FfiConverterULong.lower(`offset`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterSequenceTypeStoredFriend.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `listFriends`(`limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredFriend> {
@@ -9404,6 +9461,35 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
         { FfiConverterTypeReactionsBatchView.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * F-sync.2: 撤回自己发出的、尚未处理的好友申请。
+     *
+     * server 把 friendships.(user_id=me, friend_id=target, status=0) 改成
+     * Recalled(4)，并通过 push + entity sync 广播给双方所有设备。本地状态由
+     * entity sync 拉到 friend 表（status=4），UI Sent tab 据此显示"已撤回"。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `recallFriendRequest`(`targetUserId`: kotlin.ULong) : kotlin.Boolean {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_recall_friend_request(
+                thisPtr,
+                FfiConverterULong.lower(`targetUserId`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_i8(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_i8(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_i8(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_i8(future) },
+        // lift function
+        { FfiConverterBoolean.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -14879,6 +14965,11 @@ object FfiConverterTypeStoredFriend: FfiConverterRustBuffer<StoredFriend> {
             FfiConverterBoolean.read(buf),
             FfiConverterLong.read(buf),
             FfiConverterLong.read(buf),
+            FfiConverterShort.read(buf),
+            FfiConverterOptionalBoolean.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
         )
     }
 
@@ -14887,7 +14978,12 @@ object FfiConverterTypeStoredFriend: FfiConverterRustBuffer<StoredFriend> {
             FfiConverterOptionalString.allocationSize(value.`tags`) +
             FfiConverterBoolean.allocationSize(value.`isPinned`) +
             FfiConverterLong.allocationSize(value.`createdAt`) +
-            FfiConverterLong.allocationSize(value.`updatedAt`)
+            FfiConverterLong.allocationSize(value.`updatedAt`) +
+            FfiConverterShort.allocationSize(value.`status`) +
+            FfiConverterOptionalBoolean.allocationSize(value.`isOutgoing`) +
+            FfiConverterOptionalString.allocationSize(value.`requestMessage`) +
+            FfiConverterOptionalString.allocationSize(value.`requestSource`) +
+            FfiConverterOptionalString.allocationSize(value.`requestSourceId`)
     )
 
     override fun write(value: StoredFriend, buf: ByteBuffer) {
@@ -14896,6 +14992,11 @@ object FfiConverterTypeStoredFriend: FfiConverterRustBuffer<StoredFriend> {
             FfiConverterBoolean.write(value.`isPinned`, buf)
             FfiConverterLong.write(value.`createdAt`, buf)
             FfiConverterLong.write(value.`updatedAt`, buf)
+            FfiConverterShort.write(value.`status`, buf)
+            FfiConverterOptionalBoolean.write(value.`isOutgoing`, buf)
+            FfiConverterOptionalString.write(value.`requestMessage`, buf)
+            FfiConverterOptionalString.write(value.`requestSource`, buf)
+            FfiConverterOptionalString.write(value.`requestSourceId`, buf)
     }
 }
 
@@ -17705,6 +17806,31 @@ public object FfiConverterOptionalSequenceULong: FfiConverterRustBuffer<List<kot
         } else {
             buf.put(1)
             FfiConverterSequenceULong.write(value, buf)
+        }
+    }
+}
+
+
+
+
+public object FfiConverterSequenceShort: FfiConverterRustBuffer<List<kotlin.Short>> {
+    override fun read(buf: ByteBuffer): List<kotlin.Short> {
+        val len = buf.getInt()
+        return List<kotlin.Short>(len) {
+            FfiConverterShort.read(buf)
+        }
+    }
+
+    override fun allocationSize(value: List<kotlin.Short>): ULong {
+        val sizeForLength = 4UL
+        val sizeForItems = value.map { FfiConverterShort.allocationSize(it) }.sum()
+        return sizeForLength + sizeForItems
+    }
+
+    override fun write(value: List<kotlin.Short>, buf: ByteBuffer) {
+        buf.putInt(value.size)
+        value.iterator().forEach {
+            FfiConverterShort.write(it, buf)
         }
     }
 }

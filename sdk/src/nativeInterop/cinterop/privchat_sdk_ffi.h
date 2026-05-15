@@ -442,6 +442,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_channel_members(vo
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_channels(void * ptr, int64_t limit, int64_t offset
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_friend_requests(void * ptr, int8_t outgoing, RustBuffer statuses, int64_t limit, int64_t offset
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_friends(void * ptr, int64_t limit, int64_t offset
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_group_members(void * ptr, int64_t groupId, int64_t limit, int64_t offset
@@ -555,6 +557,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_reaction_stats(void * p
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_reactions(void * ptr, int64_t serverMessageId
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_reactions_batch(void * ptr, RustBuffer serverMessageIds
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_recall_friend_request(void * ptr, int64_t targetUserId
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_recall_message(void * ptr, int64_t serverMessageId, int64_t channelId
 );
@@ -1335,6 +1339,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_channel_memb
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_channels(void
     
 );
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_friend_requests(void
+    
+);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_friends(void
     
 );
@@ -1504,6 +1511,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_reactions(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_reactions_batch(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recall_friend_request(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recall_message(void
