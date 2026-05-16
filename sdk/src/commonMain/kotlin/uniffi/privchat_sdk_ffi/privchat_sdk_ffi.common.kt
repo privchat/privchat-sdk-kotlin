@@ -3808,6 +3808,26 @@ data class QrCodeRevokeView (
 
 
 
+/**
+ * One encoded QR matrix delivered to Kotlin/Swift.
+ *
+ * Wire shape: `size` modules per side, `cells` is row-major with
+ * length `size * size`. Values are `0` (light) or `1` (dark).
+ * Quiet zone is NOT included — UI adds the standard 4-module margin
+ * as container padding.
+ */
+data class QrMatrixView (
+    var `size`: kotlin.UInt
+        , 
+    var `cells`: kotlin.ByteArray
+        
+) {
+    
+    companion object
+}
+
+
+
 data class QueueConfigView (
     var `normalQueue`: kotlin.String
         , 
@@ -5212,6 +5232,36 @@ sealed class QrDecodeException: kotlin.Exception() {
 
 
 
+/**
+ * Errors surfaced through UniFFI to Kotlin / Swift callers of
+ * [`qr_encode_matrix`]. See `crate::qr::QrEncodeError`.
+ */
+sealed class QrEncodeException: kotlin.Exception() {
+    
+    class EmptyText(
+        ) : QrEncodeException() {
+        override val message
+            get() = ""
+
+        
+    }
+    
+    class EncoderException(
+        
+        val `detail`: kotlin.String
+        ) : QrEncodeException() {
+        override val message
+            get() = "detail=${ `detail` }"
+
+        
+    }
+    
+}
+
+
+
+
+
 enum class ResumeEscalationScope {
     
     RETRY,
@@ -5680,6 +5730,18 @@ expect fun `gitSha`(): kotlin.String
          * - `Err(DecoderError)` — rxing internal failure (rare)
          */
     @Throws(QrDecodeException::class)expect fun `qrDecodeLuma`(`width`: kotlin.UInt, `height`: kotlin.UInt, `luma`: kotlin.ByteArray): kotlin.String?
+    
+
+
+        /**
+         * Encode `text` to a QR matrix at error-correction level **M**
+         * (~15% redundancy, sensible for permanent name-card / group URLs).
+         *
+         * - `Ok(QrMatrixView)` — success
+         * - `Err(EmptyText)`   — caller passed empty / whitespace-only text
+         * - `Err(EncoderError)` — payload too long / unsupported charset / etc.
+         */
+    @Throws(QrEncodeException::class)expect fun `qrEncodeMatrix`(`text`: kotlin.String): QrMatrixView
     
 
 expect fun `sdkVersion`(): kotlin.String

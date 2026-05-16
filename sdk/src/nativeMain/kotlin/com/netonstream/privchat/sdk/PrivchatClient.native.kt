@@ -1269,6 +1269,14 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun qrEncodeMatrix(text: String): Result<QrMatrixView> {
+        // Free function on the iOS/native FFI surface; no SDK client gate.
+        return runCatching { uniffi.privchat_sdk_ffi.qrEncodeMatrix(text) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("qrEncodeMatrix failed", it)) },
+        )
+    }
+
     actual fun getPresence(userId: ULong): PresenceEntry? =
         requireClient().getOrNull()?.let { client ->
             runCatching { runBlocking { client.getPresence(userId) } }

@@ -214,6 +214,20 @@ expect class PrivchatClient private constructor() {
      *  （按群 `join_need_approval` 决定）。`message` 可附申请理由。 */
     suspend fun groupQrcodeJoin(qrKey: String, message: String? = null): Result<GroupQrCodeJoinResult>
 
+    /**
+     * Local QR matrix encoder. Pure CPU; **does not touch the network or
+     * the SDK client state**, so it works offline (e.g. rendering "我的二维码"
+     * the user已经持有的 URL时 — server already returned the URL on the last
+     * online call, we just need to draw it).
+     *
+     * Returns a `size×size` cell matrix (`0=light, 1=dark`) — quiet zone
+     * NOT included; UI layer should add 4-module padding around it.
+     *
+     * Error-correction level fixed at M (~15%) — sensible default for
+     * permanent name-card / group URLs that get printed / re-shared.
+     */
+    suspend fun qrEncodeMatrix(text: String): Result<QrMatrixView>
+
     // ========== Presence & Typing ==========
     fun getPresence(userId: ULong): PresenceEntry?
     fun batchGetPresence(userIds: List<ULong>): List<PresenceEntry>

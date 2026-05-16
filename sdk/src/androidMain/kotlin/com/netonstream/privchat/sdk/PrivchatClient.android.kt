@@ -1292,6 +1292,15 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun qrEncodeMatrix(text: String): Result<QrMatrixView> {
+        // Free function — no PrivchatClient instance needed. We don't gate
+        // on requireClient() so this works even before login (e.g. tests).
+        return runCatching { uniffi.privchat_sdk_ffi.qrEncodeMatrix(text) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("qrEncodeMatrix failed", it)) },
+        )
+    }
+
     actual fun getPresence(userId: ULong): PresenceEntry? =
         requireClient().getOrNull()?.let { client ->
             runCatching { runBlocking { client.getPresence(userId) } }

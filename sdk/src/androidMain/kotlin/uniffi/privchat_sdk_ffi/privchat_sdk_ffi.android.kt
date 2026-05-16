@@ -804,6 +804,8 @@ internal val UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue.`uniffiF
 
 
 
+
+
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -1477,6 +1479,8 @@ internal interface UniffiLib : Library {
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_func_qr_decode_luma(`width`: Int,`height`: Int,`luma`: RustBufferByValue,uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
+    fun uniffi_privchat_sdk_ffi_fn_func_qr_encode_matrix(`text`: RustBufferByValue,uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_func_sdk_version(uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
     fun ffi_privchat_sdk_ffi_rustbuffer_alloc(`size`: Long,uniffiCallStatus: UniffiRustCallStatus, 
@@ -1596,6 +1600,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_checksum_func_git_sha(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_func_qr_decode_luma(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_func_qr_encode_matrix(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_func_sdk_version(
     ): Short
@@ -2251,6 +2257,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_func_qr_decode_luma() != 35769.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_func_qr_encode_matrix() != 32767.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_func_sdk_version() != 13992.toShort()) {
@@ -12285,6 +12294,28 @@ object FfiConverterTypeQrCodeRevokeView: FfiConverterRustBuffer<QrCodeRevokeView
 
 
 
+object FfiConverterTypeQrMatrixView: FfiConverterRustBuffer<QrMatrixView> {
+    override fun read(buf: ByteBuffer): QrMatrixView {
+        return QrMatrixView(
+            FfiConverterUInt.read(buf),
+            FfiConverterByteArray.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: QrMatrixView) = (
+            FfiConverterUInt.allocationSize(value.`size`) +
+            FfiConverterByteArray.allocationSize(value.`cells`)
+    )
+
+    override fun write(value: QrMatrixView, buf: ByteBuffer) {
+            FfiConverterUInt.write(value.`size`, buf)
+            FfiConverterByteArray.write(value.`cells`, buf)
+    }
+}
+
+
+
+
 object FfiConverterTypeQueueConfigView: FfiConverterRustBuffer<QueueConfigView> {
     override fun read(buf: ByteBuffer): QueueConfigView {
         return QueueConfigView(
@@ -14536,6 +14567,56 @@ object FfiConverterTypeQrDecodeError : FfiConverterRustBuffer<QrDecodeException>
                 Unit
             }
             is QrDecodeException.DecoderException -> {
+                buf.putInt(2)
+                FfiConverterString.write(value.`detail`, buf)
+                Unit
+            }
+        }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }
+    }
+
+}
+
+
+
+
+object QrEncodeExceptionErrorHandler : UniffiRustCallStatusErrorHandler<QrEncodeException> {
+    override fun lift(errorBuf: RustBufferByValue): QrEncodeException = FfiConverterTypeQrEncodeError.lift(errorBuf)
+}
+
+object FfiConverterTypeQrEncodeError : FfiConverterRustBuffer<QrEncodeException> {
+    override fun read(buf: ByteBuffer): QrEncodeException {
+        
+
+        return when(buf.getInt()) {
+            1 -> QrEncodeException.EmptyText()
+            2 -> QrEncodeException.EncoderException(
+                FfiConverterString.read(buf),
+                )
+            else -> throw RuntimeException("invalid error enum value, something is very wrong!!")
+        }
+    }
+
+    override fun allocationSize(value: QrEncodeException): ULong {
+        return when(value) {
+            is QrEncodeException.EmptyText -> (
+                // Add the size for the Int that specifies the variant plus the size needed for all fields
+                4UL
+            )
+            is QrEncodeException.EncoderException -> (
+                // Add the size for the Int that specifies the variant plus the size needed for all fields
+                4UL
+                + FfiConverterString.allocationSize(value.`detail`)
+            )
+        }
+    }
+
+    override fun write(value: QrEncodeException, buf: ByteBuffer) {
+        when(value) {
+            is QrEncodeException.EmptyText -> {
+                buf.putInt(1)
+                Unit
+            }
+            is QrEncodeException.EncoderException -> {
                 buf.putInt(2)
                 FfiConverterString.write(value.`detail`, buf)
                 Unit
@@ -16904,6 +16985,24 @@ actual fun `gitSha`(): kotlin.String {
     uniffiRustCallWithError(QrDecodeExceptionErrorHandler) { _status ->
     UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_func_qr_decode_luma(
         FfiConverterUInt.lower(`width`),FfiConverterUInt.lower(`height`),FfiConverterByteArray.lower(`luma`),_status)!!
+}
+    )
+    }
+    
+
+        /**
+         * Encode `text` to a QR matrix at error-correction level **M**
+         * (~15% redundancy, sensible for permanent name-card / group URLs).
+         *
+         * - `Ok(QrMatrixView)` — success
+         * - `Err(EmptyText)`   — caller passed empty / whitespace-only text
+         * - `Err(EncoderError)` — payload too long / unsupported charset / etc.
+         */
+    @Throws(QrEncodeException::class)actual fun `qrEncodeMatrix`(`text`: kotlin.String): QrMatrixView {
+            return FfiConverterTypeQrMatrixView.lift(
+    uniffiRustCallWithError(QrEncodeExceptionErrorHandler) { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_func_qr_encode_matrix(
+        FfiConverterString.lower(`text`),_status)!!
 }
     )
     }

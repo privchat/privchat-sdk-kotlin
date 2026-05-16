@@ -800,6 +800,8 @@ RustBuffer uniffi_privchat_sdk_ffi_fn_func_git_sha(UniffiRustCallStatus *_Nonnul
 );
 RustBuffer uniffi_privchat_sdk_ffi_fn_func_qr_decode_luma(int32_t width, int32_t height, RustBuffer luma, UniffiRustCallStatus *_Nonnull out_status
 );
+RustBuffer uniffi_privchat_sdk_ffi_fn_func_qr_encode_matrix(RustBuffer text, UniffiRustCallStatus *_Nonnull out_status
+);
 RustBuffer uniffi_privchat_sdk_ffi_fn_func_sdk_version(UniffiRustCallStatus *_Nonnull out_status
     
 );
@@ -922,6 +924,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_func_git_sha(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_func_qr_decode_luma(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_func_qr_encode_matrix(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_func_sdk_version(void

@@ -21,3 +21,15 @@ typealias UserQrCodeRefreshView = uniffi.privchat_sdk_ffi.UserQrCodeRefreshView
 typealias UserQrCodeResolveView = uniffi.privchat_sdk_ffi.UserQrCodeResolveView
 typealias GroupQrCodeGetView = uniffi.privchat_sdk_ffi.GroupQrCodeGetView
 typealias GroupQrCodeRefreshView = uniffi.privchat_sdk_ffi.GroupQrCodeRefreshView
+
+/**
+ * Local QR matrix produced by [com.netonstream.privchat.sdk.PrivchatClient.qrEncodeMatrix].
+ *
+ * Wire shape:
+ * - `size`  — modules per side (always > 0)
+ * - `cells` — row-major, length `size * size`. `0` = light, `1` = dark.
+ *
+ * Quiet zone is NOT baked in — the UI layer should add the standard
+ * 4-module margin via container padding when rendering.
+ */
+typealias QrMatrixView = uniffi.privchat_sdk_ffi.QrMatrixView
