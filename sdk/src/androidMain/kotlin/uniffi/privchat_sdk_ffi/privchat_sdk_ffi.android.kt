@@ -802,6 +802,8 @@ internal val UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue.`uniffiF
 
 
 
+
+
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -1069,9 +1071,11 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_mute_member_remote(`ptr`: Pointer?,`groupId`: Long,`userId`: Long,`durationSeconds`: RustBufferByValue,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_qrcode_generate_remote(`ptr`: Pointer?,`groupId`: Long,`expireSeconds`: RustBufferByValue,
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_qrcode_get_remote(`ptr`: Pointer?,`groupId`: Long,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_qrcode_join_remote(`ptr`: Pointer?,`qrKey`: RustBufferByValue,`token`: RustBufferByValue,
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_qrcode_join_remote(`ptr`: Pointer?,`qrKey`: RustBufferByValue,`message`: RustBufferByValue,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_qrcode_refresh_remote(`ptr`: Pointer?,`groupId`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_remove_member_remote(`ptr`: Pointer?,`groupId`: Long,`userId`: Long,
     ): Long
@@ -1455,11 +1459,11 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_id(`ptr`: Pointer?,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_generate(`ptr`: Pointer?,`expireSeconds`: RustBufferByValue,
-    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_get(`ptr`: Pointer?,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_refresh(`ptr`: Pointer?,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_resolve(`ptr`: Pointer?,`qrKey`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_storage_paths(`ptr`: Pointer?,
     ): Long
@@ -1821,9 +1825,11 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_mute_member_remote(
     ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_qrcode_generate_remote(
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_qrcode_get_remote(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_qrcode_join_remote(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_qrcode_refresh_remote(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_remove_member_remote(
     ): Short
@@ -2207,11 +2213,11 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_id(
     ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_generate(
-    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_get(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_refresh(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_resolve(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_storage_paths(
     ): Short
@@ -2589,10 +2595,13 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_mute_member_remote() != 177.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_qrcode_generate_remote() != 62191.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_qrcode_get_remote() != 53713.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_qrcode_join_remote() != 29937.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_qrcode_join_remote() != 59527.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_qrcode_refresh_remote() != 4230.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_remove_member_remote() != 42568.toShort()) {
@@ -3168,13 +3177,13 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_id() != 38700.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_generate() != 10851.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_get() != 56770.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_get() != 49363.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_refresh() != 7416.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_refresh() != 6845.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_resolve() != 33288.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_storage_paths() != 45492.toShort()) {
@@ -5719,14 +5728,18 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     
+    /**
+     * QR_CODE_SPEC v1.3 — `group/qrcode/get`：读群当前永久二维码。
+     * Member 及以上可见（server 鉴权）。
+     */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `groupQrcodeGenerateRemote`(`groupId`: kotlin.ULong, `expireSeconds`: kotlin.ULong?) : GroupQrCodeGenerateView {
+    actual override suspend fun `groupQrcodeGetRemote`(`groupId`: kotlin.ULong) : GroupQrCodeGetView {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_qrcode_generate_remote(
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_qrcode_get_remote(
                 thisPtr,
-                FfiConverterULong.lower(`groupId`),FfiConverterOptionalULong.lower(`expireSeconds`),
+                FfiConverterULong.lower(`groupId`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -5734,21 +5747,26 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
-        { FfiConverterTypeGroupQrCodeGenerateView.lift(it!!) },
+        { FfiConverterTypeGroupQrCodeGetView.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
     
+    /**
+     * QR_CODE_SPEC v1.3 — `group/join/qrcode`：扫码加群。
+     * Server 用 `qr_key` 反查 `group_id` 后走与邀请相同的 join_need_approval 流程。
+     * v1.3 删除了 token 参数（UNIQUE qr_key 本身就是不可枚举凭证）。
+     */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `groupQrcodeJoinRemote`(`qrKey`: kotlin.String, `token`: kotlin.String?) : GroupQrCodeJoinResult {
+    actual override suspend fun `groupQrcodeJoinRemote`(`qrKey`: kotlin.String, `message`: kotlin.String?) : GroupQrCodeJoinResult {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_qrcode_join_remote(
                 thisPtr,
-                FfiConverterString.lower(`qrKey`),FfiConverterOptionalString.lower(`token`),
+                FfiConverterString.lower(`qrKey`),FfiConverterOptionalString.lower(`message`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -5757,6 +5775,32 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
         { FfiConverterTypeGroupQrCodeJoinResult.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * QR_CODE_SPEC v1.3 — `group/qrcode/refresh`：旋转群二维码。
+     * Owner/Admin only（server 鉴权）。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `groupQrcodeRefreshRemote`(`groupId`: kotlin.ULong) : GroupQrCodeRefreshView {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_qrcode_refresh_remote(
+                thisPtr,
+                FfiConverterULong.lower(`groupId`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterTypeGroupQrCodeRefreshView.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -9725,28 +9769,9 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `userQrcodeGenerate`(`expireSeconds`: kotlin.ULong?) : UserQrCodeGenerateView {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_generate(
-                thisPtr,
-                FfiConverterOptionalULong.lower(`expireSeconds`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
-        // lift function
-        { FfiConverterTypeUserQrCodeGenerateView.lift(it!!) },
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
+    /**
+     * QR_CODE_SPEC v1.3 — `user/qrcode/get`：读自己的永久 qr_key + URL。
+     */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `userQrcodeGet`() : UserQrCodeGetView {
@@ -9769,9 +9794,12 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     
+    /**
+     * QR_CODE_SPEC v1.3 — `user/qrcode/refresh`：旋转自己的 qr_key。
+     */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `userQrcodeRefresh`() : QrCodeRefreshView {
+    actual override suspend fun `userQrcodeRefresh`() : UserQrCodeRefreshView {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_refresh(
@@ -9784,7 +9812,33 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
-        { FfiConverterTypeQrCodeRefreshView.lift(it!!) },
+        { FfiConverterTypeUserQrCodeRefreshView.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * QR_CODE_SPEC v1.3 — `user/qrcode/resolve`：把对端 qrkey 翻译成最小用户卡片。
+     * 响应**不含** qr_key（避免二次扩散）。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `userQrcodeResolve`(`qrKey`: kotlin.String) : UserQrCodeResolveView {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_resolve(
+                thisPtr,
+                FfiConverterString.lower(`qrKey`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterTypeUserQrCodeResolveView.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -11194,31 +11248,25 @@ object FfiConverterTypeGroupMuteAllView: FfiConverterRustBuffer<GroupMuteAllView
 
 
 
-object FfiConverterTypeGroupQrCodeGenerateView: FfiConverterRustBuffer<GroupQrCodeGenerateView> {
-    override fun read(buf: ByteBuffer): GroupQrCodeGenerateView {
-        return GroupQrCodeGenerateView(
+object FfiConverterTypeGroupQrCodeGetView: FfiConverterRustBuffer<GroupQrCodeGetView> {
+    override fun read(buf: ByteBuffer): GroupQrCodeGetView {
+        return GroupQrCodeGetView(
             FfiConverterString.read(buf),
             FfiConverterString.read(buf),
-            FfiConverterOptionalULong.read(buf),
-            FfiConverterULong.read(buf),
             FfiConverterULong.read(buf),
         )
     }
 
-    override fun allocationSize(value: GroupQrCodeGenerateView) = (
+    override fun allocationSize(value: GroupQrCodeGetView) = (
             FfiConverterString.allocationSize(value.`qrKey`) +
             FfiConverterString.allocationSize(value.`qrCode`) +
-            FfiConverterOptionalULong.allocationSize(value.`expireAt`) +
-            FfiConverterULong.allocationSize(value.`groupId`) +
-            FfiConverterULong.allocationSize(value.`createdAt`)
+            FfiConverterULong.allocationSize(value.`groupId`)
     )
 
-    override fun write(value: GroupQrCodeGenerateView, buf: ByteBuffer) {
+    override fun write(value: GroupQrCodeGetView, buf: ByteBuffer) {
             FfiConverterString.write(value.`qrKey`, buf)
             FfiConverterString.write(value.`qrCode`, buf)
-            FfiConverterOptionalULong.write(value.`expireAt`, buf)
             FfiConverterULong.write(value.`groupId`, buf)
-            FfiConverterULong.write(value.`createdAt`, buf)
     }
 }
 
@@ -11234,7 +11282,6 @@ object FfiConverterTypeGroupQrCodeJoinResult: FfiConverterRustBuffer<GroupQrCode
             FfiConverterOptionalString.read(buf),
             FfiConverterOptionalULong.read(buf),
             FfiConverterOptionalULong.read(buf),
-            FfiConverterOptionalULong.read(buf),
         )
     }
 
@@ -11243,7 +11290,6 @@ object FfiConverterTypeGroupQrCodeJoinResult: FfiConverterRustBuffer<GroupQrCode
             FfiConverterULong.allocationSize(value.`groupId`) +
             FfiConverterOptionalString.allocationSize(value.`requestId`) +
             FfiConverterOptionalString.allocationSize(value.`message`) +
-            FfiConverterOptionalULong.allocationSize(value.`expiresAt`) +
             FfiConverterOptionalULong.allocationSize(value.`userId`) +
             FfiConverterOptionalULong.allocationSize(value.`joinedAt`)
     )
@@ -11253,9 +11299,36 @@ object FfiConverterTypeGroupQrCodeJoinResult: FfiConverterRustBuffer<GroupQrCode
             FfiConverterULong.write(value.`groupId`, buf)
             FfiConverterOptionalString.write(value.`requestId`, buf)
             FfiConverterOptionalString.write(value.`message`, buf)
-            FfiConverterOptionalULong.write(value.`expiresAt`, buf)
             FfiConverterOptionalULong.write(value.`userId`, buf)
             FfiConverterOptionalULong.write(value.`joinedAt`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeGroupQrCodeRefreshView: FfiConverterRustBuffer<GroupQrCodeRefreshView> {
+    override fun read(buf: ByteBuffer): GroupQrCodeRefreshView {
+        return GroupQrCodeRefreshView(
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterULong.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: GroupQrCodeRefreshView) = (
+            FfiConverterString.allocationSize(value.`oldQrKey`) +
+            FfiConverterString.allocationSize(value.`newQrKey`) +
+            FfiConverterString.allocationSize(value.`qrCode`) +
+            FfiConverterULong.allocationSize(value.`groupId`)
+    )
+
+    override fun write(value: GroupQrCodeRefreshView, buf: ByteBuffer) {
+            FfiConverterString.write(value.`oldQrKey`, buf)
+            FfiConverterString.write(value.`newQrKey`, buf)
+            FfiConverterString.write(value.`qrCode`, buf)
+            FfiConverterULong.write(value.`groupId`, buf)
     }
 }
 
@@ -14062,53 +14135,90 @@ object FfiConverterTypeUpsertUserInput: FfiConverterRustBuffer<UpsertUserInput> 
 
 
 
-object FfiConverterTypeUserQrCodeGenerateView: FfiConverterRustBuffer<UserQrCodeGenerateView> {
-    override fun read(buf: ByteBuffer): UserQrCodeGenerateView {
-        return UserQrCodeGenerateView(
-            FfiConverterString.read(buf),
-            FfiConverterString.read(buf),
-            FfiConverterULong.read(buf),
-        )
-    }
-
-    override fun allocationSize(value: UserQrCodeGenerateView) = (
-            FfiConverterString.allocationSize(value.`qrKey`) +
-            FfiConverterString.allocationSize(value.`qrCode`) +
-            FfiConverterULong.allocationSize(value.`createdAt`)
-    )
-
-    override fun write(value: UserQrCodeGenerateView, buf: ByteBuffer) {
-            FfiConverterString.write(value.`qrKey`, buf)
-            FfiConverterString.write(value.`qrCode`, buf)
-            FfiConverterULong.write(value.`createdAt`, buf)
-    }
-}
-
-
-
-
 object FfiConverterTypeUserQrCodeGetView: FfiConverterRustBuffer<UserQrCodeGetView> {
     override fun read(buf: ByteBuffer): UserQrCodeGetView {
         return UserQrCodeGetView(
             FfiConverterString.read(buf),
             FfiConverterString.read(buf),
             FfiConverterULong.read(buf),
-            FfiConverterUInt.read(buf),
         )
     }
 
     override fun allocationSize(value: UserQrCodeGetView) = (
             FfiConverterString.allocationSize(value.`qrKey`) +
             FfiConverterString.allocationSize(value.`qrCode`) +
-            FfiConverterULong.allocationSize(value.`createdAt`) +
-            FfiConverterUInt.allocationSize(value.`usedCount`)
+            FfiConverterULong.allocationSize(value.`userId`)
     )
 
     override fun write(value: UserQrCodeGetView, buf: ByteBuffer) {
             FfiConverterString.write(value.`qrKey`, buf)
             FfiConverterString.write(value.`qrCode`, buf)
-            FfiConverterULong.write(value.`createdAt`, buf)
-            FfiConverterUInt.write(value.`usedCount`, buf)
+            FfiConverterULong.write(value.`userId`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeUserQrCodeRefreshView: FfiConverterRustBuffer<UserQrCodeRefreshView> {
+    override fun read(buf: ByteBuffer): UserQrCodeRefreshView {
+        return UserQrCodeRefreshView(
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterULong.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: UserQrCodeRefreshView) = (
+            FfiConverterString.allocationSize(value.`oldQrKey`) +
+            FfiConverterString.allocationSize(value.`newQrKey`) +
+            FfiConverterString.allocationSize(value.`qrCode`) +
+            FfiConverterULong.allocationSize(value.`userId`)
+    )
+
+    override fun write(value: UserQrCodeRefreshView, buf: ByteBuffer) {
+            FfiConverterString.write(value.`oldQrKey`, buf)
+            FfiConverterString.write(value.`newQrKey`, buf)
+            FfiConverterString.write(value.`qrCode`, buf)
+            FfiConverterULong.write(value.`userId`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeUserQrCodeResolveView: FfiConverterRustBuffer<UserQrCodeResolveView> {
+    override fun read(buf: ByteBuffer): UserQrCodeResolveView {
+        return UserQrCodeResolveView(
+            FfiConverterULong.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterShort.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterBoolean.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: UserQrCodeResolveView) = (
+            FfiConverterULong.allocationSize(value.`userId`) +
+            FfiConverterString.allocationSize(value.`username`) +
+            FfiConverterOptionalString.allocationSize(value.`displayName`) +
+            FfiConverterOptionalString.allocationSize(value.`avatarUrl`) +
+            FfiConverterShort.allocationSize(value.`userType`) +
+            FfiConverterBoolean.allocationSize(value.`isFriend`) +
+            FfiConverterBoolean.allocationSize(value.`isSelf`)
+    )
+
+    override fun write(value: UserQrCodeResolveView, buf: ByteBuffer) {
+            FfiConverterULong.write(value.`userId`, buf)
+            FfiConverterString.write(value.`username`, buf)
+            FfiConverterOptionalString.write(value.`displayName`, buf)
+            FfiConverterOptionalString.write(value.`avatarUrl`, buf)
+            FfiConverterShort.write(value.`userType`, buf)
+            FfiConverterBoolean.write(value.`isFriend`, buf)
+            FfiConverterBoolean.write(value.`isSelf`, buf)
     }
 }
 

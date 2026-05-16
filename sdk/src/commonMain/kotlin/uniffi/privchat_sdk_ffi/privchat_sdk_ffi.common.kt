@@ -346,9 +346,24 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `groupMuteMemberRemote`(`groupId`: kotlin.ULong, `userId`: kotlin.ULong, `durationSeconds`: kotlin.ULong?): kotlin.ULong
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `groupQrcodeGenerateRemote`(`groupId`: kotlin.ULong, `expireSeconds`: kotlin.ULong?): GroupQrCodeGenerateView
+    /**
+     * QR_CODE_SPEC v1.3 — `group/qrcode/get`：读群当前永久二维码。
+     * Member 及以上可见（server 鉴权）。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `groupQrcodeGetRemote`(`groupId`: kotlin.ULong): GroupQrCodeGetView
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `groupQrcodeJoinRemote`(`qrKey`: kotlin.String, `token`: kotlin.String?): GroupQrCodeJoinResult
+    /**
+     * QR_CODE_SPEC v1.3 — `group/join/qrcode`：扫码加群。
+     * Server 用 `qr_key` 反查 `group_id` 后走与邀请相同的 join_need_approval 流程。
+     * v1.3 删除了 token 参数（UNIQUE qr_key 本身就是不可枚举凭证）。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `groupQrcodeJoinRemote`(`qrKey`: kotlin.String, `message`: kotlin.String?): GroupQrCodeJoinResult
+    
+    /**
+     * QR_CODE_SPEC v1.3 — `group/qrcode/refresh`：旋转群二维码。
+     * Owner/Admin only（server 鉴权）。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `groupQrcodeRefreshRemote`(`groupId`: kotlin.ULong): GroupQrCodeRefreshView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `groupRemoveMemberRemote`(`groupId`: kotlin.ULong, `userId`: kotlin.ULong): kotlin.Boolean
     
@@ -771,11 +786,21 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `userId`(): kotlin.ULong?
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `userQrcodeGenerate`(`expireSeconds`: kotlin.ULong?): UserQrCodeGenerateView
-    
+    /**
+     * QR_CODE_SPEC v1.3 — `user/qrcode/get`：读自己的永久 qr_key + URL。
+     */
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `userQrcodeGet`(): UserQrCodeGetView
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `userQrcodeRefresh`(): QrCodeRefreshView
+    /**
+     * QR_CODE_SPEC v1.3 — `user/qrcode/refresh`：旋转自己的 qr_key。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `userQrcodeRefresh`(): UserQrCodeRefreshView
+    
+    /**
+     * QR_CODE_SPEC v1.3 — `user/qrcode/resolve`：把对端 qrkey 翻译成最小用户卡片。
+     * 响应**不含** qr_key（避免二次扩散）。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `userQrcodeResolve`(`qrKey`: kotlin.String): UserQrCodeResolveView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `userStoragePaths`(): UserStoragePaths
     
@@ -1378,14 +1403,32 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `groupMuteMemberRemote`(`groupId`: kotlin.ULong, `userId`: kotlin.ULong, `durationSeconds`: kotlin.ULong?) : kotlin.ULong
 
     
+    /**
+     * QR_CODE_SPEC v1.3 — `group/qrcode/get`：读群当前永久二维码。
+     * Member 及以上可见（server 鉴权）。
+     */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `groupQrcodeGenerateRemote`(`groupId`: kotlin.ULong, `expireSeconds`: kotlin.ULong?) : GroupQrCodeGenerateView
+    override suspend fun `groupQrcodeGetRemote`(`groupId`: kotlin.ULong) : GroupQrCodeGetView
 
     
+    /**
+     * QR_CODE_SPEC v1.3 — `group/join/qrcode`：扫码加群。
+     * Server 用 `qr_key` 反查 `group_id` 后走与邀请相同的 join_need_approval 流程。
+     * v1.3 删除了 token 参数（UNIQUE qr_key 本身就是不可枚举凭证）。
+     */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `groupQrcodeJoinRemote`(`qrKey`: kotlin.String, `token`: kotlin.String?) : GroupQrCodeJoinResult
+    override suspend fun `groupQrcodeJoinRemote`(`qrKey`: kotlin.String, `message`: kotlin.String?) : GroupQrCodeJoinResult
+
+    
+    /**
+     * QR_CODE_SPEC v1.3 — `group/qrcode/refresh`：旋转群二维码。
+     * Owner/Admin only（server 鉴权）。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `groupQrcodeRefreshRemote`(`groupId`: kotlin.ULong) : GroupQrCodeRefreshView
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -2347,19 +2390,29 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `userId`() : kotlin.ULong?
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `userQrcodeGenerate`(`expireSeconds`: kotlin.ULong?) : UserQrCodeGenerateView
-
-    
+    /**
+     * QR_CODE_SPEC v1.3 — `user/qrcode/get`：读自己的永久 qr_key + URL。
+     */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `userQrcodeGet`() : UserQrCodeGetView
 
     
+    /**
+     * QR_CODE_SPEC v1.3 — `user/qrcode/refresh`：旋转自己的 qr_key。
+     */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `userQrcodeRefresh`() : QrCodeRefreshView
+    override suspend fun `userQrcodeRefresh`() : UserQrCodeRefreshView
+
+    
+    /**
+     * QR_CODE_SPEC v1.3 — `user/qrcode/resolve`：把对端 qrkey 翻译成最小用户卡片。
+     * 响应**不含** qr_key（避免二次扩散）。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `userQrcodeResolve`(`qrKey`: kotlin.String) : UserQrCodeResolveView
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -3147,16 +3200,15 @@ data class GroupMuteAllView (
 
 
 
-data class GroupQrCodeGenerateView (
+/**
+ * QR_CODE_SPEC v1.3 — `group/qrcode/get` 响应。
+ */
+data class GroupQrCodeGetView (
     var `qrKey`: kotlin.String
         , 
     var `qrCode`: kotlin.String
         , 
-    var `expireAt`: kotlin.ULong?
-         = null , 
     var `groupId`: kotlin.ULong
-        , 
-    var `createdAt`: kotlin.ULong
         
 ) {
     
@@ -3165,6 +3217,10 @@ data class GroupQrCodeGenerateView (
 
 
 
+/**
+ * QR_CODE_SPEC v1.3 — `group/join/qrcode` 响应。
+ * 注意：v1.3 删除了 `expires_at` 字段（永久二维码无过期概念）。
+ */
 data class GroupQrCodeJoinResult (
     var `status`: kotlin.String
         , 
@@ -3174,12 +3230,29 @@ data class GroupQrCodeJoinResult (
          = null , 
     var `message`: kotlin.String?
          = null , 
-    var `expiresAt`: kotlin.ULong?
-         = null , 
     var `userId`: kotlin.ULong?
          = null , 
     var `joinedAt`: kotlin.ULong?
          = null 
+) {
+    
+    companion object
+}
+
+
+
+/**
+ * QR_CODE_SPEC v1.3 — `group/qrcode/refresh` 响应。
+ */
+data class GroupQrCodeRefreshView (
+    var `oldQrKey`: kotlin.String
+        , 
+    var `newQrKey`: kotlin.String
+        , 
+    var `qrCode`: kotlin.String
+        , 
+    var `groupId`: kotlin.ULong
+        
 ) {
     
     companion object
@@ -4894,12 +4967,15 @@ data class UpsertUserInput (
 
 
 
-data class UserQrCodeGenerateView (
+/**
+ * QR_CODE_SPEC v1.3 — `user/qrcode/get` 响应。
+ */
+data class UserQrCodeGetView (
     var `qrKey`: kotlin.String
         , 
     var `qrCode`: kotlin.String
         , 
-    var `createdAt`: kotlin.ULong
+    var `userId`: kotlin.ULong
         
 ) {
     
@@ -4908,14 +4984,42 @@ data class UserQrCodeGenerateView (
 
 
 
-data class UserQrCodeGetView (
-    var `qrKey`: kotlin.String
+/**
+ * QR_CODE_SPEC v1.3 — `user/qrcode/refresh` 响应。
+ */
+data class UserQrCodeRefreshView (
+    var `oldQrKey`: kotlin.String
+        , 
+    var `newQrKey`: kotlin.String
         , 
     var `qrCode`: kotlin.String
         , 
-    var `createdAt`: kotlin.ULong
+    var `userId`: kotlin.ULong
+        
+) {
+    
+    companion object
+}
+
+
+
+/**
+ * QR_CODE_SPEC v1.3 — `user/qrcode/resolve` 响应（最小用户卡片，**不含** qr_key）。
+ */
+data class UserQrCodeResolveView (
+    var `userId`: kotlin.ULong
         , 
-    var `usedCount`: kotlin.UInt
+    var `username`: kotlin.String
+        , 
+    var `displayName`: kotlin.String?
+         = null , 
+    var `avatarUrl`: kotlin.String?
+         = null , 
+    var `userType`: kotlin.Short
+        , 
+    var `isFriend`: kotlin.Boolean
+        , 
+    var `isSelf`: kotlin.Boolean
         
 ) {
     

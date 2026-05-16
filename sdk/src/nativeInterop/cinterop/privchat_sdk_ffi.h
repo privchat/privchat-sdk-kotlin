@@ -392,9 +392,11 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_mute_all_remote(v
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_mute_member_remote(void * ptr, int64_t groupId, int64_t userId, RustBuffer durationSeconds
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_qrcode_generate_remote(void * ptr, int64_t groupId, RustBuffer expireSeconds
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_qrcode_get_remote(void * ptr, int64_t groupId
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_qrcode_join_remote(void * ptr, RustBuffer qrKey, RustBuffer token
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_qrcode_join_remote(void * ptr, RustBuffer qrKey, RustBuffer message
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_qrcode_refresh_remote(void * ptr, int64_t groupId
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_remove_member_remote(void * ptr, int64_t groupId, int64_t userId
 );
@@ -778,11 +780,11 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_upsert_user(void * ptr,
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_id(void * ptr
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_generate(void * ptr, RustBuffer expireSeconds
-);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_get(void * ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_refresh(void * ptr
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_resolve(void * ptr, RustBuffer qrKey
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_storage_paths(void * ptr
 );
@@ -1264,10 +1266,13 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_mute_all_re
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_mute_member_remote(void
     
 );
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_qrcode_generate_remote(void
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_qrcode_get_remote(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_qrcode_join_remote(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_qrcode_refresh_remote(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_remove_member_remote(void
@@ -1843,13 +1848,13 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_upsert_user(void
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_id(void
     
 );
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_generate(void
-    
-);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_get(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_refresh(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_qrcode_resolve(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_user_storage_paths(void

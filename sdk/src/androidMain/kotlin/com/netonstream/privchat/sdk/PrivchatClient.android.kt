@@ -1220,7 +1220,6 @@ actual class PrivchatClient private actual constructor() {
                 groupId = obj.groupId,
                 requestId = obj.requestId,
                 message = obj.message,
-                expiresAt = obj.expiresAt,
                 userId = obj.userId,
                 joinedAt = obj.joinedAt,
             )
