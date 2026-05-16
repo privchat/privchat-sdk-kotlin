@@ -188,6 +188,32 @@ expect class PrivchatClient private constructor() {
     suspend fun leaveGroup(groupId: ULong): Result<Boolean>
     suspend fun joinGroupByQrcode(qrcode: String): Result<GroupQrCodeJoinResult>
 
+    // ========== QR Code v1.4 (QR_CODE_SPEC v1.4) ==========
+    //
+    // 个人名片 / 群二维码：qr_key 永久挂在主表上，UI 通过 get 读、refresh 旋转、
+    // resolve 把对方 qr_key 翻成最小用户卡片，join 用群 qr_key 申请加群。
+    // URL 形态 `https://<host>/privchat:protocol/<entity>/<action>/<qr_key>`
+    // 由 server 一次拼好返回；SDK 不在 client 侧拼 URL。
+
+    /** 读自己的永久 qr_key + 已拼好的 scan URL。 */
+    suspend fun userQrcodeGet(): Result<UserQrCodeGetView>
+
+    /** 旋转自己的 qr_key（应对骚扰）。旧 qr_key 立即作废。 */
+    suspend fun userQrcodeRefresh(): Result<UserQrCodeRefreshView>
+
+    /** 用对端的 qr_key 拉最小用户卡片（不返回 qr_key 本身）。 */
+    suspend fun userQrcodeResolve(qrKey: String): Result<UserQrCodeResolveView>
+
+    /** 读群当前二维码 + URL。任意 group member 可调（server 鉴权）。 */
+    suspend fun groupQrcodeGet(groupId: ULong): Result<GroupQrCodeGetView>
+
+    /** 旋转群二维码。Owner/Admin only（server 鉴权）。 */
+    suspend fun groupQrcodeRefresh(groupId: ULong): Result<GroupQrCodeRefreshView>
+
+    /** 用群 qr_key 申请加群。response.status = "joined" / "pending"
+     *  （按群 `join_need_approval` 决定）。`message` 可附申请理由。 */
+    suspend fun groupQrcodeJoin(qrKey: String, message: String? = null): Result<GroupQrCodeJoinResult>
+
     // ========== Presence & Typing ==========
     fun getPresence(userId: ULong): PresenceEntry?
     fun batchGetPresence(userIds: List<ULong>): List<PresenceEntry>

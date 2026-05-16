@@ -1209,6 +1209,66 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    // ========== QR Code v1.4 ==========
+
+    actual suspend fun userQrcodeGet(): Result<UserQrCodeGetView> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.userQrcodeGet() }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("userQrcodeGet failed", it)) },
+        )
+    }
+
+    actual suspend fun userQrcodeRefresh(): Result<UserQrCodeRefreshView> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.userQrcodeRefresh() }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("userQrcodeRefresh failed", it)) },
+        )
+    }
+
+    actual suspend fun userQrcodeResolve(qrKey: String): Result<UserQrCodeResolveView> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.userQrcodeResolve(qrKey) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("userQrcodeResolve failed", it)) },
+        )
+    }
+
+    actual suspend fun groupQrcodeGet(groupId: ULong): Result<GroupQrCodeGetView> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.groupQrcodeGetRemote(groupId) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("groupQrcodeGet failed", it)) },
+        )
+    }
+
+    actual suspend fun groupQrcodeRefresh(groupId: ULong): Result<GroupQrCodeRefreshView> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.groupQrcodeRefreshRemote(groupId) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("groupQrcodeRefresh failed", it)) },
+        )
+    }
+
+    actual suspend fun groupQrcodeJoin(qrKey: String, message: String?): Result<GroupQrCodeJoinResult> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val obj = c.groupQrcodeJoinRemote(qrKey, message)
+            GroupQrCodeJoinResult(
+                status = obj.status,
+                groupId = obj.groupId,
+                requestId = obj.requestId,
+                message = obj.message,
+                userId = obj.userId,
+                joinedAt = obj.joinedAt,
+            )
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("groupQrcodeJoin failed", it)) },
+        )
+    }
+
     actual fun getPresence(userId: ULong): PresenceEntry? =
         requireClient().getOrNull()?.let { client ->
             runCatching { runBlocking { client.getPresence(userId) } }
