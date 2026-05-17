@@ -313,12 +313,50 @@ actual class PrivchatClient private actual constructor() {
     actual suspend fun restoreLocalSession(): Result<Boolean> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
-            val snapshot = c.sessionSnapshot() ?: return@runCatching false
+            val snapshot = c.sessionSnapshot()
+            // A-1 trace: snapshot 是否存在 + 关键字段（不打 token）
+            println(
+                "[TRACE-A1][kotlin][restoreLocalSession] sessionSnapshot " +
+                    "snapshot_present=${snapshot != null} " +
+                    "uid=${snapshot?.userId} " +
+                    "deviceId=${snapshot?.deviceId} " +
+                    "has_access_token=${snapshot?.token?.isNotEmpty() == true}"
+            )
+            if (snapshot == null) return@runCatching false
             val state = c.connectionState()
+            println(
+                "[TRACE-A1][kotlin][restoreLocalSession] connectionState_before=$state"
+            )
             if (state == CoreConnectionState.NEW || state == CoreConnectionState.SHUTDOWN) {
+                println("[TRACE-A1][kotlin][restoreLocalSession] calling c.connect() because state=$state")
                 c.connect()
+                val stateAfterConnect = c.connectionState()
+                println(
+                    "[TRACE-A1][kotlin][restoreLocalSession] connectionState_after_connect=$stateAfterConnect"
+                )
             }
-            c.authenticate(snapshot.userId, snapshot.token, snapshot.deviceId)
+            // A-1 trace: 调 c.authenticate 前后的连接状态。若抛异常，runCatching 会接住，
+            // onFailure 会打印 throwable.message。
+            println(
+                "[TRACE-A1][kotlin][restoreLocalSession] before_authenticate uid=${snapshot.userId} " +
+                    "deviceId=${snapshot.deviceId} has_access_token=${snapshot.token.isNotEmpty()}"
+            )
+            try {
+                c.authenticate(snapshot.userId, snapshot.token, snapshot.deviceId)
+                val stateAfterAuth = c.connectionState()
+                println(
+                    "[TRACE-A1][kotlin][restoreLocalSession] after_authenticate=OK " +
+                        "uid=${snapshot.userId} connectionState_after_auth=$stateAfterAuth"
+                )
+            } catch (t: Throwable) {
+                val stateAfterAuth = runCatching { c.connectionState() }.getOrNull()
+                println(
+                    "[TRACE-A1][kotlin][restoreLocalSession] after_authenticate=THROW " +
+                        "uid=${snapshot.userId} err=${t::class.simpleName}: ${t.message} " +
+                        "connectionState_after_auth=$stateAfterAuth"
+                )
+                throw t
+            }
             cachedUserId = snapshot.userId
             cachedConnectionState = ConnectionState.Connected
             true
