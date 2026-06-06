@@ -96,6 +96,16 @@ expect class PrivchatClient private constructor() {
     suspend fun getGroups(limit: UInt?, offset: UInt?): Result<List<GroupEntry>>
     suspend fun getGroupMembers(groupId: ULong, limit: UInt?, offset: UInt?): Result<List<GroupMemberEntry>>
 
+    /**
+     * 主动从 server 增量同步群成员到本地（group/member/list RPC → upsert 本地
+     * group_member 表，含 server 返回的 nickname）。
+     *
+     * 用途：[getGroupMembers] 只读本地，新群 / 久未刷新的群本地缺成员 nickname
+     * 时会 fallback 成 userId。进群成员页 / 群设置页时先调本方法刷一次，再
+     * [getGroupMembers] 读本地即拿到正确昵称。按需触发，不在启动时全量刷。
+     */
+    suspend fun syncGroupMembers(groupId: ULong): Result<Unit>
+
     // ========== Sync ==========
     suspend fun runBootstrapSync(): Result<Unit>
     fun runBootstrapSyncInBackground()

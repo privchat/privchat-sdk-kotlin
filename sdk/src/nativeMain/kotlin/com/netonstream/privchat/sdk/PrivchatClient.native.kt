@@ -700,6 +700,14 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun syncGroupMembers(groupId: ULong): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.fetchGroupMembersRemote(groupId, null, null) }.fold(
+            onSuccess = { Result.success(Unit) },
+            onFailure = { Result.failure(toSdkError("syncGroupMembers failed", it)) },
+        )
+    }
+
     actual suspend fun runBootstrapSync(): Result<Unit> =
         requireClient().fold(
             onSuccess = { callAsync("runBootstrapSync failed") { it.runBootstrapSync() } },
