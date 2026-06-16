@@ -1167,6 +1167,22 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun addToBlacklist(userId: ULong): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.addToBlacklist(userId) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("addToBlacklist failed", it)) },
+        )
+    }
+
+    actual suspend fun removeFromBlacklist(userId: ULong): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.removeFromBlacklist(userId) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("removeFromBlacklist failed", it)) },
+        )
+    }
+
     actual suspend fun updateUserAlias(userId: ULong, alias: String?): Result<Unit> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return callAsync("updateUserAlias failed") { c.updateUserAlias(userId, alias) }

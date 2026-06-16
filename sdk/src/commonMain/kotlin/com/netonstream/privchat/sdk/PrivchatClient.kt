@@ -174,6 +174,10 @@ expect class PrivchatClient private constructor() {
      */
     suspend fun recallFriendRequest(targetUserId: ULong): Result<Boolean>
     suspend fun deleteFriend(userId: ULong): Result<Boolean>
+    /** 拉黑：加入黑名单。服务端据此停止下发对方消息。 */
+    suspend fun addToBlacklist(userId: ULong): Result<Boolean>
+    /** 解除拉黑：移出黑名单。 */
+    suspend fun removeFromBlacklist(userId: ULong): Result<Boolean>
     suspend fun updateUserAlias(userId: ULong, alias: String?): Result<Unit>
     suspend fun listFriendPendingRequests(): Result<List<FriendPendingEntry>>
 
