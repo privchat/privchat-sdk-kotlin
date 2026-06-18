@@ -831,6 +831,14 @@ get() = useContents { `uniffiFree`/* test  Any? */}
 
 
 
+
+
+
+
+
+
+
+
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -1319,9 +1327,15 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_attachment_from_path(`ptr`: Pointer?,`messageId`: Long,`routeKey`: RustBufferByValue,`path`: RustBufferByValue,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_contact_card_message(`ptr`: Pointer?,`input`: RustBufferByValue,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_friend_request(`ptr`: Pointer?,`targetUserId`: Long,`message`: RustBufferByValue,`source`: RustBufferByValue,`sourceId`: RustBufferByValue,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_link_message(`ptr`: Pointer?,`input`: RustBufferByValue,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_local_message_now(`ptr`: Pointer?,`input`: RustBufferByValue,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_location_message(`ptr`: Pointer?,`input`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_message(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`fromUid`: Long,`content`: RustBufferByValue,
     ): Long
@@ -1364,6 +1378,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_shutdown_blocking(`ptr`: Pointer?,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download(`ptr`: Pointer?,`messageId`: Long,`downloadUrl`: RustBufferByValue,`mime`: RustBufferByValue,`filenameHint`: RustBufferByValue,`createdAtMs`: Long,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download_by_file_id(`ptr`: Pointer?,`messageId`: Long,`fileId`: Long,`mime`: RustBufferByValue,`filenameHint`: RustBufferByValue,`createdAtMs`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_supervised_sync(`ptr`: Pointer?,`intervalSecs`: Long,uniffiCallStatus: UniffiRustCallStatus, 
     ): Unit
@@ -2077,9 +2093,15 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_attachment_from_path(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_contact_card_message(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_friend_request(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_link_message(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_local_message_now(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_location_message(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_message(
     ): Short
@@ -2122,6 +2144,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_shutdown_blocking(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_message_media_download(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_message_media_download_by_file_id(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_supervised_sync(
     ): Short
@@ -3191,13 +3215,25 @@ internal class UniffiLibInstance: UniffiLib {
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_attachment_from_path(`ptr`?.inner,`messageId`,`routeKey` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`path` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
     
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_contact_card_message(`ptr`: Pointer?,`input`: RustBufferByValue,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_contact_card_message(`ptr`?.inner,`input` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
+    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_friend_request(`ptr`: Pointer?,`targetUserId`: Long,`message`: RustBufferByValue,`source`: RustBufferByValue,`sourceId`: RustBufferByValue,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_friend_request(`ptr`?.inner,`targetUserId`,`message` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`source` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`sourceId` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
     
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_link_message(`ptr`: Pointer?,`input`: RustBufferByValue,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_link_message(`ptr`?.inner,`input` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
+    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_local_message_now(`ptr`: Pointer?,`input`: RustBufferByValue,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_local_message_now(`ptr`?.inner,`input` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_location_message(`ptr`: Pointer?,`input`: RustBufferByValue,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_location_message(`ptr`?.inner,`input` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_message(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`fromUid`: Long,`content`: RustBufferByValue,
     ): Long
@@ -3282,6 +3318,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download(`ptr`: Pointer?,`messageId`: Long,`downloadUrl`: RustBufferByValue,`mime`: RustBufferByValue,`filenameHint`: RustBufferByValue,`createdAtMs`: Long,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download(`ptr`?.inner,`messageId`,`downloadUrl` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`mime` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`filenameHint` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`createdAtMs`,)as Long
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download_by_file_id(`ptr`: Pointer?,`messageId`: Long,`fileId`: Long,`mime`: RustBufferByValue,`filenameHint`: RustBufferByValue,`createdAtMs`: Long,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download_by_file_id(`ptr`?.inner,`messageId`,`fileId`,`mime` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`filenameHint` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`createdAtMs`,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_supervised_sync(`ptr`: Pointer?,`intervalSecs`: Long,uniffiCallStatus: UniffiRustCallStatus, 
     ): Unit
@@ -4707,13 +4747,25 @@ internal class UniffiLibInstance: UniffiLib {
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_attachment_from_path()as Short
     
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_contact_card_message(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_contact_card_message()as Short
+    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_friend_request(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_friend_request()as Short
     
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_link_message(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_link_message()as Short
+    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_local_message_now(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_local_message_now()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_location_message(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_location_message()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_message(
     ): Short
@@ -4798,6 +4850,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_message_media_download(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_message_media_download()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_message_media_download_by_file_id(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_message_media_download_by_file_id()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_supervised_sync(
     ): Short
@@ -5181,6 +5237,27 @@ public object FfiConverterLong: FfiConverter<Long, Long> {
 
     override fun write(value: Long, buf: ByteBuffer) {
         buf.putLong(value)
+    }
+}
+
+
+public object FfiConverterDouble: FfiConverter<Double, Double> {
+    override fun lift(value: Double): Double {
+        return value
+    }
+
+    override fun read(buf: ByteBuffer): Double {
+        return buf.getDouble()
+    }
+
+    override fun lower(value: Double): Double {
+        return value
+    }
+
+    override fun allocationSize(value: Double) = 8UL
+
+    override fun write(value: Double, buf: ByteBuffer) {
+        buf.putDouble(value)
     }
 }
 
@@ -10281,6 +10358,28 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `sendContactCardMessage`(`input`: ContactCardMessageInput) : kotlin.ULong {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_contact_card_message(
+                thisPtr,
+                FfiConverterTypeContactCardMessageInput.lower(`input`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_u64(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_u64(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_u64(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_u64(future) },
+        // lift function
+        { FfiConverterULong.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `sendFriendRequest`(`targetUserId`: kotlin.ULong, `message`: kotlin.String?, `source`: kotlin.String?, `sourceId`: kotlin.String?) : FriendRequestResult {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
@@ -10303,12 +10402,56 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `sendLinkMessage`(`input`: LinkMessageInput) : kotlin.ULong {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_link_message(
+                thisPtr,
+                FfiConverterTypeLinkMessageInput.lower(`input`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_u64(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_u64(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_u64(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_u64(future) },
+        // lift function
+        { FfiConverterULong.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `sendLocalMessageNow`(`input`: NewMessage) : kotlin.ULong {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_local_message_now(
                 thisPtr,
                 FfiConverterTypeNewMessage.lower(`input`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_u64(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_u64(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_u64(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_u64(future) },
+        // lift function
+        { FfiConverterULong.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `sendLocationMessage`(`input`: LocationMessageInput) : kotlin.ULong {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_location_message(
+                thisPtr,
+                FfiConverterTypeLocationMessageInput.lower(`input`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_u64(future, callback, continuation)!! },
@@ -10773,6 +10916,36 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download(
                 thisPtr,
                 FfiConverterULong.lower(`messageId`),FfiConverterString.lower(`downloadUrl`),FfiConverterString.lower(`mime`),FfiConverterOptionalString.lower(`filenameHint`),FfiConverterLong.lower(`createdAtMs`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
+        // lift function
+        { Unit },
+        
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * Start a streaming download for an attachment-encrypted (v1) message by
+     * `file_id`. The SDK resolves the signed URL + cek via `file/get_url` and
+     * decrypts the blob on completion. Prefer this over the URL-driven entry for
+     * any message that carries a `file_id`; the legacy URL form is retained only
+     * for plaintext (pre-encryption) attachments.
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `startMessageMediaDownloadByFileId`(`messageId`: kotlin.ULong, `fileId`: kotlin.ULong, `mime`: kotlin.String, `filenameHint`: kotlin.String?, `createdAtMs`: kotlin.Long) {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download_by_file_id(
+                thisPtr,
+                FfiConverterULong.lower(`messageId`),FfiConverterULong.lower(`fileId`),FfiConverterString.lower(`mime`),FfiConverterOptionalString.lower(`filenameHint`),FfiConverterLong.lower(`createdAtMs`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
@@ -12651,6 +12824,37 @@ object FfiConverterTypeConnectionSummary: FfiConverterRustBuffer<ConnectionSumma
 
 
 
+object FfiConverterTypeContactCardMessageInput: FfiConverterRustBuffer<ContactCardMessageInput> {
+    override fun read(buf: ByteBuffer): ContactCardMessageInput {
+        return ContactCardMessageInput(
+            FfiConverterULong.read(buf),
+            FfiConverterInt.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterOptionalTypeStructuredSendOptionsInput.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: ContactCardMessageInput) = (
+            FfiConverterULong.allocationSize(value.`channelId`) +
+            FfiConverterInt.allocationSize(value.`channelType`) +
+            FfiConverterULong.allocationSize(value.`fromUid`) +
+            FfiConverterULong.allocationSize(value.`userId`) +
+            FfiConverterOptionalTypeStructuredSendOptionsInput.allocationSize(value.`options`)
+    )
+
+    override fun write(value: ContactCardMessageInput, buf: ByteBuffer) {
+            FfiConverterULong.write(value.`channelId`, buf)
+            FfiConverterInt.write(value.`channelType`, buf)
+            FfiConverterULong.write(value.`fromUid`, buf)
+            FfiConverterULong.write(value.`userId`, buf)
+            FfiConverterOptionalTypeStructuredSendOptionsInput.write(value.`options`, buf)
+    }
+}
+
+
+
+
 object FfiConverterTypeDeviceInfoView: FfiConverterRustBuffer<DeviceInfoView> {
     override fun read(buf: ByteBuffer): DeviceInfoView {
         return DeviceInfoView(
@@ -13598,6 +13802,46 @@ object FfiConverterTypeKeyValueEntry: FfiConverterRustBuffer<KeyValueEntry> {
 
 
 
+object FfiConverterTypeLinkMessageInput: FfiConverterRustBuffer<LinkMessageInput> {
+    override fun read(buf: ByteBuffer): LinkMessageInput {
+        return LinkMessageInput(
+            FfiConverterULong.read(buf),
+            FfiConverterInt.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalULong.read(buf),
+            FfiConverterOptionalTypeStructuredSendOptionsInput.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: LinkMessageInput) = (
+            FfiConverterULong.allocationSize(value.`channelId`) +
+            FfiConverterInt.allocationSize(value.`channelType`) +
+            FfiConverterULong.allocationSize(value.`fromUid`) +
+            FfiConverterString.allocationSize(value.`url`) +
+            FfiConverterOptionalString.allocationSize(value.`title`) +
+            FfiConverterOptionalString.allocationSize(value.`description`) +
+            FfiConverterOptionalULong.allocationSize(value.`thumbnailFileId`) +
+            FfiConverterOptionalTypeStructuredSendOptionsInput.allocationSize(value.`options`)
+    )
+
+    override fun write(value: LinkMessageInput, buf: ByteBuffer) {
+            FfiConverterULong.write(value.`channelId`, buf)
+            FfiConverterInt.write(value.`channelType`, buf)
+            FfiConverterULong.write(value.`fromUid`, buf)
+            FfiConverterString.write(value.`url`, buf)
+            FfiConverterOptionalString.write(value.`title`, buf)
+            FfiConverterOptionalString.write(value.`description`, buf)
+            FfiConverterOptionalULong.write(value.`thumbnailFileId`, buf)
+            FfiConverterOptionalTypeStructuredSendOptionsInput.write(value.`options`, buf)
+    }
+}
+
+
+
+
 object FfiConverterTypeLocalAccountSummary: FfiConverterRustBuffer<LocalAccountSummary> {
     override fun read(buf: ByteBuffer): LocalAccountSummary {
         return LocalAccountSummary(
@@ -13620,6 +13864,58 @@ object FfiConverterTypeLocalAccountSummary: FfiConverterRustBuffer<LocalAccountS
             FfiConverterLong.write(value.`createdAt`, buf)
             FfiConverterLong.write(value.`lastLoginAt`, buf)
             FfiConverterBoolean.write(value.`isActive`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeLocationMessageInput: FfiConverterRustBuffer<LocationMessageInput> {
+    override fun read(buf: ByteBuffer): LocationMessageInput {
+        return LocationMessageInput(
+            FfiConverterULong.read(buf),
+            FfiConverterInt.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterDouble.read(buf),
+            FfiConverterDouble.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalULong.read(buf),
+            FfiConverterOptionalTypeStructuredSendOptionsInput.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: LocationMessageInput) = (
+            FfiConverterULong.allocationSize(value.`channelId`) +
+            FfiConverterInt.allocationSize(value.`channelType`) +
+            FfiConverterULong.allocationSize(value.`fromUid`) +
+            FfiConverterDouble.allocationSize(value.`latitude`) +
+            FfiConverterDouble.allocationSize(value.`longitude`) +
+            FfiConverterOptionalString.allocationSize(value.`coordinateSystem`) +
+            FfiConverterOptionalString.allocationSize(value.`name`) +
+            FfiConverterOptionalString.allocationSize(value.`address`) +
+            FfiConverterOptionalString.allocationSize(value.`poiId`) +
+            FfiConverterOptionalString.allocationSize(value.`poiSource`) +
+            FfiConverterOptionalULong.allocationSize(value.`thumbnailFileId`) +
+            FfiConverterOptionalTypeStructuredSendOptionsInput.allocationSize(value.`options`)
+    )
+
+    override fun write(value: LocationMessageInput, buf: ByteBuffer) {
+            FfiConverterULong.write(value.`channelId`, buf)
+            FfiConverterInt.write(value.`channelType`, buf)
+            FfiConverterULong.write(value.`fromUid`, buf)
+            FfiConverterDouble.write(value.`latitude`, buf)
+            FfiConverterDouble.write(value.`longitude`, buf)
+            FfiConverterOptionalString.write(value.`coordinateSystem`, buf)
+            FfiConverterOptionalString.write(value.`name`, buf)
+            FfiConverterOptionalString.write(value.`address`, buf)
+            FfiConverterOptionalString.write(value.`poiId`, buf)
+            FfiConverterOptionalString.write(value.`poiSource`, buf)
+            FfiConverterOptionalULong.write(value.`thumbnailFileId`, buf)
+            FfiConverterOptionalTypeStructuredSendOptionsInput.write(value.`options`, buf)
     }
 }
 
@@ -15493,6 +15789,28 @@ object FfiConverterTypeStoredUser: FfiConverterRustBuffer<StoredUser> {
             FfiConverterBoolean.write(value.`isDeleted`, buf)
             FfiConverterString.write(value.`channelId`, buf)
             FfiConverterLong.write(value.`updatedAt`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeStructuredSendOptionsInput: FfiConverterRustBuffer<StructuredSendOptionsInput> {
+    override fun read(buf: ByteBuffer): StructuredSendOptionsInput {
+        return StructuredSendOptionsInput(
+            FfiConverterOptionalULong.read(buf),
+            FfiConverterSequenceULong.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: StructuredSendOptionsInput) = (
+            FfiConverterOptionalULong.allocationSize(value.`inReplyToMessageId`) +
+            FfiConverterSequenceULong.allocationSize(value.`mentionedUserIds`)
+    )
+
+    override fun write(value: StructuredSendOptionsInput, buf: ByteBuffer) {
+            FfiConverterOptionalULong.write(value.`inReplyToMessageId`, buf)
+            FfiConverterSequenceULong.write(value.`mentionedUserIds`, buf)
     }
 }
 
@@ -17903,6 +18221,35 @@ public object FfiConverterOptionalTypeStoredUser: FfiConverterRustBuffer<StoredU
         } else {
             buf.put(1)
             FfiConverterTypeStoredUser.write(value, buf)
+        }
+    }
+}
+
+
+
+
+public object FfiConverterOptionalTypeStructuredSendOptionsInput: FfiConverterRustBuffer<StructuredSendOptionsInput?> {
+    override fun read(buf: ByteBuffer): StructuredSendOptionsInput? {
+        if (buf.get().toInt() == 0) {
+            return null
+        }
+        return FfiConverterTypeStructuredSendOptionsInput.read(buf)
+    }
+
+    override fun allocationSize(value: StructuredSendOptionsInput?): ULong {
+        if (value == null) {
+            return 1UL
+        } else {
+            return 1UL + FfiConverterTypeStructuredSendOptionsInput.allocationSize(value)
+        }
+    }
+
+    override fun write(value: StructuredSendOptionsInput?, buf: ByteBuffer) {
+        if (value == null) {
+            buf.put(0)
+        } else {
+            buf.put(1)
+            FfiConverterTypeStructuredSendOptionsInput.write(value, buf)
         }
     }
 }

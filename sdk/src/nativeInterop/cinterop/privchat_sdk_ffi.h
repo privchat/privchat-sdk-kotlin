@@ -634,9 +634,15 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_attachment_bytes(v
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_attachment_from_path(void * ptr, int64_t messageId, RustBuffer routeKey, RustBuffer path
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_contact_card_message(void * ptr, RustBuffer input
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_friend_request(void * ptr, int64_t targetUserId, RustBuffer message, RustBuffer source, RustBuffer sourceId
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_link_message(void * ptr, RustBuffer input
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_local_message_now(void * ptr, RustBuffer input
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_location_message(void * ptr, RustBuffer input
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_message(void * ptr, int64_t channelId, int32_t channelType, int64_t fromUid, RustBuffer content
 );
@@ -679,6 +685,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_shutdown(void * ptr
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_shutdown_blocking(void * ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download(void * ptr, int64_t messageId, RustBuffer downloadUrl, RustBuffer mime, RustBuffer filenameHint, int64_t createdAtMs
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download_by_file_id(void * ptr, int64_t messageId, int64_t fileId, RustBuffer mime, RustBuffer filenameHint, int64_t createdAtMs
 );
 void uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_supervised_sync(void * ptr, int64_t intervalSecs, UniffiRustCallStatus *_Nonnull out_status
 );
@@ -1634,10 +1642,19 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_attachment_b
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_attachment_from_path(void
     
 );
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_contact_card_message(void
+    
+);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_friend_request(void
     
 );
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_link_message(void
+    
+);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_local_message_now(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_location_message(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_message(void
@@ -1701,6 +1718,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_shutdown_blocking
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_message_media_download(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_message_media_download_by_file_id(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_supervised_sync(void

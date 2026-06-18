@@ -59,6 +59,9 @@ expect class PrivchatClient private constructor() {
     suspend fun sendText(channelId: ULong, channelType: Int, text: String): Result<ULong>
     suspend fun sendText(channelId: ULong, channelType: Int, text: String, options: SendMessageOptions): Result<ULong>
     suspend fun sendTextWithLocalId(channelId: ULong, channelType: Int, text: String, localMessageId: ULong): Result<ULong>
+    suspend fun sendLink(channelId: ULong, channelType: Int, payload: LinkMessagePayload, options: SendMessageOptions = SendMessageOptions()): Result<ULong>
+    suspend fun sendLocation(channelId: ULong, channelType: Int, payload: LocationMessagePayload, options: SendMessageOptions = SendMessageOptions()): Result<ULong>
+    suspend fun sendContactCard(channelId: ULong, channelType: Int, payload: ContactCardMessagePayload, options: SendMessageOptions = SendMessageOptions()): Result<ULong>
     suspend fun sendMedia(channelId: ULong, filePath: String, options: SendMessageOptions?): Result<Pair<ULong, AttachmentInfo>>
     suspend fun retryMessage(messageId: ULong): Result<Unit>
     suspend fun markReadToPts(channelId: ULong, readPts: ULong): Result<ULong>
@@ -285,6 +288,13 @@ expect class PrivchatClient private constructor() {
     // ========== Media Download (Telegram-style: stream + Range resume + pause/cancel) ==========
     /** Start (or no-op if already in-flight) a streaming download. Emits MediaDownloadStateChanged events. */
     suspend fun startMessageMediaDownload(messageId: ULong, downloadUrl: String, mime: String, filenameHint: String?, createdAtMs: Long): Result<Unit>
+    /**
+     * Start a streaming download for an attachment-encrypted (v1) message by `fileId`.
+     * The core SDK resolves the signed URL + cek via `file/get_url` and decrypts the blob
+     * on completion. Prefer this for any message carrying a `file_id`; the URL form above
+     * is retained only for legacy plaintext attachments.
+     */
+    suspend fun startMessageMediaDownloadByFileId(messageId: ULong, fileId: ULong, mime: String, filenameHint: String?, createdAtMs: Long): Result<Unit>
     suspend fun pauseMessageMediaDownload(messageId: ULong): Result<Unit>
     suspend fun resumeMessageMediaDownload(messageId: ULong): Result<Unit>
     /** Abort in-flight download. Keeps the `.part` file so a later start() can resume. */

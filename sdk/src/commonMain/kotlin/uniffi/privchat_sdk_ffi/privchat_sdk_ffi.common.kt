@@ -94,6 +94,8 @@ object NoPointer
 
 
 
+
+
 interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `acceptFriendRequest`(`fromUserId`: kotlin.ULong, `message`: kotlin.String?): kotlin.ULong
@@ -616,9 +618,15 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `sendAttachmentFromPath`(`messageId`: kotlin.ULong, `routeKey`: kotlin.String, `path`: kotlin.String): FileQueueRef
     
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `sendContactCardMessage`(`input`: ContactCardMessageInput): kotlin.ULong
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `sendFriendRequest`(`targetUserId`: kotlin.ULong, `message`: kotlin.String?, `source`: kotlin.String?, `sourceId`: kotlin.String?): FriendRequestResult
     
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `sendLinkMessage`(`input`: LinkMessageInput): kotlin.ULong
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `sendLocalMessageNow`(`input`: NewMessage): kotlin.ULong
+    
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `sendLocationMessage`(`input`: LocationMessageInput): kotlin.ULong
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `sendMessage`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String): kotlin.ULong
     
@@ -668,6 +676,15 @@ interface PrivchatClientInterface {
      * the state machine, so the Rust iced UI and the FFI Kotlin/iOS layer share it.
      */
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `startMessageMediaDownload`(`messageId`: kotlin.ULong, `downloadUrl`: kotlin.String, `mime`: kotlin.String, `filenameHint`: kotlin.String?, `createdAtMs`: kotlin.Long)
+    
+    /**
+     * Start a streaming download for an attachment-encrypted (v1) message by
+     * `file_id`. The SDK resolves the signed URL + cek via `file/get_url` and
+     * decrypts the blob on completion. Prefer this over the URL-driven entry for
+     * any message that carries a `file_id`; the legacy URL form is retained only
+     * for plaintext (pre-encryption) attachments.
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `startMessageMediaDownloadByFileId`(`messageId`: kotlin.ULong, `fileId`: kotlin.ULong, `mime`: kotlin.String, `filenameHint`: kotlin.String?, `createdAtMs`: kotlin.Long)
     
         @Throws(PrivchatFfiException::class)fun `startSupervisedSync`(`intervalSecs`: kotlin.ULong)
     fun `startTransportDisconnectListener`()
@@ -2017,12 +2034,27 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `sendContactCardMessage`(`input`: ContactCardMessageInput) : kotlin.ULong
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `sendFriendRequest`(`targetUserId`: kotlin.ULong, `message`: kotlin.String?, `source`: kotlin.String?, `sourceId`: kotlin.String?) : FriendRequestResult
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `sendLinkMessage`(`input`: LinkMessageInput) : kotlin.ULong
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `sendLocalMessageNow`(`input`: NewMessage) : kotlin.ULong
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `sendLocationMessage`(`input`: LocationMessageInput) : kotlin.ULong
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -2133,6 +2165,18 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `startMessageMediaDownload`(`messageId`: kotlin.ULong, `downloadUrl`: kotlin.String, `mime`: kotlin.String, `filenameHint`: kotlin.String?, `createdAtMs`: kotlin.Long)
+
+    
+    /**
+     * Start a streaming download for an attachment-encrypted (v1) message by
+     * `file_id`. The SDK resolves the signed URL + cek via `file/get_url` and
+     * decrypts the blob on completion. Prefer this over the URL-driven entry for
+     * any message that carries a `file_id`; the legacy URL form is retained only
+     * for plaintext (pre-encryption) attachments.
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `startMessageMediaDownloadByFileId`(`messageId`: kotlin.ULong, `fileId`: kotlin.ULong, `mime`: kotlin.String, `filenameHint`: kotlin.String?, `createdAtMs`: kotlin.Long)
 
     
     @Throws(PrivchatFfiException::class)override fun `startSupervisedSync`(`intervalSecs`: kotlin.ULong)
@@ -2802,6 +2846,24 @@ data class ConnectionSummary (
 
 
 
+data class ContactCardMessageInput (
+    var `channelId`: kotlin.ULong
+        , 
+    var `channelType`: kotlin.Int
+        , 
+    var `fromUid`: kotlin.ULong
+        , 
+    var `userId`: kotlin.ULong
+        , 
+    var `options`: StructuredSendOptionsInput?
+         = null 
+) {
+    
+    companion object
+}
+
+
+
 data class DeviceInfoView (
     var `deviceId`: kotlin.String
         , 
@@ -3358,6 +3420,30 @@ data class KeyValueEntry (
 
 
 
+data class LinkMessageInput (
+    var `channelId`: kotlin.ULong
+        , 
+    var `channelType`: kotlin.Int
+        , 
+    var `fromUid`: kotlin.ULong
+        , 
+    var `url`: kotlin.String
+        , 
+    var `title`: kotlin.String?
+         = null , 
+    var `description`: kotlin.String?
+         = null , 
+    var `thumbnailFileId`: kotlin.ULong?
+         = null , 
+    var `options`: StructuredSendOptionsInput?
+         = null 
+) {
+    
+    companion object
+}
+
+
+
 data class LocalAccountSummary (
     var `uid`: kotlin.String
         , 
@@ -3367,6 +3453,38 @@ data class LocalAccountSummary (
         , 
     var `isActive`: kotlin.Boolean
         
+) {
+    
+    companion object
+}
+
+
+
+data class LocationMessageInput (
+    var `channelId`: kotlin.ULong
+        , 
+    var `channelType`: kotlin.Int
+        , 
+    var `fromUid`: kotlin.ULong
+        , 
+    var `latitude`: kotlin.Double
+        , 
+    var `longitude`: kotlin.Double
+        , 
+    var `coordinateSystem`: kotlin.String?
+         = null , 
+    var `name`: kotlin.String?
+         = null , 
+    var `address`: kotlin.String?
+         = null , 
+    var `poiId`: kotlin.String?
+         = null , 
+    var `poiSource`: kotlin.String?
+         = null , 
+    var `thumbnailFileId`: kotlin.ULong?
+         = null , 
+    var `options`: StructuredSendOptionsInput?
+         = null 
 ) {
     
     companion object
@@ -4536,6 +4654,18 @@ data class StoredUser (
 
 
 
+data class StructuredSendOptionsInput (
+    var `inReplyToMessageId`: kotlin.ULong?
+         = null , 
+    var `mentionedUserIds`: List<kotlin.ULong>
+        
+) {
+    
+    companion object
+}
+
+
+
 data class SyncEntitiesInput (
     var `entityType`: kotlin.String
         , 
@@ -5581,6 +5711,8 @@ interface VideoProcessHook {
     
     companion object
 }
+
+
 
 
 

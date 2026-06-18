@@ -28,6 +28,9 @@ import uniffi.privchat_sdk_ffi.ConnectionState as CoreConnectionState
 import uniffi.privchat_sdk_ffi.FileQueueRef
 import uniffi.privchat_sdk_ffi.GetChannelPtsInput
 import uniffi.privchat_sdk_ffi.LoginResult
+import uniffi.privchat_sdk_ffi.ContactCardMessageInput as CoreContactCardMessageInput
+import uniffi.privchat_sdk_ffi.LinkMessageInput as CoreLinkMessageInput
+import uniffi.privchat_sdk_ffi.LocationMessageInput as CoreLocationMessageInput
 import uniffi.privchat_sdk_ffi.NewMessage
 import uniffi.privchat_sdk_ffi.PresenceStatus
 import uniffi.privchat_sdk_ffi.PrivchatClient as CorePrivchatClient
@@ -35,6 +38,7 @@ import uniffi.privchat_sdk_ffi.PrivchatConfig as CoreConfig
 import uniffi.privchat_sdk_ffi.PrivchatFfiException
 import uniffi.privchat_sdk_ffi.SendMessageOptionsInput
 import uniffi.privchat_sdk_ffi.ServerEndpoint as CoreEndpoint
+import uniffi.privchat_sdk_ffi.StructuredSendOptionsInput
 import uniffi.privchat_sdk_ffi.StoredChannel
 import uniffi.privchat_sdk_ffi.StoredFriend
 import uniffi.privchat_sdk_ffi.StoredGroup
@@ -403,6 +407,79 @@ actual class PrivchatClient private actual constructor() {
         return runCatching { c.sendMessageWithOptions(input, typedOptions) }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("sendText(options) failed", it)) },
+        )
+    }
+
+    actual suspend fun sendLink(
+        channelId: ULong,
+        channelType: Int,
+        payload: LinkMessagePayload,
+        options: SendMessageOptions
+    ): Result<ULong> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
+        val input = CoreLinkMessageInput(
+            channelId = channelId,
+            channelType = channelType,
+            fromUid = uid,
+            url = payload.url,
+            title = payload.title,
+            description = payload.description,
+            thumbnailFileId = payload.thumbnailFileId,
+            options = options.toStructuredSendOptionsInput(),
+        )
+        return runCatching { c.sendLinkMessage(input) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("sendLink failed", it)) },
+        )
+    }
+
+    actual suspend fun sendLocation(
+        channelId: ULong,
+        channelType: Int,
+        payload: LocationMessagePayload,
+        options: SendMessageOptions
+    ): Result<ULong> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
+        val input = CoreLocationMessageInput(
+            channelId = channelId,
+            channelType = channelType,
+            fromUid = uid,
+            latitude = payload.latitude,
+            longitude = payload.longitude,
+            coordinateSystem = payload.coordinateSystem,
+            name = payload.name,
+            address = payload.address,
+            poiId = payload.poiId,
+            poiSource = payload.poiSource,
+            thumbnailFileId = payload.thumbnailFileId,
+            options = options.toStructuredSendOptionsInput(),
+        )
+        return runCatching { c.sendLocationMessage(input) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("sendLocation failed", it)) },
+        )
+    }
+
+    actual suspend fun sendContactCard(
+        channelId: ULong,
+        channelType: Int,
+        payload: ContactCardMessagePayload,
+        options: SendMessageOptions
+    ): Result<ULong> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
+        val input = CoreContactCardMessageInput(
+            channelId = channelId,
+            channelType = channelType,
+            fromUid = uid,
+            userId = payload.userId,
+            options = options.toStructuredSendOptionsInput(),
+        )
+        return runCatching { c.sendContactCardMessage(input) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("sendContactCard failed", it)) },
         )
     }
 
@@ -1620,6 +1697,23 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun startMessageMediaDownloadByFileId(
+        messageId: ULong,
+        fileId: ULong,
+        mime: String,
+        filenameHint: String?,
+        createdAtMs: Long,
+    ): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.startMessageMediaDownloadByFileId(messageId, fileId, mime, filenameHint, createdAtMs)
+            Unit
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("startMessageMediaDownloadByFileId failed", it)) },
+        )
+    }
+
     actual suspend fun pauseMessageMediaDownload(messageId: ULong): Result<Unit> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching { c.pauseMessageMediaDownload(messageId); Unit }.fold(
@@ -2073,12 +2167,28 @@ private operator fun MutableMap<String, JsonElement?>.set(key: String, value: An
         is JsonElement -> value
         is String -> JsonPrimitive(value)
         is Boolean -> JsonPrimitive(value)
-        is ULong -> JsonPrimitive(value.toString())
+        is ULong -> value.toJsonNumberPrimitive()
         is UInt -> JsonPrimitive(value.toString())
         is List<*> -> JsonArray(value.mapNotNull { it?.let { e -> JsonPrimitive(e.toString()) } })
         else -> JsonPrimitive(value.toString())
     }
     put(key, element)
+}
+
+private fun SendMessageOptions.toStructuredSendOptionsInput(): StructuredSendOptionsInput? {
+    if (inReplyToMessageId == null && mentions.isEmpty()) return null
+    return StructuredSendOptionsInput(
+        inReplyToMessageId = inReplyToMessageId,
+        mentionedUserIds = mentions,
+    )
+}
+
+private fun ULong.toJsonNumberPrimitive(): JsonPrimitive {
+    return if (this <= Long.MAX_VALUE.toULong()) {
+        JsonPrimitive(this.toLong())
+    } else {
+        JsonPrimitive(this.toString())
+    }
 }
 
 private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
