@@ -2203,6 +2203,7 @@ actual class PrivchatClient private actual constructor() {
 }
 
 private fun mapFfiCodeToSdkError(prefix: String, code: UInt, detail: String): SdkError = when (code) {
+    in 10000u..10010u -> SdkError.Authentication("$prefix: [$code] $detail")
     SdkErrorCodes.NETWORK_DISCONNECTED,
     SdkErrorCodes.SHUTDOWN -> SdkError.Disconnected
 
