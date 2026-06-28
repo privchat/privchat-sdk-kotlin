@@ -139,7 +139,6 @@ expect class PrivchatClient private constructor() {
     suspend fun ownLastRead(channelId: ULong): Result<LastReadPosition>
     suspend fun setChannelNotificationMode(channelId: ULong, mode: NotificationMode): Result<Unit>
     suspend fun getOrCreateDirectChannel(peerUserId: ULong): Result<GetOrCreateDirectChannelResult>
-    suspend fun dmPeerUserId(channelId: ULong): Result<ULong?>
 
     // ========== Friends & Groups ==========
     suspend fun searchUsers(query: String): Result<List<UserEntry>>

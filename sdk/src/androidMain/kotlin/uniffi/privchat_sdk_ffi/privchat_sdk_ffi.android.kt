@@ -816,8 +816,6 @@ internal val UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue.`uniffiF
 
 
 
-
-
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -954,8 +952,6 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_message_local(`ptr`: Pointer?,`messageId`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_disconnect(`ptr`: Pointer?,
-    ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_dm_peer_user_id(`ptr`: Pointer?,`channelId`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_download_attachment_to_cache(`ptr`: Pointer?,`sourcePath`: RustBufferByValue,`fileName`: RustBufferByValue,
     ): Long
@@ -1725,8 +1721,6 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_disconnect(
     ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_dm_peer_user_id(
-    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_download_attachment_to_cache(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_download_attachment_to_path(
@@ -2443,9 +2437,6 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_disconnect() != 6613.toShort()) {
-        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
-    }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_dm_peer_user_id() != 12180.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_download_attachment_to_cache() != 18829.toShort()) {
@@ -4397,28 +4388,6 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         // lift function
         { Unit },
         
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `dmPeerUserId`(`channelId`: kotlin.ULong) : kotlin.ULong? {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_dm_peer_user_id(
-                thisPtr,
-                FfiConverterULong.lower(`channelId`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
-        // lift function
-        { FfiConverterOptionalULong.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )

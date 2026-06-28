@@ -196,8 +196,6 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `disconnect`()
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `dmPeerUserId`(`channelId`: kotlin.ULong): kotlin.ULong?
-    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `downloadAttachmentToCache`(`sourcePath`: kotlin.String, `fileName`: kotlin.String): kotlin.String
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `downloadAttachmentToPath`(`sourcePath`: kotlin.String, `targetPath`: kotlin.String): kotlin.String
@@ -1089,11 +1087,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `disconnect`()
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `dmPeerUserId`(`channelId`: kotlin.ULong) : kotlin.ULong?
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)

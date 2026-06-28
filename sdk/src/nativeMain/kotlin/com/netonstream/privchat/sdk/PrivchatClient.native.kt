@@ -1039,14 +1039,6 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
-    actual suspend fun dmPeerUserId(channelId: ULong): Result<ULong?> {
-        val c = requireClient().getOrElse { return Result.failure(it) }
-        return runCatching { c.dmPeerUserId(channelId) }.fold(
-            onSuccess = { Result.success(it) },
-            onFailure = { Result.failure(toSdkError("dmPeerUserId failed", it)) },
-        )
-    }
-
     actual suspend fun searchUsers(query: String): Result<List<UserEntry>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
