@@ -1368,6 +1368,72 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    // ========== Group settings / mute / pin (P0-4 / P0-5 / P1) ==========
+    actual suspend fun groupGetSettings(groupId: ULong): Result<GroupSettingsView> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.groupGetSettingsRemote(groupId) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("groupGetSettings failed", it)) },
+        )
+    }
+
+    actual suspend fun groupUpdateSettings(input: GroupSettingsUpdateInput): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.groupUpdateSettingsRemote(input) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("groupUpdateSettings failed", it)) },
+        )
+    }
+
+    actual suspend fun groupMuteMember(
+        groupId: ULong,
+        userId: ULong,
+        durationSeconds: ULong?,
+    ): Result<ULong> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.groupMuteMemberRemote(groupId, userId, durationSeconds) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("groupMuteMember failed", it)) },
+        )
+    }
+
+    actual suspend fun groupUnmuteMember(groupId: ULong, userId: ULong): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.groupUnmuteMemberRemote(groupId, userId) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("groupUnmuteMember failed", it)) },
+        )
+    }
+
+    actual suspend fun groupMuteAll(groupId: ULong, enabled: Boolean): Result<GroupMuteAllView> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.groupMuteAllRemote(groupId, enabled) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("groupMuteAll failed", it)) },
+        )
+    }
+
+    actual suspend fun groupPinMessage(
+        groupId: ULong,
+        channelId: ULong,
+        messageId: ULong,
+        pinned: Boolean,
+    ): Result<GroupPinMessageView> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.groupPinMessageRemote(groupId, channelId, messageId, pinned) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("groupPinMessage failed", it)) },
+        )
+    }
+
+    actual suspend fun groupPinnedMessages(groupId: ULong): Result<List<GroupPinnedMessageView>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.groupPinnedMessagesRemote(groupId) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("groupPinnedMessages failed", it)) },
+        )
+    }
+
     // ========== QR Code v1.4 ==========
     // FFI types pass through unchanged (the typealiases in dto package
     // point at them); only the Result<> + SdkError envelope is added.

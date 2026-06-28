@@ -814,6 +814,10 @@ internal val UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue.`uniffiF
 
 
 
+
+
+
+
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -1080,6 +1084,10 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_mute_all_remote(`ptr`: Pointer?,`groupId`: Long,`enabled`: Byte,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_mute_member_remote(`ptr`: Pointer?,`groupId`: Long,`userId`: Long,`durationSeconds`: RustBufferByValue,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_pin_message_remote(`ptr`: Pointer?,`groupId`: Long,`channelId`: Long,`messageId`: Long,`pinned`: Byte,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_pinned_messages_remote(`ptr`: Pointer?,`groupId`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_qrcode_get_remote(`ptr`: Pointer?,`groupId`: Long,
     ): Long
@@ -1846,6 +1854,10 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_mute_all_remote(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_mute_member_remote(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_pin_message_remote(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_pinned_messages_remote(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_qrcode_get_remote(
     ): Short
@@ -2626,6 +2638,12 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_mute_member_remote() != 177.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_pin_message_remote() != 30133.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_pinned_messages_remote() != 22477.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_qrcode_get_remote() != 53713.toShort()) {
@@ -5769,6 +5787,57 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_u64(future) },
         // lift function
         { FfiConverterULong.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * 群消息置顶 / 取消置顶（仅群主/管理员；`pinned=false` 为取消置顶）。
+     * `channel_id` 为消息所在通信频道（群聊场景等于 group_id），服务端会三方校验一致性。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `groupPinMessageRemote`(`groupId`: kotlin.ULong, `channelId`: kotlin.ULong, `messageId`: kotlin.ULong, `pinned`: kotlin.Boolean) : GroupPinMessageView {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_pin_message_remote(
+                thisPtr,
+                FfiConverterULong.lower(`groupId`),FfiConverterULong.lower(`channelId`),FfiConverterULong.lower(`messageId`),FfiConverterBoolean.lower(`pinned`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterTypeGroupPinMessageView.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * 获取群置顶消息列表（群成员可读，按置顶时间倒序）。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `groupPinnedMessagesRemote`(`groupId`: kotlin.ULong) : List<GroupPinnedMessageView> {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_pinned_messages_remote(
+                thisPtr,
+                FfiConverterULong.lower(`groupId`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterSequenceTypeGroupPinnedMessageView.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -11422,6 +11491,68 @@ object FfiConverterTypeGroupMuteAllView: FfiConverterRustBuffer<GroupMuteAllView
 
 
 
+object FfiConverterTypeGroupPinMessageView: FfiConverterRustBuffer<GroupPinMessageView> {
+    override fun read(buf: ByteBuffer): GroupPinMessageView {
+        return GroupPinMessageView(
+            FfiConverterBoolean.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterOptionalULong.read(buf),
+            FfiConverterOptionalULong.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: GroupPinMessageView) = (
+            FfiConverterBoolean.allocationSize(value.`success`) +
+            FfiConverterULong.allocationSize(value.`groupId`) +
+            FfiConverterULong.allocationSize(value.`messageId`) +
+            FfiConverterBoolean.allocationSize(value.`pinned`) +
+            FfiConverterOptionalULong.allocationSize(value.`pinnedAt`) +
+            FfiConverterOptionalULong.allocationSize(value.`pinnedBy`)
+    )
+
+    override fun write(value: GroupPinMessageView, buf: ByteBuffer) {
+            FfiConverterBoolean.write(value.`success`, buf)
+            FfiConverterULong.write(value.`groupId`, buf)
+            FfiConverterULong.write(value.`messageId`, buf)
+            FfiConverterBoolean.write(value.`pinned`, buf)
+            FfiConverterOptionalULong.write(value.`pinnedAt`, buf)
+            FfiConverterOptionalULong.write(value.`pinnedBy`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeGroupPinnedMessageView: FfiConverterRustBuffer<GroupPinnedMessageView> {
+    override fun read(buf: ByteBuffer): GroupPinnedMessageView {
+        return GroupPinnedMessageView(
+            FfiConverterULong.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterULong.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: GroupPinnedMessageView) = (
+            FfiConverterULong.allocationSize(value.`messageId`) +
+            FfiConverterULong.allocationSize(value.`channelId`) +
+            FfiConverterULong.allocationSize(value.`pinnedBy`) +
+            FfiConverterULong.allocationSize(value.`pinnedAt`)
+    )
+
+    override fun write(value: GroupPinnedMessageView, buf: ByteBuffer) {
+            FfiConverterULong.write(value.`messageId`, buf)
+            FfiConverterULong.write(value.`channelId`, buf)
+            FfiConverterULong.write(value.`pinnedBy`, buf)
+            FfiConverterULong.write(value.`pinnedAt`, buf)
+    }
+}
+
+
+
+
 object FfiConverterTypeGroupQrCodeGetView: FfiConverterRustBuffer<GroupQrCodeGetView> {
     override fun read(buf: ByteBuffer): GroupQrCodeGetView {
         return GroupQrCodeGetView(
@@ -11544,6 +11675,14 @@ object FfiConverterTypeGroupSettingsUpdateInput: FfiConverterRustBuffer<GroupSet
             FfiConverterOptionalString.read(buf),
             FfiConverterOptionalString.read(buf),
             FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalBoolean.read(buf),
+            FfiConverterOptionalBoolean.read(buf),
+            FfiConverterOptionalBoolean.read(buf),
+            FfiConverterOptionalBoolean.read(buf),
+            FfiConverterOptionalBoolean.read(buf),
+            FfiConverterOptionalUByte.read(buf),
+            FfiConverterOptionalUInt.read(buf),
+            FfiConverterOptionalString.read(buf),
         )
     }
 
@@ -11551,7 +11690,15 @@ object FfiConverterTypeGroupSettingsUpdateInput: FfiConverterRustBuffer<GroupSet
             FfiConverterULong.allocationSize(value.`groupId`) +
             FfiConverterOptionalString.allocationSize(value.`name`) +
             FfiConverterOptionalString.allocationSize(value.`description`) +
-            FfiConverterOptionalString.allocationSize(value.`avatarUrl`)
+            FfiConverterOptionalString.allocationSize(value.`avatarUrl`) +
+            FfiConverterOptionalBoolean.allocationSize(value.`joinNeedApproval`) +
+            FfiConverterOptionalBoolean.allocationSize(value.`memberCanInvite`) +
+            FfiConverterOptionalBoolean.allocationSize(value.`allMuted`) +
+            FfiConverterOptionalBoolean.allocationSize(value.`allowMemberAddFriend`) +
+            FfiConverterOptionalBoolean.allocationSize(value.`allowSearch`) +
+            FfiConverterOptionalUByte.allocationSize(value.`joinPolicy`) +
+            FfiConverterOptionalUInt.allocationSize(value.`maxMembers`) +
+            FfiConverterOptionalString.allocationSize(value.`announcement`)
     )
 
     override fun write(value: GroupSettingsUpdateInput, buf: ByteBuffer) {
@@ -11559,6 +11706,14 @@ object FfiConverterTypeGroupSettingsUpdateInput: FfiConverterRustBuffer<GroupSet
             FfiConverterOptionalString.write(value.`name`, buf)
             FfiConverterOptionalString.write(value.`description`, buf)
             FfiConverterOptionalString.write(value.`avatarUrl`, buf)
+            FfiConverterOptionalBoolean.write(value.`joinNeedApproval`, buf)
+            FfiConverterOptionalBoolean.write(value.`memberCanInvite`, buf)
+            FfiConverterOptionalBoolean.write(value.`allMuted`, buf)
+            FfiConverterOptionalBoolean.write(value.`allowMemberAddFriend`, buf)
+            FfiConverterOptionalBoolean.write(value.`allowSearch`, buf)
+            FfiConverterOptionalUByte.write(value.`joinPolicy`, buf)
+            FfiConverterOptionalUInt.write(value.`maxMembers`, buf)
+            FfiConverterOptionalString.write(value.`announcement`, buf)
     }
 }
 
@@ -11572,6 +11727,9 @@ object FfiConverterTypeGroupSettingsView: FfiConverterRustBuffer<GroupSettingsVi
             FfiConverterBoolean.read(buf),
             FfiConverterBoolean.read(buf),
             FfiConverterBoolean.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterUByte.read(buf),
+            FfiConverterBoolean.read(buf),
             FfiConverterULong.read(buf),
             FfiConverterOptionalString.read(buf),
             FfiConverterOptionalString.read(buf),
@@ -11584,6 +11742,9 @@ object FfiConverterTypeGroupSettingsView: FfiConverterRustBuffer<GroupSettingsVi
             FfiConverterULong.allocationSize(value.`groupId`) +
             FfiConverterBoolean.allocationSize(value.`joinNeedApproval`) +
             FfiConverterBoolean.allocationSize(value.`memberCanInvite`) +
+            FfiConverterBoolean.allocationSize(value.`allowMemberAddFriend`) +
+            FfiConverterBoolean.allocationSize(value.`allowSearch`) +
+            FfiConverterUByte.allocationSize(value.`joinPolicy`) +
             FfiConverterBoolean.allocationSize(value.`allMuted`) +
             FfiConverterULong.allocationSize(value.`maxMembers`) +
             FfiConverterOptionalString.allocationSize(value.`announcement`) +
@@ -11596,6 +11757,9 @@ object FfiConverterTypeGroupSettingsView: FfiConverterRustBuffer<GroupSettingsVi
             FfiConverterULong.write(value.`groupId`, buf)
             FfiConverterBoolean.write(value.`joinNeedApproval`, buf)
             FfiConverterBoolean.write(value.`memberCanInvite`, buf)
+            FfiConverterBoolean.write(value.`allowMemberAddFriend`, buf)
+            FfiConverterBoolean.write(value.`allowSearch`, buf)
+            FfiConverterUByte.write(value.`joinPolicy`, buf)
             FfiConverterBoolean.write(value.`allMuted`, buf)
             FfiConverterULong.write(value.`maxMembers`, buf)
             FfiConverterOptionalString.write(value.`announcement`, buf)
@@ -15670,6 +15834,35 @@ object FfiConverterTypeVideoProcessHook: FfiConverterCallbackInterface<VideoProc
 
 
 
+public object FfiConverterOptionalUByte: FfiConverterRustBuffer<kotlin.UByte?> {
+    override fun read(buf: ByteBuffer): kotlin.UByte? {
+        if (buf.get().toInt() == 0) {
+            return null
+        }
+        return FfiConverterUByte.read(buf)
+    }
+
+    override fun allocationSize(value: kotlin.UByte?): ULong {
+        if (value == null) {
+            return 1UL
+        } else {
+            return 1UL + FfiConverterUByte.allocationSize(value)
+        }
+    }
+
+    override fun write(value: kotlin.UByte?, buf: ByteBuffer) {
+        if (value == null) {
+            buf.put(0)
+        } else {
+            buf.put(1)
+            FfiConverterUByte.write(value, buf)
+        }
+    }
+}
+
+
+
+
 public object FfiConverterOptionalUInt: FfiConverterRustBuffer<kotlin.UInt?> {
     override fun read(buf: ByteBuffer): kotlin.UInt? {
         if (buf.get().toInt() == 0) {
@@ -16518,6 +16711,31 @@ public object FfiConverterSequenceTypeGroupMemberRemoteEntry: FfiConverterRustBu
         buf.putInt(value.size)
         value.iterator().forEach {
             FfiConverterTypeGroupMemberRemoteEntry.write(it, buf)
+        }
+    }
+}
+
+
+
+
+public object FfiConverterSequenceTypeGroupPinnedMessageView: FfiConverterRustBuffer<List<GroupPinnedMessageView>> {
+    override fun read(buf: ByteBuffer): List<GroupPinnedMessageView> {
+        val len = buf.getInt()
+        return List<GroupPinnedMessageView>(len) {
+            FfiConverterTypeGroupPinnedMessageView.read(buf)
+        }
+    }
+
+    override fun allocationSize(value: List<GroupPinnedMessageView>): ULong {
+        val sizeForLength = 4UL
+        val sizeForItems = value.map { FfiConverterTypeGroupPinnedMessageView.allocationSize(it) }.sum()
+        return sizeForLength + sizeForItems
+    }
+
+    override fun write(value: List<GroupPinnedMessageView>, buf: ByteBuffer) {
+        buf.putInt(value.size)
+        value.iterator().forEach {
+            FfiConverterTypeGroupPinnedMessageView.write(it, buf)
         }
     }
 }

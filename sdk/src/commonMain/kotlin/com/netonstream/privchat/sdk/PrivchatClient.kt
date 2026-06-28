@@ -205,6 +205,41 @@ expect class PrivchatClient private constructor() {
     suspend fun leaveGroup(groupId: ULong): Result<Boolean>
     suspend fun joinGroupByQrcode(qrcode: String): Result<GroupQrCodeJoinResult>
 
+    // ========== Group settings / mute / pin (P0-4 / P0-5 / P1) ==========
+    //
+    // 群设置（allow_search / join_policy / member_can_invite / allow_member_add_friend /
+    // all_muted 等）以服务端 DB 为真源；置顶/禁言权限由服务端校验（群主/管理员）。
+
+    /** 读群设置（任意群成员可调，服务端鉴权）。 */
+    suspend fun groupGetSettings(groupId: ULong): Result<GroupSettingsView>
+
+    /** 更新群设置（仅群主，服务端鉴权）。仅设置了的可选字段会被更新。 */
+    suspend fun groupUpdateSettings(input: GroupSettingsUpdateInput): Result<Boolean>
+
+    /** 单人禁言（群主/管理员）。durationSeconds=null/0 表示永久，>0 表示秒数。返回禁言截止毫秒。 */
+    suspend fun groupMuteMember(
+        groupId: ULong,
+        userId: ULong,
+        durationSeconds: ULong?,
+    ): Result<ULong>
+
+    /** 解除单人禁言（群主/管理员）。 */
+    suspend fun groupUnmuteMember(groupId: ULong, userId: ULong): Result<Boolean>
+
+    /** 全员禁言开关（群主/管理员）。 */
+    suspend fun groupMuteAll(groupId: ULong, enabled: Boolean): Result<GroupMuteAllView>
+
+    /** 群消息置顶 / 取消置顶（群主/管理员；pinned=false 取消）。channelId 为消息所在频道。 */
+    suspend fun groupPinMessage(
+        groupId: ULong,
+        channelId: ULong,
+        messageId: ULong,
+        pinned: Boolean,
+    ): Result<GroupPinMessageView>
+
+    /** 群置顶消息列表（群成员可读，按置顶时间倒序）。 */
+    suspend fun groupPinnedMessages(groupId: ULong): Result<List<GroupPinnedMessageView>>
+
     // ========== QR Code v1.4 (QR_CODE_SPEC v1.4) ==========
     //
     // 个人名片 / 群二维码：qr_key 永久挂在主表上，UI 通过 get 读、refresh 旋转、

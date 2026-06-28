@@ -392,6 +392,10 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_mute_all_remote(v
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_mute_member_remote(void * ptr, int64_t groupId, int64_t userId, RustBuffer durationSeconds
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_pin_message_remote(void * ptr, int64_t groupId, int64_t channelId, int64_t messageId, int8_t pinned
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_pinned_messages_remote(void * ptr, int64_t groupId
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_qrcode_get_remote(void * ptr, int64_t groupId
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_qrcode_join_remote(void * ptr, RustBuffer qrKey, RustBuffer message
@@ -1277,6 +1281,12 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_mute_all_re
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_mute_member_remote(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_pin_message_remote(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_pinned_messages_remote(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_qrcode_get_remote(void

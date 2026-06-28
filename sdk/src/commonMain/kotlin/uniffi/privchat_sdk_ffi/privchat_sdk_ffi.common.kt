@@ -349,6 +349,17 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `groupMuteMemberRemote`(`groupId`: kotlin.ULong, `userId`: kotlin.ULong, `durationSeconds`: kotlin.ULong?): kotlin.ULong
     
     /**
+     * 群消息置顶 / 取消置顶（仅群主/管理员；`pinned=false` 为取消置顶）。
+     * `channel_id` 为消息所在通信频道（群聊场景等于 group_id），服务端会三方校验一致性。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `groupPinMessageRemote`(`groupId`: kotlin.ULong, `channelId`: kotlin.ULong, `messageId`: kotlin.ULong, `pinned`: kotlin.Boolean): GroupPinMessageView
+    
+    /**
+     * 获取群置顶消息列表（群成员可读，按置顶时间倒序）。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `groupPinnedMessagesRemote`(`groupId`: kotlin.ULong): List<GroupPinnedMessageView>
+    
+    /**
      * QR_CODE_SPEC v1.3 — `group/qrcode/get`：读群当前永久二维码。
      * Member 及以上可见（server 鉴权）。
      */
@@ -1418,6 +1429,23 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `groupMuteMemberRemote`(`groupId`: kotlin.ULong, `userId`: kotlin.ULong, `durationSeconds`: kotlin.ULong?) : kotlin.ULong
+
+    
+    /**
+     * 群消息置顶 / 取消置顶（仅群主/管理员；`pinned=false` 为取消置顶）。
+     * `channel_id` 为消息所在通信频道（群聊场景等于 group_id），服务端会三方校验一致性。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `groupPinMessageRemote`(`groupId`: kotlin.ULong, `channelId`: kotlin.ULong, `messageId`: kotlin.ULong, `pinned`: kotlin.Boolean) : GroupPinMessageView
+
+    
+    /**
+     * 获取群置顶消息列表（群成员可读，按置顶时间倒序）。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `groupPinnedMessagesRemote`(`groupId`: kotlin.ULong) : List<GroupPinnedMessageView>
 
     
     /**
@@ -3263,6 +3291,48 @@ data class GroupMuteAllView (
 
 
 /**
+ * 群消息置顶/取消置顶结果
+ */
+data class GroupPinMessageView (
+    var `success`: kotlin.Boolean
+        , 
+    var `groupId`: kotlin.ULong
+        , 
+    var `messageId`: kotlin.ULong
+        , 
+    var `pinned`: kotlin.Boolean
+        , 
+    var `pinnedAt`: kotlin.ULong?
+         = null , 
+    var `pinnedBy`: kotlin.ULong?
+         = null 
+) {
+    
+    companion object
+}
+
+
+
+/**
+ * 单条群置顶消息
+ */
+data class GroupPinnedMessageView (
+    var `messageId`: kotlin.ULong
+        , 
+    var `channelId`: kotlin.ULong
+        , 
+    var `pinnedBy`: kotlin.ULong
+        , 
+    var `pinnedAt`: kotlin.ULong
+        
+) {
+    
+    companion object
+}
+
+
+
+/**
  * QR_CODE_SPEC v1.3 — `group/qrcode/get` 响应。
  */
 data class GroupQrCodeGetView (
@@ -3346,6 +3416,46 @@ data class GroupSettingsUpdateInput (
     var `description`: kotlin.String?
          = null , 
     var `avatarUrl`: kotlin.String?
+         = null , 
+    /**
+     * 加群是否需审批（可选）
+     */
+    var `joinNeedApproval`: kotlin.Boolean?
+         = null , 
+    /**
+     * 成员是否可邀请他人入群（可选）
+     */
+    var `memberCanInvite`: kotlin.Boolean?
+         = null , 
+    /**
+     * 全员禁言（可选）
+     */
+    var `allMuted`: kotlin.Boolean?
+         = null , 
+    /**
+     * 群成员之间是否允许私自加好友（可选，P0-5）
+     */
+    var `allowMemberAddFriend`: kotlin.Boolean?
+         = null , 
+    /**
+     * 群是否允许被搜索发现（可选，P0-4）
+     */
+    var `allowSearch`: kotlin.Boolean?
+         = null , 
+    /**
+     * 加入策略（可选）：0=不允许申请 1=允许申请需审核 2=允许直接加入
+     */
+    var `joinPolicy`: kotlin.UByte?
+         = null , 
+    /**
+     * 成员上限（可选）
+     */
+    var `maxMembers`: kotlin.UInt?
+         = null , 
+    /**
+     * 群公告（可选）
+     */
+    var `announcement`: kotlin.String?
          = null 
 ) {
     
@@ -3360,6 +3470,21 @@ data class GroupSettingsView (
     var `joinNeedApproval`: kotlin.Boolean
         , 
     var `memberCanInvite`: kotlin.Boolean
+        , 
+    /**
+     * 群成员之间是否允许私自加好友（P0-5）
+     */
+    var `allowMemberAddFriend`: kotlin.Boolean
+        , 
+    /**
+     * 群是否允许被搜索发现（P0-4）
+     */
+    var `allowSearch`: kotlin.Boolean
+        , 
+    /**
+     * 加入策略：0=不允许申请 1=允许申请需审核 2=允许直接加入（P0-4）
+     */
+    var `joinPolicy`: kotlin.UByte
         , 
     var `allMuted`: kotlin.Boolean
         , 
@@ -5711,6 +5836,10 @@ interface VideoProcessHook {
     
     companion object
 }
+
+
+
+
 
 
 
