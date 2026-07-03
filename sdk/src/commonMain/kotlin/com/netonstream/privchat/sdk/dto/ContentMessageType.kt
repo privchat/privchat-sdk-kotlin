@@ -23,7 +23,11 @@ enum class ContentMessageType(val value: Int) {
     // LINK 的 title / description / thumbnail 由 SDK 宿主通过预览回调（类比视频抽帧 hook）填充；
     // 未注册回调时仅带 URL，UI 显示空白缩略图。
     LINK(9),
-    FORWARD(10);
+    FORWARD(10),
+    // PrivChat Money Message（标准 IM 能力）。SDK 强类型收发，content 只带引用+展示快照；
+    // 资金真相在 platform/application。见 RedPacketContent / MoneyTransferContent。
+    RED_PACKET(11),
+    MONEY_TRANSFER(12);
 
     companion object {
         /**
@@ -42,6 +46,8 @@ enum class ContentMessageType(val value: Int) {
             8 -> LOCATION
             9 -> LINK
             10 -> FORWARD
+            11 -> RED_PACKET
+            12 -> MONEY_TRANSFER
             else -> null
         }
     }

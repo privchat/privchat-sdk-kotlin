@@ -483,6 +483,55 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun sendRedPacket(
+        channelId: ULong,
+        channelType: Int,
+        content: RedPacketContent,
+        options: SendMessageOptions,
+    ): Result<ULong> = sendMoneyMessage(
+        channelId, channelType, ContentMessageType.RED_PACKET.value, content.encode(), content.title, "sendRedPacket",
+    )
+
+    actual suspend fun sendMoneyTransfer(
+        channelId: ULong,
+        channelType: Int,
+        content: MoneyTransferContent,
+        options: SendMessageOptions,
+    ): Result<ULong> = sendMoneyMessage(
+        channelId, channelType, ContentMessageType.MONEY_TRANSFER.value, content.encode(), content.title, "sendMoneyTransfer",
+    )
+
+    // 通用 Money Message 发送：构造 NewMessage(messageType=11/12 + content JSON) 走 FFI 通用
+    // sendMessageWithInput（同时本地入队，发送方即见卡片）。SDK 只搬运，不碰资金。
+    private suspend fun sendMoneyMessage(
+        channelId: ULong,
+        channelType: Int,
+        messageType: Int,
+        contentJson: String,
+        searchable: String,
+        tag: String,
+    ): Result<ULong> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
+        val input = NewMessage(
+            channelId = channelId,
+            channelType = channelType,
+            fromUid = uid,
+            messageType = messageType,
+            content = contentJson,
+            searchableWord = searchable,
+            setting = 0,
+            extra = "",
+            mimeType = null,
+            mediaDownloaded = false,
+            thumbStatus = 3, // none（非媒体消息）
+        )
+        return runCatching { c.sendMessageWithInput(input) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("$tag failed", it)) },
+        )
+    }
+
     actual suspend fun sendMedia(
         channelId: ULong,
         filePath: String,

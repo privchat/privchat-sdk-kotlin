@@ -62,6 +62,13 @@ expect class PrivchatClient private constructor() {
     suspend fun sendLink(channelId: ULong, channelType: Int, payload: LinkMessagePayload, options: SendMessageOptions = SendMessageOptions()): Result<ULong>
     suspend fun sendLocation(channelId: ULong, channelType: Int, payload: LocationMessagePayload, options: SendMessageOptions = SendMessageOptions()): Result<ULong>
     suspend fun sendContactCard(channelId: ULong, channelType: Int, payload: ContactCardMessagePayload, options: SendMessageOptions = SendMessageOptions()): Result<ULong>
+    /**
+     * 发红包消息（PrivChat 标准 IM 能力，RP-ferry）。content 只带引用+展示快照；
+     * 资金动作须先走 platform `/app/red-packet/send`（money-first），SDK 不碰资金。
+     */
+    suspend fun sendRedPacket(channelId: ULong, channelType: Int, content: RedPacketContent, options: SendMessageOptions = SendMessageOptions()): Result<ULong>
+    /** 发转账消息（标准 IM 能力）。资金动作须先走 platform `/app/money-transfer/send`。 */
+    suspend fun sendMoneyTransfer(channelId: ULong, channelType: Int, content: MoneyTransferContent, options: SendMessageOptions = SendMessageOptions()): Result<ULong>
     suspend fun sendMedia(channelId: ULong, filePath: String, options: SendMessageOptions?): Result<Pair<ULong, AttachmentInfo>>
     suspend fun retryMessage(messageId: ULong): Result<Unit>
     suspend fun markReadToPts(channelId: ULong, readPts: ULong): Result<ULong>
