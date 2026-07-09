@@ -303,6 +303,14 @@ actual class PrivchatClient private actual constructor() {
         }
     }
 
+    actual suspend fun prepareAvatarImage(path: String): Result<String> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.prepareAvatarImage(path) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("prepareAvatarImage failed", it)) },
+        )
+    }
+
     actual suspend fun updateDevicePushState(
         deviceId: String,
         apnsArmed: Boolean,
@@ -2085,7 +2093,11 @@ private fun StoredFriend.toCommonFriend(user: StoredUser?) = FriendEntry(
     userId = userId,
     username = user?.username?.takeIf { it.isNotBlank() } ?: userId.toString(),
     nickname = user?.nickname?.takeIf { it.isNotBlank() },
-    avatarUrl = user?.avatar?.takeIf { it.isNotBlank() },
+    // AVATAR_CACHE_SPEC P1: 本地缓存优先（file://），未缓存回落网络 URL。
+    avatarUrl = user?.let { u ->
+        u.avatarLocalPath.takeIf { it.isNotBlank() }?.let { "file://$it" }
+            ?: u.avatar.takeIf { it.isNotBlank() }
+    },
     userType = (user?.userType ?: 0).toShort(),
     status = "accepted",
     addedAt = createdAt,
@@ -2100,7 +2112,9 @@ private fun StoredFriend.toFriendRequestEntry(): FriendRequestEntry {
         userId = userId,
         username = username?.takeIf { it.isNotBlank() } ?: userId.toString(),
         nickname = nickname?.takeIf { it.isNotBlank() },
-        avatarUrl = avatar.takeIf { it.isNotBlank() },
+        // AVATAR_CACHE_SPEC P1: 本地缓存优先（file://），未缓存回落网络 URL。
+        avatarUrl = avatarLocalPath.takeIf { it.isNotBlank() }?.let { "file://$it" }
+            ?: avatar.takeIf { it.isNotBlank() },
         status = status,
         isOutgoing = isOutgoing ?: false,
         message = requestMessage,
@@ -2115,7 +2129,9 @@ private fun StoredUser.toCommonUser() = UserEntry(
     userId = userId,
     username = username?.takeIf { it.isNotBlank() } ?: userId.toString(),
     nickname = nickname?.takeIf { it.isNotBlank() },
-    avatarUrl = avatar?.takeIf { it.isNotBlank() },
+    // AVATAR_CACHE_SPEC P1: 本地缓存优先（file://），未缓存回落网络 URL。
+    avatarUrl = avatarLocalPath.takeIf { it.isNotBlank() }?.let { "file://$it" }
+        ?: avatar.takeIf { it.isNotBlank() },
     userType = userType.toShort(),
     isFriend = false,
     canSendMessage = true,
@@ -2129,7 +2145,9 @@ private fun StoredUser.toSearchedUserDto() = SearchedUserDto(
     nickname = nickname?.takeIf { it.isNotBlank() }
         ?: username?.takeIf { it.isNotBlank() }
         ?: userId.toString(),
-    avatarUrl = avatar.takeIf { it.isNotBlank() },
+    // AVATAR_CACHE_SPEC P1: 本地缓存优先（file://），未缓存回落网络 URL。
+    avatarUrl = avatarLocalPath.takeIf { it.isNotBlank() }?.let { "file://$it" }
+        ?: avatar.takeIf { it.isNotBlank() },
     userType = userType.toShort(),
     searchSessionId = 0u,
     isFriend = false,

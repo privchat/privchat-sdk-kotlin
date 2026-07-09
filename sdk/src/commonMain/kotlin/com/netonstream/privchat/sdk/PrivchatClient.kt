@@ -44,6 +44,13 @@ expect class PrivchatClient private constructor() {
      */
     suspend fun refreshAccessToken(refreshToken: String, deviceId: String): Result<RefreshAccessTokenResult>
     suspend fun updateProfile(displayName: String?, avatarUrl: String? = null, bio: String? = null): Result<Unit>
+    /**
+     * AVATAR_CACHE_SPEC §8: 头像上传前客户端预处理（Rust image 管道，与消息缩略图同库）。
+     * decode（白名单 jpeg/png/webp，gif/损坏格式直接失败，不消耗上传流量）→
+     * 中心裁剪正方形 → 边长 >480 缩放到 480x480（≤480 不放大）→ 编码 PNG 写临时文件。
+     * 返回处理后文件路径；App 选图后先过它再走上传管道。
+     */
+    suspend fun prepareAvatarImage(path: String): Result<String>
     suspend fun updateDevicePushState(deviceId: String, apnsArmed: Boolean, pushToken: String?): Result<Unit>
     suspend fun restoreLocalSession(): Result<Boolean>
     suspend fun logout(): Result<Unit>

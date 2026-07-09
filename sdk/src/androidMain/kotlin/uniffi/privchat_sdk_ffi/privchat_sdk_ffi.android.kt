@@ -816,6 +816,8 @@ internal val UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue.`uniffiF
 
 
 
+
+
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -1234,6 +1236,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_pin_channel(`ptr`: Pointer?,`channelId`: Long,`pinned`: Byte,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_ping(`ptr`: Pointer?,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_prepare_avatar_image(`ptr`: Pointer?,`srcPath`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_qrcode_generate(`ptr`: Pointer?,`qrType`: RustBufferByValue,`payload`: RustBufferByValue,`expireSeconds`: RustBufferByValue,
     ): Long
@@ -2002,6 +2006,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_pin_channel(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_ping(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_prepare_avatar_image(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_qrcode_generate(
     ): Short
@@ -2860,6 +2866,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_ping() != 10432.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_prepare_avatar_image() != 43512.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_qrcode_generate() != 40918.toShort()) {
@@ -7376,6 +7385,35 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         // lift function
         { Unit },
         
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * AVATAR_CACHE_SPEC §8: 头像上传前客户端预处理。
+     *
+     * decode（白名单 jpeg/png/webp，gif/损坏格式直接 Err，不消耗上传流量）→
+     * 中心裁剪正方形 → 边长 >480 缩放到 480x480（≤480 不放大）→ 编码 PNG
+     * 写临时文件。返回处理后文件路径，App 选图后先过它再走上传管道。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `prepareAvatarImage`(`srcPath`: kotlin.String) : kotlin.String {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_prepare_avatar_image(
+                thisPtr,
+                FfiConverterString.lower(`srcPath`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterString.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -13386,6 +13424,7 @@ object FfiConverterTypeStoredFriend: FfiConverterRustBuffer<StoredFriend> {
             FfiConverterOptionalString.read(buf),
             FfiConverterOptionalString.read(buf),
             FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
             FfiConverterOptionalString.read(buf),
             FfiConverterBoolean.read(buf),
             FfiConverterLong.read(buf),
@@ -13404,6 +13443,7 @@ object FfiConverterTypeStoredFriend: FfiConverterRustBuffer<StoredFriend> {
             FfiConverterOptionalString.allocationSize(value.`nickname`) +
             FfiConverterOptionalString.allocationSize(value.`alias`) +
             FfiConverterString.allocationSize(value.`avatar`) +
+            FfiConverterString.allocationSize(value.`avatarLocalPath`) +
             FfiConverterOptionalString.allocationSize(value.`tags`) +
             FfiConverterBoolean.allocationSize(value.`isPinned`) +
             FfiConverterLong.allocationSize(value.`createdAt`) +
@@ -13421,6 +13461,7 @@ object FfiConverterTypeStoredFriend: FfiConverterRustBuffer<StoredFriend> {
             FfiConverterOptionalString.write(value.`nickname`, buf)
             FfiConverterOptionalString.write(value.`alias`, buf)
             FfiConverterString.write(value.`avatar`, buf)
+            FfiConverterString.write(value.`avatarLocalPath`, buf)
             FfiConverterOptionalString.write(value.`tags`, buf)
             FfiConverterBoolean.write(value.`isPinned`, buf)
             FfiConverterLong.write(value.`createdAt`, buf)
@@ -13771,6 +13812,7 @@ object FfiConverterTypeStoredUser: FfiConverterRustBuffer<StoredUser> {
             FfiConverterOptionalString.read(buf),
             FfiConverterOptionalString.read(buf),
             FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
             FfiConverterInt.read(buf),
             FfiConverterBoolean.read(buf),
             FfiConverterString.read(buf),
@@ -13784,6 +13826,7 @@ object FfiConverterTypeStoredUser: FfiConverterRustBuffer<StoredUser> {
             FfiConverterOptionalString.allocationSize(value.`nickname`) +
             FfiConverterOptionalString.allocationSize(value.`alias`) +
             FfiConverterString.allocationSize(value.`avatar`) +
+            FfiConverterString.allocationSize(value.`avatarLocalPath`) +
             FfiConverterInt.allocationSize(value.`userType`) +
             FfiConverterBoolean.allocationSize(value.`isDeleted`) +
             FfiConverterString.allocationSize(value.`channelId`) +
@@ -13796,6 +13839,7 @@ object FfiConverterTypeStoredUser: FfiConverterRustBuffer<StoredUser> {
             FfiConverterOptionalString.write(value.`nickname`, buf)
             FfiConverterOptionalString.write(value.`alias`, buf)
             FfiConverterString.write(value.`avatar`, buf)
+            FfiConverterString.write(value.`avatarLocalPath`, buf)
             FfiConverterInt.write(value.`userType`, buf)
             FfiConverterBoolean.write(value.`isDeleted`, buf)
             FfiConverterString.write(value.`channelId`, buf)

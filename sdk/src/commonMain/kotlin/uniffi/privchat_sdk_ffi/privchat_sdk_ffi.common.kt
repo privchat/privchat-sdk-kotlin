@@ -523,6 +523,15 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `ping`()
     
+    /**
+     * AVATAR_CACHE_SPEC §8: 头像上传前客户端预处理。
+     *
+     * decode（白名单 jpeg/png/webp，gif/损坏格式直接 Err，不消耗上传流量）→
+     * 中心裁剪正方形 → 边长 >480 缩放到 480x480（≤480 不放大）→ 编码 PNG
+     * 写临时文件。返回处理后文件路径，App 选图后先过它再走上传管道。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `prepareAvatarImage`(`srcPath`: kotlin.String): kotlin.String
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `qrcodeGenerate`(`qrType`: kotlin.String, `payload`: kotlin.String, `expireSeconds`: kotlin.ULong?): QrCodeGenerateView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `qrcodeList`(`includeRevoked`: kotlin.Boolean?): QrCodeListView
@@ -1819,6 +1828,18 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `ping`()
+
+    
+    /**
+     * AVATAR_CACHE_SPEC §8: 头像上传前客户端预处理。
+     *
+     * decode（白名单 jpeg/png/webp，gif/损坏格式直接 Err，不消耗上传流量）→
+     * 中心裁剪正方形 → 边长 >480 缩放到 480x480（≤480 不放大）→ 编码 PNG
+     * 写临时文件。返回处理后文件路径，App 选图后先过它再走上传管道。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `prepareAvatarImage`(`srcPath`: kotlin.String) : kotlin.String
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -4506,6 +4527,12 @@ data class StoredFriend (
      */
     var `avatar`: kotlin.String
         , 
+    /**
+     * AVATAR_CACHE_SPEC P1: 头像本地缓存文件绝对路径（已验证文件存在）；
+     * 空串 = 未缓存，回落 avatar（网络 URL）。
+     */
+    var `avatarLocalPath`: kotlin.String
+        , 
     var `tags`: kotlin.String?
          = null , 
     var `isPinned`: kotlin.Boolean
@@ -4756,6 +4783,12 @@ data class StoredUser (
     var `alias`: kotlin.String?
          = null , 
     var `avatar`: kotlin.String
+        , 
+    /**
+     * AVATAR_CACHE_SPEC P1: 头像本地缓存文件绝对路径（已验证文件存在）；
+     * 空串 = 未缓存，回落 avatar（网络 URL）。
+     */
+    var `avatarLocalPath`: kotlin.String
         , 
     var `userType`: kotlin.Int
         , 
