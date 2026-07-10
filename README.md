@@ -237,10 +237,14 @@ UNIFFI_CONTRACT_VERSION=30 ./scripts/regenerate-uniffi.sh
 
 ## Sample
 
+`:sample` 是共享 KMP 库模块，可安装的 Android 应用是 `:sample-androidApp`（目录 `sample/androidApp`）：
+
 ```bash
-./gradlew :sample:installDebug           # Android
-./gradlew :sample:linkDebugFrameworkIosArm64  # iOS framework
+./gradlew :sample-androidApp:installDebug      # 安装 Android 示例 App
+./gradlew :sample:linkDebugFrameworkIosArm64   # 生成 iOS framework（供 sample/iosApp 链接）
 ```
+
+iOS 首次或切机后需先跑一次 `./gradlew :sdk:privchatCargoBuildAppleFfi` 生成 Rust 静态库，再在 Xcode / `xcodebuild` 构建 `sample/iosApp`。
 
 详见 [sample/README.md](sample/README.md)。当前主验证链路是 Android + iOS：connect -> login/register -> authenticate -> bootstrap -> 会话列表。
 
