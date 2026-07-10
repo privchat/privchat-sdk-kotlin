@@ -99,6 +99,33 @@ expect class PrivchatClient private constructor() {
     suspend fun seenByForEvent(channelId: ULong, messageId: ULong, limit: UInt?): Result<List<SeenByEntry>>
     suspend fun searchMessages(query: String, channelId: String?): Result<List<MessageEntry>>
 
+    /**
+     * 云端历史搜索（服务端 message/history/search，MESSAGE_HISTORY spec §4）。
+     * channelId 非空 = 只搜该会话；空 = 全局（我参与的全部会话）。
+     * 命中为 snippet 投影，不落本地库；点击命中走 [getMessagesAround]。
+     * 服务端限频 300ms/user——调用方必须 debounce 300–500ms 并忽略过期结果。
+     */
+    suspend fun searchMessageHistory(
+        query: String,
+        channelId: ULong? = null,
+        cursor: String? = null,
+        limit: UInt? = null,
+    ): Result<SearchHistoryPage>
+
+    /**
+     * jump-to-message 上下文（服务端 message/history/around，spec §5）。
+     * SDK 内部已把 before/anchor/after 完整消息回填本地库；UI 应从本地库
+     * 渲染并定位/高亮 anchor。anchor 不可见（不存在/撤回/删除/无权限）时
+     * 返回 not_found 错误。
+     */
+    suspend fun getMessagesAround(
+        channelId: ULong,
+        channelType: Int,
+        messageId: ULong,
+        beforeLimit: UInt? = null,
+        afterLimit: UInt? = null,
+    ): Result<MessagesAroundPage>
+
     // ========== Storage ==========
     suspend fun getMessages(channelId: ULong, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>>
     suspend fun getMessagesByType(channelId: ULong, channelType: Int, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>>

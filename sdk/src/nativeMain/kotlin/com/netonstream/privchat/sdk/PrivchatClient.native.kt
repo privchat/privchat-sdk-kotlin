@@ -1,6 +1,7 @@
 package com.netonstream.privchat.sdk
 
 import com.netonstream.privchat.sdk.dto.*
+import com.netonstream.privchat.sdk.internal.toPage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -686,6 +687,37 @@ actual class PrivchatClient private actual constructor() {
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("searchMessages failed", it)) },
+        )
+    }
+
+    actual suspend fun searchMessageHistory(
+        query: String,
+        channelId: ULong?,
+        cursor: String?,
+        limit: UInt?,
+    ): Result<SearchHistoryPage> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.searchMessageHistory(query, channelId, cursor, limit).toPage()
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("searchMessageHistory failed", it)) },
+        )
+    }
+
+    actual suspend fun getMessagesAround(
+        channelId: ULong,
+        channelType: Int,
+        messageId: ULong,
+        beforeLimit: UInt?,
+        afterLimit: UInt?,
+    ): Result<MessagesAroundPage> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.getMessagesAround(channelId, channelType, messageId, beforeLimit, afterLimit).toPage()
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("getMessagesAround failed", it)) },
         )
     }
 

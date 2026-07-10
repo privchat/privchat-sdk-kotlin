@@ -310,7 +310,14 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getMessages`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `limit`: kotlin.ULong, `offset`: kotlin.ULong): List<StoredMessage>
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getMessagesRemote`(`channelId`: kotlin.ULong, `beforeServerMessageId`: kotlin.ULong?, `limit`: kotlin.UInt?): MessageHistoryView
+    /**
+     * jump-to-message 上下文（spec §5）：before/anchor/after 已回填本地库，
+     * UI 从本地重查渲染并定位/高亮 anchor。anchor 不可见（不存在/撤回/删除/无权限）
+     * 时服务端统一 not_found。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getMessagesAround`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `messageId`: kotlin.ULong, `beforeLimit`: kotlin.UInt?, `afterLimit`: kotlin.UInt?): MessagesAroundView
+    
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getMessagesRemote`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `beforeServerMessageId`: kotlin.ULong?, `limit`: kotlin.UInt?): MessageHistoryView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getOrCreateDirectChannel`(`peerUserId`: kotlin.ULong): DirectChannelResult
     
@@ -465,7 +472,7 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `markMentionRead`(`messageId`: kotlin.ULong, `userId`: kotlin.ULong)
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `markMessageSent`(`messageId`: kotlin.ULong, `serverMessageId`: kotlin.ULong)
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `markMessageSent`(`messageId`: kotlin.ULong, `serverMessageId`: kotlin.ULong, `messageSeq`: kotlin.UInt)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `markReadToPts`(`channelId`: kotlin.ULong, `readPts`: kotlin.ULong): kotlin.ULong
     
@@ -623,6 +630,13 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `runBootstrapSync`()
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `searchChannel`(`keyword`: kotlin.String): List<StoredChannel>
+    
+    /**
+     * 云端历史搜索（spec §4）。channel_id: Some=CHANNEL scope / None=GLOBAL。
+     * 命中是 snippet 投影不落本地库；服务端限频 300ms/user——UI 必须 debounce
+     * 300–500ms、忽略过期 in-flight 结果、query<2 字符不发起远程。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `searchMessageHistory`(`query`: kotlin.String, `channelId`: kotlin.ULong?, `cursor`: kotlin.String?, `limit`: kotlin.UInt?): SearchHistoryView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `searchMessages`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `keyword`: kotlin.String): List<StoredMessage>
     
@@ -1343,9 +1357,19 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `getMessages`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredMessage>
 
     
+    /**
+     * jump-to-message 上下文（spec §5）：before/anchor/after 已回填本地库，
+     * UI 从本地重查渲染并定位/高亮 anchor。anchor 不可见（不存在/撤回/删除/无权限）
+     * 时服务端统一 not_found。
+     */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `getMessagesRemote`(`channelId`: kotlin.ULong, `beforeServerMessageId`: kotlin.ULong?, `limit`: kotlin.UInt?) : MessageHistoryView
+    override suspend fun `getMessagesAround`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `messageId`: kotlin.ULong, `beforeLimit`: kotlin.UInt?, `afterLimit`: kotlin.UInt?) : MessagesAroundView
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `getMessagesRemote`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `beforeServerMessageId`: kotlin.ULong?, `limit`: kotlin.UInt?) : MessageHistoryView
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -1688,7 +1712,7 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `markMessageSent`(`messageId`: kotlin.ULong, `serverMessageId`: kotlin.ULong)
+    override suspend fun `markMessageSent`(`messageId`: kotlin.ULong, `serverMessageId`: kotlin.ULong, `messageSeq`: kotlin.UInt)
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -2042,6 +2066,16 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `searchChannel`(`keyword`: kotlin.String) : List<StoredChannel>
+
+    
+    /**
+     * 云端历史搜索（spec §4）。channel_id: Some=CHANNEL scope / None=GLOBAL。
+     * 命中是 snippet 投影不落本地库；服务端限频 300ms/user——UI 必须 debounce
+     * 300–500ms、忽略过期 in-flight 结果、query<2 字符不发起远程。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `searchMessageHistory`(`query`: kotlin.String, `channelId`: kotlin.ULong?, `cursor`: kotlin.String?, `limit`: kotlin.UInt?) : SearchHistoryView
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -3698,6 +3732,11 @@ data class MessageHistoryItemView (
         , 
     var `timestamp`: kotlin.ULong
         , 
+    /**
+     * per-channel pts（server message_seq）；本地排序权威 = (pts, server_message_id)
+     */
+    var `messageSeq`: kotlin.Long?
+         = null , 
     var `replyToMessageId`: kotlin.ULong?
          = null , 
     var `metadataJson`: kotlin.String?
@@ -3814,6 +3853,27 @@ data class MessageUnreadCountView (
         , 
     var `channelId`: kotlin.String?
          = null 
+) {
+    
+    companion object
+}
+
+
+
+/**
+ * jump-to-message 上下文（完整消息，SDK 已回填本地库；UI 应从本地重查渲染并定位 anchor）
+ */
+data class MessagesAroundView (
+    var `beforeMessages`: List<MessageHistoryItemView>
+        , 
+    var `anchorMessage`: MessageHistoryItemView
+        , 
+    var `afterMessages`: List<MessageHistoryItemView>
+        , 
+    var `hasMoreBefore`: kotlin.Boolean
+        , 
+    var `hasMoreAfter`: kotlin.Boolean
+        
 ) {
     
     companion object
@@ -4180,6 +4240,65 @@ data class RetryConfigView (
         , 
     var `strategy`: kotlin.String
         
+) {
+    
+    companion object
+}
+
+
+
+/**
+ * 搜索命中高亮区间（相对 snippet 的字符偏移 [start, end)）
+ */
+data class SearchHighlightRangeView (
+    var `start`: kotlin.UInt
+        , 
+    var `end`: kotlin.UInt
+        
+) {
+    
+    companion object
+}
+
+
+
+/**
+ * 云端历史搜索命中（snippet 投影——UI 展示用，**不落本地 message 表**；
+ * 点击后调 get_messages_around 拿完整上下文，spec §4/§5/§6 边界）
+ */
+data class SearchHistoryHitView (
+    var `channelId`: kotlin.ULong
+        , 
+    var `messageId`: kotlin.ULong
+        , 
+    var `senderUserId`: kotlin.ULong
+        , 
+    /**
+     * 毫秒时间戳
+     */
+    var `createdAt`: kotlin.Long
+        , 
+    var `messageType`: kotlin.String
+        , 
+    var `snippet`: kotlin.String
+        , 
+    var `highlightRanges`: List<SearchHighlightRangeView>
+        
+) {
+    
+    companion object
+}
+
+
+
+data class SearchHistoryView (
+    var `hits`: List<SearchHistoryHitView>
+        , 
+    /**
+     * keyset 游标；None = 到底。原样回传给下一页请求
+     */
+    var `nextCursor`: kotlin.String?
+         = null 
 ) {
     
     companion object
@@ -5867,6 +5986,10 @@ interface VideoProcessHook {
     
     companion object
 }
+
+
+
+
 
 
 

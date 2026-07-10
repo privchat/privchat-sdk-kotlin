@@ -818,6 +818,10 @@ internal val UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue.`uniffiF
 
 
 
+
+
+
+
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -1047,7 +1051,9 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_messages(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`limit`: Long,`offset`: Long,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_messages_remote(`ptr`: Pointer?,`channelId`: Long,`beforeServerMessageId`: RustBufferByValue,`limit`: RustBufferByValue,
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_messages_around(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`messageId`: Long,`beforeLimit`: RustBufferByValue,`afterLimit`: RustBufferByValue,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_messages_remote(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`beforeServerMessageId`: RustBufferByValue,`limit`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_or_create_direct_channel(`ptr`: Pointer?,`peerUserId`: Long,
     ): Long
@@ -1175,7 +1181,7 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_mention_read(`ptr`: Pointer?,`messageId`: Long,`userId`: Long,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_message_sent(`ptr`: Pointer?,`messageId`: Long,`serverMessageId`: Long,
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_message_sent(`ptr`: Pointer?,`messageId`: Long,`serverMessageId`: Long,`messageSeq`: Int,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_read_to_pts(`ptr`: Pointer?,`channelId`: Long,`readPts`: Long,
     ): Long
@@ -1318,6 +1324,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_run_bootstrap_sync(`ptr`: Pointer?,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_search_channel(`ptr`: Pointer?,`keyword`: RustBufferByValue,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_search_message_history(`ptr`: Pointer?,`query`: RustBufferByValue,`channelId`: RustBufferByValue,`cursor`: RustBufferByValue,`limit`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_search_messages(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`keyword`: RustBufferByValue,
     ): Long
@@ -1817,6 +1825,8 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_messages(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_messages_around(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_messages_remote(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_or_create_direct_channel(
@@ -2088,6 +2098,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_run_bootstrap_sync(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_search_channel(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_search_message_history(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_search_messages(
     ): Short
@@ -2583,7 +2595,10 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_messages() != 26083.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_messages_remote() != 4231.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_messages_around() != 8960.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_messages_remote() != 51145.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_or_create_direct_channel() != 24053.toShort()) {
@@ -2775,7 +2790,7 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_mention_read() != 22833.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_message_sent() != 41192.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_message_sent() != 27497.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_read_to_pts() != 13935.toShort()) {
@@ -2989,6 +3004,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_search_channel() != 23993.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_search_message_history() != 18538.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_search_messages() != 54869.toShort()) {
@@ -5375,14 +5393,41 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     
+    /**
+     * jump-to-message 上下文（spec §5）：before/anchor/after 已回填本地库，
+     * UI 从本地重查渲染并定位/高亮 anchor。anchor 不可见（不存在/撤回/删除/无权限）
+     * 时服务端统一 not_found。
+     */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `getMessagesRemote`(`channelId`: kotlin.ULong, `beforeServerMessageId`: kotlin.ULong?, `limit`: kotlin.UInt?) : MessageHistoryView {
+    actual override suspend fun `getMessagesAround`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `messageId`: kotlin.ULong, `beforeLimit`: kotlin.UInt?, `afterLimit`: kotlin.UInt?) : MessagesAroundView {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_messages_around(
+                thisPtr,
+                FfiConverterULong.lower(`channelId`),FfiConverterInt.lower(`channelType`),FfiConverterULong.lower(`messageId`),FfiConverterOptionalUInt.lower(`beforeLimit`),FfiConverterOptionalUInt.lower(`afterLimit`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterTypeMessagesAroundView.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `getMessagesRemote`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `beforeServerMessageId`: kotlin.ULong?, `limit`: kotlin.UInt?) : MessageHistoryView {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_messages_remote(
                 thisPtr,
-                FfiConverterULong.lower(`channelId`),FfiConverterOptionalULong.lower(`beforeServerMessageId`),FfiConverterOptionalUInt.lower(`limit`),
+                FfiConverterULong.lower(`channelId`),FfiConverterInt.lower(`channelType`),FfiConverterOptionalULong.lower(`beforeServerMessageId`),FfiConverterOptionalUInt.lower(`limit`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -6779,12 +6824,12 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `markMessageSent`(`messageId`: kotlin.ULong, `serverMessageId`: kotlin.ULong) {
+    actual override suspend fun `markMessageSent`(`messageId`: kotlin.ULong, `serverMessageId`: kotlin.ULong, `messageSeq`: kotlin.UInt) {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_message_sent(
                 thisPtr,
-                FfiConverterULong.lower(`messageId`),FfiConverterULong.lower(`serverMessageId`),
+                FfiConverterULong.lower(`messageId`),FfiConverterULong.lower(`serverMessageId`),FfiConverterUInt.lower(`messageSeq`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
@@ -8219,6 +8264,33 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
         { FfiConverterSequenceTypeStoredChannel.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * 云端历史搜索（spec §4）。channel_id: Some=CHANNEL scope / None=GLOBAL。
+     * 命中是 snippet 投影不落本地库；服务端限频 300ms/user——UI 必须 debounce
+     * 300–500ms、忽略过期 in-flight 结果、query<2 字符不发起远程。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `searchMessageHistory`(`query`: kotlin.String, `channelId`: kotlin.ULong?, `cursor`: kotlin.String?, `limit`: kotlin.UInt?) : SearchHistoryView {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_search_message_history(
+                thisPtr,
+                FfiConverterString.lower(`query`),FfiConverterOptionalULong.lower(`channelId`),FfiConverterOptionalString.lower(`cursor`),FfiConverterOptionalUInt.lower(`limit`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterTypeSearchHistoryView.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -12073,6 +12145,7 @@ object FfiConverterTypeMessageHistoryItemView: FfiConverterRustBuffer<MessageHis
             FfiConverterString.read(buf),
             FfiConverterString.read(buf),
             FfiConverterULong.read(buf),
+            FfiConverterOptionalLong.read(buf),
             FfiConverterOptionalULong.read(buf),
             FfiConverterOptionalString.read(buf),
             FfiConverterBoolean.read(buf),
@@ -12088,6 +12161,7 @@ object FfiConverterTypeMessageHistoryItemView: FfiConverterRustBuffer<MessageHis
             FfiConverterString.allocationSize(value.`content`) +
             FfiConverterString.allocationSize(value.`messageType`) +
             FfiConverterULong.allocationSize(value.`timestamp`) +
+            FfiConverterOptionalLong.allocationSize(value.`messageSeq`) +
             FfiConverterOptionalULong.allocationSize(value.`replyToMessageId`) +
             FfiConverterOptionalString.allocationSize(value.`metadataJson`) +
             FfiConverterBoolean.allocationSize(value.`revoked`) +
@@ -12102,6 +12176,7 @@ object FfiConverterTypeMessageHistoryItemView: FfiConverterRustBuffer<MessageHis
             FfiConverterString.write(value.`content`, buf)
             FfiConverterString.write(value.`messageType`, buf)
             FfiConverterULong.write(value.`timestamp`, buf)
+            FfiConverterOptionalLong.write(value.`messageSeq`, buf)
             FfiConverterOptionalULong.write(value.`replyToMessageId`, buf)
             FfiConverterOptionalString.write(value.`metadataJson`, buf)
             FfiConverterBoolean.write(value.`revoked`, buf)
@@ -12298,6 +12373,37 @@ object FfiConverterTypeMessageUnreadCountView: FfiConverterRustBuffer<MessageUnr
     override fun write(value: MessageUnreadCountView, buf: ByteBuffer) {
             FfiConverterInt.write(value.`unreadCount`, buf)
             FfiConverterOptionalString.write(value.`channelId`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeMessagesAroundView: FfiConverterRustBuffer<MessagesAroundView> {
+    override fun read(buf: ByteBuffer): MessagesAroundView {
+        return MessagesAroundView(
+            FfiConverterSequenceTypeMessageHistoryItemView.read(buf),
+            FfiConverterTypeMessageHistoryItemView.read(buf),
+            FfiConverterSequenceTypeMessageHistoryItemView.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterBoolean.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: MessagesAroundView) = (
+            FfiConverterSequenceTypeMessageHistoryItemView.allocationSize(value.`beforeMessages`) +
+            FfiConverterTypeMessageHistoryItemView.allocationSize(value.`anchorMessage`) +
+            FfiConverterSequenceTypeMessageHistoryItemView.allocationSize(value.`afterMessages`) +
+            FfiConverterBoolean.allocationSize(value.`hasMoreBefore`) +
+            FfiConverterBoolean.allocationSize(value.`hasMoreAfter`)
+    )
+
+    override fun write(value: MessagesAroundView, buf: ByteBuffer) {
+            FfiConverterSequenceTypeMessageHistoryItemView.write(value.`beforeMessages`, buf)
+            FfiConverterTypeMessageHistoryItemView.write(value.`anchorMessage`, buf)
+            FfiConverterSequenceTypeMessageHistoryItemView.write(value.`afterMessages`, buf)
+            FfiConverterBoolean.write(value.`hasMoreBefore`, buf)
+            FfiConverterBoolean.write(value.`hasMoreAfter`, buf)
     }
 }
 
@@ -12901,6 +13007,87 @@ object FfiConverterTypeRetryConfigView: FfiConverterRustBuffer<RetryConfigView> 
     override fun write(value: RetryConfigView, buf: ByteBuffer) {
             FfiConverterBoolean.write(value.`messageRetry`, buf)
             FfiConverterString.write(value.`strategy`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeSearchHighlightRangeView: FfiConverterRustBuffer<SearchHighlightRangeView> {
+    override fun read(buf: ByteBuffer): SearchHighlightRangeView {
+        return SearchHighlightRangeView(
+            FfiConverterUInt.read(buf),
+            FfiConverterUInt.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: SearchHighlightRangeView) = (
+            FfiConverterUInt.allocationSize(value.`start`) +
+            FfiConverterUInt.allocationSize(value.`end`)
+    )
+
+    override fun write(value: SearchHighlightRangeView, buf: ByteBuffer) {
+            FfiConverterUInt.write(value.`start`, buf)
+            FfiConverterUInt.write(value.`end`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeSearchHistoryHitView: FfiConverterRustBuffer<SearchHistoryHitView> {
+    override fun read(buf: ByteBuffer): SearchHistoryHitView {
+        return SearchHistoryHitView(
+            FfiConverterULong.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterULong.read(buf),
+            FfiConverterLong.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterSequenceTypeSearchHighlightRangeView.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: SearchHistoryHitView) = (
+            FfiConverterULong.allocationSize(value.`channelId`) +
+            FfiConverterULong.allocationSize(value.`messageId`) +
+            FfiConverterULong.allocationSize(value.`senderUserId`) +
+            FfiConverterLong.allocationSize(value.`createdAt`) +
+            FfiConverterString.allocationSize(value.`messageType`) +
+            FfiConverterString.allocationSize(value.`snippet`) +
+            FfiConverterSequenceTypeSearchHighlightRangeView.allocationSize(value.`highlightRanges`)
+    )
+
+    override fun write(value: SearchHistoryHitView, buf: ByteBuffer) {
+            FfiConverterULong.write(value.`channelId`, buf)
+            FfiConverterULong.write(value.`messageId`, buf)
+            FfiConverterULong.write(value.`senderUserId`, buf)
+            FfiConverterLong.write(value.`createdAt`, buf)
+            FfiConverterString.write(value.`messageType`, buf)
+            FfiConverterString.write(value.`snippet`, buf)
+            FfiConverterSequenceTypeSearchHighlightRangeView.write(value.`highlightRanges`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeSearchHistoryView: FfiConverterRustBuffer<SearchHistoryView> {
+    override fun read(buf: ByteBuffer): SearchHistoryView {
+        return SearchHistoryView(
+            FfiConverterSequenceTypeSearchHistoryHitView.read(buf),
+            FfiConverterOptionalString.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: SearchHistoryView) = (
+            FfiConverterSequenceTypeSearchHistoryHitView.allocationSize(value.`hits`) +
+            FfiConverterOptionalString.allocationSize(value.`nextCursor`)
+    )
+
+    override fun write(value: SearchHistoryView, buf: ByteBuffer) {
+            FfiConverterSequenceTypeSearchHistoryHitView.write(value.`hits`, buf)
+            FfiConverterOptionalString.write(value.`nextCursor`, buf)
     }
 }
 
@@ -16952,6 +17139,56 @@ public object FfiConverterSequenceTypeReactionsBatchItemView: FfiConverterRustBu
         buf.putInt(value.size)
         value.iterator().forEach {
             FfiConverterTypeReactionsBatchItemView.write(it, buf)
+        }
+    }
+}
+
+
+
+
+public object FfiConverterSequenceTypeSearchHighlightRangeView: FfiConverterRustBuffer<List<SearchHighlightRangeView>> {
+    override fun read(buf: ByteBuffer): List<SearchHighlightRangeView> {
+        val len = buf.getInt()
+        return List<SearchHighlightRangeView>(len) {
+            FfiConverterTypeSearchHighlightRangeView.read(buf)
+        }
+    }
+
+    override fun allocationSize(value: List<SearchHighlightRangeView>): ULong {
+        val sizeForLength = 4UL
+        val sizeForItems = value.map { FfiConverterTypeSearchHighlightRangeView.allocationSize(it) }.sum()
+        return sizeForLength + sizeForItems
+    }
+
+    override fun write(value: List<SearchHighlightRangeView>, buf: ByteBuffer) {
+        buf.putInt(value.size)
+        value.iterator().forEach {
+            FfiConverterTypeSearchHighlightRangeView.write(it, buf)
+        }
+    }
+}
+
+
+
+
+public object FfiConverterSequenceTypeSearchHistoryHitView: FfiConverterRustBuffer<List<SearchHistoryHitView>> {
+    override fun read(buf: ByteBuffer): List<SearchHistoryHitView> {
+        val len = buf.getInt()
+        return List<SearchHistoryHitView>(len) {
+            FfiConverterTypeSearchHistoryHitView.read(buf)
+        }
+    }
+
+    override fun allocationSize(value: List<SearchHistoryHitView>): ULong {
+        val sizeForLength = 4UL
+        val sizeForItems = value.map { FfiConverterTypeSearchHistoryHitView.allocationSize(it) }.sum()
+        return sizeForLength + sizeForItems
+    }
+
+    override fun write(value: List<SearchHistoryHitView>, buf: ByteBuffer) {
+        buf.putInt(value.size)
+        value.iterator().forEach {
+            FfiConverterTypeSearchHistoryHitView.write(it, buf)
         }
     }
 }

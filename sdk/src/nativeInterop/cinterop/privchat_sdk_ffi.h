@@ -354,7 +354,9 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_message_extra(void 
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_messages(void * ptr, int64_t channelId, int32_t channelType, int64_t limit, int64_t offset
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_messages_remote(void * ptr, int64_t channelId, RustBuffer beforeServerMessageId, RustBuffer limit
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_messages_around(void * ptr, int64_t channelId, int32_t channelType, int64_t messageId, RustBuffer beforeLimit, RustBuffer afterLimit
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_messages_remote(void * ptr, int64_t channelId, int32_t channelType, RustBuffer beforeServerMessageId, RustBuffer limit
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_or_create_direct_channel(void * ptr, int64_t peerUserId
 );
@@ -482,7 +484,7 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_fully_read_at(void
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_mention_read(void * ptr, int64_t messageId, int64_t userId
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_message_sent(void * ptr, int64_t messageId, int64_t serverMessageId
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_message_sent(void * ptr, int64_t messageId, int64_t serverMessageId, int32_t messageSeq
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_read_to_pts(void * ptr, int64_t channelId, int64_t readPts
 );
@@ -625,6 +627,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_rpc_call(void * ptr, Ru
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_run_bootstrap_sync(void * ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_search_channel(void * ptr, RustBuffer keyword
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_search_message_history(void * ptr, RustBuffer query, RustBuffer channelId, RustBuffer cursor, RustBuffer limit
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_search_messages(void * ptr, int64_t channelId, int32_t channelType, RustBuffer keyword
 );
@@ -1226,6 +1230,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_message_extra
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_messages(void
     
 );
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_messages_around(void
+    
+);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_messages_remote(void
     
 );
@@ -1632,6 +1639,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_run_bootstrap_syn
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_search_channel(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_search_message_history(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_search_messages(void
