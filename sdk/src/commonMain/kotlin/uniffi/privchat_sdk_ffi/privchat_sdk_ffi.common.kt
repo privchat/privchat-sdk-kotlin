@@ -4422,6 +4422,11 @@ data class StoredChannel (
     var `peerUserId`: kotlin.ULong?
          = null , 
     /**
+     * 群成员数（群会话有意义，来自 group 实体缓存；DM/未知为 0）。供群标题「(N)」。
+     */
+    var `memberCount`: kotlin.UInt
+        , 
+    /**
      * 最后一条消息的协议 message_type（ContentMessageType 整型值）。
      */
     var `lastMessageType`: kotlin.Int?

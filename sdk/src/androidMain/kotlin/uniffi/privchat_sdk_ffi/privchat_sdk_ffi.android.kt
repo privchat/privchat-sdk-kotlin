@@ -13264,6 +13264,7 @@ object FfiConverterTypeStoredChannel: FfiConverterRustBuffer<StoredChannel> {
             FfiConverterString.read(buf),
             FfiConverterLong.read(buf),
             FfiConverterOptionalULong.read(buf),
+            FfiConverterUInt.read(buf),
             FfiConverterOptionalInt.read(buf),
             FfiConverterBoolean.read(buf),
         )
@@ -13283,6 +13284,7 @@ object FfiConverterTypeStoredChannel: FfiConverterRustBuffer<StoredChannel> {
             FfiConverterString.allocationSize(value.`lastMsgContent`) +
             FfiConverterLong.allocationSize(value.`updatedAt`) +
             FfiConverterOptionalULong.allocationSize(value.`peerUserId`) +
+            FfiConverterUInt.allocationSize(value.`memberCount`) +
             FfiConverterOptionalInt.allocationSize(value.`lastMessageType`) +
             FfiConverterBoolean.allocationSize(value.`lastMessageIsRevoked`)
     )
@@ -13301,6 +13303,7 @@ object FfiConverterTypeStoredChannel: FfiConverterRustBuffer<StoredChannel> {
             FfiConverterString.write(value.`lastMsgContent`, buf)
             FfiConverterLong.write(value.`updatedAt`, buf)
             FfiConverterOptionalULong.write(value.`peerUserId`, buf)
+            FfiConverterUInt.write(value.`memberCount`, buf)
             FfiConverterOptionalInt.write(value.`lastMessageType`, buf)
             FfiConverterBoolean.write(value.`lastMessageIsRevoked`, buf)
     }

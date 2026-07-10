@@ -2075,7 +2075,7 @@ private fun StoredChannel.toCommonChannel() = ChannelListEntry(
     avatarUrl = avatar.takeIf { it.isNotBlank() },
     isDm = channelType == 1,
     isEncrypted = false,
-    memberCount = 0u,
+    memberCount = this.memberCount,
     topic = channelRemark.takeIf { it.isNotBlank() },
     latestEvent = lastMsgContent.takeIf { it.isNotBlank() }?.let {
         LatestChannelEvent(
