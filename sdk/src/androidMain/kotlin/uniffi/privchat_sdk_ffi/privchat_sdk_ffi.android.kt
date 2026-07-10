@@ -822,6 +822,8 @@ internal val UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue.`uniffiF
 
 
 
+
+
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -1154,6 +1156,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_groups(`ptr`: Pointer?,`limit`: Long,`offset`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_local_accounts(`ptr`: Pointer?,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_local_messages_around(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`anchorServerMessageId`: Long,`beforeLimit`: Long,`afterLimit`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_message_reactions(`ptr`: Pointer?,`messageId`: Long,`limit`: Long,`offset`: Long,
     ): Long
@@ -1928,6 +1932,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_groups(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_local_accounts(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_local_messages_around(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_message_reactions(
     ): Short
@@ -2749,6 +2755,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_local_accounts() != 3907.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_local_messages_around() != 29888.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_message_reactions() != 35465.toShort()) {
@@ -6527,6 +6536,32 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
         { FfiConverterSequenceTypeLocalAccountSummary.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * 以 anchor 为轴的本地上下文窗口（显示排序；spec §5 跳转渲染原语）。
+     * 通常先调 get_messages_around 完成服务端回填，再用本方法从本地读窗口渲染。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `listLocalMessagesAround`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `anchorServerMessageId`: kotlin.ULong, `beforeLimit`: kotlin.ULong, `afterLimit`: kotlin.ULong) : List<StoredMessage> {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_local_messages_around(
+                thisPtr,
+                FfiConverterULong.lower(`channelId`),FfiConverterInt.lower(`channelType`),FfiConverterULong.lower(`anchorServerMessageId`),FfiConverterULong.lower(`beforeLimit`),FfiConverterULong.lower(`afterLimit`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterSequenceTypeStoredMessage.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )

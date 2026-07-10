@@ -721,6 +721,27 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun getLocalMessagesAround(
+        channelId: ULong,
+        channelType: Int,
+        anchorMessageId: ULong,
+        beforeLimit: UInt,
+        afterLimit: UInt,
+    ): Result<List<MessageEntry>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.listLocalMessagesAround(
+                channelId,
+                channelType,
+                anchorMessageId,
+                beforeLimit.toULong(),
+                afterLimit.toULong(),
+            ).map { it.toCommonMessage(c, cachedUserId) }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("getLocalMessagesAround failed", it)) },
+        )
+    }
     actual suspend fun getMessages(channelId: ULong, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {

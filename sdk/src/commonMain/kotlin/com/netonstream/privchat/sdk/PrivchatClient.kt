@@ -126,6 +126,19 @@ expect class PrivchatClient private constructor() {
         afterLimit: UInt? = null,
     ): Result<MessagesAroundPage>
 
+    /**
+     * 以 anchor 为轴按显示排序读**本地**上下文窗口（spec §5 渲染原语）。
+     * 典型链路：[getMessagesAround]（服务端回填）→ 本方法（本地重查）→
+     * UI 渲染 + 定位/高亮 anchor。anchor 本地不存在返回空列表。
+     */
+    suspend fun getLocalMessagesAround(
+        channelId: ULong,
+        channelType: Int,
+        anchorMessageId: ULong,
+        beforeLimit: UInt = 25u,
+        afterLimit: UInt = 25u,
+    ): Result<List<MessageEntry>>
+
     // ========== Storage ==========
     suspend fun getMessages(channelId: ULong, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>>
     suspend fun getMessagesByType(channelId: ULong, channelType: Int, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>>

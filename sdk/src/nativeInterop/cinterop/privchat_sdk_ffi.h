@@ -458,6 +458,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_groups(void * ptr,
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_local_accounts(void * ptr
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_local_messages_around(void * ptr, int64_t channelId, int32_t channelType, int64_t anchorServerMessageId, int64_t beforeLimit, int64_t afterLimit
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_message_reactions(void * ptr, int64_t messageId, int64_t limit, int64_t offset
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_messages(void * ptr, int64_t channelId, int32_t channelType, int64_t limit, int64_t offset
@@ -1384,6 +1386,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_groups(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_local_accounts(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_local_messages_around(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_message_reactions(void

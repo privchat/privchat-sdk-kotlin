@@ -446,6 +446,12 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `listLocalAccounts`(): List<LocalAccountSummary>
     
+    /**
+     * 以 anchor 为轴的本地上下文窗口（显示排序；spec §5 跳转渲染原语）。
+     * 通常先调 get_messages_around 完成服务端回填，再用本方法从本地读窗口渲染。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `listLocalMessagesAround`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `anchorServerMessageId`: kotlin.ULong, `beforeLimit`: kotlin.ULong, `afterLimit`: kotlin.ULong): List<StoredMessage>
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `listMessageReactions`(`messageId`: kotlin.ULong, `limit`: kotlin.ULong, `offset`: kotlin.ULong): List<StoredMessageReaction>
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `listMessages`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `limit`: kotlin.ULong, `offset`: kotlin.ULong): List<StoredMessage>
@@ -1643,6 +1649,15 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `listLocalAccounts`() : List<LocalAccountSummary>
+
+    
+    /**
+     * 以 anchor 为轴的本地上下文窗口（显示排序；spec §5 跳转渲染原语）。
+     * 通常先调 get_messages_around 完成服务端回填，再用本方法从本地读窗口渲染。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `listLocalMessagesAround`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `anchorServerMessageId`: kotlin.ULong, `beforeLimit`: kotlin.ULong, `afterLimit`: kotlin.ULong) : List<StoredMessage>
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
