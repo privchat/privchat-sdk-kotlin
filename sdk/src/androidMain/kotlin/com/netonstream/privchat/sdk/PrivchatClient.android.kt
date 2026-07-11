@@ -312,6 +312,25 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun recacheUserAvatar(
+        userId: ULong,
+        avatarUrl: String,
+    ): Result<com.netonstream.privchat.sdk.dto.AvatarCacheResult> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.recacheUserAvatar(userId, avatarUrl) }.fold(
+            onSuccess = { r ->
+                Result.success(
+                    com.netonstream.privchat.sdk.dto.AvatarCacheResult(
+                        userId = r.userId,
+                        avatarLocalPath = r.avatarLocalPath,
+                        avatarCachedUrl = r.avatarCachedUrl,
+                    )
+                )
+            },
+            onFailure = { Result.failure(toSdkError("recacheUserAvatar failed", it)) },
+        )
+    }
+
     actual suspend fun recacheSelfAvatar(
         avatarUrl: String,
     ): Result<com.netonstream.privchat.sdk.dto.AvatarCacheResult> {

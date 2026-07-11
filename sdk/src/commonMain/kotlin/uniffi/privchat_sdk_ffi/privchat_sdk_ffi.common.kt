@@ -563,12 +563,17 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `reactionsBatch`(`serverMessageIds`: List<kotlin.ULong>): ReactionsBatchView
     
     /**
-     * 显式头像 re-cache（CLIENT_GLOBAL_STATE §4.3 P2）：把当前登录用户的新头像从 `avatar_url`
-     * 下载到本地并强制落库（avatar / avatar_local_path / avatar_cached_url 三者对齐），返回
-     * 本地路径 + cached_url。用于自己上传头像后立即刷新本地缓存——`avatar_local_path` 是展示主字段，
-     * `avatar_url` 只是下载源。下载失败返回 Err，不污染旧缓存。
+     * [`Self::recache_user_avatar`] 的便捷封装 = recache 当前登录用户头像。
      */
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `recacheSelfAvatar`(`avatarUrl`: kotlin.String): AvatarCacheResult
+    
+    /**
+     * 底层唯一头像 re-cache 能力（CLIENT_GLOBAL_STATE §4 全局统一）：把 `user_id` 的头像从
+     * `avatar_url` 下载到本地并强制落库（avatar / avatar_local_path / avatar_cached_url 三者对齐）。
+     * **任意头像来源**（当前用户 / 好友 / 群成员 / 会话 peer / 资料页刷新）都走这一个入口——
+     * `avatar_local_path` 是展示主字段，`avatar_url` 只是下载源。下载失败返回 Err，不污染旧缓存。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `recacheUserAvatar`(`userId`: kotlin.ULong, `avatarUrl`: kotlin.String): AvatarCacheResult
     
     /**
      * F-sync.2: 撤回自己发出的、尚未处理的好友申请。
@@ -1933,14 +1938,22 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
 
     
     /**
-     * 显式头像 re-cache（CLIENT_GLOBAL_STATE §4.3 P2）：把当前登录用户的新头像从 `avatar_url`
-     * 下载到本地并强制落库（avatar / avatar_local_path / avatar_cached_url 三者对齐），返回
-     * 本地路径 + cached_url。用于自己上传头像后立即刷新本地缓存——`avatar_local_path` 是展示主字段，
-     * `avatar_url` 只是下载源。下载失败返回 Err，不污染旧缓存。
+     * [`Self::recache_user_avatar`] 的便捷封装 = recache 当前登录用户头像。
      */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `recacheSelfAvatar`(`avatarUrl`: kotlin.String) : AvatarCacheResult
+
+    
+    /**
+     * 底层唯一头像 re-cache 能力（CLIENT_GLOBAL_STATE §4 全局统一）：把 `user_id` 的头像从
+     * `avatar_url` 下载到本地并强制落库（avatar / avatar_local_path / avatar_cached_url 三者对齐）。
+     * **任意头像来源**（当前用户 / 好友 / 群成员 / 会话 peer / 资料页刷新）都走这一个入口——
+     * `avatar_local_path` 是展示主字段，`avatar_url` 只是下载源。下载失败返回 Err，不污染旧缓存。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `recacheUserAvatar`(`userId`: kotlin.ULong, `avatarUrl`: kotlin.String) : AvatarCacheResult
 
     
     /**

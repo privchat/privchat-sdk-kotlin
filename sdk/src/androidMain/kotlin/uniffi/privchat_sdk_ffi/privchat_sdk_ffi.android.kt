@@ -826,6 +826,8 @@ internal val UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue.`uniffiF
 
 
 
+
+
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -1270,6 +1272,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_reactions_batch(`ptr`: Pointer?,`serverMessageIds`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recache_self_avatar(`ptr`: Pointer?,`avatarUrl`: RustBufferByValue,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recache_user_avatar(`ptr`: Pointer?,`userId`: Long,`avatarUrl`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recall_friend_request(`ptr`: Pointer?,`targetUserId`: Long,
     ): Long
@@ -2048,6 +2052,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_reactions_batch(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recache_self_avatar(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recache_user_avatar(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recall_friend_request(
     ): Short
@@ -2928,7 +2934,10 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_reactions_batch() != 62380.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recache_self_avatar() != 19453.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recache_self_avatar() != 12395.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recache_user_avatar() != 28307.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recall_friend_request() != 9312.toShort()) {
@@ -7698,10 +7707,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
 
     
     /**
-     * 显式头像 re-cache（CLIENT_GLOBAL_STATE §4.3 P2）：把当前登录用户的新头像从 `avatar_url`
-     * 下载到本地并强制落库（avatar / avatar_local_path / avatar_cached_url 三者对齐），返回
-     * 本地路径 + cached_url。用于自己上传头像后立即刷新本地缓存——`avatar_local_path` 是展示主字段，
-     * `avatar_url` 只是下载源。下载失败返回 Err，不污染旧缓存。
+     * [`Self::recache_user_avatar`] 的便捷封装 = recache 当前登录用户头像。
      */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
@@ -7711,6 +7717,34 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_recache_self_avatar(
                 thisPtr,
                 FfiConverterString.lower(`avatarUrl`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterTypeAvatarCacheResult.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * 底层唯一头像 re-cache 能力（CLIENT_GLOBAL_STATE §4 全局统一）：把 `user_id` 的头像从
+     * `avatar_url` 下载到本地并强制落库（avatar / avatar_local_path / avatar_cached_url 三者对齐）。
+     * **任意头像来源**（当前用户 / 好友 / 群成员 / 会话 peer / 资料页刷新）都走这一个入口——
+     * `avatar_local_path` 是展示主字段，`avatar_url` 只是下载源。下载失败返回 Err，不污染旧缓存。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `recacheUserAvatar`(`userId`: kotlin.ULong, `avatarUrl`: kotlin.String) : AvatarCacheResult {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_recache_user_avatar(
+                thisPtr,
+                FfiConverterULong.lower(`userId`),FfiConverterString.lower(`avatarUrl`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },

@@ -570,6 +570,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_reactions_batch(void * 
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_recache_self_avatar(void * ptr, RustBuffer avatarUrl
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_recache_user_avatar(void * ptr, int64_t userId, RustBuffer avatarUrl
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_recall_friend_request(void * ptr, int64_t targetUserId
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_recall_message(void * ptr, int64_t serverMessageId, int64_t channelId
@@ -1556,6 +1558,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_reactions_batch(v
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recache_self_avatar(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recache_user_avatar(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recall_friend_request(void
