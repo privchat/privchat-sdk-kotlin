@@ -563,6 +563,14 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `reactionsBatch`(`serverMessageIds`: List<kotlin.ULong>): ReactionsBatchView
     
     /**
+     * 显式头像 re-cache（CLIENT_GLOBAL_STATE §4.3 P2）：把当前登录用户的新头像从 `avatar_url`
+     * 下载到本地并强制落库（avatar / avatar_local_path / avatar_cached_url 三者对齐），返回
+     * 本地路径 + cached_url。用于自己上传头像后立即刷新本地缓存——`avatar_local_path` 是展示主字段，
+     * `avatar_url` 只是下载源。下载失败返回 Err，不污染旧缓存。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `recacheSelfAvatar`(`avatarUrl`: kotlin.String): AvatarCacheResult
+    
+    /**
      * F-sync.2: 撤回自己发出的、尚未处理的好友申请。
      *
      * server 把 friendships.(user_id=me, friend_id=target, status=0) 改成
@@ -1925,6 +1933,17 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
 
     
     /**
+     * 显式头像 re-cache（CLIENT_GLOBAL_STATE §4.3 P2）：把当前登录用户的新头像从 `avatar_url`
+     * 下载到本地并强制落库（avatar / avatar_local_path / avatar_cached_url 三者对齐），返回
+     * 本地路径 + cached_url。用于自己上传头像后立即刷新本地缓存——`avatar_local_path` 是展示主字段，
+     * `avatar_url` 只是下载源。下载失败返回 Err，不污染旧缓存。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `recacheSelfAvatar`(`avatarUrl`: kotlin.String) : AvatarCacheResult
+
+    
+    /**
      * F-sync.2: 撤回自己发出的、尚未处理的好友申请。
      *
      * server 把 friendships.(user_id=me, friend_id=target, status=0) 改成
@@ -2661,6 +2680,24 @@ data class AccountUserUpdateInput (
          = null , 
     var `bio`: kotlin.String?
          = null 
+) {
+    
+    companion object
+}
+
+
+
+/**
+ * 显式头像 re-cache 结果（CLIENT_GLOBAL_STATE §4.3 P2）。
+ * `avatar_local_path` 是本地展示主字段；`avatar_cached_url` = 本地文件对应的远程版本（freshness 判据）。
+ */
+data class AvatarCacheResult (
+    var `userId`: kotlin.ULong
+        , 
+    var `avatarLocalPath`: kotlin.String
+        , 
+    var `avatarCachedUrl`: kotlin.String
+        
 ) {
     
     companion object

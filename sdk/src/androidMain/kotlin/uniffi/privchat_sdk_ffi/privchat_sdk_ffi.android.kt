@@ -824,6 +824,8 @@ internal val UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue.`uniffiF
 
 
 
+
+
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -1266,6 +1268,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_reactions(`ptr`: Pointer?,`serverMessageId`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_reactions_batch(`ptr`: Pointer?,`serverMessageIds`: RustBufferByValue,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recache_self_avatar(`ptr`: Pointer?,`avatarUrl`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_recall_friend_request(`ptr`: Pointer?,`targetUserId`: Long,
     ): Long
@@ -2042,6 +2046,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_reactions(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_reactions_batch(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recache_self_avatar(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recall_friend_request(
     ): Short
@@ -2920,6 +2926,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_reactions_batch() != 62380.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recache_self_avatar() != 19453.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_recall_friend_request() != 9312.toShort()) {
@@ -7689,6 +7698,34 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
 
     
     /**
+     * 显式头像 re-cache（CLIENT_GLOBAL_STATE §4.3 P2）：把当前登录用户的新头像从 `avatar_url`
+     * 下载到本地并强制落库（avatar / avatar_local_path / avatar_cached_url 三者对齐），返回
+     * 本地路径 + cached_url。用于自己上传头像后立即刷新本地缓存——`avatar_local_path` 是展示主字段，
+     * `avatar_url` 只是下载源。下载失败返回 Err，不污染旧缓存。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `recacheSelfAvatar`(`avatarUrl`: kotlin.String) : AvatarCacheResult {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_recache_self_avatar(
+                thisPtr,
+                FfiConverterString.lower(`avatarUrl`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterTypeAvatarCacheResult.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
      * F-sync.2: 撤回自己发出的、尚未处理的好友申请。
      *
      * server 把 friendships.(user_id=me, friend_id=target, status=0) 改成
@@ -10439,6 +10476,31 @@ object FfiConverterTypeAccountUserUpdateInput: FfiConverterRustBuffer<AccountUse
             FfiConverterOptionalString.write(value.`displayName`, buf)
             FfiConverterOptionalString.write(value.`avatarUrl`, buf)
             FfiConverterOptionalString.write(value.`bio`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeAvatarCacheResult: FfiConverterRustBuffer<AvatarCacheResult> {
+    override fun read(buf: ByteBuffer): AvatarCacheResult {
+        return AvatarCacheResult(
+            FfiConverterULong.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: AvatarCacheResult) = (
+            FfiConverterULong.allocationSize(value.`userId`) +
+            FfiConverterString.allocationSize(value.`avatarLocalPath`) +
+            FfiConverterString.allocationSize(value.`avatarCachedUrl`)
+    )
+
+    override fun write(value: AvatarCacheResult, buf: ByteBuffer) {
+            FfiConverterULong.write(value.`userId`, buf)
+            FfiConverterString.write(value.`avatarLocalPath`, buf)
+            FfiConverterString.write(value.`avatarCachedUrl`, buf)
     }
 }
 

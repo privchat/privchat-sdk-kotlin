@@ -51,6 +51,12 @@ expect class PrivchatClient private constructor() {
      * 返回处理后文件路径；App 选图后先过它再走上传管道。
      */
     suspend fun prepareAvatarImage(path: String): Result<String>
+    /**
+     * 显式头像 re-cache（CLIENT_GLOBAL_STATE §4.3 P2）：把当前登录用户新头像从 [avatarUrl]
+     * 下载到本地并强制落库（avatar_local_path 是展示主字段，avatarUrl 只是下载源）。
+     * 用于自己上传头像成功后立即刷新本地缓存。下载失败返回 failure，不污染旧缓存。
+     */
+    suspend fun recacheSelfAvatar(avatarUrl: String): Result<com.netonstream.privchat.sdk.dto.AvatarCacheResult>
     suspend fun updateDevicePushState(deviceId: String, apnsArmed: Boolean, pushToken: String?): Result<Unit>
     suspend fun restoreLocalSession(): Result<Boolean>
     suspend fun logout(): Result<Unit>
