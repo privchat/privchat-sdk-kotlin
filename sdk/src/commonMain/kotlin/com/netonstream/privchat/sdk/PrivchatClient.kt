@@ -291,6 +291,22 @@ expect class PrivchatClient private constructor() {
     /** 全员禁言开关（群主/管理员）。 */
     suspend fun groupMuteAll(groupId: ULong, enabled: Boolean): Result<GroupMuteAllView>
 
+    /** 群入群申请审批列表（P6-3；仅群主/管理员，服务端鉴权）。typed FFI。 */
+    suspend fun listGroupApprovals(groupId: ULong): Result<GroupApprovalListView>
+
+    /**
+     * 处理群入群申请（P6-3；approve/reject，仅群主/管理员）。
+     * [requestId] 是 [GroupApprovalItemView.requestId]（server UUID）。approve 成功后申请人入群。
+     *
+     * 实现走通用 rpcCall 透传 UUID request_id——现有 typed FFI `groupApprovalHandleRemote` 入参是
+     * u64 与 server UUID 不匹配（见 GROUP_APPROVAL_FFI_UUID_CLEANUP）；该缺陷修复后本方法签名不变、内部切回 typed。
+     */
+    suspend fun handleGroupApproval(
+        requestId: String,
+        approve: Boolean,
+        reason: String? = null,
+    ): Result<Boolean>
+
     /** 群消息置顶 / 取消置顶（群主/管理员；pinned=false 取消）。channelId 为消息所在频道。 */
     suspend fun groupPinMessage(
         groupId: ULong,

@@ -1551,6 +1551,38 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun listGroupApprovals(groupId: ULong): Result<GroupApprovalListView> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.groupApprovalListRemote(groupId, null, null) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("listGroupApprovals failed", it)) },
+        )
+    }
+
+    actual suspend fun handleGroupApproval(
+        requestId: String,
+        approve: Boolean,
+        reason: String?,
+    ): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            // P6-3 薄路：typed FFI handle 入参 approvalId:u64 与 server UUID request_id 不匹配，
+            // 改走通用 rpcCall 透传正确 UUID（GROUP_APPROVAL_FFI_UUID_CLEANUP 修复后内部切回 typed）。
+            val operatorId = c.requireCurrentUserId()
+            val body = buildJsonObject {
+                this["request_id"] = requestId
+                this["operator_id"] = operatorId
+                this["action"] = if (approve) "approve" else "reject"
+                this["reject_reason"] = reason
+            }
+            val resp = c.rpcCall("group/approval/handle", body)
+            (Json.parseToJsonElement(resp).jsonObject["success"] as? JsonPrimitive)?.booleanOrNull ?: false
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("handleGroupApproval failed", it)) },
+        )
+    }
+
     actual suspend fun groupPinMessage(
         groupId: ULong,
         channelId: ULong,
