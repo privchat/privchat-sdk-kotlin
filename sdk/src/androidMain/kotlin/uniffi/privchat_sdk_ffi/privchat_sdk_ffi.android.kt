@@ -15560,6 +15560,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterInt.read(buf),
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
+                FfiConverterULong.read(buf),
                 )
             22 -> SdkEvent.MediaDownloadStateChanged(
                 FfiConverterULong.read(buf),
@@ -15785,6 +15786,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 4UL
                 + FfiConverterULong.allocationSize(value.`channelId`)
                 + FfiConverterInt.allocationSize(value.`channelType`)
+                + FfiConverterULong.allocationSize(value.`messageId`)
                 + FfiConverterULong.allocationSize(value.`serverMessageId`)
                 + FfiConverterULong.allocationSize(value.`deliveredAt`)
             )
@@ -16000,6 +16002,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 buf.putInt(21)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterInt.write(value.`channelType`, buf)
+                FfiConverterULong.write(value.`messageId`, buf)
                 FfiConverterULong.write(value.`serverMessageId`, buf)
                 FfiConverterULong.write(value.`deliveredAt`, buf)
                 Unit

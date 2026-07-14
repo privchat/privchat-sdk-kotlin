@@ -5933,6 +5933,7 @@ sealed class SdkEvent {
     data class MessageDelivered(
         val `channelId`: kotlin.ULong  , 
         val `channelType`: kotlin.Int  , 
+        val `messageId`: kotlin.ULong  , 
         val `serverMessageId`: kotlin.ULong  , 
         val `deliveredAt`: kotlin.ULong  ) : SdkEvent() {
         

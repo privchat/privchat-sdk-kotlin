@@ -3,7 +3,14 @@ package com.netonstream.privchat.sdk.dto
 /** 消息状态 - 与 SDK_API_CONTRACT 对齐 */
 enum class MessageStatus { Pending, Sending, Sent, Failed, Read }
 
-/** 消息条目 - 与 SDK_API_CONTRACT 对齐 */
+/**
+ * 消息条目 - 与 SDK_API_CONTRACT 对齐。
+ *
+ * Identity contract:
+ * - [id] is the local SQLite primary key. Client state, UI keys, sorting, and local operations use it.
+ * - [localMessageId] is the client-generated send idempotency key. It is not a UI identity.
+ * - [serverMessageId] is the server-generated network and cross-device identity. It is not a local primary key.
+ */
 data class MessageEntry(
     val id: ULong,
     val serverMessageId: ULong?,

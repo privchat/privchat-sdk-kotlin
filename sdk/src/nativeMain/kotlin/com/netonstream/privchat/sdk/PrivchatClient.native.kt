@@ -2587,6 +2587,7 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         type = "message_delivered",
         channelId = event.channelId,
         channelType = event.channelType,
+        messageId = event.messageId,
         serverMessageId = event.serverMessageId,
         deliveredAt = event.deliveredAt,
     )
