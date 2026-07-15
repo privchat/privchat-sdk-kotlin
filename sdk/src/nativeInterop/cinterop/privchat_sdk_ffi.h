@@ -280,6 +280,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_text(void * ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_text_with_local_id(void * ptr, int64_t channelId, int32_t channelType, int64_t fromUid, RustBuffer content, RustBuffer localMessageId
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_ensure_synced(void * ptr
+);
 void uniffi_privchat_sdk_ffi_fn_method_privchatclient_enter_background(void * ptr, UniffiRustCallStatus *_Nonnull out_status
 );
 void uniffi_privchat_sdk_ffi_fn_method_privchatclient_enter_foreground(void * ptr, UniffiRustCallStatus *_Nonnull out_status
@@ -746,6 +748,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_messages(void * pt
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_messages_in_background(void * ptr
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_state(void * ptr
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_submit_remote(void * ptr, RustBuffer payload
 );
 RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_timeline_events_since(void * ptr, int64_t sequenceId, int64_t limit, UniffiRustCallStatus *_Nonnull out_status
@@ -1123,6 +1127,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_text(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_text_with_local_id(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_ensure_synced(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enter_background(void
@@ -1822,6 +1829,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_messages(voi
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_messages_in_background(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_state(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_submit_remote(void

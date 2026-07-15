@@ -14,6 +14,9 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -52,6 +55,9 @@ import uniffi.privchat_sdk_ffi.TransportProtocol as CoreProtocol
 import uniffi.privchat_sdk_ffi.TypingActionType
 import uniffi.privchat_sdk_ffi.SdkEvent as CoreSdkEvent
 import uniffi.privchat_sdk_ffi.MediaDownloadState as CoreMediaDownloadState
+import uniffi.privchat_sdk_ffi.SyncPhase as CoreSyncPhase
+import uniffi.privchat_sdk_ffi.SyncRunKind as CoreSyncRunKind
+import uniffi.privchat_sdk_ffi.SyncStateSnapshot as CoreSyncStateSnapshot
 import uniffi.privchat_sdk_ffi.sdkVersion
 
 private val json = Json { ignoreUnknownKeys = true }
@@ -96,6 +102,8 @@ actual class PrivchatClient private actual constructor() {
     private var cachedConnectionState: ConnectionState = ConnectionState.Disconnected
     private var cachedUserId: ULong? = null
     private var videoHook: VideoProcessHook? = null
+    private val mutableSyncState = MutableStateFlow(idleSyncState())
+    actual val syncStateFlow: StateFlow<SyncState> = mutableSyncState.asStateFlow()
 
     internal constructor(core: CorePrivchatClient) : this() {
         this.coreClient = core
@@ -165,6 +173,8 @@ actual class PrivchatClient private actual constructor() {
                 runCatching { core.connectionState() }
                     .onSuccess { state -> cachedConnectionState = state.toCommonConnectionState() }
                     .onFailure { cachedConnectionState = ConnectionState.Disconnected }
+                runCatching { core.syncState() }
+                    .onSuccess { state -> mutableSyncState.value = mapSyncState(state) }
                 delay(1500)
             }
         }
@@ -990,6 +1000,23 @@ actual class PrivchatClient private actual constructor() {
     actual suspend fun runBootstrapSync(): Result<Unit> =
         requireClient().fold(
             onSuccess = { callAsync("runBootstrapSync failed") { it.runBootstrapSync() } },
+            onFailure = { Result.failure(it) },
+        )
+
+    actual suspend fun ensureSynced(): Result<Unit> =
+        requireClient().fold(
+            onSuccess = { callAsync("ensureSynced failed") { it.ensureSynced() } },
+            onFailure = { Result.failure(it) },
+        )
+
+    actual suspend fun syncState(): Result<SyncState> =
+        requireClient().fold(
+            onSuccess = { client ->
+                runCatching { mapSyncState(client.syncState()) }.fold(
+                    onSuccess = { Result.success(it) },
+                    onFailure = { Result.failure(toSdkError("syncState failed", it)) },
+                )
+            },
             onFailure = { Result.failure(it) },
         )
 
@@ -2760,6 +2787,37 @@ private fun ULong.toJsonNumberPrimitive(): JsonPrimitive {
     }
 }
 
+private fun CoreSyncPhase.toDto(): CoordinatorSyncPhase = when (this) {
+    CoreSyncPhase.IDLE -> CoordinatorSyncPhase.Idle
+    CoreSyncPhase.SYNCING -> CoordinatorSyncPhase.Syncing
+    CoreSyncPhase.SYNCED -> CoordinatorSyncPhase.Synced
+    CoreSyncPhase.RETRYING -> CoordinatorSyncPhase.Retrying
+    CoreSyncPhase.FAILED_TERMINAL -> CoordinatorSyncPhase.FailedTerminal
+}
+
+private fun CoreSyncRunKind.toDto(): SyncRunKind = when (this) {
+    CoreSyncRunKind.BOOTSTRAP -> SyncRunKind.Bootstrap
+    CoreSyncRunKind.RESUME -> SyncRunKind.Resume
+}
+
+private fun mapSyncState(state: CoreSyncStateSnapshot): SyncState = SyncState(
+    phase = state.phase.toDto(),
+    runKind = state.runKind?.toDto(),
+    attempt = state.attempt.toUInt(),
+    errorCode = state.errorCode?.toUInt(),
+    message = state.message,
+    updatedAtMs = state.updatedAtMs,
+)
+
+private fun idleSyncState(): SyncState = SyncState(
+    phase = CoordinatorSyncPhase.Idle,
+    runKind = null,
+    attempt = 0u,
+    errorCode = null,
+    message = null,
+    updatedAtMs = 0L,
+)
+
 private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
     is CoreSdkEvent.ConnectionStateChanged -> SdkEventPayload(
         type = "connection_state_changed",
@@ -2770,6 +2828,16 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
     is CoreSdkEvent.BootstrapCompleted -> SdkEventPayload(
         type = "bootstrap_completed",
         userId = event.userId,
+    )
+
+    is CoreSdkEvent.SyncStateChanged -> SdkEventPayload(
+        type = "sync_state_changed",
+        syncPhase = event.state.phase.toDto(),
+        syncRunKind = event.state.runKind?.toDto(),
+        syncAttempt = event.state.attempt.toUInt(),
+        errorCode = event.state.errorCode?.toUInt(),
+        reason = event.state.message,
+        syncUpdatedAtMs = event.state.updatedAtMs,
     )
 
     CoreSdkEvent.ResumeSyncStarted -> SdkEventPayload(type = "resume_sync_started")

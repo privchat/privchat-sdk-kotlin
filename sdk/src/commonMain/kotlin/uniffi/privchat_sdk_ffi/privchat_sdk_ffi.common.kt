@@ -213,6 +213,8 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `enqueueText`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String): kotlin.ULong
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `enqueueTextWithLocalId`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String, `localMessageId`: kotlin.ULong?): kotlin.ULong
+    
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `ensureSynced`()
     fun `enterBackground`()
     fun `enterForeground`()
     
@@ -785,6 +787,8 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `syncMessagesInBackground`()
     
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `syncState`(): SyncStateSnapshot
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `syncSubmitRemote`(`payload`: SyncSubmitInput): SyncSubmitView
     fun `timelineEventsSince`(`sequenceId`: kotlin.ULong, `limit`: kotlin.ULong): List<SequencedSdkEvent>
     fun `timezoneHours`(): kotlin.Int
@@ -1174,6 +1178,11 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `enqueueTextWithLocalId`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String, `localMessageId`: kotlin.ULong?) : kotlin.ULong
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `ensureSynced`()
 
     override fun `enterBackground`()
     
@@ -2408,6 +2417,11 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `syncMessagesInBackground`()
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `syncState`() : SyncStateSnapshot
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -5066,6 +5080,26 @@ data class SyncPayloadEntry (
 
 
 
+data class SyncStateSnapshot (
+    var `phase`: SyncPhase
+        , 
+    var `runKind`: SyncRunKind?
+         = null , 
+    var `attempt`: kotlin.UInt
+        , 
+    var `errorCode`: kotlin.UInt?
+         = null , 
+    var `message`: kotlin.String?
+         = null , 
+    var `updatedAtMs`: kotlin.Long
+        
+) {
+    
+    companion object
+}
+
+
+
 data class SyncSubmitInput (
     var `localMessageId`: kotlin.ULong
         , 
@@ -5777,6 +5811,12 @@ sealed class SdkEvent {
         
     }
     
+    
+    data class SyncStateChanged(
+        val `state`: SyncStateSnapshot  ) : SdkEvent() {
+        
+    }
+    
     @kotlinx.serialization.Serializable
     object ResumeSyncStarted : SdkEvent() 
     
@@ -6015,6 +6055,35 @@ sealed class SdkEvent {
 
 
 
+enum class SyncPhase {
+    
+    IDLE,
+    SYNCING,
+    SYNCED,
+    RETRYING,
+    FAILED_TERMINAL;
+    companion object
+}
+
+
+
+
+
+
+
+enum class SyncRunKind {
+    
+    BOOTSTRAP,
+    RESUME;
+    companion object
+}
+
+
+
+
+
+
+
 enum class TransportProtocol {
     
     QUIC,
@@ -6052,6 +6121,8 @@ interface VideoProcessHook {
     
     companion object
 }
+
+
 
 
 

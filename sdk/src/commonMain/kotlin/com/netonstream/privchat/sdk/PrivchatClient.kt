@@ -2,6 +2,7 @@ package com.netonstream.privchat.sdk
 
 import com.netonstream.privchat.sdk.dto.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 /**
  * 解析服务器 URL 为 ServerEndpoint（使用 SDK 内置解析逻辑）
@@ -173,6 +174,13 @@ expect class PrivchatClient private constructor() {
     suspend fun syncGroupMembers(groupId: ULong): Result<Unit>
 
     // ========== Sync ==========
+    /** Single SDK-owned entry point for bootstrap or resume synchronization. */
+    suspend fun ensureSynced(): Result<Unit>
+    /** Current typed snapshot owned by the Rust SyncCoordinator. */
+    suspend fun syncState(): Result<SyncState>
+    /** Declarative polling-backed view; Rust remains the authoritative state owner. */
+    val syncStateFlow: StateFlow<SyncState>
+    /** Compatibility API. New code should call [ensureSynced]. */
     suspend fun runBootstrapSync(): Result<Unit>
     fun runBootstrapSyncInBackground()
     suspend fun isBootstrapCompleted(): Result<Boolean>

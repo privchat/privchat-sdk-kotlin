@@ -853,6 +853,10 @@ get() = useContents { `uniffiFree`/* test  Any? */}
 
 
 
+
+
+
+
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -986,6 +990,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_text(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`fromUid`: Long,`content`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_text_with_local_id(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`fromUid`: Long,`content`: RustBufferByValue,`localMessageId`: RustBufferByValue,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_ensure_synced(`ptr`: Pointer?,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_enter_background(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
     ): Unit
@@ -1453,6 +1459,8 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_messages_in_background(`ptr`: Pointer?,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_state(`ptr`: Pointer?,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_submit_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_timeline_events_since(`ptr`: Pointer?,`sequenceId`: Long,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus, 
@@ -1766,6 +1774,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_text(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_text_with_local_id(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_ensure_synced(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enter_background(
     ): Short
@@ -2233,6 +2243,8 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_messages_in_background(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_state(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_submit_remote(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_timeline_events_since(
@@ -2548,6 +2560,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_text_with_local_id(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`fromUid`: Long,`content`: RustBufferByValue,`localMessageId`: RustBufferByValue,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_text_with_local_id(`ptr`?.inner,`channelId`,`channelType`,`fromUid`,`content` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`localMessageId` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_ensure_synced(`ptr`: Pointer?,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_ensure_synced(`ptr`?.inner,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_enter_background(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
     ): Unit
@@ -3481,6 +3497,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_messages_in_background(`ptr`?.inner,)as Long
     
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_state(`ptr`: Pointer?,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_state(`ptr`?.inner,)as Long
+    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_submit_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_submit_remote(`ptr`?.inner,`payload` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
@@ -4108,6 +4128,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_text_with_local_id(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_text_with_local_id()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_ensure_synced(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_ensure_synced()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enter_background(
     ): Short
@@ -5040,6 +5064,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_messages_in_background(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_messages_in_background()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_state(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_state()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_submit_remote(
     ): Short
@@ -6752,6 +6780,29 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_u64(future) },
         // lift function
         { FfiConverterULong.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `ensureSynced`() {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_ensure_synced(
+                thisPtr,
+                
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
+        // lift function
+        { Unit },
+        
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -11688,6 +11739,28 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `syncState`() : SyncStateSnapshot {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_state(
+                thisPtr,
+                
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterTypeSyncStateSnapshot.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `syncSubmitRemote`(`payload`: SyncSubmitInput) : SyncSubmitView {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
@@ -16456,6 +16529,40 @@ object FfiConverterTypeSyncPayloadEntry: FfiConverterRustBuffer<SyncPayloadEntry
 
 
 
+object FfiConverterTypeSyncStateSnapshot: FfiConverterRustBuffer<SyncStateSnapshot> {
+    override fun read(buf: ByteBuffer): SyncStateSnapshot {
+        return SyncStateSnapshot(
+            FfiConverterTypeSyncPhase.read(buf),
+            FfiConverterOptionalTypeSyncRunKind.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterOptionalUInt.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterLong.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: SyncStateSnapshot) = (
+            FfiConverterTypeSyncPhase.allocationSize(value.`phase`) +
+            FfiConverterOptionalTypeSyncRunKind.allocationSize(value.`runKind`) +
+            FfiConverterUInt.allocationSize(value.`attempt`) +
+            FfiConverterOptionalUInt.allocationSize(value.`errorCode`) +
+            FfiConverterOptionalString.allocationSize(value.`message`) +
+            FfiConverterLong.allocationSize(value.`updatedAtMs`)
+    )
+
+    override fun write(value: SyncStateSnapshot, buf: ByteBuffer) {
+            FfiConverterTypeSyncPhase.write(value.`phase`, buf)
+            FfiConverterOptionalTypeSyncRunKind.write(value.`runKind`, buf)
+            FfiConverterUInt.write(value.`attempt`, buf)
+            FfiConverterOptionalUInt.write(value.`errorCode`, buf)
+            FfiConverterOptionalString.write(value.`message`, buf)
+            FfiConverterLong.write(value.`updatedAtMs`, buf)
+    }
+}
+
+
+
+
 object FfiConverterTypeSyncSubmitInput: FfiConverterRustBuffer<SyncSubmitInput> {
     override fun read(buf: ByteBuffer): SyncSubmitInput {
         return SyncSubmitInput(
@@ -17614,20 +17721,23 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
             2 -> SdkEvent.BootstrapCompleted(
                 FfiConverterULong.read(buf),
                 )
-            3 -> SdkEvent.ResumeSyncStarted
-            4 -> SdkEvent.ResumeSyncCompleted(
+            3 -> SdkEvent.SyncStateChanged(
+                FfiConverterTypeSyncStateSnapshot.read(buf),
+                )
+            4 -> SdkEvent.ResumeSyncStarted
+            5 -> SdkEvent.ResumeSyncCompleted(
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            5 -> SdkEvent.ResumeSyncFailed(
+            6 -> SdkEvent.ResumeSyncFailed(
                 FfiConverterTypeResumeFailureClass.read(buf),
                 FfiConverterTypeResumeEscalationScope.read(buf),
                 FfiConverterUInt.read(buf),
                 FfiConverterString.read(buf),
                 )
-            6 -> SdkEvent.ResumeSyncEscalated(
+            7 -> SdkEvent.ResumeSyncEscalated(
                 FfiConverterTypeResumeFailureClass.read(buf),
                 FfiConverterTypeResumeEscalationScope.read(buf),
                 FfiConverterString.read(buf),
@@ -17635,16 +17745,16 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterOptionalULong.read(buf),
                 FfiConverterOptionalInt.read(buf),
                 )
-            7 -> SdkEvent.ResumeSyncChannelStarted(
+            8 -> SdkEvent.ResumeSyncChannelStarted(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 )
-            8 -> SdkEvent.ResumeSyncChannelCompleted(
+            9 -> SdkEvent.ResumeSyncChannelCompleted(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            9 -> SdkEvent.ResumeSyncChannelFailed(
+            10 -> SdkEvent.ResumeSyncChannelFailed(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterTypeResumeFailureClass.read(buf),
@@ -17652,53 +17762,53 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterUInt.read(buf),
                 FfiConverterString.read(buf),
                 )
-            10 -> SdkEvent.SyncEntitiesApplied(
+            11 -> SdkEvent.SyncEntitiesApplied(
                 FfiConverterString.read(buf),
                 FfiConverterOptionalString.read(buf),
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            11 -> SdkEvent.SyncEntityChanged(
+            12 -> SdkEvent.SyncEntityChanged(
                 FfiConverterString.read(buf),
                 FfiConverterString.read(buf),
                 FfiConverterBoolean.read(buf),
                 )
-            12 -> SdkEvent.SyncChannelApplied(
+            13 -> SdkEvent.SyncChannelApplied(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            13 -> SdkEvent.SyncAllChannelsApplied(
+            14 -> SdkEvent.SyncAllChannelsApplied(
                 FfiConverterULong.read(buf),
                 )
-            14 -> SdkEvent.NetworkHintChanged(
+            15 -> SdkEvent.NetworkHintChanged(
                 FfiConverterTypeNetworkHint.read(buf),
                 FfiConverterTypeNetworkHint.read(buf),
                 )
-            15 -> SdkEvent.OutboundQueueUpdated(
+            16 -> SdkEvent.OutboundQueueUpdated(
                 FfiConverterString.read(buf),
                 FfiConverterString.read(buf),
                 FfiConverterOptionalULong.read(buf),
                 FfiConverterOptionalULong.read(buf),
                 )
-            16 -> SdkEvent.TimelineUpdated(
+            17 -> SdkEvent.TimelineUpdated(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterULong.read(buf),
                 FfiConverterString.read(buf),
                 )
-            17 -> SdkEvent.MessageSendStatusChanged(
+            18 -> SdkEvent.MessageSendStatusChanged(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterOptionalULong.read(buf),
                 )
-            18 -> SdkEvent.TypingSent(
+            19 -> SdkEvent.TypingSent(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterBoolean.read(buf),
                 )
-            19 -> SdkEvent.SubscriptionMessageReceived(
+            20 -> SdkEvent.SubscriptionMessageReceived(
                 FfiConverterULong.read(buf),
                 FfiConverterOptionalString.read(buf),
                 FfiConverterByteArray.read(buf),
@@ -17706,24 +17816,24 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterOptionalULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            20 -> SdkEvent.PeerReadPtsAdvanced(
+            21 -> SdkEvent.PeerReadPtsAdvanced(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            21 -> SdkEvent.MessageDelivered(
+            22 -> SdkEvent.MessageDelivered(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            22 -> SdkEvent.MediaDownloadStateChanged(
+            23 -> SdkEvent.MediaDownloadStateChanged(
                 FfiConverterULong.read(buf),
                 FfiConverterTypeMediaDownloadState.read(buf),
                 )
-            23 -> SdkEvent.MediaJobRequested(
+            24 -> SdkEvent.MediaJobRequested(
                 FfiConverterString.read(buf),
                 FfiConverterString.read(buf),
                 FfiConverterString.read(buf),
@@ -17732,20 +17842,20 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            24 -> SdkEvent.TokenRefreshed(
+            25 -> SdkEvent.TokenRefreshed(
                 FfiConverterULong.read(buf),
                 )
-            25 -> SdkEvent.AccessTokenRefreshNeeded(
+            26 -> SdkEvent.AccessTokenRefreshNeeded(
                 FfiConverterUInt.read(buf),
                 FfiConverterString.read(buf),
                 )
-            26 -> SdkEvent.ForcedLogout(
+            27 -> SdkEvent.ForcedLogout(
                 FfiConverterUInt.read(buf),
                 FfiConverterString.read(buf),
                 FfiConverterTypeForcedLogoutSource.read(buf),
                 )
-            27 -> SdkEvent.ShutdownStarted
-            28 -> SdkEvent.ShutdownCompleted
+            28 -> SdkEvent.ShutdownStarted
+            29 -> SdkEvent.ShutdownCompleted
             else -> throw RuntimeException("invalid enum value, something is very wrong!!")
         }
     }
@@ -17764,6 +17874,13 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
             (
                 4UL
                 + FfiConverterULong.allocationSize(value.`userId`)
+            )
+        }
+        is SdkEvent.SyncStateChanged -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterTypeSyncStateSnapshot.allocationSize(value.`state`)
             )
         }
         is SdkEvent.ResumeSyncStarted -> {
@@ -18020,12 +18137,17 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterULong.write(value.`userId`, buf)
                 Unit
             }
-            is SdkEvent.ResumeSyncStarted -> {
+            is SdkEvent.SyncStateChanged -> {
                 buf.putInt(3)
+                FfiConverterTypeSyncStateSnapshot.write(value.`state`, buf)
+                Unit
+            }
+            is SdkEvent.ResumeSyncStarted -> {
+                buf.putInt(4)
                 Unit
             }
             is SdkEvent.ResumeSyncCompleted -> {
-                buf.putInt(4)
+                buf.putInt(5)
                 FfiConverterULong.write(value.`entityTypesSynced`, buf)
                 FfiConverterULong.write(value.`channelsScanned`, buf)
                 FfiConverterULong.write(value.`channelsApplied`, buf)
@@ -18033,7 +18155,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.ResumeSyncFailed -> {
-                buf.putInt(5)
+                buf.putInt(6)
                 FfiConverterTypeResumeFailureClass.write(value.`classification`, buf)
                 FfiConverterTypeResumeEscalationScope.write(value.`scope`, buf)
                 FfiConverterUInt.write(value.`errorCode`, buf)
@@ -18041,7 +18163,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.ResumeSyncEscalated -> {
-                buf.putInt(6)
+                buf.putInt(7)
                 FfiConverterTypeResumeFailureClass.write(value.`classification`, buf)
                 FfiConverterTypeResumeEscalationScope.write(value.`scope`, buf)
                 FfiConverterString.write(value.`reason`, buf)
@@ -18051,20 +18173,20 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.ResumeSyncChannelStarted -> {
-                buf.putInt(7)
+                buf.putInt(8)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterInt.write(value.`channelType`, buf)
                 Unit
             }
             is SdkEvent.ResumeSyncChannelCompleted -> {
-                buf.putInt(8)
+                buf.putInt(9)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterInt.write(value.`channelType`, buf)
                 FfiConverterULong.write(value.`applied`, buf)
                 Unit
             }
             is SdkEvent.ResumeSyncChannelFailed -> {
-                buf.putInt(9)
+                buf.putInt(10)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterInt.write(value.`channelType`, buf)
                 FfiConverterTypeResumeFailureClass.write(value.`classification`, buf)
@@ -18074,7 +18196,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.SyncEntitiesApplied -> {
-                buf.putInt(10)
+                buf.putInt(11)
                 FfiConverterString.write(value.`entityType`, buf)
                 FfiConverterOptionalString.write(value.`scope`, buf)
                 FfiConverterULong.write(value.`queued`, buf)
@@ -18083,32 +18205,32 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.SyncEntityChanged -> {
-                buf.putInt(11)
+                buf.putInt(12)
                 FfiConverterString.write(value.`entityType`, buf)
                 FfiConverterString.write(value.`entityId`, buf)
                 FfiConverterBoolean.write(value.`deleted`, buf)
                 Unit
             }
             is SdkEvent.SyncChannelApplied -> {
-                buf.putInt(12)
+                buf.putInt(13)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterInt.write(value.`channelType`, buf)
                 FfiConverterULong.write(value.`applied`, buf)
                 Unit
             }
             is SdkEvent.SyncAllChannelsApplied -> {
-                buf.putInt(13)
+                buf.putInt(14)
                 FfiConverterULong.write(value.`applied`, buf)
                 Unit
             }
             is SdkEvent.NetworkHintChanged -> {
-                buf.putInt(14)
+                buf.putInt(15)
                 FfiConverterTypeNetworkHint.write(value.`from`, buf)
                 FfiConverterTypeNetworkHint.write(value.`to`, buf)
                 Unit
             }
             is SdkEvent.OutboundQueueUpdated -> {
-                buf.putInt(15)
+                buf.putInt(16)
                 FfiConverterString.write(value.`kind`, buf)
                 FfiConverterString.write(value.`action`, buf)
                 FfiConverterOptionalULong.write(value.`messageId`, buf)
@@ -18116,7 +18238,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.TimelineUpdated -> {
-                buf.putInt(16)
+                buf.putInt(17)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterInt.write(value.`channelType`, buf)
                 FfiConverterULong.write(value.`messageId`, buf)
@@ -18124,21 +18246,21 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.MessageSendStatusChanged -> {
-                buf.putInt(17)
+                buf.putInt(18)
                 FfiConverterULong.write(value.`messageId`, buf)
                 FfiConverterInt.write(value.`status`, buf)
                 FfiConverterOptionalULong.write(value.`serverMessageId`, buf)
                 Unit
             }
             is SdkEvent.TypingSent -> {
-                buf.putInt(18)
+                buf.putInt(19)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterInt.write(value.`channelType`, buf)
                 FfiConverterBoolean.write(value.`isTyping`, buf)
                 Unit
             }
             is SdkEvent.SubscriptionMessageReceived -> {
-                buf.putInt(19)
+                buf.putInt(20)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterOptionalString.write(value.`topic`, buf)
                 FfiConverterByteArray.write(value.`payload`, buf)
@@ -18148,7 +18270,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.PeerReadPtsAdvanced -> {
-                buf.putInt(20)
+                buf.putInt(21)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterInt.write(value.`channelType`, buf)
                 FfiConverterULong.write(value.`readerId`, buf)
@@ -18156,7 +18278,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.MessageDelivered -> {
-                buf.putInt(21)
+                buf.putInt(22)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterInt.write(value.`channelType`, buf)
                 FfiConverterULong.write(value.`messageId`, buf)
@@ -18165,13 +18287,13 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.MediaDownloadStateChanged -> {
-                buf.putInt(22)
+                buf.putInt(23)
                 FfiConverterULong.write(value.`messageId`, buf)
                 FfiConverterTypeMediaDownloadState.write(value.`state`, buf)
                 Unit
             }
             is SdkEvent.MediaJobRequested -> {
-                buf.putInt(23)
+                buf.putInt(24)
                 FfiConverterString.write(value.`jobId`, buf)
                 FfiConverterString.write(value.`jobKind`, buf)
                 FfiConverterString.write(value.`sourcePath`, buf)
@@ -18182,32 +18304,72 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.TokenRefreshed -> {
-                buf.putInt(24)
+                buf.putInt(25)
                 FfiConverterULong.write(value.`expiresAt`, buf)
                 Unit
             }
             is SdkEvent.AccessTokenRefreshNeeded -> {
-                buf.putInt(25)
+                buf.putInt(26)
                 FfiConverterUInt.write(value.`code`, buf)
                 FfiConverterString.write(value.`message`, buf)
                 Unit
             }
             is SdkEvent.ForcedLogout -> {
-                buf.putInt(26)
+                buf.putInt(27)
                 FfiConverterUInt.write(value.`code`, buf)
                 FfiConverterString.write(value.`message`, buf)
                 FfiConverterTypeForcedLogoutSource.write(value.`source`, buf)
                 Unit
             }
             is SdkEvent.ShutdownStarted -> {
-                buf.putInt(27)
-                Unit
-            }
-            is SdkEvent.ShutdownCompleted -> {
                 buf.putInt(28)
                 Unit
             }
+            is SdkEvent.ShutdownCompleted -> {
+                buf.putInt(29)
+                Unit
+            }
         }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }
+    }
+}
+
+
+
+
+
+
+
+object FfiConverterTypeSyncPhase: FfiConverterRustBuffer<SyncPhase> {
+    override fun read(buf: ByteBuffer) = try {
+        SyncPhase.values()[buf.getInt() - 1]
+    } catch (e: IndexOutOfBoundsException) {
+        throw RuntimeException("invalid enum value, something is very wrong!!", e)
+    }
+
+    override fun allocationSize(value: SyncPhase) = 4UL
+
+    override fun write(value: SyncPhase, buf: ByteBuffer) {
+        buf.putInt(value.ordinal + 1)
+    }
+}
+
+
+
+
+
+
+
+object FfiConverterTypeSyncRunKind: FfiConverterRustBuffer<SyncRunKind> {
+    override fun read(buf: ByteBuffer) = try {
+        SyncRunKind.values()[buf.getInt() - 1]
+    } catch (e: IndexOutOfBoundsException) {
+        throw RuntimeException("invalid enum value, something is very wrong!!", e)
+    }
+
+    override fun allocationSize(value: SyncRunKind) = 4UL
+
+    override fun write(value: SyncRunKind, buf: ByteBuffer) {
+        buf.putInt(value.ordinal + 1)
     }
 }
 
@@ -18873,6 +19035,35 @@ public object FfiConverterOptionalTypeSdkEvent: FfiConverterRustBuffer<SdkEvent?
         } else {
             buf.put(1)
             FfiConverterTypeSdkEvent.write(value, buf)
+        }
+    }
+}
+
+
+
+
+public object FfiConverterOptionalTypeSyncRunKind: FfiConverterRustBuffer<SyncRunKind?> {
+    override fun read(buf: ByteBuffer): SyncRunKind? {
+        if (buf.get().toInt() == 0) {
+            return null
+        }
+        return FfiConverterTypeSyncRunKind.read(buf)
+    }
+
+    override fun allocationSize(value: SyncRunKind?): ULong {
+        if (value == null) {
+            return 1UL
+        } else {
+            return 1UL + FfiConverterTypeSyncRunKind.allocationSize(value)
+        }
+    }
+
+    override fun write(value: SyncRunKind?, buf: ByteBuffer) {
+        if (value == null) {
+            buf.put(0)
+        } else {
+            buf.put(1)
+            FfiConverterTypeSyncRunKind.write(value, buf)
         }
     }
 }
