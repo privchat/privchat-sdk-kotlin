@@ -35,6 +35,7 @@ import uniffi.privchat_sdk_ffi.LoginResult
 import uniffi.privchat_sdk_ffi.ContactCardMessageInput as CoreContactCardMessageInput
 import uniffi.privchat_sdk_ffi.LinkMessageInput as CoreLinkMessageInput
 import uniffi.privchat_sdk_ffi.LocationMessageInput as CoreLocationMessageInput
+import uniffi.privchat_sdk_ffi.LocalAttachmentMetadataInput
 import uniffi.privchat_sdk_ffi.NewMessage
 import uniffi.privchat_sdk_ffi.PresenceStatus
 import uniffi.privchat_sdk_ffi.PrivchatClient as CorePrivchatClient
@@ -495,13 +496,12 @@ actual class PrivchatClient private actual constructor() {
             mediaDownloaded = false,
             thumbStatus = 0,
         )
-        val optionsJson = buildJsonObject {
-            this["in_reply_to_message_id"] = options.inReplyToMessageId
-            this["mentions"] = options.mentions
-            this["silent"] = options.silent
-            this["extra_json"] = options.extraJson
-        }
-        val typedOptions = SendMessageOptionsInput(optionsJson = optionsJson)
+        val typedOptions = SendMessageOptionsInput(
+            inReplyToMessageId = options.inReplyToMessageId,
+            mentionedUserIds = options.mentions,
+            silent = options.silent,
+            extraJson = options.extraJson,
+        )
         return runCatching { c.sendMessageWithOptions(input, typedOptions) }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("sendText(options) failed", it)) },
@@ -1592,19 +1592,7 @@ actual class PrivchatClient private actual constructor() {
         reason: String?,
     ): Result<Boolean> {
         val c = requireClient().getOrElse { return Result.failure(it) }
-        return runCatching {
-            // P6-3 薄路：typed FFI handle 入参 approvalId:u64 与 server UUID request_id 不匹配，
-            // 改走通用 rpcCall 透传正确 UUID（GROUP_APPROVAL_FFI_UUID_CLEANUP 修复后内部切回 typed）。
-            val operatorId = c.requireCurrentUserId()
-            val body = buildJsonObject {
-                this["request_id"] = requestId
-                this["operator_id"] = operatorId
-                this["action"] = if (approve) "approve" else "reject"
-                this["reject_reason"] = reason
-            }
-            val resp = c.rpcCall("group/approval/handle", body)
-            (Json.parseToJsonElement(resp).jsonObject["success"] as? JsonPrimitive)?.booleanOrNull ?: false
-        }.fold(
+        return runCatching { c.groupApprovalHandleRemote(requestId, approve, reason) }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("handleGroupApproval failed", it)) },
         )
@@ -1779,97 +1767,15 @@ actual class PrivchatClient private actual constructor() {
         val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
         return runCatching {
             val channelType = resolveChannelType(c, channelId)
-            val messageType = inferAttachmentMessageType(path, null)
-            val srcFile = java.io.File(path)
-            val originalFilename = srcFile.name
-            val createdAtMs = System.currentTimeMillis()
-
-            val mime = guessMimeFromFilename(originalFilename)
-            val canonicalFilename = payloadFilename(mime, originalFilename)
-
-            // snowflake 仍然用来写 local_message_id 列（历史语义保留），UI/文件路径不再用它，统一用 DB 自增 id。
-            val localMessageId = c.generateLocalMessageId()
-
-            // 1. 视频先读时长/宽高（不抽帧），把这些元信息带进 extra。抽帧留到 /{dbid}/ 目录建好之后。
-            val videoDims = if (messageType == ContentMessageType.VIDEO.value) {
-                kotlinx.coroutines.withContext(Dispatchers.IO) { readVideoDimensions(path) }
-            } else null
-            val attachmentDuration: UInt? = videoDims?.durationSec?.toUInt()
-            val attachmentWidth: UInt? = videoDims?.width?.toUInt()
-            val attachmentHeight: UInt? = videoDims?.height?.toUInt()
-            val extraJson = if (videoDims != null) {
-                mergeVideoMetaIntoExtra(
-                    options?.extraJson,
-                    VideoMeta(videoDims.durationSec, videoDims.width, videoDims.height, thumbReady = false),
-                    originalFilename,
-                    mime,
-                )
-            } else {
-                options?.extraJson ?: "{}"
-            }
-
-            // 2. 静默 INSERT：只为了拿 DB 自增 id，不 emit 事件。
-            //    真正让 UI 看到这条消息的是后面 finalize 的 outbound_prep_complete。
-            //    这样气泡出现时就是完整态（content+thumb+media 都齐），不会有 "空气泡 → 带缩略图" 的闪动。
-            val insertedId = c.createLocalAttachmentPlaceholder(
-                NewMessage(
-                    channelId = channelId,
-                    channelType = channelType,
-                    fromUid = uid,
-                    messageType = messageType,
-                    content = "",
-                    searchableWord = originalFilename,
-                    setting = 0,
-                    extra = extraJson,
-                    mediaDownloaded = false,
-                    thumbStatus = 0,
-                ),
-                localMessageId,
-            )
-
-            // 3. 按 DB id 写文件 + 抽缩略图到规范目录。
-            val (localFilePath, videoMeta) = kotlinx.coroutines.withContext(Dispatchers.IO) {
-                val targetDir = c.getAttachmentTargetDir(uid, insertedId.toLong(), createdAtMs)
-                val targetFile = java.io.File(targetDir, canonicalFilename)
-                srcFile.copyTo(targetFile, overwrite = true)
-
-                val meta = if (messageType == ContentMessageType.VIDEO.value) {
-                    extractVideoMetadata(path, targetDir)
-                } else null
-
-                targetFile.absolutePath to meta
-            }
-
-            val thumbStatus = when {
-                messageType != ContentMessageType.VIDEO.value -> 0
-                videoMeta?.thumbReady == true -> 1
-                else -> 3
-            }
-
-            // 4. 文件已经落到 /{insertedId}/ 目录，一次性回写 content/thumb_status/media_downloaded
-            //    并 emit outbound_prep_complete，让 UI 把气泡里的路径换成真实文件。
-            c.finalizeLocalAttachment(insertedId, "file://$localFilePath", thumbStatus)
-            // 给 UI 订阅者一个 tick 吸收 outbound_prep_complete 事件，避免 modal dismiss
-            // 后 MessageEntry 还停留在空 content 的瞬时态。
-            kotlinx.coroutines.delay(32)
-
-            // 5. 关闭 loading 弹窗，气泡此时已有真实路径。
-            progress?.onPrepComplete()
-
-            // 6. 入队发送。
-            val routeKey = c.toClientEndpoint() ?: ""
-            val queueRef = c.sendAttachmentFromPath(insertedId, routeKey, localFilePath)
-            progress?.onProgress(1uL, 1uL)
-            queueRef.messageId to AttachmentInfo(
-                url = localFilePath,
-                mimeType = mime,
-                size = srcFile.length().toULong(),
-                thumbnailUrl = null,
-                filename = originalFilename,
-                fileId = null,
-                width = attachmentWidth,
-                height = attachmentHeight,
-                duration = attachmentDuration,
+            prepareAndEnqueueAttachment(
+                channelId = channelId,
+                channelType = channelType,
+                userId = uid,
+                sourcePath = path,
+                options = options,
+                progress = progress,
+                port = attachmentPreparationPort(c),
+                platform = androidAttachmentPlatform(),
             )
         }.fold(
             onSuccess = { Result.success(it) },
@@ -1982,24 +1888,6 @@ actual class PrivchatClient private actual constructor() {
         return (srcW * scale).toInt().coerceAtLeast(1) to (srcH * scale).toInt().coerceAtLeast(1)
     }
 
-    private fun mergeVideoMetaIntoExtra(
-        existing: String?,
-        meta: VideoMeta,
-        filename: String,
-        mime: String,
-    ): String {
-        val base = existing?.takeIf { it.isNotBlank() } ?: "{}"
-        val parsed = runCatching { Json.parseToJsonElement(base).jsonObject }.getOrNull()
-            ?: JsonObject(emptyMap())
-        val merged = parsed.toMutableMap()
-        meta.durationSec?.let { merged["duration"] = JsonPrimitive(it) }
-        meta.width?.let { merged["width"] = JsonPrimitive(it) }
-        meta.height?.let { merged["height"] = JsonPrimitive(it) }
-        merged.putIfAbsent("filename", JsonPrimitive(filename))
-        merged.putIfAbsent("mime", JsonPrimitive(mime))
-        return JsonObject(merged).toString()
-    }
-
     actual suspend fun sendVoiceFromPath(
         channelId: ULong,
         path: String,
@@ -2011,53 +1899,117 @@ actual class PrivchatClient private actual constructor() {
         val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
         return runCatching {
             val channelType = resolveChannelType(c, channelId)
-            val durationSec = (durationMs / 1000).coerceAtLeast(1)
-            val srcFile = java.io.File(path)
-            val originalFilename = srcFile.name
-            val createdAtMs = System.currentTimeMillis()
-
-            // Spec §7.5 v2: canonical payload filename
-            val mime = guessMimeFromFilename(originalFilename)
-            val canonicalFilename = payloadFilename(mime, originalFilename)
-
-            val messageId = c.createLocalMessage(
-                NewMessage(
-                    channelId = channelId,
-                    channelType = channelType,
-                    fromUid = uid,
-                    messageType = ContentMessageType.VOICE.value,
-                    content = "[语音] $durationSec\"",
-                    searchableWord = "",
-                    setting = 0,
-                    extra = """{"url":"$path","duration":$durationSec,"mime":"$mime","filename":"$originalFilename"}""",
-                    mediaDownloaded = false,
-                    thumbStatus = 0,
-                )
-            )
-            // 复制到 media_store 规范目录（使用 payload.{ext} 命名）
-            val targetDir = c.getAttachmentTargetDir(uid, messageId.toLong(), createdAtMs)
-            val targetFile = java.io.File(targetDir, canonicalFilename)
-            srcFile.copyTo(targetFile, overwrite = true)
-            val localFilePath = targetFile.absolutePath
-
-            val routeKey = c.toClientEndpoint() ?: ""
-            val queueRef = c.sendAttachmentFromPath(messageId, routeKey, localFilePath)
-            progress?.onProgress(1uL, 1uL)
-            queueRef.messageId to AttachmentInfo(
-                url = localFilePath,
-                mimeType = mime,
-                size = srcFile.length().toULong(),
-                thumbnailUrl = null,
-                filename = originalFilename,
-                fileId = null,
-                width = null,
-                height = null,
-                duration = durationSec.toUInt(),
+            prepareAndEnqueueAttachment(
+                channelId = channelId,
+                channelType = channelType,
+                userId = uid,
+                sourcePath = path,
+                options = options,
+                progress = progress,
+                port = attachmentPreparationPort(c),
+                platform = androidAttachmentPlatform(),
+                forcedMessageType = ContentMessageType.VOICE.value,
+                forcedDurationSeconds = (durationMs / 1000).coerceAtLeast(1).toUInt(),
             )
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("sendVoiceFromPath failed", it)) },
         )
+    }
+
+    private fun attachmentPreparationPort(c: CorePrivchatClient) = object : AttachmentPreparationPort {
+        override fun generateLocalMessageId(): ULong = c.generateLocalMessageId()
+        override fun nowEpochMillis(): Long = System.currentTimeMillis()
+
+        override suspend fun createPlaceholder(input: LocalAttachmentPlaceholder): ULong =
+            c.createLocalAttachmentPlaceholderTyped(
+                NewMessage(
+                    channelId = input.channelId,
+                    channelType = input.channelType,
+                    fromUid = input.fromUid,
+                    messageType = input.messageType,
+                    content = "",
+                    searchableWord = input.searchableWord,
+                    setting = 0,
+                    extra = "",
+                    mediaDownloaded = false,
+                    thumbStatus = 0,
+                ),
+                input.localMessageId,
+                LocalAttachmentMetadataInput(
+                    fileName = input.fileName,
+                    mimeType = input.mimeType,
+                    duration = input.video?.durationSeconds,
+                    width = input.video?.width,
+                    height = input.video?.height,
+                    thumbnailWidth = input.video?.thumbnailWidth,
+                    thumbnailHeight = input.video?.thumbnailHeight,
+                    extensionJson = input.extensionJson,
+                ),
+            )
+
+        override fun targetDirectory(userId: ULong, messageId: ULong, createdAtMs: Long): String =
+            c.getAttachmentTargetDir(userId, messageId.toLong(), createdAtMs)
+
+        override suspend fun finalizePlaceholder(messageId: ULong, localPath: String, thumbStatus: Int) {
+            c.finalizeLocalAttachment(messageId, "file://$localPath", thumbStatus)
+        }
+
+        override suspend fun discardPlaceholder(messageId: ULong) {
+            c.deleteMessageLocal(messageId)
+        }
+
+        override fun clientEndpoint(): String = c.toClientEndpoint() ?: ""
+
+        override suspend fun enqueue(messageId: ULong, routeKey: String, localPath: String): ULong =
+            c.sendAttachmentFromPath(messageId, routeKey, localPath).messageId
+    }
+
+    private fun androidAttachmentPlatform() = object : AttachmentPlatformOps {
+        override fun fileName(path: String): String = java.io.File(path).name
+
+        override suspend fun inspectVideo(path: String): AttachmentVideoMetadata =
+            kotlinx.coroutines.withContext(Dispatchers.IO) {
+                readVideoDimensions(path).let {
+                    AttachmentVideoMetadata(
+                        durationSeconds = it.durationSec?.toUInt(),
+                        width = it.width?.toUInt(),
+                        height = it.height?.toUInt(),
+                    )
+                }
+            }
+
+        override suspend fun materialize(
+            sourcePath: String,
+            targetDirectory: String,
+            targetFileName: String,
+            messageType: Int,
+        ): MaterializedAttachment = kotlinx.coroutines.withContext(Dispatchers.IO) {
+            val source = java.io.File(sourcePath)
+            val target = java.io.File(targetDirectory, targetFileName)
+            source.copyTo(target, overwrite = true)
+            val video = if (messageType == ContentMessageType.VIDEO.value) {
+                extractVideoMetadata(sourcePath, targetDirectory).let {
+                    AttachmentVideoMetadata(
+                        durationSeconds = it.durationSec?.toUInt(),
+                        width = it.width?.toUInt(),
+                        height = it.height?.toUInt(),
+                        thumbnailReady = it.thumbReady,
+                    )
+                }
+            } else null
+            MaterializedAttachment(target.absolutePath, target.length().toULong(), video)
+        }
+
+        override suspend fun materializeBytes(
+            data: ByteArray,
+            targetDirectory: String,
+            targetFileName: String,
+        ): MaterializedAttachment = kotlinx.coroutines.withContext(Dispatchers.IO) {
+            val target = java.io.File(targetDirectory, targetFileName)
+            target.writeBytes(data)
+            MaterializedAttachment(target.absolutePath, target.length().toULong())
+        }
     }
 
     actual suspend fun sendAttachmentBytes(
@@ -2072,45 +2024,17 @@ actual class PrivchatClient private actual constructor() {
         val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
         return runCatching {
             val channelType = resolveChannelType(c, channelId)
-            val messageType = inferAttachmentMessageType(filename, mimeType)
-            val createdAtMs = System.currentTimeMillis()
-
-            // Spec §7.5 v2: canonical payload filename
-            val canonicalFilename = payloadFilename(mimeType, filename)
-
-            val messageId = c.createLocalMessage(
-                NewMessage(
-                    channelId = channelId,
-                    channelType = channelType,
-                    fromUid = uid,
-                    messageType = messageType,
-                    content = filename,
-                    searchableWord = filename,
-                    setting = 0,
-                    extra = options?.extraJson ?: "{}",
-                    mediaDownloaded = false,
-                    thumbStatus = 0,
-                )
-            )
-            // 写入 media_store 规范目录（使用 payload.{ext} 命名）
-            val targetDir = c.getAttachmentTargetDir(uid, messageId.toLong(), createdAtMs)
-            val targetFile = java.io.File(targetDir, canonicalFilename)
-            targetFile.writeBytes(data)
-            val localFilePath = targetFile.absolutePath
-
-            val routeKey = c.toClientEndpoint() ?: ""
-            val queueRef = c.sendAttachmentFromPath(messageId, routeKey, localFilePath)
-            progress?.onProgress(data.size.toULong(), data.size.toULong())
-            queueRef.messageId to AttachmentInfo(
-                url = localFilePath,
+            prepareAndEnqueueAttachmentBytes(
+                channelId = channelId,
+                channelType = channelType,
+                userId = uid,
+                fileName = filename,
                 mimeType = mimeType,
-                size = data.size.toULong(),
-                thumbnailUrl = null,
-                filename = filename,
-                fileId = null,
-                width = null,
-                height = null,
-                duration = null,
+                data = data,
+                options = options,
+                progress = progress,
+                port = attachmentPreparationPort(c),
+                platform = androidAttachmentPlatform(),
             )
         }.fold(
             onSuccess = { Result.success(it) },
@@ -2440,22 +2364,6 @@ actual class PrivchatClient private actual constructor() {
         return "payload.bin"
     }
 
-    private fun inferAttachmentMessageType(pathOrName: String, mimeType: String?): Int {
-        val mime = mimeType?.trim()?.lowercase().orEmpty()
-        if (mime.startsWith("image/")) return ContentMessageType.IMAGE.value
-        if (mime.startsWith("video/")) return ContentMessageType.VIDEO.value
-
-        val ext = pathOrName
-            .substringAfterLast('/', pathOrName)
-            .substringAfterLast('.', "")
-            .lowercase()
-        return when (ext) {
-            "jpg", "jpeg", "png", "gif", "webp", "bmp", "heic", "heif" -> ContentMessageType.IMAGE.value
-            "mp4", "mov", "mkv", "avi", "webm", "m4v", "3gp" -> ContentMessageType.VIDEO.value
-            else -> ContentMessageType.FILE.value
-        }
-    }
-
     private fun toSdkError(prefix: String, t: Throwable): SdkError {
         return when (t) {
             is SdkError -> t
@@ -2751,40 +2659,12 @@ private fun JsonObject.uint(key: String): UInt? = prim(key)?.contentOrNull?.toUI
 private fun JsonObject.ulong(key: String): ULong? = prim(key)?.contentOrNull?.toULongOrNull()
 private fun JsonElement.asUlong(): ULong? = (this as? JsonPrimitive)?.contentOrNull?.toULongOrNull()
 
-private fun buildJsonObject(builder: MutableMap<String, JsonElement?>.() -> Unit): String {
-    val map = linkedMapOf<String, JsonElement?>().apply(builder)
-    val actual = map.mapNotNull { (k, v) -> if (v == null) null else k to v }.toMap()
-    return JsonObject(actual).toString()
-}
-
-private operator fun MutableMap<String, JsonElement?>.set(key: String, value: Any?) {
-    val element: JsonElement? = when (value) {
-        null -> null
-        is JsonElement -> value
-        is String -> JsonPrimitive(value)
-        is Boolean -> JsonPrimitive(value)
-        is ULong -> value.toJsonNumberPrimitive()
-        is UInt -> JsonPrimitive(value.toString())
-        is List<*> -> JsonArray(value.mapNotNull { it?.let { e -> JsonPrimitive(e.toString()) } })
-        else -> JsonPrimitive(value.toString())
-    }
-    put(key, element)
-}
-
 private fun SendMessageOptions.toStructuredSendOptionsInput(): StructuredSendOptionsInput? {
     if (inReplyToMessageId == null && mentions.isEmpty()) return null
     return StructuredSendOptionsInput(
         inReplyToMessageId = inReplyToMessageId,
         mentionedUserIds = mentions,
     )
-}
-
-private fun ULong.toJsonNumberPrimitive(): JsonPrimitive {
-    return if (this <= Long.MAX_VALUE.toULong()) {
-        JsonPrimitive(this.toLong())
-    } else {
-        JsonPrimitive(this.toString())
-    }
 }
 
 private fun CoreSyncPhase.toDto(): CoordinatorSyncPhase = when (this) {

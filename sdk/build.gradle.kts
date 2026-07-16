@@ -83,6 +83,10 @@ kotlin {
             implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
             implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
         }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+        }
         androidMain.dependencies {
             implementation("androidx.annotation:annotation:1.8.0")
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
@@ -98,6 +102,15 @@ android {
     buildFeatures { buildConfig = false }
     sourceSets["main"].jniLibs.srcDirs(layout.buildDirectory.dir("generated/jniLibs"))
 }
+
+val checkSdkLayering = tasks.register<Exec>("checkSdkLayering") {
+    group = "verification"
+    description = "Reject App-to-UniFFI bypasses, platform JSON contracts, and attachment lifecycle drift"
+    workingDir = rootProject.projectDir
+    commandLine("bash", rootProject.file("scripts/check-sdk-layering.sh").absolutePath)
+}
+
+tasks.matching { it.name == "check" }.configureEach { dependsOn(checkSdkLayering) }
 
 // ========== Privchat FFI 配置 ==========
 val os = OperatingSystem.current()!!
