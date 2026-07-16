@@ -38,3 +38,6 @@ sdk/build/generated/jniLibs/
 .repro-logs/
 sample/iosApp/iosApp.xcworkspace/xcuserdata/zoujiaqing.xcuserdatad/UserInterfaceState.xcuserstate
 sample/iosApp/iosApp.xcworkspace/xcuserdata/zoujiaqing.xcuserdatad/xcdebugger/
+
+# CocoaPods generated dependencies
+sample/iosApp/Pods/

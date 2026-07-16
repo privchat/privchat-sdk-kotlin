@@ -15,8 +15,8 @@ import com.tencent.kuikly.core.views.compose.Button
 import com.netonstream.privchat.sdk.kotlin.sample.base.BasePager
 import com.netonstream.privchat.sdk.kotlin.sample.lang.LangManager
 import com.netonstream.privchat.sdk.kotlin.sample.lang.MultiLingualPager
-import ccom.netonstream.privchat.sdk.kotlin.sample.pages.session.SessionsPage
-import ccom.netonstream.privchat.sdk.kotlin.sample.pages.friend.FriendsPage
+import com.netonstream.privchat.sdk.kotlin.sample.pages.session.SessionsPage
+import com.netonstream.privchat.sdk.kotlin.sample.pages.friend.FriendsPage
 import com.netonstream.privchat.sdk.kotlin.sample.pages.profile.ProfilePage
 import com.netonstream.privchat.sdk.kotlin.sample.theme.ThemeManager
 

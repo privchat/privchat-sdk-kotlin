@@ -1,12 +1,12 @@
 PODS:
-  - OpenKuiklyIOSRender (2.0.0)
+  - OpenKuiklyIOSRender (2.23.2)
   - sample (1.0)
   - SDWebImage (5.21.5):
     - SDWebImage/Core (= 5.21.5)
   - SDWebImage/Core (5.21.5)
 
 DEPENDENCIES:
-  - OpenKuiklyIOSRender (from `../../../KuiklyUI`)
+  - OpenKuiklyIOSRender (from `https://github.com/Tencent-TDS/KuiklyUI.git`, tag `2.23.2`)
   - sample (from `..`)
   - SDWebImage
 
@@ -16,15 +16,21 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   OpenKuiklyIOSRender:
-    :path: "../../../KuiklyUI"
+    :git: https://github.com/Tencent-TDS/KuiklyUI.git
+    :tag: 2.23.2
   sample:
     :path: ".."
 
+CHECKOUT OPTIONS:
+  OpenKuiklyIOSRender:
+    :git: https://github.com/Tencent-TDS/KuiklyUI.git
+    :tag: 2.23.2
+
 SPEC CHECKSUMS:
-  OpenKuiklyIOSRender: 0ea7064904d6b4e1fd4d0f3f63b3230dfc1584d0
+  OpenKuiklyIOSRender: 50e4242d91ea754c1693b8e218228a9a7b5c705d
   sample: 47edcde0aa96d25354ac5afb2cb25093433b5965
   SDWebImage: e9c98383c7572d713c1a0d7dd2783b10599b9838
 
-PODFILE CHECKSUM: c21ae92df0097aa36b67a96e66320bce86043098
+PODFILE CHECKSUM: 84ab7a05d729b89f8cc6d4bc11ce759bfa65d421
 
 COCOAPODS: 1.16.2
