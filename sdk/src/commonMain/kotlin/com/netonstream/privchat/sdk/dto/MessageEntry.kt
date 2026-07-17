@@ -18,7 +18,9 @@ data class MessageEntry(
     val channelId: ULong,
     val channelType: Int,
     val fromUid: ULong,
+    @Deprecated("Raw storage payload is SDK-internal; render body instead")
     val content: String,
+    val body: MessageContent = MessageContent(MessageContentKind.Text, content),
     val status: MessageStatus,
     val timestamp: ULong,
     /** 协议标准消息类型（privchat-protocol ContentMessageType） */

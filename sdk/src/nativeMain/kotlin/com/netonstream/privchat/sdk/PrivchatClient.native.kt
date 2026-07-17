@@ -2,6 +2,7 @@ package com.netonstream.privchat.sdk
 
 import com.netonstream.privchat.sdk.dto.*
 import com.netonstream.privchat.sdk.internal.toPage
+import com.netonstream.privchat.sdk.internal.toSdkMessageContent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -2192,6 +2193,7 @@ private fun StoredMessage.toCommonMessage(
     channelType = channelType,
     fromUid = fromUid,
     content = content,
+    body = body.toSdkMessageContent(),
     status = when (status) {
         0 -> MessageStatus.Pending
         1 -> MessageStatus.Sending
@@ -2238,6 +2240,8 @@ private fun StoredChannel.toCommonChannel() = ChannelListEntry(
         LatestChannelEvent(
             eventType = "message",
             content = it,
+            body = lastMessageBody?.toSdkMessageContent()
+                ?: MessageContent(MessageContentKind.Unknown, it),
             timestamp = lastMsgTimestamp.toULong(),
             messageType = lastMessageType,
             isRevoked = lastMessageIsRevoked,
