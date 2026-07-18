@@ -30,7 +30,10 @@ internal fun MessageContentBody.toSdkMessageContent() = MessageContent(
             type = when (entity.kind) {
                 "mention" -> MessageTextEntityType.Mention
                 "url" -> MessageTextEntityType.Url
-                else -> MessageTextEntityType.Phone
+                "phone" -> MessageTextEntityType.Phone
+                "number" -> MessageTextEntityType.Number
+                "email" -> MessageTextEntityType.Email
+                else -> MessageTextEntityType.Unknown
             },
             start = entity.start.toInt(),
             end = entity.end.toInt(),

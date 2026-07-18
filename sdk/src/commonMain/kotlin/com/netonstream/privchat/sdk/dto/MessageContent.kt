@@ -5,7 +5,7 @@ enum class MessageContentKind {
     Forward, RedPacket, MoneyTransfer, Unknown,
 }
 
-enum class MessageTextEntityType { Mention, Url, Phone }
+enum class MessageTextEntityType { Mention, Url, Phone, Number, Email, Unknown }
 
 data class MessageTextEntity(
     val type: MessageTextEntityType,
