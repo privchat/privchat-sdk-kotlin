@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -2070,6 +2072,51 @@ actual class PrivchatClient private actual constructor() {
         }.fold(
             onSuccess = { Result.success(Unit) },
             onFailure = { Result.failure(toSdkError("submitMediaJobResult failed", it)) },
+        )
+    }
+
+
+    actual suspend fun privacyGet(): Result<PrivacySettingsView> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val raw = c.rpcCall("account/privacy/get", "{}")
+            val obj = json.parseToJsonElement(raw).jsonObject
+            fun b(key: String, default: Boolean) =
+                (obj[key] as? JsonPrimitive)?.booleanOrNull ?: default
+            PrivacySettingsView(
+                allowAddByGroup = b("allow_add_by_group", true),
+                allowAddByCard = b("allow_add_by_card", true),
+                allowSearchByUsername = b("allow_search_by_username", true),
+                allowSearchByPhone = b("allow_search_by_phone", true),
+                allowSearchByQrcode = b("allow_search_by_qrcode", true),
+                allowReceiveMessageFromNonFriend = b("allow_receive_message_from_non_friend", true),
+                allowViewByNonFriend = b("allow_view_by_non_friend", false),
+            )
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("privacyGet failed", it)) },
+        )
+    }
+
+    actual suspend fun privacyUpdate(patch: PrivacySettingsPatch): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val body = buildJsonObject {
+                patch.allowAddByGroup?.let { put("allow_add_by_group", it) }
+                patch.allowAddByCard?.let { put("allow_add_by_card", it) }
+                patch.allowSearchByUsername?.let { put("allow_search_by_username", it) }
+                patch.allowSearchByPhone?.let { put("allow_search_by_phone", it) }
+                patch.allowSearchByQrcode?.let { put("allow_search_by_qrcode", it) }
+                patch.allowReceiveMessageFromNonFriend?.let {
+                    put("allow_receive_message_from_non_friend", it)
+                }
+                patch.allowViewByNonFriend?.let { put("allow_view_by_non_friend", it) }
+            }
+            c.rpcCall("account/privacy/update", body.toString())
+            true
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("privacyUpdate failed", it)) },
         )
     }
 

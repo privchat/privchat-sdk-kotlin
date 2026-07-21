@@ -428,7 +428,37 @@ expect class PrivchatClient private constructor() {
     /** Plan 2: reply to [SdkEventPayload] of type `media_job_requested`. */
     fun submitMediaJobResult(jobId: String, result: MediaJobResult): Result<Unit>
 
+    // ========== 隐私设置(PROFILE_VISIBILITY P2:「添加我的方式」) ==========
+
+    /** 读取自己的隐私设置(server account/privacy/get;通用 rpcCall 透传)。 */
+    suspend fun privacyGet(): Result<PrivacySettingsView>
+
+    /** 更新自己的隐私设置(部分字段;null=不修改)。 */
+    suspend fun privacyUpdate(patch: PrivacySettingsPatch): Result<Boolean>
+
     companion object {
         fun create(config: PrivchatConfig): Result<PrivchatClient>
     }
 }
+
+/** 个人隐私设置(PROFILE_VISIBILITY §2.5「添加我的方式」;server 权威)。 */
+data class PrivacySettingsView(
+    val allowAddByGroup: Boolean,
+    val allowAddByCard: Boolean,
+    val allowSearchByUsername: Boolean,
+    val allowSearchByPhone: Boolean,
+    val allowSearchByQrcode: Boolean,
+    val allowReceiveMessageFromNonFriend: Boolean,
+    val allowViewByNonFriend: Boolean,
+)
+
+/** 隐私设置增量更新;null 字段不动。 */
+data class PrivacySettingsPatch(
+    val allowAddByGroup: Boolean? = null,
+    val allowAddByCard: Boolean? = null,
+    val allowSearchByUsername: Boolean? = null,
+    val allowSearchByPhone: Boolean? = null,
+    val allowSearchByQrcode: Boolean? = null,
+    val allowReceiveMessageFromNonFriend: Boolean? = null,
+    val allowViewByNonFriend: Boolean? = null,
+)
