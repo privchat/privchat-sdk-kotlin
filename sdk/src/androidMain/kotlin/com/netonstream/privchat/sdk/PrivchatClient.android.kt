@@ -2248,6 +2248,35 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+
+    actual suspend fun userDetailVerdict(
+        targetUserId: ULong,
+        source: String,
+        sourceId: String,
+    ): Result<UserDetailVerdictView> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val body = buildJsonObject {
+                put("target_user_id", targetUserId.toLong())
+                put("source", source)
+                put("source_id", sourceId)
+            }
+            val raw = c.rpcCall("account/user/detail", body.toString())
+            val obj = json.parseToJsonElement(raw).jsonObject
+            UserDetailVerdictView(
+                isFriend = (obj["is_friend"] as? JsonPrimitive)?.booleanOrNull ?: false,
+                canAddFriend = (obj["can_add_friend"] as? JsonPrimitive)?.booleanOrNull ?: true,
+                denyReason = (obj["deny_reason"] as? JsonPrimitive)?.contentOrNull,
+                grantId = (obj["grant_id"] as? JsonPrimitive)?.contentOrNull,
+                username = (obj["username"] as? JsonPrimitive)?.contentOrNull ?: "",
+                nickname = (obj["nickname"] as? JsonPrimitive)?.contentOrNull,
+            )
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("userDetailVerdict failed", it)) },
+        )
+    }
+
     actual companion object {
         actual fun create(config: PrivchatConfig): Result<PrivchatClient> {
             if (config.serverEndpoints.isEmpty()) {

@@ -436,6 +436,17 @@ expect class PrivchatClient private constructor() {
     /** 更新自己的隐私设置(部分字段;null=不修改)。 */
     suspend fun privacyUpdate(patch: PrivacySettingsPatch): Result<Boolean>
 
+    /**
+     * 查看用户详情裁决(PROFILE_VISIBILITY §2.5):按已验证来源取服务端算好的
+     * can_add_friend/deny_reason(+view-grant)。UI 只据此显示/隐藏「添加好友」,
+     * 不得自行推断。
+     */
+    suspend fun userDetailVerdict(
+        targetUserId: ULong,
+        source: String,
+        sourceId: String,
+    ): Result<UserDetailVerdictView>
+
     companion object {
         fun create(config: PrivchatConfig): Result<PrivchatClient>
     }
@@ -461,4 +472,17 @@ data class PrivacySettingsPatch(
     val allowSearchByQrcode: Boolean? = null,
     val allowReceiveMessageFromNonFriend: Boolean? = null,
     val allowViewByNonFriend: Boolean? = null,
+)
+
+/** detail 时刻的加好友裁决快照(PROFILE_VISIBILITY §2.5)。 */
+data class UserDetailVerdictView(
+    val isFriend: Boolean,
+    val canAddFriend: Boolean,
+    /** group_policy / personal_privacy / blacklist / already_friend;null=可加 */
+    val denyReason: String?,
+    /** 查看凭证(10 分钟;可作 friend/apply 的 grant_id) */
+    val grantId: String?,
+    /** 投影后的 username(无权时空串) */
+    val username: String,
+    val nickname: String?,
 )
