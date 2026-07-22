@@ -299,6 +299,12 @@ expect class PrivchatClient private constructor() {
     /** 全员禁言开关（群主/管理员）。 */
     suspend fun groupMuteAll(groupId: ULong, enabled: Boolean): Result<GroupMuteAllView>
 
+    /** 设置成员角色（仅群主;role = "admin" | "member"）。 */
+    suspend fun groupSetMemberRole(groupId: ULong, userId: ULong, role: String): Result<Boolean>
+
+    /** 转让群主（仅群主;原群主降为普通成员）。 */
+    suspend fun groupTransferOwner(groupId: ULong, targetUserId: ULong): Result<Boolean>
+
     /** 群入群申请审批列表（P6-3；仅群主/管理员，服务端鉴权）。typed FFI。 */
     suspend fun listGroupApprovals(groupId: ULong): Result<GroupApprovalListView>
 

@@ -2149,6 +2149,30 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+
+    actual suspend fun groupSetMemberRole(
+        groupId: ULong,
+        userId: ULong,
+        role: String,
+    ): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.groupSetRoleRemote(groupId, userId, role); true }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("groupSetMemberRole failed", it)) },
+        )
+    }
+
+    actual suspend fun groupTransferOwner(
+        groupId: ULong,
+        targetUserId: ULong,
+    ): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.groupTransferOwnerRemote(groupId, targetUserId); true }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("groupTransferOwner failed", it)) },
+        )
+    }
+
     actual companion object {
         actual fun create(config: PrivchatConfig): Result<PrivchatClient> {
             if (config.serverEndpoints.isEmpty()) {
