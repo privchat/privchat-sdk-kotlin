@@ -2336,17 +2336,23 @@ private fun StoredChannel.toCommonChannel() = ChannelListEntry(
     isEncrypted = false,
     memberCount = this.memberCount,
     topic = channelRemark.takeIf { it.isNotBlank() },
-    latestEvent = lastMsgContent.takeIf { it.isNotBlank() }?.let {
+    // latestEvent 的存在性由「有没有最后一条消息」决定,**不能**由 content 非空决定:
+    // 无 caption 的图片/视频消息 content 就是空串,按 content 门闩会把 latestEvent
+    // 判成 null → 会话列表"有未读但预览空白"。typed body/messageType 足以渲染
+    // [图片] 等类型化预览(PreviewRenderer 单点收敛)。
+    latestEvent = if (lastMsgContent.isNotBlank() || lastMessageType != null ||
+        lastLocalMessageId > 0uL || lastMessageBody != null
+    ) {
         LatestChannelEvent(
             eventType = "message",
-            content = it,
+            content = lastMsgContent,
             body = lastMessageBody?.toSdkMessageContent()
-                ?: MessageContent(MessageContentKind.Unknown, it),
+                ?: MessageContent(MessageContentKind.Unknown, lastMsgContent),
             timestamp = lastMsgTimestamp.toULong(),
             messageType = lastMessageType,
             isRevoked = lastMessageIsRevoked,
         )
-    },
+    } else null,
     peerUserId = peerUserId,
 )
 
