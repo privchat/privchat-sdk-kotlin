@@ -22,4 +22,6 @@ data class ChannelListEntry(
     val peerUserType: Int? = null,
     /** DM 对端 username(配合语言包按 username 精确匹配)。 */
     val peerUsername: String? = null,
+    /** DM 对端头像 URL(本地 user 实体带出;channel.avatar 常为空时的真源)。 */
+    val peerAvatarUrl: String? = null,
 )

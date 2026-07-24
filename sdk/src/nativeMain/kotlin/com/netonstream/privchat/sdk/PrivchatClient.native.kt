@@ -386,6 +386,13 @@ actual class PrivchatClient private actual constructor() {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
             val snapshot = c.sessionSnapshot() ?: return@runCatching false
+            // 已认证：connect() 的自动重连已用持久化 session 完成握手。再调 authenticate 会在
+            // 服务端新建 session 顶替（session supersede + 多一轮 auth/sync），冷启动纯浪费——跳过。
+            if (c.connectionState() == CoreConnectionState.AUTHENTICATED) {
+                cachedUserId = snapshot.userId
+                cachedConnectionState = ConnectionState.Connected
+                return@runCatching true
+            }
             c.authenticate(snapshot.userId, snapshot.token, snapshot.deviceId)
             cachedUserId = snapshot.userId
             cachedConnectionState = ConnectionState.Connected
@@ -2362,6 +2369,7 @@ private fun StoredChannel.toCommonChannel() = ChannelListEntry(
     peerUserId = peerUserId,
     peerUserType = peerUserType,
     peerUsername = peerUsername,
+    peerAvatarUrl = peerAvatarUrl,
 )
 
 private fun StoredFriend.toCommonFriend(user: StoredUser?) = FriendEntry(

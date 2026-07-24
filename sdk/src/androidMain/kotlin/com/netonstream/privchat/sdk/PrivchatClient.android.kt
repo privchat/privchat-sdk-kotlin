@@ -391,6 +391,17 @@ actual class PrivchatClient private actual constructor() {
             println(
                 "[TRACE-A1][kotlin][restoreLocalSession] connectionState_before=$state"
             )
+            // 已认证：connect() 的自动重连已用持久化 session 完成握手。再调 authenticate 会在
+            // 服务端新建一个 session 顶替刚建立的（session supersede + 多一轮 auth/sync 往返），
+            // 冷启动纯浪费。直接视为已恢复，跳过重复 authenticate。
+            if (state == CoreConnectionState.AUTHENTICATED) {
+                println(
+                    "[TRACE-A1][kotlin][restoreLocalSession] already AUTHENTICATED, skip redundant authenticate"
+                )
+                cachedUserId = snapshot.userId
+                cachedConnectionState = ConnectionState.Connected
+                return@runCatching true
+            }
             if (state == CoreConnectionState.NEW || state == CoreConnectionState.SHUTDOWN) {
                 println("[TRACE-A1][kotlin][restoreLocalSession] calling c.connect() because state=$state")
                 c.connect()
@@ -2579,6 +2590,7 @@ private fun StoredChannel.toCommonChannel() = ChannelListEntry(
     peerUserId = peerUserId,
     peerUserType = peerUserType,
     peerUsername = peerUsername,
+    peerAvatarUrl = peerAvatarUrl,
 )
 
 private fun StoredFriend.toCommonFriend(user: StoredUser?) = FriendEntry(
