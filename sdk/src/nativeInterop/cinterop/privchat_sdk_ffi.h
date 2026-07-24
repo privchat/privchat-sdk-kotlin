@@ -168,7 +168,7 @@ void * uniffi_privchat_sdk_ffi_fn_constructor_privchatclient_new(RustBuffer conf
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_accept_friend_request(void * ptr, int64_t fromUserId, RustBuffer message
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_account_user_detail_remote(void * ptr, int64_t userId
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_account_user_detail_remote(void * ptr, int64_t userId, RustBuffer source, RustBuffer sourceId
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_account_user_share_card_remote(void * ptr, int64_t userId
 );

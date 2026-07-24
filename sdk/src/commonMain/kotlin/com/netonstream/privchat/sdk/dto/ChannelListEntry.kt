@@ -18,4 +18,8 @@ data class ChannelListEntry(
     val topic: String?,
     val latestEvent: LatestChannelEvent?,
     val peerUserId: ULong? = null,
+    /** DM 对端账号类型(本地 user 实体在场时带出;null=未知)。显示名单点判定依据。 */
+    val peerUserType: Int? = null,
+    /** DM 对端 username(配合语言包按 username 精确匹配)。 */
+    val peerUsername: String? = null,
 )

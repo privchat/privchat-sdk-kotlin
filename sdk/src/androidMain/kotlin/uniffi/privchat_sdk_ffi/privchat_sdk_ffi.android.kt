@@ -877,7 +877,7 @@ internal interface UniffiLib : Library {
     ): Pointer?
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_accept_friend_request(`ptr`: Pointer?,`fromUserId`: Long,`message`: RustBufferByValue,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_account_user_detail_remote(`ptr`: Pointer?,`userId`: Long,
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_account_user_detail_remote(`ptr`: Pointer?,`userId`: Long,`source`: RustBufferByValue,`sourceId`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_account_user_share_card_remote(`ptr`: Pointer?,`userId`: Long,
     ): Long
@@ -2352,7 +2352,7 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_accept_friend_request() != 30895.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_account_user_detail_remote() != 42103.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_account_user_detail_remote() != 19294.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_account_user_share_card_remote() != 12912.toShort()) {
@@ -3483,14 +3483,19 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     
+    /**
+     * [source]/[source_id]:资料可见性来源(PROFILE_VISIBILITY §2.5)。必须传
+     * **真实来源**——会话场景传 "conversation"+channel_id,好友场景传 "friend"。
+     * 历史实现固定谎报 friend,对非好友(如系统账号 DM 对端)必被闸口拒绝。
+     */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `accountUserDetailRemote`(`userId`: kotlin.ULong) : AccountUserDetailView {
+    actual override suspend fun `accountUserDetailRemote`(`userId`: kotlin.ULong, `source`: kotlin.String, `sourceId`: kotlin.String) : AccountUserDetailView {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_account_user_detail_remote(
                 thisPtr,
-                FfiConverterULong.lower(`userId`),
+                FfiConverterULong.lower(`userId`),FfiConverterString.lower(`source`),FfiConverterString.lower(`sourceId`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -13912,6 +13917,8 @@ object FfiConverterTypeStoredChannel: FfiConverterRustBuffer<StoredChannel> {
             FfiConverterUInt.read(buf),
             FfiConverterOptionalInt.read(buf),
             FfiConverterBoolean.read(buf),
+            FfiConverterOptionalInt.read(buf),
+            FfiConverterOptionalString.read(buf),
         )
     }
 
@@ -13932,7 +13939,9 @@ object FfiConverterTypeStoredChannel: FfiConverterRustBuffer<StoredChannel> {
             FfiConverterOptionalULong.allocationSize(value.`peerUserId`) +
             FfiConverterUInt.allocationSize(value.`memberCount`) +
             FfiConverterOptionalInt.allocationSize(value.`lastMessageType`) +
-            FfiConverterBoolean.allocationSize(value.`lastMessageIsRevoked`)
+            FfiConverterBoolean.allocationSize(value.`lastMessageIsRevoked`) +
+            FfiConverterOptionalInt.allocationSize(value.`peerUserType`) +
+            FfiConverterOptionalString.allocationSize(value.`peerUsername`)
     )
 
     override fun write(value: StoredChannel, buf: ByteBuffer) {
@@ -13953,6 +13962,8 @@ object FfiConverterTypeStoredChannel: FfiConverterRustBuffer<StoredChannel> {
             FfiConverterUInt.write(value.`memberCount`, buf)
             FfiConverterOptionalInt.write(value.`lastMessageType`, buf)
             FfiConverterBoolean.write(value.`lastMessageIsRevoked`, buf)
+            FfiConverterOptionalInt.write(value.`peerUserType`, buf)
+            FfiConverterOptionalString.write(value.`peerUsername`, buf)
     }
 }
 

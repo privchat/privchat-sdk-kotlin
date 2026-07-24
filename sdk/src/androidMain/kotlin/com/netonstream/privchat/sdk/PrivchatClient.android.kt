@@ -1296,21 +1296,27 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
-    actual suspend fun getUserProfileLocalFirst(userId: ULong): Result<SearchedUserDto> {
+    actual suspend fun getUserProfileLocalFirst(
+        userId: ULong,
+        sourceChannelId: ULong?,
+    ): Result<SearchedUserDto> {
         val c = requireClient().getOrElse { return Result.failure(it) }
+        // 真实来源(PROFILE_VISIBILITY §2.5):有会话上下文用 conversation,否则按好友。
+        val source = if (sourceChannelId != null) "conversation" else "friend"
+        val sourceId = (sourceChannelId ?: userId).toString()
         return runCatching {
             val local = c.getUserById(userId)
             if (local != null) {
                 // local-first: return immediately, refresh remote in background.
                 backgroundScope.launch {
                     runCatching {
-                        val remote = c.accountUserDetailRemote(userId)
+                        val remote = c.accountUserDetailRemote(userId, source, sourceId)
                         c.upsertUser(remote.toCoreUpsertUserInput(local))
                     }
                 }
                 local.toSearchedUserDto()
             } else {
-                val remote = c.accountUserDetailRemote(userId)
+                val remote = c.accountUserDetailRemote(userId, source, sourceId)
                 c.upsertUser(remote.toCoreUpsertUserInput(null))
                 remote.toSearchedUserDto()
             }
@@ -2571,6 +2577,8 @@ private fun StoredChannel.toCommonChannel() = ChannelListEntry(
         )
     } else null,
     peerUserId = peerUserId,
+    peerUserType = peerUserType,
+    peerUsername = peerUsername,
 )
 
 private fun StoredFriend.toCommonFriend(user: StoredUser?) = FriendEntry(

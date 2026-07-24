@@ -100,7 +100,12 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `acceptFriendRequest`(`fromUserId`: kotlin.ULong, `message`: kotlin.String?): kotlin.ULong
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `accountUserDetailRemote`(`userId`: kotlin.ULong): AccountUserDetailView
+    /**
+     * [source]/[source_id]:资料可见性来源(PROFILE_VISIBILITY §2.5)。必须传
+     * **真实来源**——会话场景传 "conversation"+channel_id,好友场景传 "friend"。
+     * 历史实现固定谎报 friend,对非好友(如系统账号 DM 对端)必被闸口拒绝。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `accountUserDetailRemote`(`userId`: kotlin.ULong, `source`: kotlin.String, `sourceId`: kotlin.String): AccountUserDetailView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `accountUserShareCardRemote`(`userId`: kotlin.ULong): AccountUserShareCardView
     
@@ -906,9 +911,14 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `acceptFriendRequest`(`fromUserId`: kotlin.ULong, `message`: kotlin.String?) : kotlin.ULong
 
     
+    /**
+     * [source]/[source_id]:资料可见性来源(PROFILE_VISIBILITY §2.5)。必须传
+     * **真实来源**——会话场景传 "conversation"+channel_id,好友场景传 "friend"。
+     * 历史实现固定谎报 friend,对非好友(如系统账号 DM 对端)必被闸口拒绝。
+     */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `accountUserDetailRemote`(`userId`: kotlin.ULong) : AccountUserDetailView
+    override suspend fun `accountUserDetailRemote`(`userId`: kotlin.ULong, `source`: kotlin.String, `sourceId`: kotlin.String) : AccountUserDetailView
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -4786,7 +4796,18 @@ data class StoredChannel (
      * 最后一条消息是否已撤回。
      */
     var `lastMessageIsRevoked`: kotlin.Boolean
-        
+        , 
+    /**
+     * DM 对端账号类型(本地 user 实体在场时带出;None=未知)。
+     * 显示名单点规则「userType==系统 → 按 username 查语言包」的数据前提。
+     */
+    var `peerUserType`: kotlin.Int?
+         = null , 
+    /**
+     * DM 对端 username(配合语言包按 username 精确匹配)。
+     */
+    var `peerUsername`: kotlin.String?
+         = null 
 ) {
     
     companion object

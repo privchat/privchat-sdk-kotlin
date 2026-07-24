@@ -213,7 +213,15 @@ expect class PrivchatClient private constructor() {
 
     // ========== Friends & Groups ==========
     suspend fun searchUsers(query: String): Result<List<UserEntry>>
-    suspend fun getUserProfileLocalFirst(userId: ULong): Result<SearchedUserDto>
+    /**
+     * local-first 用户资料。[sourceChannelId]:远程拉取时的资料可见性来源——
+     * 会话场景必须传共同会话 id(source=conversation,服务端矩阵按会话成员放行);
+     * 不传时按好友来源(仅对好友有效)。
+     */
+    suspend fun getUserProfileLocalFirst(
+        userId: ULong,
+        sourceChannelId: ULong? = null,
+    ): Result<SearchedUserDto>
     suspend fun listUsersByIds(userIds: List<ULong>): Result<List<UserEntry>>
     /** 关注 Bot：server 写 follow 表 + 通知 application 写 binding。详见 SERVICE_ACCOUNT_FOLLOW_SPEC §3.1。 */
     suspend fun followBot(botUserId: ULong): Result<BotFollowOutcome>
