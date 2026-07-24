@@ -2706,6 +2706,7 @@ private fun StoredGroupMember.toCommonGroupMember() = GroupMemberEntry(
     role = role,
     status = status,
     inviteUserId = 0uL,
+    joinedAt = joinedAt,
 )
 
 private fun PresenceStatus.toCommonPresence() = PresenceEntry(
