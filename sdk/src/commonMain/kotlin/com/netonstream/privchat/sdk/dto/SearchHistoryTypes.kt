@@ -55,3 +55,13 @@ data class MessagesAroundPage(
     val hasMoreBefore: Boolean,
     val hasMoreAfter: Boolean,
 )
+
+/**
+ * 上滑加载更早历史一页（SDK-HISTORY-5，MESSAGE_HISTORY spec §2.5/§2.5.1）。
+ * [messages]=本次回填的更早消息（已 upsert 本地库、显示序 DESC），UI prepend 到时间线头部；
+ * [hasMoreBefore]=服务端是否还有更早（**来自 SDK 持久化 gap 态**，false=到顶，UI 停止上滑加载）。
+ */
+data class MessageHistoryPage(
+    val messages: List<MessageEntry>,
+    val hasMoreBefore: Boolean,
+)

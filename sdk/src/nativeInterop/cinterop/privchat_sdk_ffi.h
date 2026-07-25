@@ -478,6 +478,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_unread_mention_mes
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_users_by_ids(void * ptr, RustBuffer userIds
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_load_older_history(void * ptr, int64_t channelId, int32_t channelType, int64_t beforeServerMessageId, int32_t limit
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_log_connection_state(void * ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_login(void * ptr, RustBuffer username, RustBuffer password, RustBuffer deviceId
@@ -1426,6 +1428,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_unread_menti
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_users_by_ids(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_load_older_history(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_log_connection_state(void

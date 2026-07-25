@@ -149,6 +149,21 @@ expect class PrivchatClient private constructor() {
         afterLimit: UInt = 25u,
     ): Result<List<MessageEntry>>
 
+    /**
+     * 上滑加载更早历史（SDK-HISTORY-5，MESSAGE_HISTORY spec §2.5/§2.5.1）。
+     * **架构（Telegram 式）**：聊天页读本地库为渲染真源；本地翻到最早时由 SDK 用
+     * `message/history/get` 只补缺口并回填本地（带真实 pts），再从本地重查返回。
+     * **gap 水位（has_more_before）由 SDK 持久化**，跨会话/重启有效——已到顶的会话不再空打
+     * 网络。服务端按会话成员鉴权、**不按入群时间截断**，成员可翻全部历史。
+     * [beforeServerMessageId]=当前已显示最早一条的 server_message_id（翻页游标）。
+     */
+    suspend fun fetchOlderHistory(
+        channelId: ULong,
+        channelType: Int,
+        beforeServerMessageId: ULong,
+        limit: UInt,
+    ): Result<MessageHistoryPage>
+
     // ========== Storage ==========
     suspend fun getMessages(channelId: ULong, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>>
     suspend fun getMessagesByType(channelId: ULong, channelType: Int, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>>

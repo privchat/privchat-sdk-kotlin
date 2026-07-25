@@ -834,6 +834,8 @@ internal val UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue.`uniffiF
 
 
 
+
+
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -1186,6 +1188,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_unread_mention_message_ids(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`userId`: Long,`limit`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_list_users_by_ids(`ptr`: Pointer?,`userIds`: RustBufferByValue,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_load_older_history(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`beforeServerMessageId`: Long,`limit`: Int,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_log_connection_state(`ptr`: Pointer?,
     ): Long
@@ -1972,6 +1976,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_unread_mention_message_ids(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_users_by_ids(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_load_older_history(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_log_connection_state(
     ): Short
@@ -2815,6 +2821,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_list_users_by_ids() != 60756.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_load_older_history() != 40256.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_log_connection_state() != 54128.toShort()) {
@@ -6811,6 +6820,34 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
         { FfiConverterSequenceTypeStoredUser.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * SDK-HISTORY-5（MESSAGE_HISTORY spec §2.5/§2.5.1）：上滑加载更早历史。
+     * 读本地为渲染真源、`message/history/get` 只补缺口并回填本地（带真实 pts）；
+     * gap 水位（has_more_before）由 SDK 持久化在 KV，跨会话有效。返回本次更早消息 +
+     * has_more_before（服务端是否还有更早，false=到顶，UI 停止继续上滑加载）。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `loadOlderHistory`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `beforeServerMessageId`: kotlin.ULong, `limit`: kotlin.UInt) : OlderHistoryView {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_load_older_history(
+                thisPtr,
+                FfiConverterULong.lower(`channelId`),FfiConverterInt.lower(`channelType`),FfiConverterULong.lower(`beforeServerMessageId`),FfiConverterUInt.lower(`limit`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterTypeOlderHistoryView.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -12906,6 +12943,28 @@ object FfiConverterTypeNewMessage: FfiConverterRustBuffer<NewMessage> {
             FfiConverterOptionalString.write(value.`mimeType`, buf)
             FfiConverterBoolean.write(value.`mediaDownloaded`, buf)
             FfiConverterInt.write(value.`thumbStatus`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeOlderHistoryView: FfiConverterRustBuffer<OlderHistoryView> {
+    override fun read(buf: ByteBuffer): OlderHistoryView {
+        return OlderHistoryView(
+            FfiConverterSequenceTypeStoredMessage.read(buf),
+            FfiConverterBoolean.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: OlderHistoryView) = (
+            FfiConverterSequenceTypeStoredMessage.allocationSize(value.`messages`) +
+            FfiConverterBoolean.allocationSize(value.`hasMoreBefore`)
+    )
+
+    override fun write(value: OlderHistoryView, buf: ByteBuffer) {
+            FfiConverterSequenceTypeStoredMessage.write(value.`messages`, buf)
+            FfiConverterBoolean.write(value.`hasMoreBefore`, buf)
     }
 }
 

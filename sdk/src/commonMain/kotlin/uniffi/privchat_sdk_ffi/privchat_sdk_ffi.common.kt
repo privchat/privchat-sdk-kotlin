@@ -475,6 +475,14 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `listUsersByIds`(`userIds`: List<kotlin.ULong>): List<StoredUser>
     
+    /**
+     * SDK-HISTORY-5（MESSAGE_HISTORY spec §2.5/§2.5.1）：上滑加载更早历史。
+     * 读本地为渲染真源、`message/history/get` 只补缺口并回填本地（带真实 pts）；
+     * gap 水位（has_more_before）由 SDK 持久化在 KV，跨会话有效。返回本次更早消息 +
+     * has_more_before（服务端是否还有更早，false=到顶，UI 停止继续上滑加载）。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `loadOlderHistory`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `beforeServerMessageId`: kotlin.ULong, `limit`: kotlin.UInt): OlderHistoryView
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `logConnectionState`(): ConnectionSummary
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `login`(`username`: kotlin.String, `password`: kotlin.String, `deviceId`: kotlin.String): LoginResult
@@ -1732,6 +1740,17 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `listUsersByIds`(`userIds`: List<kotlin.ULong>) : List<StoredUser>
+
+    
+    /**
+     * SDK-HISTORY-5（MESSAGE_HISTORY spec §2.5/§2.5.1）：上滑加载更早历史。
+     * 读本地为渲染真源、`message/history/get` 只补缺口并回填本地（带真实 pts）；
+     * gap 水位（has_more_before）由 SDK 持久化在 KV，跨会话有效。返回本次更早消息 +
+     * has_more_before（服务端是否还有更早，false=到顶，UI 停止继续上滑加载）。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `loadOlderHistory`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `beforeServerMessageId`: kotlin.ULong, `limit`: kotlin.UInt) : OlderHistoryView
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -4137,6 +4156,23 @@ data class NewMessage (
     var `mediaDownloaded`: kotlin.Boolean
         , 
     var `thumbStatus`: kotlin.Int
+        
+) {
+    
+    companion object
+}
+
+
+
+/**
+ * SDK-HISTORY-5：上滑加载更早历史一页（完整 StoredMessage，已回填本地）。
+ * [messages]=本次更早消息（本地重查、显示序 DESC）；[has_more_before]=服务端是否还有更早
+ * （来自 SDK 持久化 gap 态，UI 据此决定是否继续上滑，false=到顶）。
+ */
+data class OlderHistoryView (
+    var `messages`: List<StoredMessage>
+        , 
+    var `hasMoreBefore`: kotlin.Boolean
         
 ) {
     

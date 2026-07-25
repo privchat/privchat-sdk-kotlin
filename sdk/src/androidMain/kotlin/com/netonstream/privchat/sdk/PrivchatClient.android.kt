@@ -844,6 +844,25 @@ actual class PrivchatClient private actual constructor() {
             onFailure = { Result.failure(toSdkError("getLocalMessagesAround failed", it)) },
         )
     }
+    actual suspend fun fetchOlderHistory(
+        channelId: ULong,
+        channelType: Int,
+        beforeServerMessageId: ULong,
+        limit: UInt,
+    ): Result<com.netonstream.privchat.sdk.dto.MessageHistoryPage> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val view = c.loadOlderHistory(channelId, channelType, beforeServerMessageId, limit)
+            com.netonstream.privchat.sdk.dto.MessageHistoryPage(
+                messages = view.messages.map { it.toCommonMessage(c, cachedUserId) },
+                hasMoreBefore = view.hasMoreBefore,
+            )
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("fetchOlderHistory failed", it)) },
+        )
+    }
+
     actual suspend fun getMessages(channelId: ULong, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
