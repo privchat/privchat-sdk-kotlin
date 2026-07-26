@@ -2518,6 +2518,8 @@ private fun mapFfiCodeToSdkError(prefix: String, code: UInt, detail: String): Sd
     SdkErrorCodes.TRANSPORT_FAILURE -> SdkError.Network("$prefix: $detail", code.toInt())
     SdkErrorCodes.STORAGE_FAILURE -> SdkError.Database("$prefix: $detail")
     SdkErrorCodes.AUTH_FAILURE -> SdkError.Authentication("$prefix: $detail")
+    SdkErrorCodes.ATTACHMENT_SOURCE_MISSING -> SdkError.AttachmentSourceMissing("$prefix: $detail")
+    SdkErrorCodes.SESSION_NOT_READY -> SdkError.SessionNotReady("$prefix: $detail")
     SdkErrorCodes.INVALID_STATE -> SdkError.InvalidParameter("state", "$prefix: $detail")
     else -> {
         when (SdkErrorCodes.domain(code)) {

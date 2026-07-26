@@ -20,6 +20,10 @@ object SdkErrorCodes {
     const val STORAGE_FAILURE: UInt = 0x02000001u
     const val SERIALIZATION_FAILURE: UInt = 0x07000001u
     const val INVALID_STATE: UInt = 0x05000001u
+    /** 附件重试时本地源文件已不存在（Rust Core error_codes::ATTACHMENT_SOURCE_MISSING）。 */
+    const val ATTACHMENT_SOURCE_MISSING: UInt = 0x05000002u
+    /** 会话尚未鉴权（连接中/重连中）。可重试的时序状态。 */
+    const val SESSION_NOT_READY: UInt = 0x05000003u
     const val ACTOR_CLOSED: UInt = 0x06000001u
     const val SHUTDOWN: UInt = 0x08000001u
     const val INTERNAL_UNKNOWN: UInt = 0x0F000001u
