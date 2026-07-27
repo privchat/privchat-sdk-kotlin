@@ -209,8 +209,6 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `enqueueLocalMessage`(`input`: NewMessage): kotlin.ULong
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `enqueueOutboundFile`(`messageId`: kotlin.ULong, `routeKey`: kotlin.String, `payload`: kotlin.ByteArray): FileQueueRef
-    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `enqueueText`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String): kotlin.ULong
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `enqueueTextWithLocalId`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String, `localMessageId`: kotlin.ULong?): kotlin.ULong
@@ -681,10 +679,6 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `searchUsers`(`query`: kotlin.String): List<SearchUserEntry>
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `seenByForEvent`(`serverMessageId`: kotlin.ULong): List<SeenByEntry>
-    
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `sendAttachmentBytes`(`messageId`: kotlin.ULong, `routeKey`: kotlin.String, `payload`: kotlin.ByteArray): FileQueueRef
-    
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `sendAttachmentFromPath`(`messageId`: kotlin.ULong, `routeKey`: kotlin.String, `path`: kotlin.String): FileQueueRef
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `sendContactCardMessage`(`input`: ContactCardMessageInput): kotlin.ULong
     
@@ -1173,11 +1167,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `enqueueLocalMessage`(`input`: NewMessage) : kotlin.ULong
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `enqueueOutboundFile`(`messageId`: kotlin.ULong, `routeKey`: kotlin.String, `payload`: kotlin.ByteArray) : FileQueueRef
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -2180,16 +2169,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `sendAttachmentBytes`(`messageId`: kotlin.ULong, `routeKey`: kotlin.String, `payload`: kotlin.ByteArray) : FileQueueRef
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `sendAttachmentFromPath`(`messageId`: kotlin.ULong, `routeKey`: kotlin.String, `path`: kotlin.String) : FileQueueRef
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `sendContactCardMessage`(`input`: ContactCardMessageInput) : kotlin.ULong
 
     
@@ -3129,18 +3108,6 @@ data class EventConfigView (
     var `replayApi`: kotlin.String
         , 
     var `historyLimit`: kotlin.ULong
-        
-) {
-    
-    companion object
-}
-
-
-
-data class FileQueueRef (
-    var `queueIndex`: kotlin.ULong
-        , 
-    var `messageId`: kotlin.ULong
         
 ) {
     
@@ -6127,8 +6094,7 @@ sealed class SdkEvent {
     data class OutboundQueueUpdated(
         val `kind`: kotlin.String  , 
         val `action`: kotlin.String  , 
-        val `messageId`: kotlin.ULong?  = null  , 
-        val `queueIndex`: kotlin.ULong?  = null  ) : SdkEvent() {
+        val `messageId`: kotlin.ULong?  = null  ) : SdkEvent() {
         
     }
     

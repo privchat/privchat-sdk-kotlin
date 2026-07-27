@@ -27,7 +27,6 @@ data class SdkEventPayload(
     val isTyping: Boolean? = null,
     val kind: String? = null,
     val action: String? = null,
-    val queueIndex: ULong? = null,
     val queued: ULong? = null,
     val applied: ULong? = null,
     val droppedDuplicates: ULong? = null,

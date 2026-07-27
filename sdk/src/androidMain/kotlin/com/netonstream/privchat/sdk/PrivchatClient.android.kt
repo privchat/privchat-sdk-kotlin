@@ -32,7 +32,6 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.longOrNull
 import kotlinx.serialization.json.contentOrNull
 import uniffi.privchat_sdk_ffi.ConnectionState as CoreConnectionState
-import uniffi.privchat_sdk_ffi.FileQueueRef
 import uniffi.privchat_sdk_ffi.GetChannelPtsInput
 import uniffi.privchat_sdk_ffi.LoginResult
 import uniffi.privchat_sdk_ffi.ContactCardMessageInput as CoreContactCardMessageInput
@@ -3009,7 +3008,6 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         kind = event.kind,
         action = event.action,
         messageId = event.messageId,
-        queueIndex = event.queueIndex,
     )
 
     is CoreSdkEvent.TimelineUpdated -> SdkEventPayload(

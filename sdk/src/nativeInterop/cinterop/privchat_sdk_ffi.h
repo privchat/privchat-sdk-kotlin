@@ -270,8 +270,6 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_edit_message_blocking(v
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_local_message(void * ptr, RustBuffer input
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_outbound_file(void * ptr, int64_t messageId, RustBuffer routeKey, RustBuffer payload
-);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_text(void * ptr, int64_t channelId, int32_t channelType, int64_t fromUid, RustBuffer content
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_text_with_local_id(void * ptr, int64_t channelId, int32_t channelType, int64_t fromUid, RustBuffer content, RustBuffer localMessageId
@@ -641,10 +639,6 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_search_user_by_qrcode(v
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_search_users(void * ptr, RustBuffer query
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_seen_by_for_event(void * ptr, int64_t serverMessageId
-);
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_attachment_bytes(void * ptr, int64_t messageId, RustBuffer routeKey, RustBuffer payload
-);
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_attachment_from_path(void * ptr, int64_t messageId, RustBuffer routeKey, RustBuffer path
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_contact_card_message(void * ptr, RustBuffer input
 );
@@ -1108,9 +1102,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_edit_message_bloc
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_local_message(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_outbound_file(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_text(void
@@ -1666,12 +1657,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_search_users(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_seen_by_for_event(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_attachment_bytes(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_attachment_from_path(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_contact_card_message(void

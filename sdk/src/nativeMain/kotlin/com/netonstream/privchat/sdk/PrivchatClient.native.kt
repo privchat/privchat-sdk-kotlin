@@ -40,7 +40,6 @@ import platform.Foundation.create
 import platform.Foundation.timeIntervalSince1970
 import platform.Foundation.writeToFile
 import uniffi.privchat_sdk_ffi.ConnectionState as CoreConnectionState
-import uniffi.privchat_sdk_ffi.FileQueueRef
 import uniffi.privchat_sdk_ffi.GetChannelPtsInput
 import uniffi.privchat_sdk_ffi.LoginResult
 import uniffi.privchat_sdk_ffi.ContactCardMessageInput as CoreContactCardMessageInput
@@ -2785,7 +2784,6 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         kind = event.kind,
         action = event.action,
         messageId = event.messageId,
-        queueIndex = event.queueIndex,
     )
 
     is CoreSdkEvent.TimelineUpdated -> SdkEventPayload(

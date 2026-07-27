@@ -847,12 +847,6 @@ get() = useContents { `uniffiFree`/* test  Any? */}
 
 
 
-
-
-
-
-
-
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -976,8 +970,6 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_edit_message_blocking(`ptr`: Pointer?,`messageId`: Long,`content`: RustBufferByValue,`editedAt`: Int,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_local_message(`ptr`: Pointer?,`input`: RustBufferByValue,
-    ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_outbound_file(`ptr`: Pointer?,`messageId`: Long,`routeKey`: RustBufferByValue,`payload`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_text(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`fromUid`: Long,`content`: RustBufferByValue,
     ): Long
@@ -1348,10 +1340,6 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_search_users(`ptr`: Pointer?,`query`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_seen_by_for_event(`ptr`: Pointer?,`serverMessageId`: Long,
-    ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_attachment_bytes(`ptr`: Pointer?,`messageId`: Long,`routeKey`: RustBufferByValue,`payload`: RustBufferByValue,
-    ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_attachment_from_path(`ptr`: Pointer?,`messageId`: Long,`routeKey`: RustBufferByValue,`path`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_contact_card_message(`ptr`: Pointer?,`input`: RustBufferByValue,
     ): Long
@@ -1757,8 +1745,6 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_local_message(
     ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_outbound_file(
-    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_text(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_text_with_local_id(
@@ -2128,10 +2114,6 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_search_users(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_seen_by_for_event(
-    ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_attachment_bytes(
-    ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_attachment_from_path(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_contact_card_message(
     ): Short
@@ -2528,10 +2510,6 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_local_message(`ptr`: Pointer?,`input`: RustBufferByValue,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_local_message(`ptr`?.inner,`input` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
-    
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_outbound_file(`ptr`: Pointer?,`messageId`: Long,`routeKey`: RustBufferByValue,`payload`: RustBufferByValue,
-    ): Long
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_outbound_file(`ptr`?.inner,`messageId`,`routeKey` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`payload` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_text(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`fromUid`: Long,`content`: RustBufferByValue,
     ): Long
@@ -3272,14 +3250,6 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_seen_by_for_event(`ptr`: Pointer?,`serverMessageId`: Long,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_seen_by_for_event(`ptr`?.inner,`serverMessageId`,)as Long
-    
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_attachment_bytes(`ptr`: Pointer?,`messageId`: Long,`routeKey`: RustBufferByValue,`payload`: RustBufferByValue,
-    ): Long
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_attachment_bytes(`ptr`?.inner,`messageId`,`routeKey` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`payload` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
-    
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_attachment_from_path(`ptr`: Pointer?,`messageId`: Long,`routeKey`: RustBufferByValue,`path`: RustBufferByValue,
-    ): Long
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_attachment_from_path(`ptr`?.inner,`messageId`,`routeKey` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`path` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_contact_card_message(`ptr`: Pointer?,`input`: RustBufferByValue,
     ): Long
@@ -4089,10 +4059,6 @@ internal class UniffiLibInstance: UniffiLib {
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_local_message()as Short
     
-    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_outbound_file(
-    ): Short
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_outbound_file()as Short
-    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_text(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_text()as Short
@@ -4832,14 +4798,6 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_seen_by_for_event(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_seen_by_for_event()as Short
-    
-    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_attachment_bytes(
-    ): Short
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_attachment_bytes()as Short
-    
-    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_attachment_from_path(
-    ): Short
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_attachment_from_path()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_contact_card_message(
     ): Short
@@ -6647,28 +6605,6 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_u64(future) },
         // lift function
         { FfiConverterULong.lift(it!!) },
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `enqueueOutboundFile`(`messageId`: kotlin.ULong, `routeKey`: kotlin.String, `payload`: kotlin.ByteArray) : FileQueueRef {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_outbound_file(
-                thisPtr,
-                FfiConverterULong.lower(`messageId`),FfiConverterString.lower(`routeKey`),FfiConverterByteArray.lower(`payload`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
-        // lift function
-        { FfiConverterTypeFileQueueRef.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -10602,50 +10538,6 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `sendAttachmentBytes`(`messageId`: kotlin.ULong, `routeKey`: kotlin.String, `payload`: kotlin.ByteArray) : FileQueueRef {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_attachment_bytes(
-                thisPtr,
-                FfiConverterULong.lower(`messageId`),FfiConverterString.lower(`routeKey`),FfiConverterByteArray.lower(`payload`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
-        // lift function
-        { FfiConverterTypeFileQueueRef.lift(it!!) },
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `sendAttachmentFromPath`(`messageId`: kotlin.ULong, `routeKey`: kotlin.String, `path`: kotlin.String) : FileQueueRef {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_attachment_from_path(
-                thisPtr,
-                FfiConverterULong.lower(`messageId`),FfiConverterString.lower(`routeKey`),FfiConverterString.lower(`path`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
-        // lift function
-        { FfiConverterTypeFileQueueRef.lift(it!!) },
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `sendContactCardMessage`(`input`: ContactCardMessageInput) : kotlin.ULong {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
@@ -13349,28 +13241,6 @@ object FfiConverterTypeEventConfigView: FfiConverterRustBuffer<EventConfigView> 
             FfiConverterULong.write(value.`sequenceCursor`, buf)
             FfiConverterString.write(value.`replayApi`, buf)
             FfiConverterULong.write(value.`historyLimit`, buf)
-    }
-}
-
-
-
-
-object FfiConverterTypeFileQueueRef: FfiConverterRustBuffer<FileQueueRef> {
-    override fun read(buf: ByteBuffer): FileQueueRef {
-        return FileQueueRef(
-            FfiConverterULong.read(buf),
-            FfiConverterULong.read(buf),
-        )
-    }
-
-    override fun allocationSize(value: FileQueueRef) = (
-            FfiConverterULong.allocationSize(value.`queueIndex`) +
-            FfiConverterULong.allocationSize(value.`messageId`)
-    )
-
-    override fun write(value: FileQueueRef, buf: ByteBuffer) {
-            FfiConverterULong.write(value.`queueIndex`, buf)
-            FfiConverterULong.write(value.`messageId`, buf)
     }
 }
 
@@ -18007,7 +17877,6 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterString.read(buf),
                 FfiConverterString.read(buf),
                 FfiConverterOptionalULong.read(buf),
-                FfiConverterOptionalULong.read(buf),
                 )
             17 -> SdkEvent.TimelineUpdated(
                 FfiConverterULong.read(buf),
@@ -18218,7 +18087,6 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 + FfiConverterString.allocationSize(value.`kind`)
                 + FfiConverterString.allocationSize(value.`action`)
                 + FfiConverterOptionalULong.allocationSize(value.`messageId`)
-                + FfiConverterOptionalULong.allocationSize(value.`queueIndex`)
             )
         }
         is SdkEvent.TimelineUpdated -> {
@@ -18451,7 +18319,6 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterString.write(value.`kind`, buf)
                 FfiConverterString.write(value.`action`, buf)
                 FfiConverterOptionalULong.write(value.`messageId`, buf)
-                FfiConverterOptionalULong.write(value.`queueIndex`, buf)
                 Unit
             }
             is SdkEvent.TimelineUpdated -> {
