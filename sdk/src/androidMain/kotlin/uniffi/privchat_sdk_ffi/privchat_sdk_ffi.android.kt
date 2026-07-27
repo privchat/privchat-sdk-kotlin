@@ -836,6 +836,8 @@ internal val UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue.`uniffiF
 
 
 
+
+
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -1012,6 +1014,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_request_upload_token_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_upload_callback_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_finalize_attachment_and_enqueue(`ptr`: Pointer?,`messageId`: Long,`content`: RustBufferByValue,`thumbStatus`: Int,`routeKey`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_finalize_local_attachment(`ptr`: Pointer?,`messageId`: Long,`content`: RustBufferByValue,`thumbStatus`: Int,
     ): Long
@@ -1801,6 +1805,8 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_upload_callback_remote(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_finalize_attachment_and_enqueue(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_finalize_local_attachment(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_follow_bot(
@@ -2557,6 +2563,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_upload_callback_remote() != 25110.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_finalize_attachment_and_enqueue() != 1931.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_finalize_local_attachment() != 25612.toShort()) {
@@ -4874,6 +4883,32 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_i8(future) },
         // lift function
         { FfiConverterBoolean.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * 附件定稿 + 入队，同一事务。取代 finalize + enqueue 两步调用。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `finalizeAttachmentAndEnqueue`(`messageId`: kotlin.ULong, `content`: kotlin.String, `thumbStatus`: kotlin.Int, `routeKey`: kotlin.String) {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_finalize_attachment_and_enqueue(
+                thisPtr,
+                FfiConverterULong.lower(`messageId`),FfiConverterString.lower(`content`),FfiConverterInt.lower(`thumbStatus`),FfiConverterString.lower(`routeKey`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
+        // lift function
+        { Unit },
+        
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )

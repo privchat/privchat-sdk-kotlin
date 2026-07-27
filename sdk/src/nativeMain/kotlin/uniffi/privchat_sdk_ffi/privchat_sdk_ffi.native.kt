@@ -861,6 +861,8 @@ get() = useContents { `uniffiFree`/* test  Any? */}
 
 
 
+
+
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -1016,6 +1018,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_request_upload_token_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_upload_callback_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_finalize_attachment_and_enqueue(`ptr`: Pointer?,`messageId`: Long,`content`: RustBufferByValue,`thumbStatus`: Int,`routeKey`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_finalize_local_attachment(`ptr`: Pointer?,`messageId`: Long,`content`: RustBufferByValue,`thumbStatus`: Int,
     ): Long
@@ -1804,6 +1808,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_request_upload_token_remote(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_upload_callback_remote(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_finalize_attachment_and_enqueue(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_finalize_local_attachment(
     ): Short
@@ -2616,6 +2622,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_upload_callback_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_upload_callback_remote(`ptr`?.inner,`payload` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_finalize_attachment_and_enqueue(`ptr`: Pointer?,`messageId`: Long,`content`: RustBufferByValue,`thumbStatus`: Int,`routeKey`: RustBufferByValue,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_finalize_attachment_and_enqueue(`ptr`?.inner,`messageId`,`content` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`thumbStatus`,`routeKey` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_finalize_local_attachment(`ptr`: Pointer?,`messageId`: Long,`content`: RustBufferByValue,`thumbStatus`: Int,
     ): Long
@@ -4192,6 +4202,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_upload_callback_remote(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_upload_callback_remote()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_finalize_attachment_and_enqueue(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_finalize_attachment_and_enqueue()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_finalize_local_attachment(
     ): Short
@@ -7004,6 +7018,32 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_i8(future) },
         // lift function
         { FfiConverterBoolean.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * 附件定稿 + 入队，同一事务。取代 finalize + enqueue 两步调用。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `finalizeAttachmentAndEnqueue`(`messageId`: kotlin.ULong, `content`: kotlin.String, `thumbStatus`: kotlin.Int, `routeKey`: kotlin.String) {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_finalize_attachment_and_enqueue(
+                thisPtr,
+                FfiConverterULong.lower(`messageId`),FfiConverterString.lower(`content`),FfiConverterInt.lower(`thumbStatus`),FfiConverterString.lower(`routeKey`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
+        // lift function
+        { Unit },
+        
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )

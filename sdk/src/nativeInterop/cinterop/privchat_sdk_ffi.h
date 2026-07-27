@@ -302,6 +302,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_request_upload_tok
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_file_upload_callback_remote(void * ptr, RustBuffer payload
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_finalize_attachment_and_enqueue(void * ptr, int64_t messageId, RustBuffer content, int32_t thumbStatus, RustBuffer routeKey
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_finalize_local_attachment(void * ptr, int64_t messageId, RustBuffer content, int32_t thumbStatus
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_follow_bot(void * ptr, int64_t botUserId
@@ -1164,6 +1166,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_request_uplo
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_upload_callback_remote(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_finalize_attachment_and_enqueue(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_finalize_local_attachment(void

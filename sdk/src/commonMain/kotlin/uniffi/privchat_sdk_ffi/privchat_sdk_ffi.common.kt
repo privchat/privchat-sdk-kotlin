@@ -236,6 +236,11 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `fileUploadCallbackRemote`(`payload`: FileUploadCallbackInput): kotlin.Boolean
     
+    /**
+     * 附件定稿 + 入队，同一事务。取代 finalize + enqueue 两步调用。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `finalizeAttachmentAndEnqueue`(`messageId`: kotlin.ULong, `content`: kotlin.String, `thumbStatus`: kotlin.Int, `routeKey`: kotlin.String)
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `finalizeLocalAttachment`(`messageId`: kotlin.ULong, `content`: kotlin.String, `thumbStatus`: kotlin.Int)
     
     /**
@@ -1248,6 +1253,14 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `fileUploadCallbackRemote`(`payload`: FileUploadCallbackInput) : kotlin.Boolean
+
+    
+    /**
+     * 附件定稿 + 入队，同一事务。取代 finalize + enqueue 两步调用。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `finalizeAttachmentAndEnqueue`(`messageId`: kotlin.ULong, `content`: kotlin.String, `thumbStatus`: kotlin.Int, `routeKey`: kotlin.String)
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)

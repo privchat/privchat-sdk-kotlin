@@ -38,10 +38,21 @@ internal interface AttachmentPreparationPort {
     fun nowEpochMillis(): Long
     suspend fun createPlaceholder(input: LocalAttachmentPlaceholder): ULong
     fun targetDirectory(userId: ULong, messageId: ULong, createdAtMs: Long): String
-    suspend fun finalizePlaceholder(messageId: ULong, localPath: String, thumbStatus: Int)
+    /**
+     * 定稿并入队，**Core 侧一个事务**。
+     *
+     * 以前是 finalizePlaceholder + enqueue 两步：中间失败（或进程被杀）会留下
+     * 一条已完成、界面上也已显示、却没有任何命令负责发送的附件。下面 catch 里
+     * 的删除只是清理，崩溃时根本不会执行，不能当作一致性保证。
+     */
+    suspend fun finalizeAndEnqueue(
+        messageId: ULong,
+        localPath: String,
+        thumbStatus: Int,
+        routeKey: String,
+    ): ULong
     suspend fun discardPlaceholder(messageId: ULong)
     fun clientEndpoint(): String
-    suspend fun enqueue(messageId: ULong, routeKey: String, localPath: String): ULong
 }
 
 internal suspend fun prepareAndEnqueueAttachmentBytes(
@@ -77,10 +88,14 @@ internal suspend fun prepareAndEnqueueAttachmentBytes(
             targetDirectory = port.targetDirectory(userId, messageId, createdAtMs),
             targetFileName = attachmentPayloadFileName(mimeType, fileName),
         )
-        port.finalizePlaceholder(messageId, materialized.localPath, 0)
+        val queuedMessageId = port.finalizeAndEnqueue(
+            messageId,
+            materialized.localPath,
+            0,
+            port.clientEndpoint(),
+        )
         delay(32)
         progress?.onPrepComplete()
-        val queuedMessageId = port.enqueue(messageId, port.clientEndpoint(), materialized.localPath)
         progress?.onProgress(data.size.toULong(), data.size.toULong())
         return queuedMessageId to AttachmentInfo(
             url = materialized.localPath,
@@ -166,10 +181,14 @@ internal suspend fun prepareAndEnqueueAttachment(
             materialized.video?.thumbnailReady == true -> 1
             else -> 3
         }
-        port.finalizePlaceholder(messageId, materialized.localPath, thumbStatus)
+        val queuedMessageId = port.finalizeAndEnqueue(
+            messageId,
+            materialized.localPath,
+            thumbStatus,
+            port.clientEndpoint(),
+        )
         delay(32)
         progress?.onPrepComplete()
-        val queuedMessageId = port.enqueue(messageId, port.clientEndpoint(), materialized.localPath)
         progress?.onProgress(1uL, 1uL)
         val video = materialized.video ?: initialVideo
         return queuedMessageId to AttachmentInfo(

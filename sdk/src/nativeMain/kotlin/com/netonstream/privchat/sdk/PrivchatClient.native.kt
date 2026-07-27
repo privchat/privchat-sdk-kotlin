@@ -1898,8 +1898,15 @@ actual class PrivchatClient private actual constructor() {
         override fun targetDirectory(userId: ULong, messageId: ULong, createdAtMs: Long): String =
             c.getAttachmentTargetDir(userId, messageId.toLong(), createdAtMs)
 
-        override suspend fun finalizePlaceholder(messageId: ULong, localPath: String, thumbStatus: Int) {
-            c.finalizeLocalAttachment(messageId, "file://$localPath", thumbStatus)
+        override suspend fun finalizeAndEnqueue(
+            messageId: ULong,
+            localPath: String,
+            thumbStatus: Int,
+            routeKey: String,
+        ): ULong {
+            // 定稿与入队在 Core 的一个事务里完成。
+            c.finalizeAttachmentAndEnqueue(messageId, "file://$localPath", thumbStatus, routeKey)
+            return messageId
         }
 
         override suspend fun discardPlaceholder(messageId: ULong) {
@@ -1908,8 +1915,6 @@ actual class PrivchatClient private actual constructor() {
 
         override fun clientEndpoint(): String = c.toClientEndpoint() ?: ""
 
-        override suspend fun enqueue(messageId: ULong, routeKey: String, localPath: String): ULong =
-            c.sendAttachmentFromPath(messageId, routeKey, localPath).messageId
     }
 
     @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)

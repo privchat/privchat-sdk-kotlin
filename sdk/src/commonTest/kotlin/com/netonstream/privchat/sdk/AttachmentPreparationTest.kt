@@ -137,14 +137,18 @@ class AttachmentPreparationTest {
             calls += "target:$messageId"
             return "/media/$messageId"
         }
-        override suspend fun finalizePlaceholder(messageId: ULong, localPath: String, thumbStatus: Int) {
+        override suspend fun finalizeAndEnqueue(
+            messageId: ULong,
+            localPath: String,
+            thumbStatus: Int,
+            routeKey: String,
+        ): ULong {
+            // 定稿与入队现在是 Core 的一个事务，测试替身也据此合成一次调用。
             calls += "finalize:$messageId:$thumbStatus"
-        }
-        override suspend fun discardPlaceholder(messageId: ULong) { discarded = true }
-        override fun clientEndpoint() = "client"
-        override suspend fun enqueue(messageId: ULong, routeKey: String, localPath: String): ULong {
             calls += "enqueue:$messageId:$localPath"
             return 77uL
         }
+        override suspend fun discardPlaceholder(messageId: ULong) { discarded = true }
+        override fun clientEndpoint() = "client"
     }
 }
