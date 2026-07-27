@@ -123,7 +123,11 @@ val privchatHostLibName = when {
     else -> "libprivchat_sdk_ffi.so"
 }
 val privchatHostLibFile = privchatWorkspaceTargetDir.file(privchatHostLibName)
-val targetAbis = listOf("arm64-v8a")
+// 必须覆盖 APK 里会出现的**全部** ABI:JNA 等第三方库自带 armeabi-v7a/x86 的 .so,
+// 只要有一个 ABI 缺我们的 FFI,设备一旦以该 ABI 启动进程就会
+// `dlopen failed: libprivchat_sdk_ffi.so not found` 直接卡在登录页(2026-07-27 生产)。
+// androidApp 侧用 abiFilters 锁到同一份清单,保证「有 ABI 就有 FFI」。
+val targetAbis = listOf("arm64-v8a", "armeabi-v7a")
 val localProps = Properties()
 rootProject.file("local.properties").takeIf { it.exists() }?.reader()?.use { localProps.load(it) }
 val ndkDirPath = localProps.getProperty("ndk.dir") ?: run {

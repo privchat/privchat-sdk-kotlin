@@ -229,15 +229,26 @@ expect class PrivchatClient private constructor() {
     // ========== Friends & Groups ==========
     suspend fun searchUsers(query: String): Result<List<UserEntry>>
     /**
-     * local-first 用户资料。[sourceChannelId]:远程拉取时的资料可见性来源——
-     * 会话场景必须传共同会话 id(source=conversation,服务端矩阵按会话成员放行);
-     * 不传时按好友来源(仅对好友有效)。
+     * local-first 用户资料。[context] 是**类型化的来源上下文**
+     * (PROFILE_VISIBILITY_SPEC §2.5):会话里传 [ProfileAccessContext.Conversation],
+     * 群成员列表传 [ProfileAccessContext.Group],确认是好友才用 [ProfileAccessContext.Friend]。
+     *
+     * 默认 [ProfileAccessContext.Unknown] = **不发远程详情请求**:本地有记录就返回本地,
+     * 没有则返回参数错误。旧实现在缺上下文时一律声称 friend 来源,生产每天被服务端拒
+     * 17.8 万次且客户端无退避地重试。公开字段(昵称/头像)由 user 实体增量同步维护。
      */
     suspend fun getUserProfileLocalFirst(
         userId: ULong,
-        sourceChannelId: ULong? = null,
+        context: ProfileAccessContext = ProfileAccessContext.Unknown,
     ): Result<SearchedUserDto>
     suspend fun listUsersByIds(userIds: List<ULong>): Result<List<UserEntry>>
+
+    /**
+     * 资料被外部事件(实体增量同步 / 资料变更推送)更新后调用:清掉该用户的刷新节流,
+     * 使下一次 [getUserProfileLocalFirst] 能立刻回源。没有这个入口,TTL 会让
+     * 「自己刚改完头像」的刷新读回旧本地记录。
+     */
+    suspend fun invalidateProfileCache(userId: ULong)
     /** 关注 Bot：server 写 follow 表 + 通知 application 写 binding。详见 SERVICE_ACCOUNT_FOLLOW_SPEC §3.1。 */
     suspend fun followBot(botUserId: ULong): Result<BotFollowOutcome>
     /** 取消关注 Bot：server 切 status=0，**不**删 channel / 历史。详见 spec §3.2。 */

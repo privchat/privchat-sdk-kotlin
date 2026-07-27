@@ -10531,6 +10531,11 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     
 
     
+    /**
+     * 薄委托：重试编排（类型分流 / 上传阶段恢复 / 结构化错误）全部属于 Rust Core
+     * （SDK_LAYERED spec §4.1「消息生命周期、上传下载编排、结构化错误」）。FFI 只做
+     * 调用与错误映射，不得在此维护第二套重试状态机。
+     */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `retryMessage`(`messageId`: kotlin.ULong) : kotlin.ULong {

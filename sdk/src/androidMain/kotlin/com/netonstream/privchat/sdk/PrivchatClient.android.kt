@@ -1326,34 +1326,77 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    /** 资料远程刷新的 TTL / 退避 / 单飞闸门（见 ProfileRefreshPolicy）。 */
+    private val profileRefreshPolicy = ProfileRefreshPolicy(nowMs = { System.currentTimeMillis() })
+
     actual suspend fun getUserProfileLocalFirst(
         userId: ULong,
-        sourceChannelId: ULong?,
+        context: ProfileAccessContext,
     ): Result<SearchedUserDto> {
         val c = requireClient().getOrElse { return Result.failure(it) }
-        // 真实来源(PROFILE_VISIBILITY §2.5):有会话上下文用 conversation,否则按好友。
-        val source = if (sourceChannelId != null) "conversation" else "friend"
-        val sourceId = (sourceChannelId ?: userId).toString()
+        val source = context.wireSource
+        val sourceId = context.wireSourceId(userId)
+        val key = profileRefreshPolicy.key(userId, context)
         return runCatching {
             val local = c.getUserById(userId)
             if (local != null) {
-                // local-first: return immediately, refresh remote in background.
-                backgroundScope.launch {
-                    runCatching {
-                        val remote = c.accountUserDetailRemote(userId, source, sourceId)
-                        c.upsertUser(remote.toCoreUpsertUserInput(local))
+                // local-first：先返回本地投影；远程刷新受 TTL / 退避 / 单飞 约束，
+                // 且**没有合法来源时根本不发**（不伪造 friend 来源，见 ProfileAccessContext）。
+                if (source != null && sourceId != null &&
+                    profileRefreshPolicy.admit(key) is ProfileRefreshPolicy.Admission.Proceed
+                ) {
+                    backgroundScope.launch {
+                        runCatching {
+                            val remote = c.accountUserDetailRemote(userId, source, sourceId)
+                            c.upsertUser(remote.toCoreUpsertUserInput(local))
+                        }.fold(
+                            onSuccess = { profileRefreshPolicy.onSuccess(key) },
+                            onFailure = { profileRefreshPolicy.onFailure(key) },
+                        )
                     }
                 }
                 local.toSearchedUserDto()
             } else {
-                val remote = c.accountUserDetailRemote(userId, source, sourceId)
-                c.upsertUser(remote.toCoreUpsertUserInput(null))
-                remote.toSearchedUserDto()
+                if (source == null || sourceId == null) {
+                    // 无本地记录 + 无合法来源：返回错误而不是拿假来源去撞闸口。
+                    // 公开字段（昵称/头像）应由 user 实体增量同步补齐。
+                    throw SdkError.InvalidParameter(
+                        "profileAccessContext",
+                        "profile detail requires an access context (got Unknown)",
+                    )
+                }
+                // cache miss 也要合流：并发的 miss 只发一个请求，后来者 await 它再读本地，
+                // 否则「单飞」只是让后来者白白失败或各自重复打服务器。
+                when (val admission = profileRefreshPolicy.admit(key)) {
+                    is ProfileRefreshPolicy.Admission.Proceed -> {
+                        val remote = try {
+                            c.accountUserDetailRemote(userId, source, sourceId)
+                        } catch (e: Throwable) {
+                            profileRefreshPolicy.onFailure(key)
+                            throw e
+                        }
+                        c.upsertUser(remote.toCoreUpsertUserInput(null))
+                        profileRefreshPolicy.onSuccess(key)
+                        remote.toSearchedUserDto()
+                    }
+                    is ProfileRefreshPolicy.Admission.JoinInFlight -> {
+                        admission.join()
+                        c.getUserById(userId)?.toSearchedUserDto()
+                            ?: throw SdkError.Generic("profile unavailable after joining in-flight fetch")
+                    }
+                    ProfileRefreshPolicy.Admission.Skip -> throw SdkError.Generic(
+                        "profile fetch is backing off after repeated failures",
+                    )
+                }
             }
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("getUserProfileLocalFirst failed", it)) },
         )
+    }
+
+    actual suspend fun invalidateProfileCache(userId: ULong) {
+        profileRefreshPolicy.invalidate(userId)
     }
 
     actual suspend fun listUsersByIds(userIds: List<ULong>): Result<List<UserEntry>> {
