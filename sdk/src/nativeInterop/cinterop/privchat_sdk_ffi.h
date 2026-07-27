@@ -174,10 +174,6 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_account_user_share_card
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_account_user_update_remote(void * ptr, RustBuffer payload
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_ack_outbound_files(void * ptr, int64_t queueIndex, RustBuffer messageIds
-);
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_ack_outbound_messages(void * ptr, RustBuffer messageIds
-);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_add_channel_members(void * ptr, int64_t channelId, int32_t channelType, RustBuffer memberUids
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_add_reaction(void * ptr, int64_t serverMessageId, RustBuffer channelId, RustBuffer emoji
@@ -275,8 +271,6 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_edit_message_blocking(v
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_local_message(void * ptr, RustBuffer input
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_outbound_file(void * ptr, int64_t messageId, RustBuffer routeKey, RustBuffer payload
-);
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_outbound_message(void * ptr, int64_t messageId, RustBuffer payload
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_text(void * ptr, int64_t channelId, int32_t channelType, int64_t fromUid, RustBuffer content
 );
@@ -545,10 +539,6 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_paginate_back(void * pt
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_paginate_forward(void * ptr, int64_t channelId, int32_t channelType, int64_t page, int64_t pageSize
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_pause_message_media_download(void * ptr, int64_t messageId
-);
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_peek_outbound_files(void * ptr, int64_t queueIndex, int64_t limit
-);
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_peek_outbound_messages(void * ptr, int64_t limit
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_persist_user_profile_local(void * ptr, int64_t targetUserId
 );
@@ -976,12 +966,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_account_user_shar
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_account_user_update_remote(void
     
 );
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_ack_outbound_files(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_ack_outbound_messages(void
-    
-);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_add_channel_members(void
     
 );
@@ -1127,9 +1111,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_local_mes
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_outbound_file(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_outbound_message(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_text(void
@@ -1532,12 +1513,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_paginate_forward(
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_pause_message_media_download(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_peek_outbound_files(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_peek_outbound_messages(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_persist_user_profile_local(void
