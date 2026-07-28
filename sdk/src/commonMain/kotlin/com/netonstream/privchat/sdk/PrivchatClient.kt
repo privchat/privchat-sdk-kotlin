@@ -172,6 +172,25 @@ expect class PrivchatClient private constructor() {
     suspend fun paginateForward(channelId: ULong, afterSeq: ULong, limit: UInt): Result<List<MessageEntry>>
     suspend fun listLocalAccounts(): Result<List<LocalAccountInfo>>
     suspend fun setCurrentUid(uid: String): Result<Unit>
+
+    /**
+     * 原子切换本地账号：停旧会话（inbound / transport / 订阅 / 缓存 / sync 协调器）
+     * 并装载新账号，全部在一次 SDK 调用内完成。
+     *
+     * 不要再用 setCurrentUid + shutdown + 重新登录来切换：那几步之间旧会话仍在跑
+     * 而 uid 已指向新账号，旧账号的事件会被当成新账号的状态（2026-07-28 真机实测
+     * 表现为重连热循环 + 消息发不出去）。
+     */
+    /** 记录某本地账号的展示名，供切换账号列表渲染（跨账号读不到对方资料库）。 */
+    suspend fun setLocalAccountDisplayName(
+        uid: String,
+        displayName: String?,
+        username: String?,
+        loginMode: String? = null,
+        loginIdentifier: String? = null,
+    ): Result<Unit>
+
+    suspend fun switchLocalAccount(uid: String): Result<Unit>
     suspend fun getChannels(limit: UInt, offset: UInt): Result<List<ChannelListEntry>>
     suspend fun getChannelById(channelId: ULong): Result<ChannelListEntry?>
     suspend fun getFriends(limit: UInt?, offset: UInt?): Result<List<FriendEntry>>

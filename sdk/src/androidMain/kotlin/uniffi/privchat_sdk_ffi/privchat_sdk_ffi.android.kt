@@ -822,6 +822,10 @@ internal val UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue.`uniffiF
 
 
 
+
+
+
+
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -1375,6 +1379,8 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_current_uid(`ptr`: Pointer?,`uid`: RustBufferByValue,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_local_account_display_name(`ptr`: Pointer?,`uid`: RustBufferByValue,`displayName`: RustBufferByValue,`username`: RustBufferByValue,`loginMode`: RustBufferByValue,`loginIdentifier`: RustBufferByValue,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_pinned(`ptr`: Pointer?,`messageId`: Long,`isPinned`: Byte,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_revoke(`ptr`: Pointer?,`messageId`: Long,`revoked`: Byte,`revoker`: RustBufferByValue,
@@ -1417,6 +1423,8 @@ internal interface UniffiLib : Library {
     ): Byte
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_network_status(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
     ): Byte
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_switch_local_account(`ptr`: Pointer?,`uid`: RustBufferByValue,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_all_channels(`ptr`: Pointer?,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_batch_get_channel_pts_remote(`ptr`: Pointer?,`payload`: RustBufferByValue,
@@ -2149,6 +2157,8 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_current_uid(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_local_account_display_name(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_pinned(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_revoke(
@@ -2190,6 +2200,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_events(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_network_status(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_switch_local_account(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_all_channels(
     ): Short
@@ -3081,6 +3093,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_current_uid() != 49017.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_local_account_display_name() != 36263.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_pinned() != 39173.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
@@ -3142,6 +3157,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_network_status() != 43014.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_switch_local_account() != 15789.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_all_channels() != 25363.toShort()) {
@@ -8850,6 +8868,32 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     
+    /**
+     * 记录某个本地账号的展示名，供切换账号列表渲染（见 SDK 同名方法）。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `setLocalAccountDisplayName`(`uid`: kotlin.String, `displayName`: kotlin.String?, `username`: kotlin.String?, `loginMode`: kotlin.String?, `loginIdentifier`: kotlin.String?) {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_local_account_display_name(
+                thisPtr,
+                FfiConverterString.lower(`uid`),FfiConverterOptionalString.lower(`displayName`),FfiConverterOptionalString.lower(`username`),FfiConverterOptionalString.lower(`loginMode`),FfiConverterOptionalString.lower(`loginIdentifier`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
+        // lift function
+        { Unit },
+        
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `setMessagePinned`(`messageId`: kotlin.ULong, `isPinned`: kotlin.Boolean) {
@@ -9280,6 +9324,35 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
     
+
+    
+    /**
+     * 原子切换本地账号。见 `privchat_sdk::PrivchatSdk::switch_local_account`。
+     *
+     * 宿主不要再自己拼 set_current_uid + shutdown + 重新登录：那几步之间旧会话
+     * 仍在跑而 uid 已指向新账号，旧账号的事件会被当成新账号的状态。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `switchLocalAccount`(`uid`: kotlin.String) {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_switch_local_account(
+                thisPtr,
+                FfiConverterString.lower(`uid`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
+        // lift function
+        { Unit },
+        
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -12007,6 +12080,10 @@ object FfiConverterTypeLocalAccountSummary: FfiConverterRustBuffer<LocalAccountS
             FfiConverterLong.read(buf),
             FfiConverterLong.read(buf),
             FfiConverterBoolean.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
         )
     }
 
@@ -12014,7 +12091,11 @@ object FfiConverterTypeLocalAccountSummary: FfiConverterRustBuffer<LocalAccountS
             FfiConverterString.allocationSize(value.`uid`) +
             FfiConverterLong.allocationSize(value.`createdAt`) +
             FfiConverterLong.allocationSize(value.`lastLoginAt`) +
-            FfiConverterBoolean.allocationSize(value.`isActive`)
+            FfiConverterBoolean.allocationSize(value.`isActive`) +
+            FfiConverterOptionalString.allocationSize(value.`displayName`) +
+            FfiConverterOptionalString.allocationSize(value.`username`) +
+            FfiConverterOptionalString.allocationSize(value.`loginMode`) +
+            FfiConverterOptionalString.allocationSize(value.`loginIdentifier`)
     )
 
     override fun write(value: LocalAccountSummary, buf: ByteBuffer) {
@@ -12022,6 +12103,10 @@ object FfiConverterTypeLocalAccountSummary: FfiConverterRustBuffer<LocalAccountS
             FfiConverterLong.write(value.`createdAt`, buf)
             FfiConverterLong.write(value.`lastLoginAt`, buf)
             FfiConverterBoolean.write(value.`isActive`, buf)
+            FfiConverterOptionalString.write(value.`displayName`, buf)
+            FfiConverterOptionalString.write(value.`username`, buf)
+            FfiConverterOptionalString.write(value.`loginMode`, buf)
+            FfiConverterOptionalString.write(value.`loginIdentifier`, buf)
     }
 }
 

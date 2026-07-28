@@ -720,6 +720,11 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setCurrentUid`(`uid`: kotlin.String)
     
+    /**
+     * 记录某个本地账号的展示名，供切换账号列表渲染（见 SDK 同名方法）。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setLocalAccountDisplayName`(`uid`: kotlin.String, `displayName`: kotlin.String?, `username`: kotlin.String?, `loginMode`: kotlin.String?, `loginIdentifier`: kotlin.String?)
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setMessagePinned`(`messageId`: kotlin.ULong, `isPinned`: kotlin.Boolean)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setMessageRevoke`(`messageId`: kotlin.ULong, `revoked`: kotlin.Boolean, `revoker`: kotlin.ULong?)
@@ -777,6 +782,14 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `subscribeChannel`(`channelId`: kotlin.ULong, `channelType`: kotlin.UByte, `token`: kotlin.String?)
     fun `subscribeEvents`(): kotlin.Boolean
     fun `subscribeNetworkStatus`(): kotlin.Boolean
+    
+    /**
+     * 原子切换本地账号。见 `privchat_sdk::PrivchatSdk::switch_local_account`。
+     *
+     * 宿主不要再自己拼 set_current_uid + shutdown + 重新登录：那几步之间旧会话
+     * 仍在跑而 uid 已指向新账号，旧账号的事件会被当成新账号的状态。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `switchLocalAccount`(`uid`: kotlin.String)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `syncAllChannels`(): kotlin.ULong
     
@@ -2262,6 +2275,14 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `setCurrentUid`(`uid`: kotlin.String)
 
     
+    /**
+     * 记录某个本地账号的展示名，供切换账号列表渲染（见 SDK 同名方法）。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `setLocalAccountDisplayName`(`uid`: kotlin.String, `displayName`: kotlin.String?, `username`: kotlin.String?, `loginMode`: kotlin.String?, `loginIdentifier`: kotlin.String?)
+
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `setMessagePinned`(`messageId`: kotlin.ULong, `isPinned`: kotlin.Boolean)
@@ -2375,6 +2396,17 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
 
     override fun `subscribeNetworkStatus`(): kotlin.Boolean
     
+
+    
+    /**
+     * 原子切换本地账号。见 `privchat_sdk::PrivchatSdk::switch_local_account`。
+     *
+     * 宿主不要再自己拼 set_current_uid + shutdown + 重新登录：那几步之间旧会话
+     * 仍在跑而 uid 已指向新账号，旧账号的事件会被当成新账号的状态。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `switchLocalAccount`(`uid`: kotlin.String)
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -3695,7 +3727,25 @@ data class LocalAccountSummary (
     var `lastLoginAt`: kotlin.Long
         , 
     var `isActive`: kotlin.Boolean
-        
+        , 
+    /**
+     * 展示优先级：display_name > username > uid。
+     * uid 是协议标识，只有前两者都缺失时才允许出现在界面上。
+     */
+    var `displayName`: kotlin.String?
+         = null , 
+    var `username`: kotlin.String?
+         = null , 
+    /**
+     * 上次使用的登录方式（"BUILTIN" / "PLATFORM"）。
+     */
+    var `loginMode`: kotlin.String?
+         = null , 
+    /**
+     * 上次登录填的标识，供会话失效后回填登录表单。
+     */
+    var `loginIdentifier`: kotlin.String?
+         = null 
 ) {
     
     companion object

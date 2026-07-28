@@ -897,12 +897,37 @@ actual class PrivchatClient private actual constructor() {
                     createdAt = it.createdAt,
                     lastLoginAt = it.lastLoginAt,
                     isActive = it.isActive,
+                    displayName = it.displayName,
+                    username = it.username,
+                    loginMode = it.loginMode,
+                    loginIdentifier = it.loginIdentifier,
                 )
             }
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("listLocalAccounts failed", it)) },
         )
+    }
+
+    actual suspend fun setLocalAccountDisplayName(
+        uid: String,
+        displayName: String?,
+        username: String?,
+        loginMode: String?,
+        loginIdentifier: String?,
+    ): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("setLocalAccountDisplayName failed") {
+            c.setLocalAccountDisplayName(uid, displayName, username, loginMode, loginIdentifier)
+        }
+    }
+
+    actual suspend fun switchLocalAccount(uid: String): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("switchLocalAccount failed") {
+            c.switchLocalAccount(uid)
+            cachedUserId = uid.toULongOrNull()
+        }
     }
 
     actual suspend fun setCurrentUid(uid: String): Result<Unit> {

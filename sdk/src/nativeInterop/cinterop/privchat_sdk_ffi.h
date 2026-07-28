@@ -678,6 +678,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_channel_notificatio
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_current_uid(void * ptr, RustBuffer uid
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_local_account_display_name(void * ptr, RustBuffer uid, RustBuffer displayName, RustBuffer username, RustBuffer loginMode, RustBuffer loginIdentifier
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_pinned(void * ptr, int64_t messageId, int8_t isPinned
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_revoke(void * ptr, int64_t messageId, int8_t revoked, RustBuffer revoker
@@ -719,6 +721,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_channel(void 
 int8_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_events(void * ptr, UniffiRustCallStatus *_Nonnull out_status
 );
 int8_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_subscribe_network_status(void * ptr, UniffiRustCallStatus *_Nonnull out_status
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_switch_local_account(void * ptr, RustBuffer uid
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_all_channels(void * ptr
 );
@@ -1716,6 +1720,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_channel_notif
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_current_uid(void
     
 );
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_local_account_display_name(void
+    
+);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_pinned(void
     
 );
@@ -1777,6 +1784,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_events(
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_network_status(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_switch_local_account(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_all_channels(void
