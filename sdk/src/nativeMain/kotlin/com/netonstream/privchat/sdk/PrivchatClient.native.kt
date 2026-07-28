@@ -922,6 +922,13 @@ actual class PrivchatClient private actual constructor() {
         }
     }
 
+    actual suspend fun ensureMessageThumbnail(messageId: ULong): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("ensureMessageThumbnail failed") {
+            c.ensureMessageThumbnail(messageId)
+        }
+    }
+
     actual suspend fun switchLocalAccount(uid: String): Result<Unit> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return callAsync("switchLocalAccount failed") {

@@ -190,6 +190,9 @@ expect class PrivchatClient private constructor() {
         loginIdentifier: String? = null,
     ): Result<Unit>
 
+    /** 确保消息缩略图已在本地（没有才下载）。UI 滚动到该气泡时调用。 */
+    suspend fun ensureMessageThumbnail(messageId: ULong): Result<Unit>
+
     suspend fun switchLocalAccount(uid: String): Result<Unit>
     suspend fun getChannels(limit: UInt, offset: UInt): Result<List<ChannelListEntry>>
     suspend fun getChannelById(channelId: ULong): Result<ChannelListEntry?>

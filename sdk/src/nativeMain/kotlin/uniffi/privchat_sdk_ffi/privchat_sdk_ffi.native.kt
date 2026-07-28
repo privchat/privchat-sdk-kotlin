@@ -851,6 +851,8 @@ get() = useContents { `uniffiFree`/* test  Any? */}
 
 
 
+
+
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -978,6 +980,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_text(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`fromUid`: Long,`content`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_text_with_local_id(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`fromUid`: Long,`content`: RustBufferByValue,`localMessageId`: RustBufferByValue,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_ensure_message_thumbnail(`ptr`: Pointer?,`messageId`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_ensure_synced(`ptr`: Pointer?,
     ): Long
@@ -1757,6 +1761,8 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_text_with_local_id(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_ensure_message_thumbnail(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_ensure_synced(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enter_background(
@@ -2530,6 +2536,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_text_with_local_id(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`fromUid`: Long,`content`: RustBufferByValue,`localMessageId`: RustBufferByValue,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_enqueue_text_with_local_id(`ptr`?.inner,`channelId`,`channelType`,`fromUid`,`content` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`localMessageId` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_ensure_message_thumbnail(`ptr`: Pointer?,`messageId`: Long,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_ensure_message_thumbnail(`ptr`?.inner,`messageId`,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_ensure_synced(`ptr`: Pointer?,
     ): Long
@@ -4086,6 +4096,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_text_with_local_id(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enqueue_text_with_local_id()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_ensure_message_thumbnail(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_ensure_message_thumbnail()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_ensure_synced(
     ): Short
@@ -6677,6 +6691,32 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_u64(future) },
         // lift function
         { FfiConverterULong.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * 确保某条消息的缩略图已在本地（见 SDK 同名方法）。UI 在气泡进入可视区时调。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `ensureMessageThumbnail`(`messageId`: kotlin.ULong) {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_ensure_message_thumbnail(
+                thisPtr,
+                FfiConverterULong.lower(`messageId`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
+        // lift function
+        { Unit },
+        
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
