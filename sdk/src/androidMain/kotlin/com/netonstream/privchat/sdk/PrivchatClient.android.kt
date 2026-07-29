@@ -58,7 +58,9 @@ import uniffi.privchat_sdk_ffi.TransportProtocol as CoreProtocol
 import uniffi.privchat_sdk_ffi.TypingActionType
 import uniffi.privchat_sdk_ffi.SdkEvent as CoreSdkEvent
 import uniffi.privchat_sdk_ffi.MediaDownloadState as CoreMediaDownloadState
+import uniffi.privchat_sdk_ffi.SyncCriticalFailure as CoreSyncCriticalFailure
 import uniffi.privchat_sdk_ffi.SyncPhase as CoreSyncPhase
+import uniffi.privchat_sdk_ffi.SyncReadiness as CoreSyncReadiness
 import uniffi.privchat_sdk_ffi.SyncRunKind as CoreSyncRunKind
 import uniffi.privchat_sdk_ffi.SyncStateSnapshot as CoreSyncStateSnapshot
 import uniffi.privchat_sdk_ffi.sdkVersion
@@ -2906,12 +2908,31 @@ private fun CoreSyncPhase.toDto(): CoordinatorSyncPhase = when (this) {
     CoreSyncPhase.FAILED_TERMINAL -> CoordinatorSyncPhase.FailedTerminal
 }
 
+private fun CoreSyncReadiness.toDto(): CoordinatorReadiness = when (this) {
+    CoreSyncReadiness.DISCONNECTED -> CoordinatorReadiness.Disconnected
+    CoreSyncReadiness.AUTHENTICATED -> CoordinatorReadiness.Authenticated
+    CoreSyncReadiness.SYNCING_CRITICAL -> CoordinatorReadiness.SyncingCritical
+    CoreSyncReadiness.READY -> CoordinatorReadiness.Ready
+    CoreSyncReadiness.CRITICAL_FAILED -> CoordinatorReadiness.CriticalFailed
+}
+
+private fun CoreSyncCriticalFailure.toDto(): CoordinatorCriticalFailure = when (this) {
+    CoreSyncCriticalFailure.NETWORK -> CoordinatorCriticalFailure.Network
+    CoreSyncCriticalFailure.SERVER_UNAVAILABLE -> CoordinatorCriticalFailure.ServerUnavailable
+    CoreSyncCriticalFailure.PROTOCOL -> CoordinatorCriticalFailure.Protocol
+    CoreSyncCriticalFailure.STORAGE -> CoordinatorCriticalFailure.Storage
+    CoreSyncCriticalFailure.UNKNOWN -> CoordinatorCriticalFailure.Unknown
+}
+
 private fun CoreSyncRunKind.toDto(): SyncRunKind = when (this) {
     CoreSyncRunKind.BOOTSTRAP -> SyncRunKind.Bootstrap
     CoreSyncRunKind.RESUME -> SyncRunKind.Resume
 }
 
 private fun mapSyncState(state: CoreSyncStateSnapshot): SyncState = SyncState(
+    readiness = state.readiness.toDto(),
+    failure = state.failure?.toDto(),
+    retryable = state.retryable,
     phase = state.phase.toDto(),
     runKind = state.runKind?.toDto(),
     attempt = state.attempt.toUInt(),
@@ -2921,6 +2942,9 @@ private fun mapSyncState(state: CoreSyncStateSnapshot): SyncState = SyncState(
 )
 
 private fun idleSyncState(): SyncState = SyncState(
+    readiness = CoordinatorReadiness.Disconnected,
+    failure = null,
+    retryable = true,
     phase = CoordinatorSyncPhase.Idle,
     runKind = null,
     attempt = 0u,
@@ -2943,6 +2967,9 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
 
     is CoreSdkEvent.SyncStateChanged -> SdkEventPayload(
         type = "sync_state_changed",
+        syncReadiness = event.state.readiness.toDto(),
+        syncFailure = event.state.failure?.toDto(),
+        syncRetryable = event.state.retryable,
         syncPhase = event.state.phase.toDto(),
         syncRunKind = event.state.runKind?.toDto(),
         syncAttempt = event.state.attempt.toUInt(),

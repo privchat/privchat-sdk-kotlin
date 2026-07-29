@@ -16754,6 +16754,9 @@ object FfiConverterTypeSyncPayloadEntry: FfiConverterRustBuffer<SyncPayloadEntry
 object FfiConverterTypeSyncStateSnapshot: FfiConverterRustBuffer<SyncStateSnapshot> {
     override fun read(buf: ByteBuffer): SyncStateSnapshot {
         return SyncStateSnapshot(
+            FfiConverterTypeSyncReadiness.read(buf),
+            FfiConverterOptionalTypeSyncCriticalFailure.read(buf),
+            FfiConverterBoolean.read(buf),
             FfiConverterTypeSyncPhase.read(buf),
             FfiConverterOptionalTypeSyncRunKind.read(buf),
             FfiConverterUInt.read(buf),
@@ -16764,6 +16767,9 @@ object FfiConverterTypeSyncStateSnapshot: FfiConverterRustBuffer<SyncStateSnapsh
     }
 
     override fun allocationSize(value: SyncStateSnapshot) = (
+            FfiConverterTypeSyncReadiness.allocationSize(value.`readiness`) +
+            FfiConverterOptionalTypeSyncCriticalFailure.allocationSize(value.`failure`) +
+            FfiConverterBoolean.allocationSize(value.`retryable`) +
             FfiConverterTypeSyncPhase.allocationSize(value.`phase`) +
             FfiConverterOptionalTypeSyncRunKind.allocationSize(value.`runKind`) +
             FfiConverterUInt.allocationSize(value.`attempt`) +
@@ -16773,6 +16779,9 @@ object FfiConverterTypeSyncStateSnapshot: FfiConverterRustBuffer<SyncStateSnapsh
     )
 
     override fun write(value: SyncStateSnapshot, buf: ByteBuffer) {
+            FfiConverterTypeSyncReadiness.write(value.`readiness`, buf)
+            FfiConverterOptionalTypeSyncCriticalFailure.write(value.`failure`, buf)
+            FfiConverterBoolean.write(value.`retryable`, buf)
             FfiConverterTypeSyncPhase.write(value.`phase`, buf)
             FfiConverterOptionalTypeSyncRunKind.write(value.`runKind`, buf)
             FfiConverterUInt.write(value.`attempt`, buf)
@@ -18558,6 +18567,26 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
 
 
 
+object FfiConverterTypeSyncCriticalFailure: FfiConverterRustBuffer<SyncCriticalFailure> {
+    override fun read(buf: ByteBuffer) = try {
+        SyncCriticalFailure.values()[buf.getInt() - 1]
+    } catch (e: IndexOutOfBoundsException) {
+        throw RuntimeException("invalid enum value, something is very wrong!!", e)
+    }
+
+    override fun allocationSize(value: SyncCriticalFailure) = 4UL
+
+    override fun write(value: SyncCriticalFailure, buf: ByteBuffer) {
+        buf.putInt(value.ordinal + 1)
+    }
+}
+
+
+
+
+
+
+
 object FfiConverterTypeSyncPhase: FfiConverterRustBuffer<SyncPhase> {
     override fun read(buf: ByteBuffer) = try {
         SyncPhase.values()[buf.getInt() - 1]
@@ -18568,6 +18597,26 @@ object FfiConverterTypeSyncPhase: FfiConverterRustBuffer<SyncPhase> {
     override fun allocationSize(value: SyncPhase) = 4UL
 
     override fun write(value: SyncPhase, buf: ByteBuffer) {
+        buf.putInt(value.ordinal + 1)
+    }
+}
+
+
+
+
+
+
+
+object FfiConverterTypeSyncReadiness: FfiConverterRustBuffer<SyncReadiness> {
+    override fun read(buf: ByteBuffer) = try {
+        SyncReadiness.values()[buf.getInt() - 1]
+    } catch (e: IndexOutOfBoundsException) {
+        throw RuntimeException("invalid enum value, something is very wrong!!", e)
+    }
+
+    override fun allocationSize(value: SyncReadiness) = 4UL
+
+    override fun write(value: SyncReadiness, buf: ByteBuffer) {
         buf.putInt(value.ordinal + 1)
     }
 }
@@ -19312,6 +19361,35 @@ public object FfiConverterOptionalTypeSdkEvent: FfiConverterRustBuffer<SdkEvent?
         } else {
             buf.put(1)
             FfiConverterTypeSdkEvent.write(value, buf)
+        }
+    }
+}
+
+
+
+
+public object FfiConverterOptionalTypeSyncCriticalFailure: FfiConverterRustBuffer<SyncCriticalFailure?> {
+    override fun read(buf: ByteBuffer): SyncCriticalFailure? {
+        if (buf.get().toInt() == 0) {
+            return null
+        }
+        return FfiConverterTypeSyncCriticalFailure.read(buf)
+    }
+
+    override fun allocationSize(value: SyncCriticalFailure?): ULong {
+        if (value == null) {
+            return 1UL
+        } else {
+            return 1UL + FfiConverterTypeSyncCriticalFailure.allocationSize(value)
+        }
+    }
+
+    override fun write(value: SyncCriticalFailure?, buf: ByteBuffer) {
+        if (value == null) {
+            buf.put(0)
+        } else {
+            buf.put(1)
+            FfiConverterTypeSyncCriticalFailure.write(value, buf)
         }
     }
 }

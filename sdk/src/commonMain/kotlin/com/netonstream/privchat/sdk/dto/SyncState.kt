@@ -8,12 +8,32 @@ enum class CoordinatorSyncPhase {
     FailedTerminal,
 }
 
+enum class CoordinatorReadiness {
+    Disconnected,
+    Authenticated,
+    SyncingCritical,
+    Ready,
+    CriticalFailed,
+}
+
+enum class CoordinatorCriticalFailure {
+    Network,
+    ServerUnavailable,
+    Protocol,
+    Storage,
+    Unknown,
+}
+
 enum class SyncRunKind {
     Bootstrap,
     Resume,
 }
 
 data class SyncState(
+    val readiness: CoordinatorReadiness,
+    val failure: CoordinatorCriticalFailure?,
+    val retryable: Boolean,
+    /** Compatibility projection. New consumers must use [readiness]. */
     val phase: CoordinatorSyncPhase,
     val runKind: SyncRunKind?,
     val attempt: UInt,

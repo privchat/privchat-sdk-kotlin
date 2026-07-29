@@ -5319,6 +5319,15 @@ data class SyncPayloadEntry (
 
 
 data class SyncStateSnapshot (
+    var `readiness`: SyncReadiness
+        , 
+    var `failure`: SyncCriticalFailure?
+         = null , 
+    var `retryable`: kotlin.Boolean
+        , 
+    /**
+     * Compatibility projection for hosts that have not migrated to `readiness`.
+     */
     var `phase`: SyncPhase
         , 
     var `runKind`: SyncRunKind?
@@ -6292,6 +6301,22 @@ sealed class SdkEvent {
 
 
 
+enum class SyncCriticalFailure {
+    
+    NETWORK,
+    SERVER_UNAVAILABLE,
+    PROTOCOL,
+    STORAGE,
+    UNKNOWN;
+    companion object
+}
+
+
+
+
+
+
+
 enum class SyncPhase {
     
     IDLE,
@@ -6299,6 +6324,22 @@ enum class SyncPhase {
     SYNCED,
     RETRYING,
     FAILED_TERMINAL;
+    companion object
+}
+
+
+
+
+
+
+
+enum class SyncReadiness {
+    
+    DISCONNECTED,
+    AUTHENTICATED,
+    SYNCING_CRITICAL,
+    READY,
+    CRITICAL_FAILED;
     companion object
 }
 
@@ -6358,6 +6399,8 @@ interface VideoProcessHook {
     
     companion object
 }
+
+
 
 
 

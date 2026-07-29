@@ -34,6 +34,10 @@ data class SdkEventPayload(
     val channelsScanned: ULong? = null,
     val channelsApplied: ULong? = null,
     val channelFailures: ULong? = null,
+    val syncReadiness: CoordinatorReadiness? = null,
+    val syncFailure: CoordinatorCriticalFailure? = null,
+    val syncRetryable: Boolean? = null,
+    /** Compatibility projection. New consumers must use [syncReadiness]. */
     val syncPhase: CoordinatorSyncPhase? = null,
     val syncRunKind: SyncRunKind? = null,
     val syncAttempt: UInt? = null,
