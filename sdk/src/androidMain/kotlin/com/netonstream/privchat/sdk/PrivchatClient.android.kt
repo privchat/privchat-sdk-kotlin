@@ -389,27 +389,36 @@ actual class PrivchatClient private actual constructor() {
             )
             if (snapshot == null) return@runCatching false
             val state = c.connectionState()
+            val transportConnected = c.isConnected()
             println(
-                "[TRACE-A1][kotlin][restoreLocalSession] connectionState_before=$state"
+                "[TRACE-A1][kotlin][restoreLocalSession] connectionState_before=$state " +
+                    "transport_connected=$transportConnected"
             )
-            // 已认证：connect() 的自动重连已用持久化 session 完成握手。再调 authenticate 会在
-            // 服务端新建一个 session 顶替刚建立的（session supersede + 多一轮 auth/sync 往返），
-            // 冷启动纯浪费。直接视为已恢复，跳过重复 authenticate。
-            if (state == CoreConnectionState.AUTHENTICATED) {
+            val restorePlan = planLocalSessionRestore(state, transportConnected)
+            if (restorePlan == LocalSessionRestorePlan.ReuseAuthenticated) {
                 println(
-                    "[TRACE-A1][kotlin][restoreLocalSession] already AUTHENTICATED, skip redundant authenticate"
+                    "[TRACE-A1][kotlin][restoreLocalSession] authenticated transport is live, " +
+                        "skip redundant authenticate"
                 )
                 cachedUserId = snapshot.userId
                 cachedConnectionState = ConnectionState.Connected
                 return@runCatching true
             }
-            if (state == CoreConnectionState.NEW || state == CoreConnectionState.SHUTDOWN) {
-                println("[TRACE-A1][kotlin][restoreLocalSession] calling c.connect() because state=$state")
+            if (restorePlan == LocalSessionRestorePlan.ConnectAndResume) {
+                println(
+                    "[TRACE-A1][kotlin][restoreLocalSession] calling c.connect() because " +
+                        "state=$state transport_connected=$transportConnected"
+                )
                 c.connect()
                 val stateAfterConnect = c.connectionState()
                 println(
                     "[TRACE-A1][kotlin][restoreLocalSession] connectionState_after_connect=$stateAfterConnect"
                 )
+                if (stateAfterConnect == CoreConnectionState.AUTHENTICATED) {
+                    cachedUserId = snapshot.userId
+                    cachedConnectionState = ConnectionState.Connected
+                    return@runCatching true
+                }
             }
             // A-1 trace: 调 c.authenticate 前后的连接状态。若抛异常，runCatching 会接住，
             // onFailure 会打印 throwable.message。
