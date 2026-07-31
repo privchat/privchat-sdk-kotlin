@@ -1243,7 +1243,7 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_pause_message_media_download(`ptr`: Pointer?,`messageId`: Long,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_persist_user_profile_local(`ptr`: Pointer?,`targetUserId`: Long,
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_persist_user_profile_local(`ptr`: Pointer?,`targetUserId`: Long,`channelId`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_pin_channel(`ptr`: Pointer?,`channelId`: Long,`pinned`: Byte,
     ): Long
@@ -2646,7 +2646,7 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_unread_mention_count() != 27611.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_user_by_id() != 3974.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_user_by_id() != 3097.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_add_members_remote() != 44103.toShort()) {
@@ -2892,7 +2892,7 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_pause_message_media_download() != 5741.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_persist_user_profile_local() != 26734.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_persist_user_profile_local() != 51657.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_pin_channel() != 14522.toShort()) {
@@ -5681,6 +5681,25 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     
+    /**
+     * **纯本地读。** 不发任何网络请求。
+     *
+     * 这里曾经有一段「本地没有 → 直接 RPC 拉 detail → 写回」的兜底，`source` 硬编码成
+     * `"user_cache"`。那不是一种来源,而是调用方所在的缓存层名字漏进了一个语义为
+     * 「你凭什么认识这个人」的字段——协议侧 `ProfileSource` 枚举里根本没有它
+     * (PROFILE_VISIBILITY §2.5 的来源白名单:search/group/friend/friend_pending/
+     * card_share/conversation/self)。
+     *
+     * 服务端 2026-07-28 上线来源校验后,这段代码 **100% 返回 10100**,而错误被 `.ok()`
+     * 吞掉、写回一步从此再没执行过。生产实测:`account/user/detail` 三小时 5145 次调用中
+     * 732 次是这个错误码。它不只是没用,它还在替真正的调用方掩盖问题——上层拿到 `None`
+     * 时无法区分「这个人不存在」和「我刚偷偷问了一次但被拒了」。
+     *
+     * 正确的补拉入口是 Kotlin 侧的 `getUserProfileLocalFirst(user_id, context)`:它由
+     * **有上下文的调用方**声明真实来源(会话里传 `Conversation(channel_id)`、群成员列表传
+     * `Group(group_id)`),没有合法来源时按 `Unknown` 只读本地、根本不发请求。一个拿不到
+     * 上下文的底层函数没有资格代它编一个。
+     */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `getUserById`(`userId`: kotlin.ULong) : StoredUser? {
@@ -7418,15 +7437,20 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     /**
      * 拉一次 `account/user/detail` 并把对端用户写入本地 users 表。
      * 用于 follow 后让会话头显示昵称/头像，spec BOT_INTERACTION_SPEC §3.0。
+     *
+     * [channel_id] 是双方共处的会话——即本次请求向服务端声明的**真实来源**
+     * (`conversation:{channel_id}`,PROFILE_VISIBILITY §2.5:viewer ∈ channel ∧
+     * target ∈ channel → 公开投影)。此处原本固定报 `friend`,而 follow 一个 bot
+     * 并不建立好友关系,闸口一律以 10004 拒绝,写回从未发生。
      */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `persistUserProfileLocal`(`targetUserId`: kotlin.ULong) {
+    actual override suspend fun `persistUserProfileLocal`(`targetUserId`: kotlin.ULong, `channelId`: kotlin.ULong) {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_persist_user_profile_local(
                 thisPtr,
-                FfiConverterULong.lower(`targetUserId`),
+                FfiConverterULong.lower(`targetUserId`),FfiConverterULong.lower(`channelId`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },

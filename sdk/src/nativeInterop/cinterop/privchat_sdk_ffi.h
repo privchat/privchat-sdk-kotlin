@@ -540,7 +540,7 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_paginate_forward(void *
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_pause_message_media_download(void * ptr, int64_t messageId
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_persist_user_profile_local(void * ptr, int64_t targetUserId
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_persist_user_profile_local(void * ptr, int64_t targetUserId, int64_t channelId
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_pin_channel(void * ptr, int64_t channelId, int8_t pinned
 );
