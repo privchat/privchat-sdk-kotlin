@@ -64,4 +64,12 @@ data class MessagesAroundPage(
 data class MessageHistoryPage(
     val messages: List<MessageEntry>,
     val hasMoreBefore: Boolean,
+    /**
+     * 本次是否真的向服务端取过数据（仅 openConversation 会置 true）。
+     *
+     * 纯诊断用，不参与渲染。存在的理由：空列表有两种成因——「服务端确实没有」和
+     * 「压根没去问」——不区分的话，一个没生效的补历史修复看起来和一个真空会话
+     * 一模一样，验收时无从判断。
+     */
+    val fetchedFromServer: Boolean = false,
 )

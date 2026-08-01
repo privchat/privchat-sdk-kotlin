@@ -877,6 +877,7 @@ actual class PrivchatClient private actual constructor() {
             com.netonstream.privchat.sdk.dto.MessageHistoryPage(
                 messages = view.messages.map { it.toCommonMessage(c, cachedUserId) },
                 hasMoreBefore = view.hasMoreBefore,
+                fetchedFromServer = view.fetchedFromServer,
             )
         }.fold(
             onSuccess = { Result.success(it) },
