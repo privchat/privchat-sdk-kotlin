@@ -111,14 +111,22 @@ actual class PrivchatClient private actual constructor() {
     actual val syncStateFlow: StateFlow<SyncState> = mutableSyncState.asStateFlow()
 
     /**
-     * Core 会话阶段的无损投影，由既有的 1.5s 监控喂（不新增定时器）。
+     * Core 会话快照的投影，由既有的 1.5s 监控喂（不新增定时器）。
      *
      * 宿主的连接横幅必须用这个而不是 [connectionState]：后者把 CONNECTED /
      * LOGGED_IN / AUTHENTICATED 折叠成 Connected，拿它撤横幅会在「连上但没鉴权」
-     * 的窗口里谎报就绪。
+     * 的窗口里谎报就绪；而且它不带账号身份，无法防串号。
+     *
+     * 生命周期方法（disconnect/close/shutdown/switchLocalAccount）必须**立即**推一次，
+     * 不能等下一个 tick：轮询已经停了的话，flow 会永久停在关停前的最后一个值上。
      */
-    private val mutableSessionPhase = MutableStateFlow(SessionPhase.New)
-    actual val sessionPhaseFlow: StateFlow<SessionPhase> = mutableSessionPhase.asStateFlow()
+    private val mutableSessionSnapshot = MutableStateFlow(SessionSnapshot.Unknown)
+    actual val sessionSnapshotFlow: StateFlow<SessionSnapshot> = mutableSessionSnapshot.asStateFlow()
+
+    /** 会话终止/关停：立刻把快照打到终态，保留 uid/epoch 以便消费方识别是哪一次会话。 */
+    private fun markSessionPhase(phase: SessionPhase) {
+        mutableSessionSnapshot.value = mutableSessionSnapshot.value.copy(phase = phase)
+    }
 
     internal constructor(core: CorePrivchatClient) : this() {
         this.coreClient = core
@@ -143,6 +151,7 @@ actual class PrivchatClient private actual constructor() {
         return callAsync("Disconnect failed") {
             c.disconnect()
             cachedConnectionState = ConnectionState.Disconnected
+            markSessionPhase(SessionPhase.New)
             runCatching { c.clearPresenceCache() }
         }
     }
@@ -162,6 +171,8 @@ actual class PrivchatClient private actual constructor() {
         backgroundScope.coroutineContext.cancel()
         cachedConnectionState = ConnectionState.Disconnected
         cachedUserId = null
+        // 监控已随 scope 取消：不在这里推，flow 会永久停在关停前那一刻的值上。
+        markSessionPhase(SessionPhase.Shutdown)
     }
 
     actual fun isConnected(): Boolean = cachedConnectionState == ConnectionState.Connected
@@ -185,16 +196,22 @@ actual class PrivchatClient private actual constructor() {
         connectionMonitorJob = backgroundScope.launch {
             while (isActive) {
                 if (coreClient !== core) break
-                runCatching { core.connectionState() }
-                    .onSuccess { state ->
-                        cachedConnectionState = state.toCommonConnectionState()
-                        // 同一次读取同时喂精确阶段：一次 FFI 调用，两个消费者，
-                        // 不需要在 App 侧再起一个轮询。
-                        mutableSessionPhase.value = state.toSessionPhase()
+                // 一次 FFI 调用喂两个消费者（旧的粗粒度 ConnectionState + 精确快照），
+                // 不需要在 App 侧再起一个轮询。
+                runCatching { core.sessionStatus() }
+                    .onSuccess { status ->
+                        cachedConnectionState = status.state.toCommonConnectionState()
+                        mutableSessionSnapshot.value = SessionSnapshot(
+                            phase = status.state.toSessionPhase(),
+                            accountUid = status.accountUid,
+                            sessionEpoch = status.sessionEpoch,
+                        )
                     }
                     .onFailure {
+                        // 读不到 Core 状态 = 不知道，按未连接处理；但**保留** uid/epoch，
+                        // 抹掉身份会让消费方把下一帧误判成新会话。
                         cachedConnectionState = ConnectionState.Disconnected
-                        mutableSessionPhase.value = SessionPhase.New
+                        markSessionPhase(SessionPhase.New)
                     }
                 runCatching { core.syncState() }
                     .onSuccess { state -> mutableSyncState.value = mapSyncState(state) }
@@ -210,6 +227,7 @@ actual class PrivchatClient private actual constructor() {
                     it.shutdown()
                     cachedConnectionState = ConnectionState.Disconnected
                     cachedUserId = null
+                    markSessionPhase(SessionPhase.Shutdown)
                 }
             },
             onFailure = { Result.failure(it) },
@@ -999,6 +1017,15 @@ actual class PrivchatClient private actual constructor() {
         return callAsync("switchLocalAccount failed") {
             c.switchLocalAccount(uid)
             cachedUserId = uid.toULongOrNull()
+            // 立刻取一次权威快照：切号后 session 处于 New 且世代已自增，等到下一个
+            // tick 才更新的话，中间这段时间消费方会把旧账号的快照当成新账号的。
+            runCatching { c.sessionStatus() }.onSuccess { status ->
+                mutableSessionSnapshot.value = SessionSnapshot(
+                    phase = status.state.toSessionPhase(),
+                    accountUid = status.accountUid,
+                    sessionEpoch = status.sessionEpoch,
+                )
+            }
         }
     }
 

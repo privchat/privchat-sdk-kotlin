@@ -853,6 +853,8 @@ get() = useContents { `uniffiFree`/* test  Any? */}
 
 
 
+
+
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -1376,6 +1378,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_servers(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_session_snapshot(`ptr`: Pointer?,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_session_status(`ptr`: Pointer?,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_channel_favourite(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`enabled`: Byte,
     ): Long
@@ -2156,6 +2160,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_servers(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_session_snapshot(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_session_status(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_channel_favourite(
     ): Short
@@ -3328,6 +3334,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_session_snapshot(`ptr`: Pointer?,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_session_snapshot(`ptr`?.inner,)as Long
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_session_status(`ptr`: Pointer?,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_session_status(`ptr`?.inner,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_channel_favourite(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`enabled`: Byte,
     ): Long
@@ -4888,6 +4898,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_session_snapshot(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_session_snapshot()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_session_status(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_session_status()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_channel_favourite(
     ): Short
@@ -10918,6 +10932,34 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     
+    /**
+     * 会话状态快照：精确阶段 + 账号 uid + 会话世代，一次原子读出。
+     *
+     * 宿主对账连接横幅时必须用它，不要用 [`connection_state`]：那个值不带身份，
+     * 而同一个 client 会原地切号，「读到阶段后再问当前是谁」两次读之间账号可能已换。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `sessionStatus`() : SessionStatus {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_session_status(
+                thisPtr,
+                
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterTypeSessionStatus.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `setChannelFavourite`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `enabled`: kotlin.Boolean) {
@@ -15848,6 +15890,31 @@ object FfiConverterTypeSessionSnapshot: FfiConverterRustBuffer<SessionSnapshot> 
             FfiConverterString.write(value.`token`, buf)
             FfiConverterString.write(value.`deviceId`, buf)
             FfiConverterBoolean.write(value.`bootstrapCompleted`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeSessionStatus: FfiConverterRustBuffer<SessionStatus> {
+    override fun read(buf: ByteBuffer): SessionStatus {
+        return SessionStatus(
+            FfiConverterTypeConnectionState.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterULong.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: SessionStatus) = (
+            FfiConverterTypeConnectionState.allocationSize(value.`state`) +
+            FfiConverterOptionalString.allocationSize(value.`accountUid`) +
+            FfiConverterULong.allocationSize(value.`sessionEpoch`)
+    )
+
+    override fun write(value: SessionStatus, buf: ByteBuffer) {
+            FfiConverterTypeConnectionState.write(value.`state`, buf)
+            FfiConverterOptionalString.write(value.`accountUid`, buf)
+            FfiConverterULong.write(value.`sessionEpoch`, buf)
     }
 }
 

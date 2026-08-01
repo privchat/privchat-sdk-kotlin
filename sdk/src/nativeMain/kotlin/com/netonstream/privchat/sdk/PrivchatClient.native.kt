@@ -118,9 +118,18 @@ actual class PrivchatClient private actual constructor() {
     private val mutableSyncState = MutableStateFlow(idleSyncState())
     actual val syncStateFlow: StateFlow<SyncState> = mutableSyncState.asStateFlow()
 
-    /** Core 会话阶段的无损投影，由既有监控喂（见 [SessionPhase]）。 */
-    private val mutableSessionPhase = MutableStateFlow(SessionPhase.New)
-    actual val sessionPhaseFlow: StateFlow<SessionPhase> = mutableSessionPhase.asStateFlow()
+    /**
+     * Core 会话快照的投影，由既有监控喂（见 [SessionSnapshot]）。行为必须与 Android
+     * 侧逐字一致——两端在这里分叉过一次：一边查询失败写 New、一边保留旧值，
+     * 于是同一个宿主逻辑在两端表现不同。
+     */
+    private val mutableSessionSnapshot = MutableStateFlow(SessionSnapshot.Unknown)
+    actual val sessionSnapshotFlow: StateFlow<SessionSnapshot> = mutableSessionSnapshot.asStateFlow()
+
+    /** 会话终止/关停：立刻把快照打到终态，保留 uid/epoch 以便消费方识别是哪一次会话。 */
+    private fun markSessionPhase(phase: SessionPhase) {
+        mutableSessionSnapshot.value = mutableSessionSnapshot.value.copy(phase = phase)
+    }
 
     internal constructor(core: CorePrivchatClient) : this() {
         this.coreClient = core
@@ -145,6 +154,7 @@ actual class PrivchatClient private actual constructor() {
         return callAsync("Disconnect failed") {
             c.disconnect()
             cachedConnectionState = ConnectionState.Disconnected
+            markSessionPhase(SessionPhase.New)
             runCatching { c.clearPresenceCache() }
         }
     }
@@ -164,6 +174,8 @@ actual class PrivchatClient private actual constructor() {
         backgroundScope.coroutineContext.cancel()
         cachedConnectionState = ConnectionState.Disconnected
         cachedUserId = null
+        // 监控已随 scope 取消：不在这里推，flow 会永久停在关停前那一刻的值上。
+        markSessionPhase(SessionPhase.Shutdown)
     }
 
     actual fun isConnected(): Boolean = cachedConnectionState == ConnectionState.Connected
@@ -187,10 +199,20 @@ actual class PrivchatClient private actual constructor() {
         connectionMonitorJob = backgroundScope.launch {
             while (isActive) {
                 if (coreClient !== core) break
-                runCatching { core.connectionState() }
-                    .onSuccess { state ->
-                        cachedConnectionState = state.toCommonConnectionState()
-                        mutableSessionPhase.value = state.toSessionPhase()
+                // 一次 FFI 调用喂两个消费者（旧的粗粒度 ConnectionState + 精确快照）。
+                runCatching { core.sessionStatus() }
+                    .onSuccess { status ->
+                        cachedConnectionState = status.state.toCommonConnectionState()
+                        mutableSessionSnapshot.value = SessionSnapshot(
+                            phase = status.state.toSessionPhase(),
+                            accountUid = status.accountUid,
+                            sessionEpoch = status.sessionEpoch,
+                        )
+                    }
+                    .onFailure {
+                        // 与 Android 一致：读不到 = 按未连接处理，但保留 uid/epoch。
+                        cachedConnectionState = ConnectionState.Disconnected
+                        markSessionPhase(SessionPhase.New)
                     }
                     .onFailure { cachedConnectionState = ConnectionState.Disconnected }
                 runCatching { core.syncState() }
@@ -207,6 +229,7 @@ actual class PrivchatClient private actual constructor() {
                     it.shutdown()
                     cachedConnectionState = ConnectionState.Disconnected
                     cachedUserId = null
+                    markSessionPhase(SessionPhase.Shutdown)
                 }
             },
             onFailure = { Result.failure(it) },
@@ -951,6 +974,14 @@ actual class PrivchatClient private actual constructor() {
         return callAsync("switchLocalAccount failed") {
             c.switchLocalAccount(uid)
             cachedUserId = uid.toULongOrNull()
+            // 立刻取一次权威快照，理由同 Android 侧。
+            runCatching { c.sessionStatus() }.onSuccess { status ->
+                mutableSessionSnapshot.value = SessionSnapshot(
+                    phase = status.state.toSessionPhase(),
+                    accountUid = status.accountUid,
+                    sessionEpoch = status.sessionEpoch,
+                )
+            }
         }
     }
 

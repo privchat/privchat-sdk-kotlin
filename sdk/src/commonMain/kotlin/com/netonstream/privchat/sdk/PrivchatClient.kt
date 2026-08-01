@@ -219,12 +219,13 @@ expect class PrivchatClient private constructor() {
     val syncStateFlow: StateFlow<SyncState>
 
     /**
-     * Core 会话阶段的无损投影（见 [SessionPhase]）。
+     * Core 会话快照（见 [SessionSnapshot]）。
      *
      * 连接横幅、出站闸门这类「是否真的就绪」的判断必须读它，不能读
-     * [connectionState]——后者把 CONNECTED/LOGGED_IN/AUTHENTICATED 折叠成 Connected。
+     * [connectionState]——后者把 CONNECTED/LOGGED_IN/AUTHENTICATED 折叠成 Connected，
+     * 而且不带账号身份，无法防串号。
      */
-    val sessionPhaseFlow: StateFlow<SessionPhase>
+    val sessionSnapshotFlow: StateFlow<SessionSnapshot>
     /** Compatibility API. New code should call [ensureSynced]. */
     suspend fun runBootstrapSync(): Result<Unit>
     fun runBootstrapSyncInBackground()

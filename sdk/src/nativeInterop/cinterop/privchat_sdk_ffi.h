@@ -670,6 +670,8 @@ RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_servers(void * ptr, 
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_session_snapshot(void * ptr
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_session_status(void * ptr
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_channel_favourite(void * ptr, int64_t channelId, int32_t channelType, int8_t enabled
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_channel_hidden_local(void * ptr, int64_t channelId, int8_t hidden
@@ -1708,6 +1710,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_servers(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_session_snapshot(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_session_status(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_channel_favourite(void

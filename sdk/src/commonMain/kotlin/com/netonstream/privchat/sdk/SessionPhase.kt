@@ -31,3 +31,27 @@ enum class SessionPhase {
     /** 客户端已关停。 */
     Shutdown,
 }
+
+/**
+ * 会话状态快照：阶段 + 它属于**哪个账号的哪一次会话**。
+ *
+ * 三个字段必须一起消费。宿主拿到阶段后再去问一次「当前账号是谁」是不安全的：
+ * 两次读之间账号可能已经换过，而同一个 [PrivchatClient] 会**原地**切号
+ * （`switchLocalAccount`），所以 client 身份并不等于账号身份。
+ */
+data class SessionSnapshot(
+    val phase: SessionPhase,
+    /** 当前账号 uid，未登录为 `null`。 */
+    val accountUid: String?,
+    /**
+     * 会话世代。只有**显式**建立或废弃会话（登录/注册/鉴权/切号/登出/擦除）才自增；
+     * 普通重连不增——重连不是新会话，若在那里自增，强制登出的终态会被下一次自动重连
+     * 悄悄抹掉。
+     */
+    val sessionEpoch: ULong,
+) {
+    companion object {
+        /** 尚未建立任何会话时的初值，也是 client 关停后的终值。 */
+        val Unknown = SessionSnapshot(SessionPhase.New, accountUid = null, sessionEpoch = 0uL)
+    }
+}

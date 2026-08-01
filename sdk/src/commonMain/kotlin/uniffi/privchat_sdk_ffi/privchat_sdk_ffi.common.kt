@@ -735,6 +735,14 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `sessionSnapshot`(): SessionSnapshot?
     
+    /**
+     * 会话状态快照：精确阶段 + 账号 uid + 会话世代，一次原子读出。
+     *
+     * 宿主对账连接横幅时必须用它，不要用 [`connection_state`]：那个值不带身份，
+     * 而同一个 client 会原地切号，「读到阶段后再问当前是谁」两次读之间账号可能已换。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `sessionStatus`(): SessionStatus
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setChannelFavourite`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `enabled`: kotlin.Boolean)
     
     /**
@@ -2305,6 +2313,17 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `sessionSnapshot`() : SessionSnapshot?
+
+    
+    /**
+     * 会话状态快照：精确阶段 + 账号 uid + 会话世代，一次原子读出。
+     *
+     * 宿主对账连接横幅时必须用它，不要用 [`connection_state`]：那个值不带身份，
+     * 而同一个 client 会原地切号，「读到阶段后再问当前是谁」两次读之间账号可能已换。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `sessionStatus`() : SessionStatus
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -4739,6 +4758,29 @@ data class SessionSnapshot (
     var `deviceId`: kotlin.String
         , 
     var `bootstrapCompleted`: kotlin.Boolean
+        
+) {
+    
+    companion object
+}
+
+
+
+/**
+ * 会话状态快照：精确阶段 + 账号 uid + 会话世代，一次原子读出。见 SDK 同名类型。
+ */
+data class SessionStatus (
+    var `state`: ConnectionState
+        , 
+    /**
+     * 当前账号 uid，未登录为 `None`。
+     */
+    var `accountUid`: kotlin.String?
+         = null , 
+    /**
+     * 只有显式建立/废弃会话（登录/注册/鉴权/切号/登出）才自增；普通重连不增。
+     */
+    var `sessionEpoch`: kotlin.ULong
         
 ) {
     
