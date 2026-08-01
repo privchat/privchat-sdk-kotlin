@@ -164,6 +164,22 @@ expect class PrivchatClient private constructor() {
         limit: UInt,
     ): Result<MessageHistoryPage>
 
+    /**
+     * 打开会话（SDK-HISTORY-7）：本地为渲染真源，本地为空时补一次**最新**窗口。
+     *
+     * 打开会话此前是纯本地读（[getMessagesByType]），本地没有就永远显示「暂无聊天内容」。
+     * 上滑翻页（[fetchOlderHistory]）救不了它——翻页需要一个已存在的锚点往前翻，
+     * 一条都没有时连起点都没有。
+     *
+     * 返回空列表 = 这个会话**确实**一条消息都没有，不是加载失败。UI 不得用占位/问候
+     * 消息填充——那是伪造历史。
+     */
+    suspend fun openConversation(
+        channelId: ULong,
+        channelType: Int,
+        limit: UInt,
+    ): Result<MessageHistoryPage>
+
     // ========== Storage ==========
     suspend fun getMessages(channelId: ULong, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>>
     suspend fun getMessagesByType(channelId: ULong, channelType: Int, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>>

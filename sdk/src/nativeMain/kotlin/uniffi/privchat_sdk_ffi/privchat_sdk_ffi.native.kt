@@ -855,6 +855,8 @@ get() = useContents { `uniffiFree`/* test  Any? */}
 
 
 
+
+
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -1241,6 +1243,8 @@ internal interface UniffiLib {
     ): Unit
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_typing_indicator(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
     ): Unit
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_open_conversation(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`limit`: Int,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_own_last_read(`ptr`: Pointer?,`channelId`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_paginate_back(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`page`: Long,`pageSize`: Long,
@@ -2022,6 +2026,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_on_reaction_changed(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_on_typing_indicator(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_open_conversation(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_own_last_read(
     ): Short
@@ -3058,6 +3064,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_typing_indicator(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
     ): Unit
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_typing_indicator(`ptr`?.inner,uniffiCallStatus.reinterpret(), )
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_open_conversation(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`limit`: Int,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_open_conversation(`ptr`?.inner,`channelId`,`channelType`,`limit`,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_own_last_read(`ptr`: Pointer?,`channelId`: Long,
     ): Long
@@ -4622,6 +4632,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_on_typing_indicator(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_on_typing_indicator()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_open_conversation(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_open_conversation()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_own_last_read(
     ): Short
@@ -9468,6 +9482,36 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
     
     
+
+    
+    /**
+     * SDK-HISTORY-7：打开会话。本地为渲染真源，本地为空时补一次**最新**窗口。
+     *
+     * 此前打开会话是纯本地读（`get_messages`），本地没有就永远显示「暂无聊天内容」——
+     * 上滑翻页救不了它，翻页需要一个已存在的锚点，一条都没有时连起点都没有。
+     *
+     * 空会话返回空列表，**不注入任何占位/问候消息**。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `openConversation`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `limit`: kotlin.UInt) : OpenConversationView {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_open_conversation(
+                thisPtr,
+                FfiConverterULong.lower(`channelId`),FfiConverterInt.lower(`channelType`),FfiConverterUInt.lower(`limit`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterTypeOpenConversationView.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -15078,6 +15122,31 @@ object FfiConverterTypeOlderHistoryView: FfiConverterRustBuffer<OlderHistoryView
     override fun write(value: OlderHistoryView, buf: ByteBuffer) {
             FfiConverterSequenceTypeStoredMessage.write(value.`messages`, buf)
             FfiConverterBoolean.write(value.`hasMoreBefore`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeOpenConversationView: FfiConverterRustBuffer<OpenConversationView> {
+    override fun read(buf: ByteBuffer): OpenConversationView {
+        return OpenConversationView(
+            FfiConverterSequenceTypeStoredMessage.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterBoolean.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: OpenConversationView) = (
+            FfiConverterSequenceTypeStoredMessage.allocationSize(value.`messages`) +
+            FfiConverterBoolean.allocationSize(value.`hasMoreBefore`) +
+            FfiConverterBoolean.allocationSize(value.`fetchedFromServer`)
+    )
+
+    override fun write(value: OpenConversationView, buf: ByteBuffer) {
+            FfiConverterSequenceTypeStoredMessage.write(value.`messages`, buf)
+            FfiConverterBoolean.write(value.`hasMoreBefore`, buf)
+            FfiConverterBoolean.write(value.`fetchedFromServer`, buf)
     }
 }
 

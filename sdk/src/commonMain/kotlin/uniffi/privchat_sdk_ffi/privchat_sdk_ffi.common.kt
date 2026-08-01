@@ -553,6 +553,16 @@ interface PrivchatClientInterface {
     fun `onReactionChanged`()
     fun `onTypingIndicator`()
     
+    /**
+     * SDK-HISTORY-7：打开会话。本地为渲染真源，本地为空时补一次**最新**窗口。
+     *
+     * 此前打开会话是纯本地读（`get_messages`），本地没有就永远显示「暂无聊天内容」——
+     * 上滑翻页救不了它，翻页需要一个已存在的锚点，一条都没有时连起点都没有。
+     *
+     * 空会话返回空列表，**不注入任何占位/问候消息**。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `openConversation`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `limit`: kotlin.UInt): OpenConversationView
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `ownLastRead`(`channelId`: kotlin.ULong): kotlin.ULong
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `paginateBack`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `page`: kotlin.ULong, `pageSize`: kotlin.ULong): List<StoredMessage>
@@ -1936,6 +1946,19 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
 
     override fun `onTypingIndicator`()
     
+
+    
+    /**
+     * SDK-HISTORY-7：打开会话。本地为渲染真源，本地为空时补一次**最新**窗口。
+     *
+     * 此前打开会话是纯本地读（`get_messages`），本地没有就永远显示「暂无聊天内容」——
+     * 上滑翻页救不了它，翻页需要一个已存在的锚点，一条都没有时连起点都没有。
+     *
+     * 空会话返回空列表，**不注入任何占位/问候消息**。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `openConversation`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `limit`: kotlin.UInt) : OpenConversationView
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -4258,6 +4281,27 @@ data class OlderHistoryView (
     var `messages`: List<StoredMessage>
         , 
     var `hasMoreBefore`: kotlin.Boolean
+        
+) {
+    
+    companion object
+}
+
+
+
+/**
+ * SDK-HISTORY-7 打开会话返回的最新窗口。
+ * [messages] 空 = 这个会话确实一条消息都没有（不是加载失败，也不许拿占位消息填充）。
+ */
+data class OpenConversationView (
+    var `messages`: List<StoredMessage>
+        , 
+    var `hasMoreBefore`: kotlin.Boolean
+        , 
+    /**
+     * 本次是否真的打了网络。仅供诊断。
+     */
+    var `fetchedFromServer`: kotlin.Boolean
         
 ) {
     

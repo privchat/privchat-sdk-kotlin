@@ -532,6 +532,8 @@ void uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_reaction_changed(void *
 );
 void uniffi_privchat_sdk_ffi_fn_method_privchatclient_on_typing_indicator(void * ptr, UniffiRustCallStatus *_Nonnull out_status
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_open_conversation(void * ptr, int64_t channelId, int32_t channelType, int32_t limit
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_own_last_read(void * ptr, int64_t channelId
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_paginate_back(void * ptr, int64_t channelId, int32_t channelType, int64_t page, int64_t pageSize
@@ -1503,6 +1505,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_on_reaction_chang
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_on_typing_indicator(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_open_conversation(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_own_last_read(void

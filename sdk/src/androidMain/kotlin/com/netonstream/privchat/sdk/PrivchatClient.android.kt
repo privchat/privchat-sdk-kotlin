@@ -909,6 +909,24 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun openConversation(
+        channelId: ULong,
+        channelType: Int,
+        limit: UInt,
+    ): Result<com.netonstream.privchat.sdk.dto.MessageHistoryPage> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val view = c.openConversation(channelId, channelType, limit)
+            com.netonstream.privchat.sdk.dto.MessageHistoryPage(
+                messages = view.messages.map { it.toCommonMessage(c, cachedUserId) },
+                hasMoreBefore = view.hasMoreBefore,
+            )
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("openConversation failed", it)) },
+        )
+    }
+
     actual suspend fun getMessages(channelId: ULong, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
