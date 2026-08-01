@@ -1062,8 +1062,21 @@ actual class PrivchatClient private actual constructor() {
     actual suspend fun getGroupMembers(groupId: ULong, limit: UInt?, offset: UInt?): Result<List<GroupMemberEntry>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
-            c.getGroupMembers(groupId, (limit ?: 200u).toULong(), (offset ?: 0u).toULong())
-                .map { it.toCommonGroupMember() }
+            if (limit != null) {
+                c.getGroupMembers(groupId, limit.toULong(), (offset ?: 0u).toULong())
+                    .map { it.toCommonGroupMember() }
+            } else {
+                val pageSize = 500uL
+                var nextOffset = (offset ?: 0u).toULong()
+                buildList {
+                    while (true) {
+                        val page = c.getGroupMembers(groupId, pageSize, nextOffset)
+                        addAll(page.map { it.toCommonGroupMember() })
+                        if (page.size < pageSize.toInt()) break
+                        nextOffset += page.size.toULong()
+                    }
+                }
+            }
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("getGroupMembers failed", it)) },
@@ -2643,13 +2656,18 @@ private fun StoredGroupMember.toCommonGroupMember() = GroupMemberEntry(
     userId = userId,
     channelId = groupId,
     channelType = 2,
-    name = alias ?: userId.toString(),
-    remark = alias ?: "",
-    avatar = "",
+    name = displayName,
+    remark = alias.orEmpty(),
+    avatar = avatar,
     role = role,
     status = status,
     inviteUserId = 0uL,
     joinedAt = joinedAt,
+    displayName = displayName,
+    username = username,
+    nickname = nickname,
+    userAlias = userAlias,
+    userType = userType,
 )
 
 private fun PresenceStatus.toCommonPresence() = PresenceEntry(

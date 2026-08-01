@@ -5168,6 +5168,18 @@ data class StoredGroupMember (
         , 
     var `alias`: kotlin.String?
          = null , 
+    var `username`: kotlin.String?
+         = null ,
+    var `nickname`: kotlin.String?
+         = null ,
+    var `userAlias`: kotlin.String?
+         = null ,
+    var `displayName`: kotlin.String
+        ,
+    var `avatar`: kotlin.String
+        ,
+    var `userType`: kotlin.Int
+        ,
     var `isMuted`: kotlin.Boolean
         , 
     var `joinedAt`: kotlin.Long
@@ -6718,5 +6730,4 @@ expect fun `gitSha`(): kotlin.String
 
 expect fun `sdkVersion`(): kotlin.String
     
-
 

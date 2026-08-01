@@ -16452,6 +16452,12 @@ object FfiConverterTypeStoredGroupMember: FfiConverterRustBuffer<StoredGroupMemb
             FfiConverterInt.read(buf),
             FfiConverterInt.read(buf),
             FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterInt.read(buf),
             FfiConverterBoolean.read(buf),
             FfiConverterLong.read(buf),
             FfiConverterLong.read(buf),
@@ -16464,6 +16470,12 @@ object FfiConverterTypeStoredGroupMember: FfiConverterRustBuffer<StoredGroupMemb
             FfiConverterInt.allocationSize(value.`role`) +
             FfiConverterInt.allocationSize(value.`status`) +
             FfiConverterOptionalString.allocationSize(value.`alias`) +
+            FfiConverterOptionalString.allocationSize(value.`username`) +
+            FfiConverterOptionalString.allocationSize(value.`nickname`) +
+            FfiConverterOptionalString.allocationSize(value.`userAlias`) +
+            FfiConverterString.allocationSize(value.`displayName`) +
+            FfiConverterString.allocationSize(value.`avatar`) +
+            FfiConverterInt.allocationSize(value.`userType`) +
             FfiConverterBoolean.allocationSize(value.`isMuted`) +
             FfiConverterLong.allocationSize(value.`joinedAt`) +
             FfiConverterLong.allocationSize(value.`updatedAt`)
@@ -16475,6 +16487,12 @@ object FfiConverterTypeStoredGroupMember: FfiConverterRustBuffer<StoredGroupMemb
             FfiConverterInt.write(value.`role`, buf)
             FfiConverterInt.write(value.`status`, buf)
             FfiConverterOptionalString.write(value.`alias`, buf)
+            FfiConverterOptionalString.write(value.`username`, buf)
+            FfiConverterOptionalString.write(value.`nickname`, buf)
+            FfiConverterOptionalString.write(value.`userAlias`, buf)
+            FfiConverterString.write(value.`displayName`, buf)
+            FfiConverterString.write(value.`avatar`, buf)
+            FfiConverterInt.write(value.`userType`, buf)
             FfiConverterBoolean.write(value.`isMuted`, buf)
             FfiConverterLong.write(value.`joinedAt`, buf)
             FfiConverterLong.write(value.`updatedAt`, buf)
