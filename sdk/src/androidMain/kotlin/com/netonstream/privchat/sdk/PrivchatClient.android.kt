@@ -110,6 +110,16 @@ actual class PrivchatClient private actual constructor() {
     private val mutableSyncState = MutableStateFlow(idleSyncState())
     actual val syncStateFlow: StateFlow<SyncState> = mutableSyncState.asStateFlow()
 
+    /**
+     * Core 会话阶段的无损投影，由既有的 1.5s 监控喂（不新增定时器）。
+     *
+     * 宿主的连接横幅必须用这个而不是 [connectionState]：后者把 CONNECTED /
+     * LOGGED_IN / AUTHENTICATED 折叠成 Connected，拿它撤横幅会在「连上但没鉴权」
+     * 的窗口里谎报就绪。
+     */
+    private val mutableSessionPhase = MutableStateFlow(SessionPhase.New)
+    actual val sessionPhaseFlow: StateFlow<SessionPhase> = mutableSessionPhase.asStateFlow()
+
     internal constructor(core: CorePrivchatClient) : this() {
         this.coreClient = core
         startConnectionMonitor(core)
@@ -176,8 +186,16 @@ actual class PrivchatClient private actual constructor() {
             while (isActive) {
                 if (coreClient !== core) break
                 runCatching { core.connectionState() }
-                    .onSuccess { state -> cachedConnectionState = state.toCommonConnectionState() }
-                    .onFailure { cachedConnectionState = ConnectionState.Disconnected }
+                    .onSuccess { state ->
+                        cachedConnectionState = state.toCommonConnectionState()
+                        // 同一次读取同时喂精确阶段：一次 FFI 调用，两个消费者，
+                        // 不需要在 App 侧再起一个轮询。
+                        mutableSessionPhase.value = state.toSessionPhase()
+                    }
+                    .onFailure {
+                        cachedConnectionState = ConnectionState.Disconnected
+                        mutableSessionPhase.value = SessionPhase.New
+                    }
                 runCatching { core.syncState() }
                     .onSuccess { state -> mutableSyncState.value = mapSyncState(state) }
                 delay(1500)
@@ -2826,6 +2844,16 @@ private fun PresenceStatus.toCommonPresence() = PresenceEntry(
     lastSeen = lastSeenAt,
     deviceType = null,
 )
+
+/** 无损映射——与 Rust `SessionState` 一一对应，不做任何折叠。 */
+private fun CoreConnectionState.toSessionPhase(): SessionPhase = when (this) {
+    CoreConnectionState.NEW -> SessionPhase.New
+    CoreConnectionState.CONNECTED -> SessionPhase.Connected
+    CoreConnectionState.LOGGED_IN -> SessionPhase.LoggedIn
+    CoreConnectionState.AUTHENTICATED -> SessionPhase.Authenticated
+    CoreConnectionState.TERMINATED -> SessionPhase.Terminated
+    CoreConnectionState.SHUTDOWN -> SessionPhase.Shutdown
+}
 
 private fun CoreConnectionState.toCommonConnectionState(): ConnectionState = when (this) {
     CoreConnectionState.NEW -> ConnectionState.Disconnected

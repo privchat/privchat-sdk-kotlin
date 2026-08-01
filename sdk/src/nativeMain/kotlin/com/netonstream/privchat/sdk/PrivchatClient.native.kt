@@ -118,6 +118,10 @@ actual class PrivchatClient private actual constructor() {
     private val mutableSyncState = MutableStateFlow(idleSyncState())
     actual val syncStateFlow: StateFlow<SyncState> = mutableSyncState.asStateFlow()
 
+    /** Core 会话阶段的无损投影，由既有监控喂（见 [SessionPhase]）。 */
+    private val mutableSessionPhase = MutableStateFlow(SessionPhase.New)
+    actual val sessionPhaseFlow: StateFlow<SessionPhase> = mutableSessionPhase.asStateFlow()
+
     internal constructor(core: CorePrivchatClient) : this() {
         this.coreClient = core
         startConnectionMonitor(core)
@@ -184,7 +188,10 @@ actual class PrivchatClient private actual constructor() {
             while (isActive) {
                 if (coreClient !== core) break
                 runCatching { core.connectionState() }
-                    .onSuccess { state -> cachedConnectionState = state.toCommonConnectionState() }
+                    .onSuccess { state ->
+                        cachedConnectionState = state.toCommonConnectionState()
+                        mutableSessionPhase.value = state.toSessionPhase()
+                    }
                     .onFailure { cachedConnectionState = ConnectionState.Disconnected }
                 runCatching { core.syncState() }
                     .onSuccess { state -> mutableSyncState.value = mapSyncState(state) }
@@ -2601,6 +2608,16 @@ private fun PresenceStatus.toCommonPresence() = PresenceEntry(
     lastSeen = lastSeenAt,
     deviceType = null,
 )
+
+/** 无损映射——与 Rust `SessionState` 一一对应，不做任何折叠。 */
+private fun CoreConnectionState.toSessionPhase(): SessionPhase = when (this) {
+    CoreConnectionState.NEW -> SessionPhase.New
+    CoreConnectionState.CONNECTED -> SessionPhase.Connected
+    CoreConnectionState.LOGGED_IN -> SessionPhase.LoggedIn
+    CoreConnectionState.AUTHENTICATED -> SessionPhase.Authenticated
+    CoreConnectionState.TERMINATED -> SessionPhase.Terminated
+    CoreConnectionState.SHUTDOWN -> SessionPhase.Shutdown
+}
 
 private fun CoreConnectionState.toCommonConnectionState(): ConnectionState = when (this) {
     CoreConnectionState.NEW -> ConnectionState.Disconnected
