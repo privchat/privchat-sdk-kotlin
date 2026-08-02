@@ -220,6 +220,10 @@ expect class PrivchatClient private constructor() {
      * 主动从 server 增量同步群成员到本地（group/member/list RPC → upsert 本地
      * group_member 表，含 server 返回的 nickname）。
      *
+     * **增量**：走 `entity/sync_entities`（`entity_type=group_member`，`scope=群id`），
+     * 按版本水位只取变更，退群成员由服务端以 tombstone 下发。首次登录已经全量
+     * 同步过，之后没有理由每次进成员页再拉一遍整份花名册。
+     *
      * 用途：[getGroupMembers] 只读本地，新群 / 久未刷新的群本地缺成员 nickname
      * 时会 fallback 成 userId。进群成员页 / 群设置页时先调本方法刷一次，再
      * [getGroupMembers] 读本地即拿到正确昵称。按需触发，不在启动时全量刷。

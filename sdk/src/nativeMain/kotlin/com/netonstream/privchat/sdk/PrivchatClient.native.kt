@@ -1085,7 +1085,9 @@ actual class PrivchatClient private actual constructor() {
 
     actual suspend fun syncGroupMembers(groupId: ULong): Result<Unit> {
         val c = requireClient().getOrElse { return Result.failure(it) }
-        return runCatching { c.fetchGroupMembersRemote(groupId, null, null) }.fold(
+        // 增量：见 android 侧同名方法的说明。两端必须一致，否则同一份本地投影
+        // 会因为平台不同而收敛到不同状态。
+        return runCatching { c.syncEntities("group_member", groupId.toString()) }.fold(
             onSuccess = { Result.success(Unit) },
             onFailure = { Result.failure(toSdkError("syncGroupMembers failed", it)) },
         )

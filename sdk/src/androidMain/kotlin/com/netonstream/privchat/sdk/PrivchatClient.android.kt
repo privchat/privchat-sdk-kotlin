@@ -1143,7 +1143,10 @@ actual class PrivchatClient private actual constructor() {
 
     actual suspend fun syncGroupMembers(groupId: ULong): Result<Unit> {
         val c = requireClient().getOrElse { return Result.failure(it) }
-        return runCatching { c.fetchGroupMembersRemote(groupId, null, null) }.fold(
+        // 增量：`entity/sync_entities` 按版本水位只取变更，退群成员以 tombstone 下发。
+        // 从前这里发的是整份花名册——首次登录早就全量同步过了，之后每次进成员页
+        // 再拉一遍 752 人（126 KB）没有道理。
+        return runCatching { c.syncEntities("group_member", groupId.toString()) }.fold(
             onSuccess = { Result.success(Unit) },
             onFailure = { Result.failure(toSdkError("syncGroupMembers failed", it)) },
         )
