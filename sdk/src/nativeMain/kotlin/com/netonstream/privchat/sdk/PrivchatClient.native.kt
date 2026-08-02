@@ -2897,6 +2897,14 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         reason = event.message,
     )
 
+    is CoreSdkEvent.SyncEntityPageApplied -> SdkEventPayload(
+        type = "sync_entity_page_applied",
+        entityType = event.entityType,
+        // 复用 applied 承载页序号：payload 是扁平 DTO，为一个进度事件加专用字段
+        // 会让所有平台的 DTO 都跟着长。消费方按 type 分派，不会混淆。
+        applied = event.page.toULong(),
+    )
+
     is CoreSdkEvent.SyncEntitiesApplied -> SdkEventPayload(
         type = "sync_entities_applied",
         entityType = event.entityType,

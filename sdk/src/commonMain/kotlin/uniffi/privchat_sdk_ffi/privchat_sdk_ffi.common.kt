@@ -5169,17 +5169,17 @@ data class StoredGroupMember (
     var `alias`: kotlin.String?
          = null , 
     var `username`: kotlin.String?
-         = null ,
+         = null , 
     var `nickname`: kotlin.String?
-         = null ,
+         = null , 
     var `userAlias`: kotlin.String?
-         = null ,
+         = null , 
     var `displayName`: kotlin.String
-        ,
+        , 
     var `avatar`: kotlin.String
-        ,
+        , 
     var `userType`: kotlin.Int
-        ,
+        , 
     var `isMuted`: kotlin.Boolean
         , 
     var `joinedAt`: kotlin.Long
@@ -6279,6 +6279,16 @@ sealed class SdkEvent {
         
     }
     
+    /**
+     * 分页同步中「又落库了一页」；宿主用它在首屏进度条的本族区间内往前爬。
+     */
+    
+    data class SyncEntityPageApplied(
+        val `entityType`: kotlin.String  , 
+        val `page`: kotlin.UInt  ) : SdkEvent() {
+        
+    }
+    
     
     data class SyncEntityChanged(
         val `entityType`: kotlin.String  , 
@@ -6730,4 +6740,5 @@ expect fun `gitSha`(): kotlin.String
 
 expect fun `sdkVersion`(): kotlin.String
     
+
 

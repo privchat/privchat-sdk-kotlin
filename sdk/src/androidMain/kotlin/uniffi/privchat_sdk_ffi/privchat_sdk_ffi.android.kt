@@ -2529,7 +2529,7 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_events_since() != 39590.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_fetch_group_members_remote() != 58514.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_fetch_group_members_remote() != 59014.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_file_request_upload_token_remote() != 25243.toShort()) {
@@ -16011,45 +16011,49 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            12 -> SdkEvent.SyncEntityChanged(
+            12 -> SdkEvent.SyncEntityPageApplied(
+                FfiConverterString.read(buf),
+                FfiConverterUInt.read(buf),
+                )
+            13 -> SdkEvent.SyncEntityChanged(
                 FfiConverterString.read(buf),
                 FfiConverterString.read(buf),
                 FfiConverterBoolean.read(buf),
                 )
-            13 -> SdkEvent.SyncChannelApplied(
+            14 -> SdkEvent.SyncChannelApplied(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            14 -> SdkEvent.SyncAllChannelsApplied(
+            15 -> SdkEvent.SyncAllChannelsApplied(
                 FfiConverterULong.read(buf),
                 )
-            15 -> SdkEvent.NetworkHintChanged(
+            16 -> SdkEvent.NetworkHintChanged(
                 FfiConverterTypeNetworkHint.read(buf),
                 FfiConverterTypeNetworkHint.read(buf),
                 )
-            16 -> SdkEvent.OutboundQueueUpdated(
+            17 -> SdkEvent.OutboundQueueUpdated(
                 FfiConverterString.read(buf),
                 FfiConverterString.read(buf),
                 FfiConverterOptionalULong.read(buf),
                 )
-            17 -> SdkEvent.TimelineUpdated(
+            18 -> SdkEvent.TimelineUpdated(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterULong.read(buf),
                 FfiConverterString.read(buf),
                 )
-            18 -> SdkEvent.MessageSendStatusChanged(
+            19 -> SdkEvent.MessageSendStatusChanged(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterOptionalULong.read(buf),
                 )
-            19 -> SdkEvent.TypingSent(
+            20 -> SdkEvent.TypingSent(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterBoolean.read(buf),
                 )
-            20 -> SdkEvent.SubscriptionMessageReceived(
+            21 -> SdkEvent.SubscriptionMessageReceived(
                 FfiConverterULong.read(buf),
                 FfiConverterOptionalString.read(buf),
                 FfiConverterByteArray.read(buf),
@@ -16057,24 +16061,24 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterOptionalULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            21 -> SdkEvent.PeerReadPtsAdvanced(
+            22 -> SdkEvent.PeerReadPtsAdvanced(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            22 -> SdkEvent.MessageDelivered(
+            23 -> SdkEvent.MessageDelivered(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            23 -> SdkEvent.MediaDownloadStateChanged(
+            24 -> SdkEvent.MediaDownloadStateChanged(
                 FfiConverterULong.read(buf),
                 FfiConverterTypeMediaDownloadState.read(buf),
                 )
-            24 -> SdkEvent.MediaJobRequested(
+            25 -> SdkEvent.MediaJobRequested(
                 FfiConverterString.read(buf),
                 FfiConverterString.read(buf),
                 FfiConverterString.read(buf),
@@ -16083,20 +16087,20 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            25 -> SdkEvent.TokenRefreshed(
+            26 -> SdkEvent.TokenRefreshed(
                 FfiConverterULong.read(buf),
                 )
-            26 -> SdkEvent.AccessTokenRefreshNeeded(
+            27 -> SdkEvent.AccessTokenRefreshNeeded(
                 FfiConverterUInt.read(buf),
                 FfiConverterString.read(buf),
                 )
-            27 -> SdkEvent.ForcedLogout(
+            28 -> SdkEvent.ForcedLogout(
                 FfiConverterUInt.read(buf),
                 FfiConverterString.read(buf),
                 FfiConverterTypeForcedLogoutSource.read(buf),
                 )
-            28 -> SdkEvent.ShutdownStarted
-            29 -> SdkEvent.ShutdownCompleted
+            29 -> SdkEvent.ShutdownStarted
+            30 -> SdkEvent.ShutdownCompleted
             else -> throw RuntimeException("invalid enum value, something is very wrong!!")
         }
     }
@@ -16200,6 +16204,14 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 + FfiConverterULong.allocationSize(value.`queued`)
                 + FfiConverterULong.allocationSize(value.`applied`)
                 + FfiConverterULong.allocationSize(value.`droppedDuplicates`)
+            )
+        }
+        is SdkEvent.SyncEntityPageApplied -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterString.allocationSize(value.`entityType`)
+                + FfiConverterUInt.allocationSize(value.`page`)
             )
         }
         is SdkEvent.SyncEntityChanged -> {
@@ -16444,40 +16456,46 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterULong.write(value.`droppedDuplicates`, buf)
                 Unit
             }
-            is SdkEvent.SyncEntityChanged -> {
+            is SdkEvent.SyncEntityPageApplied -> {
                 buf.putInt(12)
+                FfiConverterString.write(value.`entityType`, buf)
+                FfiConverterUInt.write(value.`page`, buf)
+                Unit
+            }
+            is SdkEvent.SyncEntityChanged -> {
+                buf.putInt(13)
                 FfiConverterString.write(value.`entityType`, buf)
                 FfiConverterString.write(value.`entityId`, buf)
                 FfiConverterBoolean.write(value.`deleted`, buf)
                 Unit
             }
             is SdkEvent.SyncChannelApplied -> {
-                buf.putInt(13)
+                buf.putInt(14)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterInt.write(value.`channelType`, buf)
                 FfiConverterULong.write(value.`applied`, buf)
                 Unit
             }
             is SdkEvent.SyncAllChannelsApplied -> {
-                buf.putInt(14)
+                buf.putInt(15)
                 FfiConverterULong.write(value.`applied`, buf)
                 Unit
             }
             is SdkEvent.NetworkHintChanged -> {
-                buf.putInt(15)
+                buf.putInt(16)
                 FfiConverterTypeNetworkHint.write(value.`from`, buf)
                 FfiConverterTypeNetworkHint.write(value.`to`, buf)
                 Unit
             }
             is SdkEvent.OutboundQueueUpdated -> {
-                buf.putInt(16)
+                buf.putInt(17)
                 FfiConverterString.write(value.`kind`, buf)
                 FfiConverterString.write(value.`action`, buf)
                 FfiConverterOptionalULong.write(value.`messageId`, buf)
                 Unit
             }
             is SdkEvent.TimelineUpdated -> {
-                buf.putInt(17)
+                buf.putInt(18)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterInt.write(value.`channelType`, buf)
                 FfiConverterULong.write(value.`messageId`, buf)
@@ -16485,21 +16503,21 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.MessageSendStatusChanged -> {
-                buf.putInt(18)
+                buf.putInt(19)
                 FfiConverterULong.write(value.`messageId`, buf)
                 FfiConverterInt.write(value.`status`, buf)
                 FfiConverterOptionalULong.write(value.`serverMessageId`, buf)
                 Unit
             }
             is SdkEvent.TypingSent -> {
-                buf.putInt(19)
+                buf.putInt(20)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterInt.write(value.`channelType`, buf)
                 FfiConverterBoolean.write(value.`isTyping`, buf)
                 Unit
             }
             is SdkEvent.SubscriptionMessageReceived -> {
-                buf.putInt(20)
+                buf.putInt(21)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterOptionalString.write(value.`topic`, buf)
                 FfiConverterByteArray.write(value.`payload`, buf)
@@ -16509,7 +16527,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.PeerReadPtsAdvanced -> {
-                buf.putInt(21)
+                buf.putInt(22)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterInt.write(value.`channelType`, buf)
                 FfiConverterULong.write(value.`readerId`, buf)
@@ -16517,7 +16535,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.MessageDelivered -> {
-                buf.putInt(22)
+                buf.putInt(23)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterInt.write(value.`channelType`, buf)
                 FfiConverterULong.write(value.`messageId`, buf)
@@ -16526,13 +16544,13 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.MediaDownloadStateChanged -> {
-                buf.putInt(23)
+                buf.putInt(24)
                 FfiConverterULong.write(value.`messageId`, buf)
                 FfiConverterTypeMediaDownloadState.write(value.`state`, buf)
                 Unit
             }
             is SdkEvent.MediaJobRequested -> {
-                buf.putInt(24)
+                buf.putInt(25)
                 FfiConverterString.write(value.`jobId`, buf)
                 FfiConverterString.write(value.`jobKind`, buf)
                 FfiConverterString.write(value.`sourcePath`, buf)
@@ -16543,29 +16561,29 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.TokenRefreshed -> {
-                buf.putInt(25)
+                buf.putInt(26)
                 FfiConverterULong.write(value.`expiresAt`, buf)
                 Unit
             }
             is SdkEvent.AccessTokenRefreshNeeded -> {
-                buf.putInt(26)
+                buf.putInt(27)
                 FfiConverterUInt.write(value.`code`, buf)
                 FfiConverterString.write(value.`message`, buf)
                 Unit
             }
             is SdkEvent.ForcedLogout -> {
-                buf.putInt(27)
+                buf.putInt(28)
                 FfiConverterUInt.write(value.`code`, buf)
                 FfiConverterString.write(value.`message`, buf)
                 FfiConverterTypeForcedLogoutSource.write(value.`source`, buf)
                 Unit
             }
             is SdkEvent.ShutdownStarted -> {
-                buf.putInt(28)
+                buf.putInt(29)
                 Unit
             }
             is SdkEvent.ShutdownCompleted -> {
-                buf.putInt(29)
+                buf.putInt(30)
                 Unit
             }
         }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }
