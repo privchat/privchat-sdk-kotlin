@@ -180,6 +180,23 @@ expect class PrivchatClient private constructor() {
         limit: UInt,
     ): Result<MessageHistoryPage>
 
+    /**
+     * 给**所有未隐藏会话**补首屏（SDK-HISTORY-7 §15.9）。
+     *
+     * [openConversation] 只在用户点进某个会话时才补，于是换设备/重装后的会话列表是
+     * 「点一个补一个，不点就一直空着」——离线时那些没点过的会话什么都没有。
+     * 换设备本来就该把该看的先备齐。
+     *
+     * **必须在 SYNC_READY 之后再起。** 本方法立刻返回，扫补跑在 SDK 自己的 runtime 上；
+     * 返回 false = 已经有一轮在跑，本次不重复起。
+     * 已补过的会话零网络跳过，所以每次启动调一次是廉价且幂等的。
+     * [maxChannels] 传 0 表示不限。
+     */
+    fun startFirstScreenHydration(
+        limit: UInt,
+        maxChannels: UInt,
+    ): Boolean
+
     // ========== Storage ==========
     suspend fun getMessages(channelId: ULong, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>>
     suspend fun getMessagesByType(channelId: ULong, channelType: Int, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>>

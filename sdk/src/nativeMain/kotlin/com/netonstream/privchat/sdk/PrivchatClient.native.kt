@@ -885,6 +885,14 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual fun startFirstScreenHydration(
+        limit: UInt,
+        maxChannels: UInt,
+    ): Boolean {
+        val c = requireClient().getOrNull() ?: return false
+        return runCatching { c.startFirstScreenHydration(limit, maxChannels) }.getOrDefault(false)
+    }
+
     actual suspend fun getMessages(channelId: ULong, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {

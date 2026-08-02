@@ -832,6 +832,8 @@ internal val UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue.`uniffiF
 
 
 
+
+
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -1405,6 +1407,8 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_shutdown_blocking(`ptr`: Pointer?,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_first_screen_hydration(`ptr`: Pointer?,`limit`: Int,`maxChannels`: Int,uniffiCallStatus: UniffiRustCallStatus, 
+    ): Byte
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download(`ptr`: Pointer?,`messageId`: Long,`downloadUrl`: RustBufferByValue,`mime`: RustBufferByValue,`filenameHint`: RustBufferByValue,`createdAtMs`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download_by_file_id(`ptr`: Pointer?,`messageId`: Long,`fileId`: Long,`mime`: RustBufferByValue,`filenameHint`: RustBufferByValue,`createdAtMs`: Long,
@@ -2188,6 +2192,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_shutdown(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_shutdown_blocking(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_first_screen_hydration(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_message_media_download(
     ): Short
@@ -3139,6 +3145,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_shutdown_blocking() != 47187.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_first_screen_hydration() != 28882.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_message_media_download() != 11535.toShort()) {
@@ -9177,6 +9186,34 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         PrivchatFfiExceptionErrorHandler,
     )
     }
+
+    
+    /**
+     * SDK-HISTORY-7 §15.9：给所有未隐藏会话补首屏。
+     *
+     * `open_conversation` 只在用户点进去时才补，于是换设备/重装后的列表是「点一个补一个，
+     * 不点就一直空着」。换设备本来就该把该看的先备齐。
+     *
+     * **必须在 CriticalReady / SYNC_READY 之后再起**，绝不能进启动关键路径。
+     * 已补过的会话零网络跳过，所以每次启动都调一次是廉价且幂等的。
+     * `max_channels = 0` 表示不限。
+     * 起一轮扫补，**立刻返回**；`false` = 已经有一轮在跑。
+     *
+     * 刻意不是 async：uniffi 的 async 桥在自己的 foreign executor 上 poll future，
+     * 那里没有 Tokio runtime，扫补里的 `sleep` 会 panic「no reactor running」。
+     * 扫补跑在 SDK 自己的 runtime 上，结果进日志，不回传宿主——宿主本来也只需要
+     * 即发即忘。
+     */actual override fun `startFirstScreenHydration`(`limit`: kotlin.UInt, `maxChannels`: kotlin.UInt): kotlin.Boolean {
+            return FfiConverterBoolean.lift(
+    callWithPointer {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_first_screen_hydration(
+        it, FfiConverterUInt.lower(`limit`),FfiConverterUInt.lower(`maxChannels`),_status)!!
+}
+    }
+    )
+    }
+    
 
     
     /**

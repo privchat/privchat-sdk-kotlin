@@ -797,6 +797,23 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `shutdownBlocking`()
     
     /**
+     * SDK-HISTORY-7 §15.9：给所有未隐藏会话补首屏。
+     *
+     * `open_conversation` 只在用户点进去时才补，于是换设备/重装后的列表是「点一个补一个，
+     * 不点就一直空着」。换设备本来就该把该看的先备齐。
+     *
+     * **必须在 CriticalReady / SYNC_READY 之后再起**，绝不能进启动关键路径。
+     * 已补过的会话零网络跳过，所以每次启动都调一次是廉价且幂等的。
+     * `max_channels = 0` 表示不限。
+     * 起一轮扫补，**立刻返回**；`false` = 已经有一轮在跑。
+     *
+     * 刻意不是 async：uniffi 的 async 桥在自己的 foreign executor 上 poll future，
+     * 那里没有 Tokio runtime，扫补里的 `sleep` 会 panic「no reactor running」。
+     * 扫补跑在 SDK 自己的 runtime 上，结果进日志，不回传宿主——宿主本来也只需要
+     * 即发即忘。
+     */fun `startFirstScreenHydration`(`limit`: kotlin.UInt, `maxChannels`: kotlin.UInt): kotlin.Boolean
+    
+    /**
      * Start a streaming Telegram-style download for a message's primary attachment.
      * Delegates to [`PrivchatSdk::start_message_media_download`] — the core SDK owns
      * the state machine, so the Rust iced UI and the FFI Kotlin/iOS layer share it.
@@ -2438,6 +2455,25 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `shutdownBlocking`()
+
+    
+    /**
+     * SDK-HISTORY-7 §15.9：给所有未隐藏会话补首屏。
+     *
+     * `open_conversation` 只在用户点进去时才补，于是换设备/重装后的列表是「点一个补一个，
+     * 不点就一直空着」。换设备本来就该把该看的先备齐。
+     *
+     * **必须在 CriticalReady / SYNC_READY 之后再起**，绝不能进启动关键路径。
+     * 已补过的会话零网络跳过，所以每次启动都调一次是廉价且幂等的。
+     * `max_channels = 0` 表示不限。
+     * 起一轮扫补，**立刻返回**；`false` = 已经有一轮在跑。
+     *
+     * 刻意不是 async：uniffi 的 async 桥在自己的 foreign executor 上 poll future，
+     * 那里没有 Tokio runtime，扫补里的 `sleep` 会 panic「no reactor running」。
+     * 扫补跑在 SDK 自己的 runtime 上，结果进日志，不回传宿主——宿主本来也只需要
+     * 即发即忘。
+     */override fun `startFirstScreenHydration`(`limit`: kotlin.UInt, `maxChannels`: kotlin.UInt): kotlin.Boolean
+    
 
     
     /**
