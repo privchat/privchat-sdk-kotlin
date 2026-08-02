@@ -508,6 +508,18 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `login`(`username`: kotlin.String, `password`: kotlin.String, `deviceId`: kotlin.String): LoginResult
     
+    /**
+     * 退出登录：**本地动作**，不等网络。
+     *
+     * 通知服务端注销是尽力而为的，而且必须有界——它内部要走 actor 发 RPC，
+     * actor 正忙（首轮同步、重连）时这条命令根本排不上队，`resp_rx.await` 会一直等。
+     * 实测就是这样卡住的：用户点了退出，界面停在「正在退出登录…」再也不动。
+     *
+     * 用户意图是退出，服务端可不可达不该拦着他。超时就走本地清理。
+     *
+     * 注意这里清的是**凭证**（`clear_local_state`），不是本地数据：退出登录不是
+     * 注销账号，本地库留着，同一个账号再登录只做增量。要真删数据走 `wipe_user_full`。
+     */
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `logout`()
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `markAllMentionsRead`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `userId`: kotlin.ULong)
@@ -1832,6 +1844,18 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `login`(`username`: kotlin.String, `password`: kotlin.String, `deviceId`: kotlin.String) : LoginResult
 
     
+    /**
+     * 退出登录：**本地动作**，不等网络。
+     *
+     * 通知服务端注销是尽力而为的，而且必须有界——它内部要走 actor 发 RPC，
+     * actor 正忙（首轮同步、重连）时这条命令根本排不上队，`resp_rx.await` 会一直等。
+     * 实测就是这样卡住的：用户点了退出，界面停在「正在退出登录…」再也不动。
+     *
+     * 用户意图是退出，服务端可不可达不该拦着他。超时就走本地清理。
+     *
+     * 注意这里清的是**凭证**（`clear_local_state`），不是本地数据：退出登录不是
+     * 注销账号，本地库留着，同一个账号再登录只做增量。要真删数据走 `wipe_user_full`。
+     */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `logout`()
