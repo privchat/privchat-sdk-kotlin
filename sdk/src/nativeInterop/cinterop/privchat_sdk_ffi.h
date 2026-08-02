@@ -698,6 +698,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_shutdown(void * ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_shutdown_blocking(void * ptr
 );
+int8_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_first_screen_hydration(void * ptr, int32_t limit, int32_t maxChannels, UniffiRustCallStatus *_Nonnull out_status
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download(void * ptr, int64_t messageId, RustBuffer downloadUrl, RustBuffer mime, RustBuffer filenameHint, int64_t createdAtMs
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download_by_file_id(void * ptr, int64_t messageId, int64_t fileId, RustBuffer mime, RustBuffer filenameHint, int64_t createdAtMs
@@ -1754,6 +1756,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_shutdown(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_shutdown_blocking(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_first_screen_hydration(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_message_media_download(void
