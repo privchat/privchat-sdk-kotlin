@@ -2774,7 +2774,12 @@ private fun StoredChannel.toCommonChannel() = ChannelListEntry(
     // 判成 null → 会话列表"有未读但预览空白"。typed body/messageType 足以渲染
     // [图片] 等类型化预览(PreviewRenderer 单点收敛)。
     latestEvent = if (lastMsgContent.isNotBlank() || lastMessageType != null ||
-        lastLocalMessageId > 0uL || lastMessageBody != null
+        lastLocalMessageId > 0uL || lastMessageBody != null ||
+        // 撤回本身就是「有最后一条消息」的证据。撤回消息的 content 被服务端清空
+        // （spec 的占位契约：content 空串 + revoked 标记，客户端渲染本地化文案），
+        // 于是四个条件可以同时为假 —— latestEvent 判成 null，会话列表那一行就
+        // 彻底没有预览。生产实测：批次二验收群最后一条被撤回，列表里一片空白。
+        lastMessageIsRevoked
     ) {
         LatestChannelEvent(
             eventType = "message",
