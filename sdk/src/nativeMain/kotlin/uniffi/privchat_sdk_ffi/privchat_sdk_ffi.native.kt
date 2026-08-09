@@ -12719,11 +12719,13 @@ object FfiConverterTypeAccountPrivacyUpdateInput: FfiConverterRustBuffer<Account
             FfiConverterOptionalBoolean.read(buf),
             FfiConverterOptionalBoolean.read(buf),
             FfiConverterOptionalBoolean.read(buf),
+            FfiConverterOptionalBoolean.read(buf),
         )
     }
 
     override fun allocationSize(value: AccountPrivacyUpdateInput) = (
             FfiConverterOptionalBoolean.allocationSize(value.`allowAddByGroup`) +
+            FfiConverterOptionalBoolean.allocationSize(value.`allowAddByCard`) +
             FfiConverterOptionalBoolean.allocationSize(value.`allowSearchByPhone`) +
             FfiConverterOptionalBoolean.allocationSize(value.`allowSearchByUsername`) +
             FfiConverterOptionalBoolean.allocationSize(value.`allowSearchByEmail`) +
@@ -12734,6 +12736,7 @@ object FfiConverterTypeAccountPrivacyUpdateInput: FfiConverterRustBuffer<Account
 
     override fun write(value: AccountPrivacyUpdateInput, buf: ByteBuffer) {
             FfiConverterOptionalBoolean.write(value.`allowAddByGroup`, buf)
+            FfiConverterOptionalBoolean.write(value.`allowAddByCard`, buf)
             FfiConverterOptionalBoolean.write(value.`allowSearchByPhone`, buf)
             FfiConverterOptionalBoolean.write(value.`allowSearchByUsername`, buf)
             FfiConverterOptionalBoolean.write(value.`allowSearchByEmail`, buf)
@@ -15274,6 +15277,7 @@ object FfiConverterTypePrivacySettingsView: FfiConverterRustBuffer<PrivacySettin
             FfiConverterBoolean.read(buf),
             FfiConverterBoolean.read(buf),
             FfiConverterBoolean.read(buf),
+            FfiConverterBoolean.read(buf),
             FfiConverterULong.read(buf),
         )
     }
@@ -15281,6 +15285,7 @@ object FfiConverterTypePrivacySettingsView: FfiConverterRustBuffer<PrivacySettin
     override fun allocationSize(value: PrivacySettingsView) = (
             FfiConverterULong.allocationSize(value.`userId`) +
             FfiConverterBoolean.allocationSize(value.`allowAddByGroup`) +
+            FfiConverterBoolean.allocationSize(value.`allowAddByCard`) +
             FfiConverterBoolean.allocationSize(value.`allowSearchByPhone`) +
             FfiConverterBoolean.allocationSize(value.`allowSearchByUsername`) +
             FfiConverterBoolean.allocationSize(value.`allowSearchByEmail`) +
@@ -15293,6 +15298,7 @@ object FfiConverterTypePrivacySettingsView: FfiConverterRustBuffer<PrivacySettin
     override fun write(value: PrivacySettingsView, buf: ByteBuffer) {
             FfiConverterULong.write(value.`userId`, buf)
             FfiConverterBoolean.write(value.`allowAddByGroup`, buf)
+            FfiConverterBoolean.write(value.`allowAddByCard`, buf)
             FfiConverterBoolean.write(value.`allowSearchByPhone`, buf)
             FfiConverterBoolean.write(value.`allowSearchByUsername`, buf)
             FfiConverterBoolean.write(value.`allowSearchByEmail`, buf)

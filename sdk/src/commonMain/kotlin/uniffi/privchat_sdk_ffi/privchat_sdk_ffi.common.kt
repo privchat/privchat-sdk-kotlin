@@ -2816,6 +2816,8 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
 data class AccountPrivacyUpdateInput (
     var `allowAddByGroup`: kotlin.Boolean?
          = null , 
+    var `allowAddByCard`: kotlin.Boolean?
+         = null , 
     var `allowSearchByPhone`: kotlin.Boolean?
          = null , 
     var `allowSearchByUsername`: kotlin.Boolean?
@@ -4406,6 +4408,11 @@ data class PrivacySettingsView (
     var `userId`: kotlin.ULong
         , 
     var `allowAddByGroup`: kotlin.Boolean
+        , 
+    /**
+     * 名片分享添加。老 server 不下发时按 true（放开）处理，与其它开关的缺省一致。
+     */
+    var `allowAddByCard`: kotlin.Boolean
         , 
     var `allowSearchByPhone`: kotlin.Boolean
         , 
