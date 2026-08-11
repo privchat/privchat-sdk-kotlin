@@ -302,8 +302,6 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_finalize_local_attachme
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_follow_bot(void * ptr, int64_t botUserId
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_forward_message(void * ptr, int64_t srcMessageId, int64_t targetChannelId, int32_t targetChannelType
-);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_generate_local_message_id(void * ptr, UniffiRustCallStatus *_Nonnull out_status
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_all_unread_mention_counts(void * ptr, int64_t userId
@@ -1162,9 +1160,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_finalize_local_at
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_follow_bot(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_forward_message(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_generate_local_message_id(void

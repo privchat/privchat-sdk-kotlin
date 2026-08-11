@@ -248,22 +248,6 @@ interface PrivchatClientInterface {
      */
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `followBot`(`botUserId`: kotlin.ULong): BotFollowResult
     
-    /**
-     * 把指定本地消息转发到目标频道。
-     *
-     * 内部做两件事：
-     * 1. 克隆源消息的 `content / message_type / mime_type / extra`，用当前登录用户作为 `from_uid`，
-     * 通过 `enqueue_local_message` 创建新本地行并加入出站队列（走正常发送链路）。
-     * 2. 若源消息带附件（`mime_type` 非空），则把源消息目录下的所有文件整体复制到新消息目录，
-     * 并把 `media_downloaded` 置为 true，让 UI 立即看到本地缩略图 / 文件。
-     *
-     * 调用方负责限制不可转发的类型（比如 VOICE / 撤回消息）——SDK 会拒绝撤回消息但不做类型过滤。
-     * 可选的 note 文本由调用方自行追加 `send_message` 调用，本接口不负责。
-     *
-     * 返回新消息的 `message_id`（本地 rowid）。
-     */
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `forwardMessage`(`srcMessageId`: kotlin.ULong, `targetChannelId`: kotlin.ULong, `targetChannelType`: kotlin.Int): kotlin.ULong
-    
         @Throws(PrivchatFfiException::class)fun `generateLocalMessageId`(): kotlin.ULong
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getAllUnreadMentionCounts`(`userId`: kotlin.ULong): List<UnreadMentionCount>
@@ -1338,25 +1322,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `followBot`(`botUserId`: kotlin.ULong) : BotFollowResult
-
-    
-    /**
-     * 把指定本地消息转发到目标频道。
-     *
-     * 内部做两件事：
-     * 1. 克隆源消息的 `content / message_type / mime_type / extra`，用当前登录用户作为 `from_uid`，
-     * 通过 `enqueue_local_message` 创建新本地行并加入出站队列（走正常发送链路）。
-     * 2. 若源消息带附件（`mime_type` 非空），则把源消息目录下的所有文件整体复制到新消息目录，
-     * 并把 `media_downloaded` 置为 true，让 UI 立即看到本地缩略图 / 文件。
-     *
-     * 调用方负责限制不可转发的类型（比如 VOICE / 撤回消息）——SDK 会拒绝撤回消息但不做类型过滤。
-     * 可选的 note 文本由调用方自行追加 `send_message` 调用，本接口不负责。
-     *
-     * 返回新消息的 `message_id`（本地 rowid）。
-     */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `forwardMessage`(`srcMessageId`: kotlin.ULong, `targetChannelId`: kotlin.ULong, `targetChannelType`: kotlin.Int) : kotlin.ULong
 
     
     @Throws(PrivchatFfiException::class)override fun `generateLocalMessageId`(): kotlin.ULong
@@ -3923,6 +3888,11 @@ data class LocalAttachmentMetadataInput (
         , 
     var `mimeType`: kotlin.String
         , 
+    /**
+     * 随附件一起发出的说明文字。发送时它就是消息正文。
+     */
+    var `caption`: kotlin.String?
+         = null , 
     var `duration`: kotlin.UInt?
          = null , 
     var `width`: kotlin.UInt?

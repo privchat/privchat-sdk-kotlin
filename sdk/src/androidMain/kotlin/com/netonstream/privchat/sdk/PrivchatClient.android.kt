@@ -694,8 +694,9 @@ actual class PrivchatClient private actual constructor() {
         filePath: String,
         options: SendMessageOptions?,
         displayFileName: String?,
+        caption: String?,
     ): Result<Pair<ULong, AttachmentInfo>> {
-        return sendAttachmentFromPath(channelId, filePath, options, null, displayFileName)
+        return sendAttachmentFromPath(channelId, filePath, options, null, displayFileName, caption)
     }
 
     actual suspend fun retryMessage(messageId: ULong): Result<Unit> {
@@ -741,19 +742,6 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
-    actual suspend fun forwardMessage(
-        srcMessageId: ULong,
-        targetChannelId: ULong,
-        targetChannelType: Int,
-    ): Result<ULong> {
-        val c = requireClient().getOrElse { return Result.failure(it) }
-        return runCatching {
-            c.forwardMessage(srcMessageId, targetChannelId, targetChannelType)
-        }.fold(
-            onSuccess = { Result.success(it) },
-            onFailure = { Result.failure(toSdkError("forwardMessage failed", it)) },
-        )
-    }
 
     actual suspend fun addReaction(messageId: ULong, emoji: String): Result<Unit> {
         val c = requireClient().getOrElse { return Result.failure(it) }
@@ -1976,6 +1964,7 @@ actual class PrivchatClient private actual constructor() {
         options: SendMessageOptions?,
         progress: ProgressObserver?,
         displayFileName: String?,
+        caption: String?,
     ): Result<Pair<ULong, AttachmentInfo>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
@@ -1991,6 +1980,7 @@ actual class PrivchatClient private actual constructor() {
                 port = attachmentPreparationPort(c),
                 platform = androidAttachmentPlatform(),
                 displayFileName = displayFileName,
+                caption = caption,
             )
         }.fold(
             onSuccess = { Result.success(it) },
@@ -2154,6 +2144,7 @@ actual class PrivchatClient private actual constructor() {
                 LocalAttachmentMetadataInput(
                     fileName = input.fileName,
                     mimeType = input.mimeType,
+                    caption = input.caption,
                     duration = input.video?.durationSeconds,
                     width = input.video?.width,
                     height = input.video?.height,

@@ -832,8 +832,6 @@ internal val UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue.`uniffiF
 
 
 
-
-
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -1010,8 +1008,6 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_finalize_local_attachment(`ptr`: Pointer?,`messageId`: Long,`content`: RustBufferByValue,`thumbStatus`: Int,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_follow_bot(`ptr`: Pointer?,`botUserId`: Long,
-    ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_forward_message(`ptr`: Pointer?,`srcMessageId`: Long,`targetChannelId`: Long,`targetChannelType`: Int,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_generate_local_message_id(`ptr`: Pointer?,uniffiCallStatus: UniffiRustCallStatus, 
     ): Long
@@ -1797,8 +1793,6 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_follow_bot(
     ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_forward_message(
-    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_generate_local_message_id(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_all_unread_mention_counts(
@@ -2551,9 +2545,6 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_follow_bot() != 50110.toShort()) {
-        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
-    }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_forward_message() != 41996.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_generate_local_message_id() != 53239.toShort()) {
@@ -4880,42 +4871,6 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
         { FfiConverterTypeBotFollowResult.lift(it!!) },
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    /**
-     * 把指定本地消息转发到目标频道。
-     *
-     * 内部做两件事：
-     * 1. 克隆源消息的 `content / message_type / mime_type / extra`，用当前登录用户作为 `from_uid`，
-     * 通过 `enqueue_local_message` 创建新本地行并加入出站队列（走正常发送链路）。
-     * 2. 若源消息带附件（`mime_type` 非空），则把源消息目录下的所有文件整体复制到新消息目录，
-     * 并把 `media_downloaded` 置为 true，让 UI 立即看到本地缩略图 / 文件。
-     *
-     * 调用方负责限制不可转发的类型（比如 VOICE / 撤回消息）——SDK 会拒绝撤回消息但不做类型过滤。
-     * 可选的 note 文本由调用方自行追加 `send_message` 调用，本接口不负责。
-     *
-     * 返回新消息的 `message_id`（本地 rowid）。
-     */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `forwardMessage`(`srcMessageId`: kotlin.ULong, `targetChannelId`: kotlin.ULong, `targetChannelType`: kotlin.Int) : kotlin.ULong {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_forward_message(
-                thisPtr,
-                FfiConverterULong.lower(`srcMessageId`),FfiConverterULong.lower(`targetChannelId`),FfiConverterInt.lower(`targetChannelType`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_u64(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_u64(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_u64(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_u64(future) },
-        // lift function
-        { FfiConverterULong.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -12305,6 +12260,7 @@ object FfiConverterTypeLocalAttachmentMetadataInput: FfiConverterRustBuffer<Loca
         return LocalAttachmentMetadataInput(
             FfiConverterString.read(buf),
             FfiConverterString.read(buf),
+            FfiConverterOptionalString.read(buf),
             FfiConverterOptionalUInt.read(buf),
             FfiConverterOptionalUInt.read(buf),
             FfiConverterOptionalUInt.read(buf),
@@ -12317,6 +12273,7 @@ object FfiConverterTypeLocalAttachmentMetadataInput: FfiConverterRustBuffer<Loca
     override fun allocationSize(value: LocalAttachmentMetadataInput) = (
             FfiConverterString.allocationSize(value.`fileName`) +
             FfiConverterString.allocationSize(value.`mimeType`) +
+            FfiConverterOptionalString.allocationSize(value.`caption`) +
             FfiConverterOptionalUInt.allocationSize(value.`duration`) +
             FfiConverterOptionalUInt.allocationSize(value.`width`) +
             FfiConverterOptionalUInt.allocationSize(value.`height`) +
@@ -12328,6 +12285,7 @@ object FfiConverterTypeLocalAttachmentMetadataInput: FfiConverterRustBuffer<Loca
     override fun write(value: LocalAttachmentMetadataInput, buf: ByteBuffer) {
             FfiConverterString.write(value.`fileName`, buf)
             FfiConverterString.write(value.`mimeType`, buf)
+            FfiConverterOptionalString.write(value.`caption`, buf)
             FfiConverterOptionalUInt.write(value.`duration`, buf)
             FfiConverterOptionalUInt.write(value.`width`, buf)
             FfiConverterOptionalUInt.write(value.`height`, buf)

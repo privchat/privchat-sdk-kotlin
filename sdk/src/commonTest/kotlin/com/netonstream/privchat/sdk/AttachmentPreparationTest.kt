@@ -321,3 +321,70 @@ class AttachmentCacheFileNameMimeFallbackTest {
         assertEquals("42.bin", attachmentCacheFileName("42", "x.abcdefghijkl", "application/x-unknown"))
     }
 }
+
+/** 说明文字随附件一起走，不额外发一条文本消息。 */
+class AttachmentCaptionTest {
+
+    private class RecordingPort : AttachmentPreparationPort {
+        var placeholder: LocalAttachmentPlaceholder? = null
+        override fun generateLocalMessageId() = 1uL
+        override fun nowEpochMillis() = 0L
+        override suspend fun createPlaceholder(input: LocalAttachmentPlaceholder): ULong {
+            placeholder = input
+            return 1uL
+        }
+        override fun targetDirectory(userId: ULong, messageId: ULong, createdAtMs: Long) = "/media/1"
+        override suspend fun finalizeAndEnqueue(
+            messageId: ULong,
+            localPath: String,
+            thumbStatus: Int,
+            routeKey: String,
+        ) = 2uL
+        override suspend fun discardPlaceholder(messageId: ULong) {}
+        override fun clientEndpoint() = "client"
+    }
+
+    private class FakePlatform : AttachmentPlatformOps {
+        override fun fileName(path: String) = path.substringAfterLast('/')
+        override suspend fun inspectVideo(path: String) = AttachmentVideoMetadata()
+        override suspend fun materialize(
+            sourcePath: String,
+            targetDirectory: String,
+            targetFileName: String,
+            messageType: Int,
+        ) = MaterializedAttachment("$targetDirectory/$targetFileName", 8u)
+        override suspend fun materializeBytes(
+            data: ByteArray,
+            targetDirectory: String,
+            targetFileName: String,
+        ) = MaterializedAttachment("$targetDirectory/$targetFileName", data.size.toULong())
+    }
+
+    private suspend fun placeholderFor(caption: String?): LocalAttachmentPlaceholder? {
+        val port = RecordingPort()
+        prepareAndEnqueueAttachment(
+            channelId = 1uL,
+            channelType = 1,
+            userId = 7uL,
+            sourcePath = "/cache/42.jpg",
+            options = null,
+            progress = null,
+            port = port,
+            platform = FakePlatform(),
+            caption = caption,
+        )
+        return port.placeholder
+    }
+
+    @Test
+    fun a_caption_travels_with_the_attachment() = runTest {
+        assertEquals("周末爬山", placeholderFor("周末爬山")?.caption)
+    }
+
+    /** 空白不是说明文字：留着会把 `[图片]` 占位文案顶掉，会话列表就空了。 */
+    @Test
+    fun blank_is_not_a_caption() = runTest {
+        assertEquals(null, placeholderFor("   ")?.caption)
+        assertEquals(null, placeholderFor(null)?.caption)
+    }
+}

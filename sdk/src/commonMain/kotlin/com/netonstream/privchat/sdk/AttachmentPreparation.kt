@@ -28,6 +28,8 @@ internal data class LocalAttachmentPlaceholder(
     val localMessageId: ULong,
     val fileName: String,
     val mimeType: String,
+    /** 随附件一起发出的说明文字：发送时它就是消息正文。 */
+    val caption: String?,
     val searchableWord: String,
     val video: AttachmentVideoMetadata?,
     val extensionJson: String?,
@@ -77,6 +79,7 @@ internal suspend fun prepareAndEnqueueAttachmentBytes(
             localMessageId = port.generateLocalMessageId(),
             fileName = fileName,
             mimeType = mimeType,
+            caption = null,
             searchableWord = fileName,
             video = null,
             extensionJson = options?.extraJson,
@@ -146,6 +149,8 @@ internal suspend fun prepareAndEnqueueAttachment(
      * 磁盘上叫 `42.pdf`，但消息里该显示它本来的名字。为空则用源路径的文件名。
      */
     displayFileName: String? = null,
+    /** 随附件一起发出的说明文字（「图片配一句话」）。 */
+    caption: String? = null,
 ): Pair<ULong, AttachmentInfo> {
     val originalFileName = displayFileName?.trim()?.takeIf { it.isNotEmpty() }
         ?.substringAfterLast('/')?.substringAfterLast('\\')
@@ -169,6 +174,7 @@ internal suspend fun prepareAndEnqueueAttachment(
             localMessageId = localMessageId,
             fileName = originalFileName,
             mimeType = mimeType,
+            caption = caption?.trim()?.takeIf { it.isNotEmpty() },
             searchableWord = originalFileName,
             video = initialVideo,
             extensionJson = options?.extraJson,
