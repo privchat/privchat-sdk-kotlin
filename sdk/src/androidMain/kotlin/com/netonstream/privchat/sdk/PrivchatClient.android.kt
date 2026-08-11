@@ -1072,8 +1072,7 @@ actual class PrivchatClient private actual constructor() {
             raw.forEachIndexed { idx, ch ->
                 Log.i(
                     "PrivchatClient",
-                    // 🔴 别把 lastMsgContent 打进日志：那是聊天正文，logcat 上任何应用都读得到。
-                    "[DBG][rawChannel][$idx] id=${ch.channelId} type=${ch.channelType} channelName='${ch.channelName}' remark='${ch.channelRemark}' unread=${ch.unreadCount} revoked=${ch.lastMessageIsRevoked} lastLocalId=${ch.lastLocalMessageId} contentLen=${ch.lastMsgContent.length}"
+                    "[DBG][rawChannel][$idx] id=${ch.channelId} type=${ch.channelType} channelName='${ch.channelName}' remark='${ch.channelRemark}' unread=${ch.unreadCount}"
                 )
             }
             raw.map { it.toCommonChannel() }.also { mapped ->

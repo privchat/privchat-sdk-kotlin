@@ -293,6 +293,11 @@ internal fun attachmentCacheFileName(
         return "$base.$sourceExtension"
     }
     // attachmentPayloadFileName 已经维护着 MIME→扩展名这张表，别抄第二份。
-    val fromMime = attachmentPayloadFileName(mimeType.orEmpty(), sourceName).substringAfterLast('.', "bin")
-    return "$base.$fromMime"
+    // 🔴 但它认不出 MIME 时会**退回源文件名的扩展名**——那串刚被判为不可信，
+    // 从这条路放回来就等于白校验。所以出口再过一次同一张白名单。
+    val fromMime = attachmentPayloadFileName(mimeType.orEmpty(), sourceName).substringAfterLast('.', "")
+    val safe = fromMime.takeIf {
+        it.isNotEmpty() && it.length <= 8 && it.all { c -> c in 'a'..'z' || c in '0'..'9' }
+    } ?: "bin"
+    return "$base.$safe"
 }

@@ -305,3 +305,19 @@ class AttachmentDisplayFileNameTest {
         assertEquals("passwd", port.placeholder?.fileName)
     }
 }
+
+/** 🔴 MIME 认不出来时，扩展名不能从「源文件名」这条旁路绕回来。 */
+class AttachmentCacheFileNameMimeFallbackTest {
+
+    @Test
+    fun an_unknown_mime_does_not_reinstate_the_rejected_extension() {
+        // 扩展名带分隔符 → 直接判定拒了；MIME 又认不出 → 不许从源文件名再取一次。
+        assertEquals("42.bin", attachmentCacheFileName("42", "x.jp/g", "application/x-unknown"))
+        assertEquals("42.bin", attachmentCacheFileName("42", "x.../../etc/passwd", null))
+    }
+
+    @Test
+    fun an_overlong_extension_falls_back_to_bin() {
+        assertEquals("42.bin", attachmentCacheFileName("42", "x.abcdefghijkl", "application/x-unknown"))
+    }
+}
