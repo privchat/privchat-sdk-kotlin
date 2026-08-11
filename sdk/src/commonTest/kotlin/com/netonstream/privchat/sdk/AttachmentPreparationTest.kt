@@ -381,10 +381,20 @@ class AttachmentCaptionTest {
         assertEquals("周末爬山", placeholderFor("周末爬山")?.caption)
     }
 
-    /** 空白不是说明文字：留着会把 `[图片]` 占位文案顶掉，会话列表就空了。 */
+    /** 没写就是没写：空串和缺省都表示「这条附件没有说明文字」。 */
     @Test
-    fun blank_is_not_a_caption() = runTest {
-        assertEquals(null, placeholderFor("   ")?.caption)
+    fun nothing_written_is_no_caption() = runTest {
+        assertEquals(null, placeholderFor("")?.caption)
         assertEquals(null, placeholderFor(null)?.caption)
+    }
+
+    /**
+     * 🔴 用户正文一个字都不许改：前后空格保留，纯空白也是用户写的东西。
+     * 这边 trim、TS 不 trim 的话，同一条消息在两个 SDK 上就是不同的字节。
+     */
+    @Test
+    fun whitespace_belongs_to_the_user() = runTest {
+        assertEquals("  周末爬山  ", placeholderFor("  周末爬山  ")?.caption)
+        assertEquals("   ", placeholderFor("   ")?.caption)
     }
 }

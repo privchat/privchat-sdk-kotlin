@@ -174,7 +174,9 @@ internal suspend fun prepareAndEnqueueAttachment(
             localMessageId = localMessageId,
             fileName = originalFileName,
             mimeType = mimeType,
-            caption = caption?.trim()?.takeIf { it.isNotEmpty() },
+            // 🔴 用户正文不修剪：只有空串算「没写」。这边 trim、TS 不 trim 的话，
+            // 同一条消息在两个 SDK 上就是不同的字节。
+            caption = caption?.takeIf { it.isNotEmpty() },
             searchableWord = originalFileName,
             video = initialVideo,
             extensionJson = options?.extraJson,
