@@ -141,8 +141,15 @@ internal suspend fun prepareAndEnqueueAttachment(
     platform: AttachmentPlatformOps,
     forcedMessageType: Int? = null,
     forcedDurationSeconds: UInt? = null,
+    /**
+     * 展示用文件名。缓存/临时文件的名字对用户没有意义——重发一份收到的附件时，
+     * 磁盘上叫 `42.pdf`，但消息里该显示它本来的名字。为空则用源路径的文件名。
+     */
+    displayFileName: String? = null,
 ): Pair<ULong, AttachmentInfo> {
-    val originalFileName = platform.fileName(sourcePath)
+    val originalFileName = displayFileName?.trim()?.takeIf { it.isNotEmpty() }
+        ?.substringAfterLast('/')?.substringAfterLast('\\')
+        ?: platform.fileName(sourcePath)
     val mimeType = guessAttachmentMime(originalFileName)
     val messageType = forcedMessageType ?: inferAttachmentMessageType(originalFileName, mimeType)
     val canonicalFileName = attachmentPayloadFileName(mimeType, originalFileName)
@@ -271,11 +278,19 @@ internal fun attachmentCacheFileName(
     fileName: String?,
     mimeType: String?,
 ): String {
-    val base = fileId.trim().ifEmpty { "attachment" }
+    val base = fileId.trim()
+        .filter { it in 'a'..'z' || it in 'A'..'Z' || it in '0'..'9' || it == '-' || it == '_' }
+        .take(64)
+        .ifEmpty { "attachment" }
     val sourceName = fileName?.trim().orEmpty()
-    val sourceExtension = sourceName.substringAfterLast('.', "")
-    if (sourceExtension.isNotBlank() && sourceExtension.length <= 8) {
-        return "$base.${sourceExtension.lowercase()}"
+    // 🔴 文件名来自远端消息，不可信。只认字母数字：`../` `/` `%00` 之类混进扩展名，
+    // 拼出来就是缓存目录之外的路径。
+    val sourceExtension = sourceName.substringAfterLast('.', "").lowercase()
+    if (sourceExtension.isNotEmpty() &&
+        sourceExtension.length <= 8 &&
+        sourceExtension.all { it in 'a'..'z' || it in '0'..'9' }
+    ) {
+        return "$base.$sourceExtension"
     }
     // attachmentPayloadFileName 已经维护着 MIME→扩展名这张表，别抄第二份。
     val fromMime = attachmentPayloadFileName(mimeType.orEmpty(), sourceName).substringAfterLast('.', "bin")

@@ -190,3 +190,118 @@ class AttachmentCacheFileNameTest {
         assertEquals("attachment.pdf", attachmentCacheFileName("", "contract.pdf", "application/pdf"))
     }
 }
+
+/** 文件名来自远端消息：任何一段都不能直接拼进本地路径。 */
+class AttachmentCacheFileNameSafetyTest {
+
+    @Test
+    fun a_path_traversal_extension_is_refused() {
+        val name = attachmentCacheFileName("42", "photo../../../etc/passwd", "image/jpeg")
+        assertEquals("42.jpg", name)
+    }
+
+    @Test
+    fun a_separator_in_the_extension_is_refused() {
+        assertEquals("42.jpg", attachmentCacheFileName("42", "x.jp/g", "image/jpeg"))
+        assertEquals("42.jpg", attachmentCacheFileName("42", "x.jp g", "image/jpeg"))
+    }
+
+    @Test
+    fun a_hostile_file_id_cannot_escape_the_cache_directory() {
+        val name = attachmentCacheFileName("../../etc/passwd", "a.jpg", "image/jpeg")
+        assertEquals("etcpasswd.jpg", name)
+    }
+}
+
+/**
+ * 展示文件名：重发一份收到的附件时，磁盘上是 `42.pdf`，消息里该显示 `合同.pdf`。
+ */
+class AttachmentDisplayFileNameTest {
+
+    /** 记下占位符——文件名最终就写在它上面。 */
+    private class RecordingPort : AttachmentPreparationPort {
+        var placeholder: LocalAttachmentPlaceholder? = null
+        override fun generateLocalMessageId() = 1uL
+        override fun nowEpochMillis() = 0L
+        override suspend fun createPlaceholder(input: LocalAttachmentPlaceholder): ULong {
+            placeholder = input
+            return 1uL
+        }
+        override fun targetDirectory(userId: ULong, messageId: ULong, createdAtMs: Long) = "/media/1"
+        override suspend fun finalizeAndEnqueue(
+            messageId: ULong,
+            localPath: String,
+            thumbStatus: Int,
+            routeKey: String,
+        ) = 2uL
+        override suspend fun discardPlaceholder(messageId: ULong) {}
+        override fun clientEndpoint() = "client"
+    }
+
+    private class FakePlatform : AttachmentPlatformOps {
+        override fun fileName(path: String) = path.substringAfterLast('/')
+        override suspend fun inspectVideo(path: String) = AttachmentVideoMetadata()
+        override suspend fun materialize(
+            sourcePath: String,
+            targetDirectory: String,
+            targetFileName: String,
+            messageType: Int,
+        ) = MaterializedAttachment("$targetDirectory/$targetFileName", 8u)
+        override suspend fun materializeBytes(
+            data: ByteArray,
+            targetDirectory: String,
+            targetFileName: String,
+        ) = MaterializedAttachment("$targetDirectory/$targetFileName", data.size.toULong())
+    }
+
+    @Test
+    fun the_display_name_replaces_the_path_name() = runTest {
+        val port = RecordingPort()
+        prepareAndEnqueueAttachment(
+            channelId = 1uL,
+            channelType = 1,
+            userId = 7uL,
+            sourcePath = "/cache/42.pdf",
+            options = null,
+            progress = null,
+            port = port,
+            platform = FakePlatform(),
+            displayFileName = "合同.pdf",
+        )
+        assertEquals("合同.pdf", port.placeholder?.fileName)
+    }
+
+    @Test
+    fun without_one_the_path_name_is_used() = runTest {
+        val port = RecordingPort()
+        prepareAndEnqueueAttachment(
+            channelId = 1uL,
+            channelType = 1,
+            userId = 7uL,
+            sourcePath = "/cache/42.pdf",
+            options = null,
+            progress = null,
+            port = port,
+            platform = FakePlatform(),
+        )
+        assertEquals("42.pdf", port.placeholder?.fileName)
+    }
+
+    /** 🔴 名字来自远端消息：带路径分隔符时只取最后一段，绝不让它决定写到哪儿。 */
+    @Test
+    fun a_display_name_cannot_carry_a_path() = runTest {
+        val port = RecordingPort()
+        prepareAndEnqueueAttachment(
+            channelId = 1uL,
+            channelType = 1,
+            userId = 7uL,
+            sourcePath = "/cache/42.pdf",
+            options = null,
+            progress = null,
+            port = port,
+            platform = FakePlatform(),
+            displayFileName = "../../etc/passwd",
+        )
+        assertEquals("passwd", port.placeholder?.fileName)
+    }
+}

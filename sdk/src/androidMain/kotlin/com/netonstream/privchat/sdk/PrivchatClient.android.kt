@@ -692,9 +692,10 @@ actual class PrivchatClient private actual constructor() {
     actual suspend fun sendMedia(
         channelId: ULong,
         filePath: String,
-        options: SendMessageOptions?
+        options: SendMessageOptions?,
+        displayFileName: String?,
     ): Result<Pair<ULong, AttachmentInfo>> {
-        return sendAttachmentFromPath(channelId, filePath, options, null)
+        return sendAttachmentFromPath(channelId, filePath, options, null, displayFileName)
     }
 
     actual suspend fun retryMessage(messageId: ULong): Result<Unit> {
@@ -1071,7 +1072,8 @@ actual class PrivchatClient private actual constructor() {
             raw.forEachIndexed { idx, ch ->
                 Log.i(
                     "PrivchatClient",
-                    "[DBG][rawChannel][$idx] id=${ch.channelId} type=${ch.channelType} channelName='${ch.channelName}' remark='${ch.channelRemark}' unread=${ch.unreadCount} revoked=${ch.lastMessageIsRevoked} lastLocalId=${ch.lastLocalMessageId} content='${ch.lastMsgContent.take(10)}'"
+                    // 🔴 别把 lastMsgContent 打进日志：那是聊天正文，logcat 上任何应用都读得到。
+                    "[DBG][rawChannel][$idx] id=${ch.channelId} type=${ch.channelType} channelName='${ch.channelName}' remark='${ch.channelRemark}' unread=${ch.unreadCount} revoked=${ch.lastMessageIsRevoked} lastLocalId=${ch.lastLocalMessageId} contentLen=${ch.lastMsgContent.length}"
                 )
             }
             raw.map { it.toCommonChannel() }.also { mapped ->
@@ -1973,7 +1975,8 @@ actual class PrivchatClient private actual constructor() {
         channelId: ULong,
         path: String,
         options: SendMessageOptions?,
-        progress: ProgressObserver?
+        progress: ProgressObserver?,
+        displayFileName: String?,
     ): Result<Pair<ULong, AttachmentInfo>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
@@ -1988,6 +1991,7 @@ actual class PrivchatClient private actual constructor() {
                 progress = progress,
                 port = attachmentPreparationPort(c),
                 platform = androidAttachmentPlatform(),
+                displayFileName = displayFileName,
             )
         }.fold(
             onSuccess = { Result.success(it) },

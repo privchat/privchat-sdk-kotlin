@@ -86,7 +86,7 @@ expect class PrivchatClient private constructor() {
     suspend fun sendRedPacket(channelId: ULong, channelType: Int, content: RedPacketContent, options: SendMessageOptions = SendMessageOptions()): Result<ULong>
     /** 发转账消息（标准 IM 能力）。资金动作须先走 platform `/app/money-transfer/send`。 */
     suspend fun sendMoneyTransfer(channelId: ULong, channelType: Int, content: MoneyTransferContent, options: SendMessageOptions = SendMessageOptions()): Result<ULong>
-    suspend fun sendMedia(channelId: ULong, filePath: String, options: SendMessageOptions?): Result<Pair<ULong, AttachmentInfo>>
+    suspend fun sendMedia(channelId: ULong, filePath: String, options: SendMessageOptions?, displayFileName: String? = null): Result<Pair<ULong, AttachmentInfo>>
     suspend fun retryMessage(messageId: ULong): Result<Unit>
     suspend fun markReadToPts(channelId: ULong, readPts: ULong): Result<ULong>
     suspend fun markAsRead(channelId: ULong, messageId: ULong): Result<Unit>
@@ -501,7 +501,8 @@ expect class PrivchatClient private constructor() {
     ): Result<TransferReply>
 
     // ========== File ==========
-    suspend fun sendAttachmentFromPath(channelId: ULong, path: String, options: SendMessageOptions?, progress: ProgressObserver?): Result<Pair<ULong, AttachmentInfo>>
+    /** [displayFileName]：消息里显示的文件名。缓存文件叫什么与用户无关。 */
+    suspend fun sendAttachmentFromPath(channelId: ULong, path: String, options: SendMessageOptions?, progress: ProgressObserver?, displayFileName: String? = null): Result<Pair<ULong, AttachmentInfo>>
     suspend fun sendAttachmentBytes(channelId: ULong, filename: String, mimeType: String, data: ByteArray, options: SendMessageOptions?, progress: ProgressObserver?): Result<Pair<ULong, AttachmentInfo>>
 
     // ========== Media Store ==========

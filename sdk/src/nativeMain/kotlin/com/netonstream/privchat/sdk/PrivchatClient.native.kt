@@ -648,9 +648,10 @@ actual class PrivchatClient private actual constructor() {
     actual suspend fun sendMedia(
         channelId: ULong,
         filePath: String,
-        options: SendMessageOptions?
+        options: SendMessageOptions?,
+        displayFileName: String?,
     ): Result<Pair<ULong, AttachmentInfo>> {
-        return sendAttachmentFromPath(channelId, filePath, options, null)
+        return sendAttachmentFromPath(channelId, filePath, options, null, displayFileName)
     }
 
     actual suspend fun retryMessage(messageId: ULong): Result<Unit> {
@@ -1908,7 +1909,8 @@ actual class PrivchatClient private actual constructor() {
         channelId: ULong,
         path: String,
         options: SendMessageOptions?,
-        progress: ProgressObserver?
+        progress: ProgressObserver?,
+        displayFileName: String?,
     ): Result<Pair<ULong, AttachmentInfo>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
@@ -1923,6 +1925,7 @@ actual class PrivchatClient private actual constructor() {
                 progress = progress,
                 port = attachmentPreparationPort(c),
                 platform = nativeAttachmentPlatform(),
+                displayFileName = displayFileName,
             )
         }.fold(
             onSuccess = { Result.success(it) },
