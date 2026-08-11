@@ -152,3 +152,41 @@ class AttachmentPreparationTest {
         override fun clientEndpoint() = "client"
     }
 }
+
+/**
+ * 缓存文件名决定了这份内容再发出去时是「图片」还是「文件」——普通发送就是按文件名推 MIME 的。
+ */
+class AttachmentCacheFileNameTest {
+
+    @Test
+    fun the_source_extension_is_kept() {
+        assertEquals("42.jpg", attachmentCacheFileName("42", "IMG_0001.JPG", "image/jpeg"))
+    }
+
+    /** 🔴 服务端不一定回文件名。只写 file_id 的话扩展名没了，图片会被重发成「文件」消息。 */
+    @Test
+    fun a_nameless_file_falls_back_to_its_mime() {
+        val name = attachmentCacheFileName("42", null, "image/jpeg")
+        assertEquals("42.jpg", name)
+        assertEquals("image/jpeg", guessAttachmentMime(name))
+        assertEquals(ContentMessageType.IMAGE.value, inferAttachmentMessageType(name, guessAttachmentMime(name)))
+    }
+
+    @Test
+    fun a_video_keeps_its_media_type_through_the_cache_name() {
+        val name = attachmentCacheFileName("7", "", "video/mp4")
+        assertEquals("7.mp4", name)
+        assertEquals(ContentMessageType.VIDEO.value, inferAttachmentMessageType(name, guessAttachmentMime(name)))
+    }
+
+    /** 类型认不出来时退回 .bin：发成「文件」是对的，猜一个扩展名才是错的。 */
+    @Test
+    fun an_unknown_type_stays_a_file() {
+        assertEquals("9.bin", attachmentCacheFileName("9", null, null))
+    }
+
+    @Test
+    fun an_empty_id_still_produces_a_usable_name() {
+        assertEquals("attachment.pdf", attachmentCacheFileName("", "contract.pdf", "application/pdf"))
+    }
+}

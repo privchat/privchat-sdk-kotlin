@@ -2122,7 +2122,9 @@ actual class PrivchatClient private actual constructor() {
     actual suspend fun downloadAttachmentToCache(
         fileId: String,
         fileUrl: String,
-        progress: ProgressObserver?
+        progress: ProgressObserver?,
+        fileName: String?,
+        mimeType: String?,
     ): Result<String> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
@@ -2130,9 +2132,11 @@ actual class PrivchatClient private actual constructor() {
             if (source.isEmpty()) {
                 throw IllegalArgumentException("fileId/fileUrl is empty")
             }
-            val cacheName = fileId.trim().ifEmpty {
-                fileUrl.trim().substringAfterLast('/').ifEmpty { "attachment.bin" }
-            }
+            val cacheName = attachmentCacheFileName(
+                fileId = fileId.trim().ifEmpty { fileUrl.trim().substringAfterLast('/') },
+                fileName = fileName,
+                mimeType = mimeType,
+            )
             val path = c.downloadAttachmentToCache(source, cacheName)
             progress?.onProgress(1uL, 1uL)
             path

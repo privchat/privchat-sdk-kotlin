@@ -256,3 +256,28 @@ internal fun attachmentPayloadFileName(mimeType: String, originalFileName: Strin
     }
     return "payload.$extension"
 }
+
+/**
+ * 下载到缓存时用的文件名。
+ *
+ * 🔴 扩展名不是装饰：普通发送是从**文件名**推 MIME 和消息类型的（[guessAttachmentMime] /
+ * [inferAttachmentMessageType]）。缓存名要是只写 file_id（`42`），一张图重新发出去就变成
+ * `application/octet-stream` 的「文件」消息——对端看到的不再是图片。
+ *
+ * 所以名字优先跟源文件名走；源文件名没有扩展名时，用源 MIME 补一个。
+ */
+internal fun attachmentCacheFileName(
+    fileId: String,
+    fileName: String?,
+    mimeType: String?,
+): String {
+    val base = fileId.trim().ifEmpty { "attachment" }
+    val sourceName = fileName?.trim().orEmpty()
+    val sourceExtension = sourceName.substringAfterLast('.', "")
+    if (sourceExtension.isNotBlank() && sourceExtension.length <= 8) {
+        return "$base.${sourceExtension.lowercase()}"
+    }
+    // attachmentPayloadFileName 已经维护着 MIME→扩展名这张表，别抄第二份。
+    val fromMime = attachmentPayloadFileName(mimeType.orEmpty(), sourceName).substringAfterLast('.', "bin")
+    return "$base.$fromMime"
+}

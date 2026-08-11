@@ -510,7 +510,13 @@ expect class PrivchatClient private constructor() {
 
     // ========== Voice ==========
     suspend fun sendVoiceFromPath(channelId: ULong, path: String, durationMs: Long, options: SendMessageOptions?, progress: ProgressObserver?): Result<Pair<ULong, AttachmentInfo>>
-    suspend fun downloadAttachmentToCache(fileId: String, fileUrl: String, progress: ProgressObserver?): Result<String>
+    /**
+     * 下载附件到缓存并返回本地路径。
+     *
+     * [fileName]/[mimeType] 传源消息的值：缓存文件名要保住扩展名，否则再把它当普通附件发出去时，
+     * 类型会从图片/视频退化成「文件」。
+     */
+    suspend fun downloadAttachmentToCache(fileId: String, fileUrl: String, progress: ProgressObserver?, fileName: String? = null, mimeType: String? = null): Result<String>
     suspend fun downloadAttachmentToPath(fileUrl: String, outputPath: String, progress: ProgressObserver?): Result<Unit>
     suspend fun updateMediaDownloaded(messageId: ULong, downloaded: Boolean): Result<Unit>
 
