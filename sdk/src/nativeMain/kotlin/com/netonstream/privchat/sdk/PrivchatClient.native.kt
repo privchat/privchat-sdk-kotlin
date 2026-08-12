@@ -2137,32 +2137,45 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
-    actual suspend fun downloadAttachmentToCache(
+    actual suspend fun downloadAttachmentDetailed(
         fileId: String,
         fileUrl: String,
         progress: ProgressObserver?,
         fileName: String?,
         mimeType: String?,
-    ): Result<String> {
+    ): Result<DownloadedAttachment> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
             val source = fileId.trim().ifEmpty { fileUrl.trim() }
             if (source.isEmpty()) {
                 throw IllegalArgumentException("fileId/fileUrl is empty")
             }
-            val cacheName = attachmentCacheFileName(
-                fileId = fileId.trim().ifEmpty { fileUrl.trim().substringAfterLast('/') },
-                fileName = fileName,
-                mimeType = mimeType,
-            )
-            val path = c.downloadAttachmentToCache(source, cacheName)
+            // 🔴 名字交给 SDK：只有它拿得到 file/get_url 的 original_filename / mime / file_type。
+            // 这里再算一次「{fileId}.ext」就是第二套规则，而它认不出别的客户端发来的附件。
+            val view = c.downloadAttachmentIntoCache(source, fileName, mimeType)
             progress?.onProgress(1uL, 1uL)
-            path
+            DownloadedAttachment(
+                localPath = view.localPath,
+                displayFileName = view.displayFileName,
+                mimeType = view.mimeType,
+                fileType = view.fileType,
+            )
         }.fold(
             onSuccess = { Result.success(it) },
-            onFailure = { Result.failure(toSdkError("downloadAttachmentToCache failed", it)) },
+            onFailure = { Result.failure(toSdkError("downloadAttachmentDetailed failed", it)) },
         )
     }
+
+    actual suspend fun downloadAttachmentToCache(
+        fileId: String,
+        fileUrl: String,
+        progress: ProgressObserver?,
+        fileName: String?,
+        mimeType: String?,
+    ): Result<String> =
+        // 逐字返回同一个路径。这里不加工，落盘位置只有一个真源。
+        downloadAttachmentDetailed(fileId, fileUrl, progress, fileName, mimeType)
+            .map { it.localPath }
 
     actual suspend fun downloadAttachmentToPath(
         fileUrl: String,

@@ -208,6 +208,25 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `disconnect`()
     
+    /**
+     * 下载到缓存目录，名字由服务端元数据决定。
+     *
+     * 与 [`download_attachment_to_cache`] 的差别只有一条：调用方**不再需要先猜名字**。
+     * 旧接口留着是为了兼容既有调用点。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `downloadAttachmentIntoCache`(`sourcePath`: kotlin.String, `messageFileName`: kotlin.String?, `messageMimeType`: kotlin.String?): DownloadedAttachmentView
+    
+    /**
+     * 下载一份附件到目录，**由这里决定它在磁盘上叫什么**，并把服务端元数据带回上层。
+     *
+     * 调用方不必（也没法）先猜一个文件名：`original_filename` / `mime_type` /
+     * `file_type` 都在 `file/get_url` 的响应里，只有这一层拿得到。上层曾经先猜后下载，
+     * 猜不出就用 `.bin`，于是别的客户端发来的图片被当成「文件」重发出去。
+     *
+     * [`message_file_name`] / [`message_mime_type`] 是本地那条消息上的值，只作兜底。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `downloadAttachmentIntoDir`(`sourcePath`: kotlin.String, `targetDir`: kotlin.String, `messageFileName`: kotlin.String?, `messageMimeType`: kotlin.String?): DownloadedAttachmentView
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `downloadAttachmentToCache`(`sourcePath`: kotlin.String, `fileName`: kotlin.String): kotlin.String
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `downloadAttachmentToPath`(`sourcePath`: kotlin.String, `targetPath`: kotlin.String): kotlin.String
@@ -1229,6 +1248,31 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `disconnect`()
+
+    
+    /**
+     * 下载到缓存目录，名字由服务端元数据决定。
+     *
+     * 与 [`download_attachment_to_cache`] 的差别只有一条：调用方**不再需要先猜名字**。
+     * 旧接口留着是为了兼容既有调用点。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `downloadAttachmentIntoCache`(`sourcePath`: kotlin.String, `messageFileName`: kotlin.String?, `messageMimeType`: kotlin.String?) : DownloadedAttachmentView
+
+    
+    /**
+     * 下载一份附件到目录，**由这里决定它在磁盘上叫什么**，并把服务端元数据带回上层。
+     *
+     * 调用方不必（也没法）先猜一个文件名：`original_filename` / `mime_type` /
+     * `file_type` 都在 `file/get_url` 的响应里，只有这一层拿得到。上层曾经先猜后下载，
+     * 猜不出就用 `.bin`，于是别的客户端发来的图片被当成「文件」重发出去。
+     *
+     * [`message_file_name`] / [`message_mime_type`] 是本地那条消息上的值，只作兜底。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `downloadAttachmentIntoDir`(`sourcePath`: kotlin.String, `targetDir`: kotlin.String, `messageFileName`: kotlin.String?, `messageMimeType`: kotlin.String?) : DownloadedAttachmentView
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -3270,6 +3314,41 @@ data class DirectChannelResult (
     var `channelId`: kotlin.ULong
         , 
     var `created`: kotlin.Boolean
+        
+) {
+    
+    companion object
+}
+
+
+
+/**
+ * 一份下载到本地的附件：**物理落点**和**它是什么**分开说。
+ *
+ * 展示名不能当文件名用（两个人各发一张 `photo.png` 会互相覆盖），
+ * 文件名也不能当展示名用（用户看到的应该是原名，不是 `25865.png`）。
+ * 消息类型只认服务端的 `file_type`——扩展名说不出「这是语音条还是一首歌」。
+ */
+data class DownloadedAttachmentView (
+    /**
+     * 磁盘上的唯一路径（`{file_id}.{ext}`）。
+     */
+    var `localPath`: kotlin.String
+        , 
+    /**
+     * 界面上显示的文件名（服务端 `original_filename`，已清洗）。缺省为空串。
+     */
+    var `displayFileName`: kotlin.String
+        , 
+    /**
+     * 服务端记录的 MIME。缺省为空串。
+     */
+    var `mimeType`: kotlin.String
+        , 
+    /**
+     * 服务端记录的类型：`image` / `video` / `voice` / `file`。缺省为空串。
+     */
+    var `fileType`: kotlin.String
         
 ) {
     

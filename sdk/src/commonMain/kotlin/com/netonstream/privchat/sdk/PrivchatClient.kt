@@ -516,6 +516,21 @@ expect class PrivchatClient private constructor() {
      * [fileName]/[mimeType] 传源消息的值：缓存文件名要保住扩展名，否则再把它当普通附件发出去时，
      * 类型会从图片/视频退化成「文件」。
      */
+    /**
+     * 下载一份附件到本地缓存，并说清楚它是什么。
+     *
+     * 🔴 文件名由 SDK 决定，不是调用方：`original_filename` / `mime_type` / `file_type`
+     * 只存在于 `file/get_url` 的响应里，调用方在下载之前拿不到，只能猜——猜不出就是
+     * `.bin`，于是别的客户端发来的图片会被当成「文件」重发出去。
+     */
+    suspend fun downloadAttachmentDetailed(fileId: String, fileUrl: String, progress: ProgressObserver?, fileName: String? = null, mimeType: String? = null): Result<DownloadedAttachment>
+
+    /**
+     * [downloadAttachmentDetailed] 的兼容包装：**逐字返回同一个** [DownloadedAttachment.localPath]。
+     *
+     * 🔴 这里不做任何再加工。落盘位置只有一个真源；包装函数一旦「顺手」改名或重拼路径，
+     * 就又出现了第二套规则。
+     */
     suspend fun downloadAttachmentToCache(fileId: String, fileUrl: String, progress: ProgressObserver?, fileName: String? = null, mimeType: String? = null): Result<String>
 
     /**

@@ -857,6 +857,10 @@ get() = useContents { `uniffiFree`/* test  Any? */}
 
 
 
+
+
+
+
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -972,6 +976,10 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_message_local(`ptr`: Pointer?,`messageId`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_disconnect(`ptr`: Pointer?,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_download_attachment_into_cache(`ptr`: Pointer?,`sourcePath`: RustBufferByValue,`messageFileName`: RustBufferByValue,`messageMimeType`: RustBufferByValue,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_download_attachment_into_dir(`ptr`: Pointer?,`sourcePath`: RustBufferByValue,`targetDir`: RustBufferByValue,`messageFileName`: RustBufferByValue,`messageMimeType`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_download_attachment_to_cache(`ptr`: Pointer?,`sourcePath`: RustBufferByValue,`fileName`: RustBufferByValue,
     ): Long
@@ -1757,6 +1765,10 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_disconnect(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_download_attachment_into_cache(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_download_attachment_into_dir(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_download_attachment_to_cache(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_download_attachment_to_path(
@@ -2524,6 +2536,14 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_disconnect(`ptr`: Pointer?,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_disconnect(`ptr`?.inner,)as Long
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_download_attachment_into_cache(`ptr`: Pointer?,`sourcePath`: RustBufferByValue,`messageFileName`: RustBufferByValue,`messageMimeType`: RustBufferByValue,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_download_attachment_into_cache(`ptr`?.inner,`sourcePath` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`messageFileName` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`messageMimeType` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_download_attachment_into_dir(`ptr`: Pointer?,`sourcePath`: RustBufferByValue,`targetDir`: RustBufferByValue,`messageFileName`: RustBufferByValue,`messageMimeType`: RustBufferByValue,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_download_attachment_into_dir(`ptr`?.inner,`sourcePath` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`targetDir` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`messageFileName` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`messageMimeType` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_download_attachment_to_cache(`ptr`: Pointer?,`sourcePath`: RustBufferByValue,`fileName`: RustBufferByValue,
     ): Long
@@ -4092,6 +4112,14 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_disconnect(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_disconnect()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_download_attachment_into_cache(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_download_attachment_into_cache()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_download_attachment_into_dir(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_download_attachment_into_dir()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_download_attachment_to_cache(
     ): Short
@@ -6583,6 +6611,65 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         // lift function
         { Unit },
         
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * 下载到缓存目录，名字由服务端元数据决定。
+     *
+     * 与 [`download_attachment_to_cache`] 的差别只有一条：调用方**不再需要先猜名字**。
+     * 旧接口留着是为了兼容既有调用点。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `downloadAttachmentIntoCache`(`sourcePath`: kotlin.String, `messageFileName`: kotlin.String?, `messageMimeType`: kotlin.String?) : DownloadedAttachmentView {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_download_attachment_into_cache(
+                thisPtr,
+                FfiConverterString.lower(`sourcePath`),FfiConverterOptionalString.lower(`messageFileName`),FfiConverterOptionalString.lower(`messageMimeType`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterTypeDownloadedAttachmentView.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * 下载一份附件到目录，**由这里决定它在磁盘上叫什么**，并把服务端元数据带回上层。
+     *
+     * 调用方不必（也没法）先猜一个文件名：`original_filename` / `mime_type` /
+     * `file_type` 都在 `file/get_url` 的响应里，只有这一层拿得到。上层曾经先猜后下载，
+     * 猜不出就用 `.bin`，于是别的客户端发来的图片被当成「文件」重发出去。
+     *
+     * [`message_file_name`] / [`message_mime_type`] 是本地那条消息上的值，只作兜底。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `downloadAttachmentIntoDir`(`sourcePath`: kotlin.String, `targetDir`: kotlin.String, `messageFileName`: kotlin.String?, `messageMimeType`: kotlin.String?) : DownloadedAttachmentView {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_download_attachment_into_dir(
+                thisPtr,
+                FfiConverterString.lower(`sourcePath`),FfiConverterString.lower(`targetDir`),FfiConverterOptionalString.lower(`messageFileName`),FfiConverterOptionalString.lower(`messageMimeType`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterTypeDownloadedAttachmentView.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -13463,6 +13550,34 @@ object FfiConverterTypeDirectChannelResult: FfiConverterRustBuffer<DirectChannel
     override fun write(value: DirectChannelResult, buf: ByteBuffer) {
             FfiConverterULong.write(value.`channelId`, buf)
             FfiConverterBoolean.write(value.`created`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeDownloadedAttachmentView: FfiConverterRustBuffer<DownloadedAttachmentView> {
+    override fun read(buf: ByteBuffer): DownloadedAttachmentView {
+        return DownloadedAttachmentView(
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+            FfiConverterString.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: DownloadedAttachmentView) = (
+            FfiConverterString.allocationSize(value.`localPath`) +
+            FfiConverterString.allocationSize(value.`displayFileName`) +
+            FfiConverterString.allocationSize(value.`mimeType`) +
+            FfiConverterString.allocationSize(value.`fileType`)
+    )
+
+    override fun write(value: DownloadedAttachmentView, buf: ByteBuffer) {
+            FfiConverterString.write(value.`localPath`, buf)
+            FfiConverterString.write(value.`displayFileName`, buf)
+            FfiConverterString.write(value.`mimeType`, buf)
+            FfiConverterString.write(value.`fileType`, buf)
     }
 }
 

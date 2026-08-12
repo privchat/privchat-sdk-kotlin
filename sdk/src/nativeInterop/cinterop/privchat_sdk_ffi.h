@@ -262,6 +262,10 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_delete_message_local(vo
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_disconnect(void * ptr
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_download_attachment_into_cache(void * ptr, RustBuffer sourcePath, RustBuffer messageFileName, RustBuffer messageMimeType
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_download_attachment_into_dir(void * ptr, RustBuffer sourcePath, RustBuffer targetDir, RustBuffer messageFileName, RustBuffer messageMimeType
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_download_attachment_to_cache(void * ptr, RustBuffer sourcePath, RustBuffer fileName
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_download_attachment_to_path(void * ptr, RustBuffer sourcePath, RustBuffer targetPath
@@ -1100,6 +1104,12 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_delete_message_lo
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_disconnect(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_download_attachment_into_cache(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_download_attachment_into_dir(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_download_attachment_to_cache(void
