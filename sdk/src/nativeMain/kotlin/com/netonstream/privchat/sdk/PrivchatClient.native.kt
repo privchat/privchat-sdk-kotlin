@@ -37,6 +37,8 @@ import platform.Foundation.NSData
 import platform.Foundation.NSDate
 import platform.Foundation.dataWithContentsOfFile
 import platform.Foundation.NSFileManager
+import platform.Foundation.NSFileSize
+import platform.Foundation.NSNumber
 import platform.Foundation.create
 import platform.Foundation.timeIntervalSince1970
 import platform.Foundation.writeToFile
@@ -2053,11 +2055,16 @@ actual class PrivchatClient private actual constructor() {
             messageType: Int,
         ): MaterializedAttachment {
             val targetPath = "$targetDirectory/$targetFileName"
-            val data = NSData.dataWithContentsOfFile(sourcePath)
-                ?: error("Unable to read attachment: $sourcePath")
-            check(data.writeToFile(targetPath, atomically = true)) {
+            // 🔴 走文件系统复制，不要读进 NSData：几百 MB 的视频那样会在内存里多出
+            // 一整份（明文一份、密文旁挂再一份），手机上直接被系统杀掉。
+            val fm = NSFileManager.defaultManager
+            if (fm.fileExistsAtPath(targetPath)) fm.removeItemAtPath(targetPath, null)
+            check(fm.copyItemAtPath(sourcePath, targetPath, null)) {
                 "Unable to materialize attachment: $targetPath"
             }
+            val size = (fm.attributesOfItemAtPath(targetPath, null)
+                ?.get(NSFileSize) as? NSNumber)?.unsignedLongLongValue
+                ?: error("Unable to size materialized attachment: $targetPath")
             carrySealedSidecar(sourcePath, targetPath)
             val video = if (messageType == ContentMessageType.VIDEO.value) {
                 extractVideoMetadata(sourcePath).let {
@@ -2068,7 +2075,7 @@ actual class PrivchatClient private actual constructor() {
                     )
                 }
             } else null
-            return MaterializedAttachment(targetPath, data.length.toULong(), video)
+            return MaterializedAttachment(targetPath, size, video)
         }
 
         override suspend fun materializeBytes(
@@ -3125,19 +3132,33 @@ private fun parseTimestampUlong(raw: String): ULong = parseTimestampUlongOrNull(
  * 目录，密文缓存留在原地，发送侧找不到就只能重新封装——新的随机 CEK/nonce 换出另一串
  * 密文，摘要一变服务端认不出这是同一份内容，只能整传。
  *
+ * 密文有**两种落点**，都要认，只认一种就等于只有一半用户能秒传：
+ * - 转发一份还没打开过的附件：临时下载到缓存目录，密文叫 `{文件名}.sealed`
+ * - 转发一份已经打开过的附件（更常见）：早就下载进它自己的消息目录，密文叫 `body.sealed`
+ *
  * 落成托管目录里的 `body.sealed`（+ `.sealed.json` 提交标记，两个都在才算数），跟发送侧
  * 自己写的那份同名，这样 ack 之后的清理和过期回收照常认得它，不会留下永不回收的垃圾。
  */
+@OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
 private fun carrySealedSidecar(sourcePath: String, targetPath: String) {
-    val blob = "$sourcePath.sealed"
-    val meta = "$sourcePath.sealed.json"
     val fm = NSFileManager.defaultManager
-    if (!fm.fileExistsAtPath(blob) || !fm.fileExistsAtPath(meta)) return
+    val sourceDir = sourcePath.substringBeforeLast('/', "")
+    val sourceName = sourcePath.substringAfterLast('/')
+    // 缩略图和主文件躺在同一个消息目录里，各有各的密文；发的是主文件就别去拿 thumb 那份。
+    val candidates = if (sourceName == "thumb.webp") {
+        listOf("$sourcePath.sealed")
+    } else {
+        listOf("$sourcePath.sealed", "$sourceDir/body.sealed")
+    }
+    val blob = candidates.firstOrNull {
+        fm.fileExistsAtPath(it) && fm.fileExistsAtPath("$it.json")
+    } ?: return
     val dir = targetPath.substringBeforeLast('/', "")
     if (dir.isEmpty()) return
     // 标记最后写：先有密文再有标记，跟 SDK 的 seal_once 同序。
-    for ((from, to) in listOf(blob to "$dir/body.sealed", meta to "$dir/body.sealed.json")) {
-        val data = NSData.dataWithContentsOfFile(from) ?: return
-        if (!data.writeToFile(to, atomically = true)) return
+    // 用文件系统复制而不是读进 NSData：几百 MB 的视频会在内存里多出一整份。
+    for ((from, to) in listOf(blob to "$dir/body.sealed", "$blob.json" to "$dir/body.sealed.json")) {
+        if (fm.fileExistsAtPath(to)) fm.removeItemAtPath(to, null)
+        if (!fm.copyItemAtPath(from, to, null)) return
     }
 }

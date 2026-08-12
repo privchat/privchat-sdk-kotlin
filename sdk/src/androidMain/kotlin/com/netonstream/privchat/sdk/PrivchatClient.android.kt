@@ -3360,16 +3360,28 @@ private fun parseTimestampUlong(raw: String): ULong = parseTimestampUlongOrNull(
  * 目录，密文缓存留在原地，发送侧找不到就只能重新加密——新的随机 CEK/nonce 换出另一串
  * 密文，摘要一变服务端认不出这是同一份内容，只能整传。
  *
- * 命名与 SDK 的约定对齐：托管目录里主文件的缓存叫 `body.sealed`（+ `.sealed.json`
- * 作为提交标记，两个都在才算数）。
+ * 密文有**两种落点**，都要认，只认一种就等于只有一半用户能秒传：
+ * - 转发一份还没打开过的附件：临时下载到缓存目录，密文叫 `{文件名}.sealed`
+ * - 转发一份已经打开过的附件（更常见）：早就下载进它自己的消息目录，密文叫 `body.sealed`
+ *
+ * 落点统一成托管目录里的 `body.sealed`（+ `.sealed.json` 提交标记，两个都在才算数），
+ * 跟发送侧自己写的那份同名，ack 后的清理和过期回收照常认得它。
  */
 private fun carrySealedSidecar(source: java.io.File, targetDir: java.io.File) {
-    val blob = java.io.File(source.parentFile, "${source.name}.sealed")
-    val meta = java.io.File(source.parentFile, "${source.name}.sealed.json")
-    if (!blob.exists() || !meta.exists()) return
+    val dir = source.parentFile ?: return
+    // 缩略图和主文件躺在同一个消息目录里，各有各的密文；发的是主文件就别去拿 thumb 那份。
+    val names = if (source.name == "thumb.webp") {
+        listOf("${source.name}.sealed")
+    } else {
+        listOf("${source.name}.sealed", "body.sealed")
+    }
+    val blob = names.map { java.io.File(dir, it) }
+        .firstOrNull { it.exists() && java.io.File("${it.path}.json").exists() }
+        ?: return
     runCatching {
         blob.copyTo(java.io.File(targetDir, "body.sealed"), overwrite = true)
         // 标记最后写：先有 blob 再有标记，跟 SDK 的 seal_once 同序。
-        meta.copyTo(java.io.File(targetDir, "body.sealed.json"), overwrite = true)
+        java.io.File("${blob.path}.json")
+            .copyTo(java.io.File(targetDir, "body.sealed.json"), overwrite = true)
     }
 }
