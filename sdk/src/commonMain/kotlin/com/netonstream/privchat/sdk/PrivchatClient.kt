@@ -517,6 +517,14 @@ expect class PrivchatClient private constructor() {
      * 类型会从图片/视频退化成「文件」。
      */
     suspend fun downloadAttachmentToCache(fileId: String, fileUrl: String, progress: ProgressObserver?, fileName: String? = null, mimeType: String? = null): Result<String>
+
+    /**
+     * 附件正文的传输计数（诊断用）。
+     *
+     * 🔴 「秒传省了带宽」只能靠它证明：服务端也按内容哈希复用物理路径，
+     * 「两条记录指向同一个 file_url」并不代表客户端没上传。
+     */
+    suspend fun attachmentTransferStats(): Result<AttachmentTransferStats>
     suspend fun downloadAttachmentToPath(fileUrl: String, outputPath: String, progress: ProgressObserver?): Result<Unit>
     suspend fun updateMediaDownloaded(messageId: ULong, downloaded: Boolean): Result<Unit>
 

@@ -123,6 +123,15 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `assetsDir`(): kotlin.String
     
+    /**
+     * 获取附件下载目标目录 (Canonical 路径)
+     * 参数必须传入 message 表的主键和创建时间，禁止使用业务脏字段
+     * 附件正文的传输计数（诊断用）。
+     *
+     * 「秒传省了带宽」只能在这里证明：服务端也按内容哈希复用物理路径，所以
+     * 「两条记录指向同一个 file_url」并不代表客户端没上传。
+     */fun `attachmentTransferStats`(): AttachmentTransferStatsView
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `authLogoutRemote`(): kotlin.Boolean
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `authenticate`(`userId`: kotlin.ULong, `token`: kotlin.String, `deviceId`: kotlin.String)
@@ -252,10 +261,6 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getAllUnreadMentionCounts`(`userId`: kotlin.ULong): List<UnreadMentionCount>
     
-    /**
-     * 获取附件下载目标目录 (Canonical 路径)
-     * 参数必须传入 message 表的主键和创建时间，禁止使用业务脏字段
-     */
         @Throws(PrivchatFfiException::class)fun `getAttachmentTargetDir`(`uid`: kotlin.ULong, `messageId`: kotlin.Long, `createdAtMs`: kotlin.Long): kotlin.String
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getBlacklist`(): List<StoredBlacklistEntry>
@@ -670,8 +675,6 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `requireCurrentUserId`(): kotlin.ULong
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `resolveAttachmentBytes`(`sourcePath`: kotlin.String): kotlin.ByteArray
-    
     /**
      * 解析本地已存在的附件路径 (含 Legacy 兼容)
      */fun `resolveAttachmentPath`(`uid`: kotlin.ULong, `messageId`: kotlin.Long, `createdAtMs`: kotlin.Long, `filename`: kotlin.String?): kotlin.String?
@@ -1035,6 +1038,17 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `assetsDir`() : kotlin.String
 
     
+    /**
+     * 获取附件下载目标目录 (Canonical 路径)
+     * 参数必须传入 message 表的主键和创建时间，禁止使用业务脏字段
+     * 附件正文的传输计数（诊断用）。
+     *
+     * 「秒传省了带宽」只能在这里证明：服务端也按内容哈希复用物理路径，所以
+     * 「两条记录指向同一个 file_url」并不代表客户端没上传。
+     */override fun `attachmentTransferStats`(): AttachmentTransferStatsView
+    
+
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `authLogoutRemote`() : kotlin.Boolean
@@ -1333,10 +1347,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `getAllUnreadMentionCounts`(`userId`: kotlin.ULong) : List<UnreadMentionCount>
 
     
-    /**
-     * 获取附件下载目标目录 (Canonical 路径)
-     * 参数必须传入 message 表的主键和创建时间，禁止使用业务脏字段
-     */
     @Throws(PrivchatFfiException::class)override fun `getAttachmentTargetDir`(`uid`: kotlin.ULong, `messageId`: kotlin.Long, `createdAtMs`: kotlin.Long): kotlin.String
     
 
@@ -2185,11 +2195,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `requireCurrentUserId`() : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `resolveAttachmentBytes`(`sourcePath`: kotlin.String) : kotlin.ByteArray
-
-    
     /**
      * 解析本地已存在的附件路径 (含 Legacy 兼容)
      */override fun `resolveAttachmentPath`(`uid`: kotlin.ULong, `messageId`: kotlin.Long, `createdAtMs`: kotlin.Long, `filename`: kotlin.String?): kotlin.String?
@@ -2872,6 +2877,23 @@ data class AccountUserUpdateInput (
          = null , 
     var `bio`: kotlin.String?
          = null 
+) {
+    
+    companion object
+}
+
+
+
+/**
+ * 见 [`PrivchatClient::attachment_transfer_stats`]。
+ */
+data class AttachmentTransferStatsView (
+    var `claims`: kotlin.ULong
+        , 
+    var `bodyUploads`: kotlin.ULong
+        , 
+    var `thumbnailUploads`: kotlin.ULong
+        
 ) {
     
     companion object

@@ -36,6 +36,7 @@ import kotlinx.cinterop.usePinned
 import platform.Foundation.NSData
 import platform.Foundation.NSDate
 import platform.Foundation.dataWithContentsOfFile
+import platform.Foundation.NSFileManager
 import platform.Foundation.create
 import platform.Foundation.timeIntervalSince1970
 import platform.Foundation.writeToFile
@@ -2057,6 +2058,7 @@ actual class PrivchatClient private actual constructor() {
             check(data.writeToFile(targetPath, atomically = true)) {
                 "Unable to materialize attachment: $targetPath"
             }
+            carrySealedSidecar(sourcePath, targetPath)
             val video = if (messageType == ContentMessageType.VIDEO.value) {
                 extractVideoMetadata(sourcePath).let {
                     AttachmentVideoMetadata(
@@ -2110,6 +2112,21 @@ actual class PrivchatClient private actual constructor() {
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("sendAttachmentBytes failed", it)) },
+        )
+    }
+
+    actual suspend fun attachmentTransferStats(): Result<AttachmentTransferStats> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val v = c.attachmentTransferStats()
+            AttachmentTransferStats(
+                claims = v.claims,
+                bodyUploads = v.bodyUploads,
+                thumbnailUploads = v.thumbnailUploads,
+            )
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("attachmentTransferStats failed", it)) },
         )
     }
 
@@ -3100,3 +3117,27 @@ private fun parseTimestampUlongOrNull(raw: String?): ULong? {
 }
 
 private fun parseTimestampUlong(raw: String): ULong = parseTimestampUlongOrNull(raw) ?: 0uL
+
+/**
+ * 把源文件旁边的**原始密文**一起搬进托管目录。
+ *
+ * 🔴 少了这一步，「转发一份收到的附件」就永远秒传不了：发送前文件被复制进本条消息的
+ * 目录，密文缓存留在原地，发送侧找不到就只能重新封装——新的随机 CEK/nonce 换出另一串
+ * 密文，摘要一变服务端认不出这是同一份内容，只能整传。
+ *
+ * 落成托管目录里的 `body.sealed`（+ `.sealed.json` 提交标记，两个都在才算数），跟发送侧
+ * 自己写的那份同名，这样 ack 之后的清理和过期回收照常认得它，不会留下永不回收的垃圾。
+ */
+private fun carrySealedSidecar(sourcePath: String, targetPath: String) {
+    val blob = "$sourcePath.sealed"
+    val meta = "$sourcePath.sealed.json"
+    val fm = NSFileManager.defaultManager
+    if (!fm.fileExistsAtPath(blob) || !fm.fileExistsAtPath(meta)) return
+    val dir = targetPath.substringBeforeLast('/', "")
+    if (dir.isEmpty()) return
+    // 标记最后写：先有密文再有标记，跟 SDK 的 seal_once 同序。
+    for ((from, to) in listOf(blob to "$dir/body.sealed", meta to "$dir/body.sealed.json")) {
+        val data = NSData.dataWithContentsOfFile(from) ?: return
+        if (!data.writeToFile(to, atomically = true)) return
+    }
+}
