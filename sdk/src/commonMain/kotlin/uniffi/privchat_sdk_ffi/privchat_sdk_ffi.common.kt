@@ -6419,7 +6419,16 @@ sealed class SdkEvent {
     
     /**
      * 分页同步中「又落库了一页」；宿主用它在首屏进度条的本族区间内往前爬。
+     * 附件上传进度：UI 的进度条数据源。
      */
+    
+    data class AttachmentUploadProgress(
+        val `localMessageId`: kotlin.String  , 
+        val `uploaded`: kotlin.ULong  , 
+        val `total`: kotlin.ULong  ) : SdkEvent() {
+        
+    }
+    
     
     data class SyncEntityPageApplied(
         val `entityType`: kotlin.String  , 

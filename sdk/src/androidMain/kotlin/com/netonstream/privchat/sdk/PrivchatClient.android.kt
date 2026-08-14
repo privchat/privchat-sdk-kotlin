@@ -3172,6 +3172,18 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         reason = event.message,
     )
 
+    // 附件上传进度：UI 的进度条。
+    //
+    // 🔴 复用 mediaDownload* 三个字段承载「已传/总量」——payload 是扁平 DTO，
+    // 为每个进度事件各加一组字段会让所有平台的 DTO 无限膨胀。消费方按 type 分派，
+    // 上传和下载不会混。
+    is CoreSdkEvent.AttachmentUploadProgress -> SdkEventPayload(
+        type = "attachment_upload_progress",
+        entityId = event.localMessageId,
+        mediaDownloadBytes = event.uploaded,
+        mediaDownloadTotal = event.total,
+    )
+
     is CoreSdkEvent.SyncEntityPageApplied -> SdkEventPayload(
         type = "sync_entity_page_applied",
         entityType = event.entityType,
