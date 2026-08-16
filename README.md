@@ -213,4 +213,4 @@ There is no XCFramework. Each target links
 - **No XCFramework.** Targets link the Rust static library at compile time.
 - The public API follows `privchat-sdk`'s contract — see
   [`CLIENT_SERVICE_FACADE_SPEC.md`](../privchat-sdk/docs/CLIENT_SERVICE_FACADE_SPEC.md) —
-  and stays aligned with privchat-sdk-android and privchat-sdk-swift.
+  and stays aligned with privchat-sdk-swift.

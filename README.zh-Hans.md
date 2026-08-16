@@ -203,4 +203,4 @@ Gradle 和 Xcode **不会**在每次 iOS 编译前重建 `libprivchat_sdk_ffi.a`
 - **不产出 XCFramework。** 各目标在编译期直接链接 Rust 静态库。
 - 公共 API 遵循 `privchat-sdk` 的契约（见
   [`CLIENT_SERVICE_FACADE_SPEC.md`](../privchat-sdk/docs/CLIENT_SERVICE_FACADE_SPEC.md)），
-  并与 privchat-sdk-android、privchat-sdk-swift 保持一致。
+  并与 privchat-sdk-swift 保持一致。
