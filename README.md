@@ -2,8 +2,9 @@
 
 *[简体中文](./README.zh-Hans.md)*
 
-Kotlin Multiplatform bindings for the PrivChat client SDK. One Kotlin API over the Rust
-core, for Android and Kotlin/Native (iOS, macOS, Linux, Windows).
+Kotlin Multiplatform bindings for [**privchat-sdk**](https://github.com/privchat/privchat-sdk),
+the PrivChat client SDK written in Rust. One Kotlin API over that core, for Android and
+Kotlin/Native (iOS, macOS, Linux, Windows).
 
 ```
 androidMain ─┐
@@ -13,8 +14,9 @@ nativeMain  ─┘
 
 Artifact: `com.netonstream.privchat:sdk:0.1.0`
 
-> This module cannot be built on its own — it compiles the Rust core from `../privchat-sdk`.
-> Keep the two repositories as siblings.
+> This module cannot be built on its own — it compiles the Rust core from
+> [privchat-sdk](https://github.com/privchat/privchat-sdk). Clone the two repositories as
+> siblings, so that `../privchat-sdk` resolves.
 
 ## Quick start
 
@@ -54,27 +56,37 @@ client.runBootstrapSync()
 `privchatCargoBuildAndroid`, which compiles it from Rust source into
 `sdk/build/generated/jniLibs`, and the Android packaging task picks it up from there.
 
-## Consuming the SDK
+## Running the sample
 
-### From privchat-app
-
-`privchat-app` includes this module through a Gradle composite build, so a single install
-task chains everything: Rust `.so` → Kotlin/UniFFI wrapper → app code → APK.
+`sample/` is the fastest way to see the SDK working. `:sample` is a shared KMP library; the
+installable Android app is `:sample-androidApp` (under `sample/androidApp`).
 
 ```bash
-cd ../privchat-app
-./gradlew :androidApp:installLocalDebug
+./gradlew :sample-androidApp:installDebug
 ```
+
+That single task chains the whole pipeline: Rust `.so` → Kotlin/UniFFI wrapper → sample
+code → APK.
+
+For iOS, build the Rust static library once, then build `sample/iosApp` in Xcode or with
+`xcodebuild`:
+
+```bash
+./gradlew :sdk:privchatCargoBuildAppleFfi
+./gradlew :sample:linkDebugFrameworkIosArm64   # framework for sample/iosApp
+```
+
+The sample covers the main verification path on both platforms: connect → login/register →
+authenticate → bootstrap → conversation list. See [sample/README.md](sample/README.md).
 
 If you have just changed Rust or the generated bindings and suspect Gradle's incremental
 cache missed it:
 
 ```bash
-./gradlew :privchat-sdk-kotlin:sdk:privchatCargoBuildAndroid \
-          :androidApp:installLocalDebug --rerun-tasks
+./gradlew :sdk:privchatCargoBuildAndroid :sample-androidApp:installDebug --rerun-tasks
 ```
 
-### From another project
+## Using it in your own project
 
 **Composite build (recommended).** Clone this repository next to your project, keeping
 `privchat-sdk` as its sibling, then in `settings.gradle.kts`:
@@ -192,21 +204,6 @@ static library, so it will not fix a stale `.a`.
 There is no XCFramework. Each target links
 `privchat-sdk/target/<triple>/release/libprivchat_sdk_ffi.a` directly, through
 `libraryPaths` in `privchat_sdk_ffi.def`.
-
-## Sample
-
-`:sample` is a shared KMP library; the installable Android app is `:sample-androidApp`
-(under `sample/androidApp`).
-
-```bash
-./gradlew :sample-androidApp:installDebug
-./gradlew :sample:linkDebugFrameworkIosArm64   # framework for sample/iosApp
-```
-
-On iOS, run `:sdk:privchatCargoBuildAppleFfi` once before building `sample/iosApp`.
-
-The sample covers the main verification path on Android and iOS: connect → login/register →
-authenticate → bootstrap → conversation list. See [sample/README.md](sample/README.md).
 
 ## Design constraints
 

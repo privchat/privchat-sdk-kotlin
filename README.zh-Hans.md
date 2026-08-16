@@ -2,8 +2,9 @@
 
 *[English](./README.md)*
 
-PrivChat 客户端 SDK 的 Kotlin Multiplatform 绑定。在 Rust 内核之上提供一套 Kotlin API，
-覆盖 Android 与 Kotlin/Native（iOS、macOS、Linux、Windows）。
+[**privchat-sdk**](https://github.com/privchat/privchat-sdk)（用 Rust 编写的 PrivChat
+客户端 SDK）的 Kotlin Multiplatform 绑定。在该内核之上提供一套 Kotlin API，覆盖 Android
+与 Kotlin/Native（iOS、macOS、Linux、Windows）。
 
 ```
 androidMain ─┐
@@ -13,7 +14,8 @@ nativeMain  ─┘
 
 产物：`com.netonstream.privchat:sdk:0.1.0`
 
-> 本模块**不能单独构建**——它要编译 `../privchat-sdk` 里的 Rust 内核，两个仓库必须同级放置。
+> 本模块**不能单独构建**——它要编译 [privchat-sdk](https://github.com/privchat/privchat-sdk)
+> 里的 Rust 内核。两个仓库需同级克隆，保证 `../privchat-sdk` 可达。
 
 ## 快速开始
 
@@ -53,26 +55,34 @@ client.runBootstrapSync()
 `privchatCargoBuildAndroid` 从 Rust 源码编译，输出到 `sdk/build/generated/jniLibs`，
 再由 Android 打包任务收进去。
 
-## 引入方式
+## 运行示例
 
-### 在 privchat-app 中
-
-`privchat-app` 通过 Gradle Composite Build 直接依赖本模块，一条安装命令即可串起全链：
-Rust `.so` → Kotlin/UniFFI wrapper → 业务代码 → APK。
+想最快看到 SDK 跑起来，就用 `sample/`。`:sample` 是共享 KMP 库模块，可安装的 Android 应用
+是 `:sample-androidApp`（目录 `sample/androidApp`）。
 
 ```bash
-cd ../privchat-app
-./gradlew :androidApp:installLocalDebug
+./gradlew :sample-androidApp:installDebug
 ```
+
+这一条命令串起全链：Rust `.so` → Kotlin/UniFFI wrapper → 示例代码 → APK。
+
+iOS 先构建一次 Rust 静态库，再用 Xcode 或 `xcodebuild` 构建 `sample/iosApp`：
+
+```bash
+./gradlew :sdk:privchatCargoBuildAppleFfi
+./gradlew :sample:linkDebugFrameworkIosArm64   # 供 sample/iosApp 链接的 framework
+```
+
+示例覆盖两端的主验证链路：connect → login/register → authenticate → bootstrap →
+会话列表。详见 [sample/README.md](sample/README.md)。
 
 刚改过 Rust 或生成代码、怀疑 Gradle 增量缓存没捕捉到变更时：
 
 ```bash
-./gradlew :privchat-sdk-kotlin:sdk:privchatCargoBuildAndroid \
-          :androidApp:installLocalDebug --rerun-tasks
+./gradlew :sdk:privchatCargoBuildAndroid :sample-androidApp:installDebug --rerun-tasks
 ```
 
-### 在其他项目中
+## 在自己的项目中使用
 
 **Composite Build（推荐）。** 把本仓库克隆到你的项目旁边，并保证 `privchat-sdk` 与它同级，
 然后在 `settings.gradle.kts` 里：
@@ -185,21 +195,6 @@ Gradle 和 Xcode **不会**在每次 iOS 编译前重建 `libprivchat_sdk_ffi.a`
 
 本项目**不产出 XCFramework**。各目标通过 `privchat_sdk_ffi.def` 里的 `libraryPaths`
 直接链接 `privchat-sdk/target/<triple>/release/libprivchat_sdk_ffi.a`。
-
-## 示例
-
-`:sample` 是共享 KMP 库模块，可安装的 Android 应用是 `:sample-androidApp`
-（目录 `sample/androidApp`）。
-
-```bash
-./gradlew :sample-androidApp:installDebug
-./gradlew :sample:linkDebugFrameworkIosArm64   # 供 sample/iosApp 链接的 framework
-```
-
-iOS 首次构建 `sample/iosApp` 之前，先跑一次 `:sdk:privchatCargoBuildAppleFfi`。
-
-示例覆盖 Android 与 iOS 的主验证链路：connect → login/register → authenticate →
-bootstrap → 会话列表。详见 [sample/README.md](sample/README.md)。
 
 ## 设计约束
 
