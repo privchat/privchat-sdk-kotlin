@@ -106,7 +106,6 @@ actual class PrivchatClient private actual constructor() {
     private var connectionMonitorJob: Job? = null
     private var cachedConnectionState: ConnectionState = ConnectionState.Disconnected
     private var cachedUserId: ULong? = null
-    private var videoHook: VideoProcessHook? = null
     private val mutableSyncState = MutableStateFlow(idleSyncState())
     actual val syncStateFlow: StateFlow<SyncState> = mutableSyncState.asStateFlow()
 
@@ -2399,34 +2398,6 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
-    actual fun setVideoProcessHook(hook: VideoProcessHook?) {
-        videoHook = hook
-        val client = coreClient ?: return
-        val coreHook = if (hook != null) {
-            object : uniffi.privchat_sdk_ffi.VideoProcessHook {
-                override fun process(
-                    op: uniffi.privchat_sdk_ffi.MediaProcessOp,
-                    sourcePath: String,
-                    metaPath: String,
-                    outputPath: String
-                ): Boolean {
-                    val dtoOp = when (op) {
-                        uniffi.privchat_sdk_ffi.MediaProcessOp.THUMBNAIL -> MediaProcessOp.Thumbnail
-                        uniffi.privchat_sdk_ffi.MediaProcessOp.COMPRESS -> MediaProcessOp.Compress
-                    }
-                    return hook.process(dtoOp, sourcePath, metaPath, outputPath).getOrDefault(false)
-                }
-            }
-        } else null
-        backgroundScope.launch {
-            runCatching { client.setVideoProcessHook(coreHook) }
-        }
-    }
-
-    actual fun removeVideoProcessHook() {
-        videoHook = null
-    }
-
     actual fun submitMediaJobResult(jobId: String, result: MediaJobResult): Result<Unit> {
         val client = coreClient ?: return Result.failure(SdkError.NotInitialized)
         return runCatching {
@@ -2436,6 +2407,8 @@ actual class PrivchatClient private actual constructor() {
                     ok = result.ok,
                     outputPath = result.outputPath,
                     error = result.error,
+                    width = result.width,
+                    height = result.height,
                 ),
             )
         }.fold(

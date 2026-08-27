@@ -559,8 +559,6 @@ expect class PrivchatClient private constructor() {
     suspend fun cancelMessageMediaDownload(messageId: ULong): Result<Unit>
     suspend fun getMediaDownloadState(messageId: ULong): Result<MediaDownloadState>
 
-    fun setVideoProcessHook(hook: VideoProcessHook?)
-    fun removeVideoProcessHook()
 
     /** Plan 2: reply to [SdkEventPayload] of type `media_job_requested`. */
     fun submitMediaJobResult(jobId: String, result: MediaJobResult): Result<Unit>

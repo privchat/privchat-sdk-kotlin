@@ -66,7 +66,6 @@ import kotlin.coroutines.resume
 import kotlin.native.ref.createCleaner
 import kotlinx.atomicfu.AtomicBoolean
 import kotlinx.atomicfu.atomic
-import kotlinx.cinterop.invoke
 import kotlinx.coroutines.CancellableContinuation
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -85,59 +84,6 @@ import okio.utf8Size
 // and the FFI Function declarations.
 
 // Define FFI callback types
-internal typealias UniffiCallbackInterfaceVideoProcessHookMethod0 = privchat_sdk_ffi.cinterop.UniffiCallbackInterfaceVideoProcessHookMethod0
-internal typealias UniffiVTableCallbackInterfaceVideoProcessHook = CPointer<privchat_sdk_ffi.cinterop.UniffiVTableCallbackInterfaceVideoProcessHook>
-
-internal var UniffiVTableCallbackInterfaceVideoProcessHook.`process`: Any?
-get() = pointed.`process`/* test  Any? */
-        
-    set(value) {pointed.`process` = value as UniffiCallbackInterfaceVideoProcessHookMethod0?
-    }
-
-internal var UniffiVTableCallbackInterfaceVideoProcessHook.`uniffiFree`: Any?
-get() = pointed.`uniffiFree`/* test  Any? */
-        
-    set(value) {pointed.`uniffiFree` = value as UniffiCallbackInterfaceFree?
-    }
-
-
-internal fun UniffiVTableCallbackInterfaceVideoProcessHook.uniffiSetValue(other: UniffiVTableCallbackInterfaceVideoProcessHook) {
-    `process` = other.`process`
-    `uniffiFree` = other.`uniffiFree`
-}
-internal fun UniffiVTableCallbackInterfaceVideoProcessHook.uniffiSetValue(other: UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue) {
-    `process` = other.`process`
-    `uniffiFree` = other.`uniffiFree`
-}
-
-internal typealias UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue = CValue<privchat_sdk_ffi.cinterop.UniffiVTableCallbackInterfaceVideoProcessHook>
-fun UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue(
-    
-    `process`: Any?,
-    
-    `uniffiFree`: Any?,
-    
-): UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue {
-    return cValue<privchat_sdk_ffi.cinterop.UniffiVTableCallbackInterfaceVideoProcessHook> {
-        this.`process` = `process` as UniffiCallbackInterfaceVideoProcessHookMethod0?
-        this.`uniffiFree` = `uniffiFree` as UniffiCallbackInterfaceFree?
-        
-    }
-}
-
-
-internal val UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue.`process`: Any?
-get() = useContents { `process`/* test  Any? */}
-
-internal val UniffiVTableCallbackInterfaceVideoProcessHookUniffiByValue.`uniffiFree`: Any?
-get() = useContents { `uniffiFree`/* test  Any? */}
-
-
-
-
-
-
-
 
 
 
@@ -865,7 +811,6 @@ internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
             UniffiLibInstance().also { lib ->
-             uniffiCallbackInterfaceVideoProcessHook.register(lib)
              }
         }
         
@@ -1325,8 +1270,6 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_remove_reaction(`ptr`: Pointer?,`serverMessageId`: Long,`emoji`: RustBufferByValue,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_remove_video_process_hook(`ptr`: Pointer?,
-    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_require_current_user_id(`ptr`: Pointer?,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_attachment_path(`ptr`: Pointer?,`uid`: Long,`messageId`: Long,`createdAtMs`: Long,`filename`: RustBufferByValue,uniffiCallStatus: UniffiRustCallStatus, 
@@ -1408,8 +1351,6 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_revoke(`ptr`: Pointer?,`messageId`: Long,`revoked`: Byte,`revoker`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_network_hint(`ptr`: Pointer?,`hint`: RustBufferByValue,
-    ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_video_process_hook(`ptr`: Pointer?,`hook`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_shutdown(`ptr`: Pointer?,
     ): Long
@@ -1535,8 +1476,6 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_wipe_current_user_full(`ptr`: Pointer?,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_init_callback_vtable_videoprocesshook(`vtable`: UniffiVTableCallbackInterfaceVideoProcessHook,
-    ): Unit
     fun uniffi_privchat_sdk_ffi_fn_func_build_time(uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_func_git_sha(uniffiCallStatus: UniffiRustCallStatus, 
@@ -2113,8 +2052,6 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_remove_reaction(
     ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_remove_video_process_hook(
-    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_require_current_user_id(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_attachment_path(
@@ -2196,8 +2133,6 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_revoke(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_network_hint(
-    ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_video_process_hook(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_shutdown(
     ): Short
@@ -2324,8 +2259,6 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_wipe_current_user_full(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_constructor_privchatclient_new(
-    ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_videoprocesshook_process(
     ): Short
     fun ffi_privchat_sdk_ffi_uniffi_contract_version(
     ): Int
@@ -3233,10 +3166,6 @@ internal class UniffiLibInstance: UniffiLib {
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_remove_reaction(`ptr`?.inner,`serverMessageId`,`emoji` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
     
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_remove_video_process_hook(`ptr`: Pointer?,
-    ): Long
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_remove_video_process_hook(`ptr`?.inner,)as Long
-    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_require_current_user_id(`ptr`: Pointer?,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_require_current_user_id(`ptr`?.inner,)as Long
@@ -3400,10 +3329,6 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_network_hint(`ptr`: Pointer?,`hint`: RustBufferByValue,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_network_hint(`ptr`?.inner,`hint` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
-    
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_video_process_hook(`ptr`: Pointer?,`hook`: RustBufferByValue,
-    ): Long
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_video_process_hook(`ptr`?.inner,`hook` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_shutdown(`ptr`: Pointer?,
     ): Long
@@ -3652,10 +3577,6 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_wipe_current_user_full(`ptr`: Pointer?,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_wipe_current_user_full(`ptr`?.inner,)as Long
-    
-    override fun uniffi_privchat_sdk_ffi_fn_init_callback_vtable_videoprocesshook(`vtable`: UniffiVTableCallbackInterfaceVideoProcessHook,
-    ): Unit
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_init_callback_vtable_videoprocesshook(`vtable`,)
     
     override fun uniffi_privchat_sdk_ffi_fn_func_build_time(uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
@@ -4809,10 +4730,6 @@ internal class UniffiLibInstance: UniffiLib {
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_remove_reaction()as Short
     
-    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_remove_video_process_hook(
-    ): Short
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_remove_video_process_hook()as Short
-    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_require_current_user_id(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_require_current_user_id()as Short
@@ -4976,10 +4893,6 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_network_hint(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_network_hint()as Short
-    
-    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_video_process_hook(
-    ): Short
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_video_process_hook()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_shutdown(
     ): Short
@@ -5232,10 +5145,6 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_constructor_privchatclient_new(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_constructor_privchatclient_new()as Short
-    
-    override fun uniffi_privchat_sdk_ffi_checksum_method_videoprocesshook_process(
-    ): Short
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_videoprocesshook_process()as Short
     
     override fun ffi_privchat_sdk_ffi_uniffi_contract_version(
     ): Int
@@ -10362,29 +10271,6 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `removeVideoProcessHook`() {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_remove_video_process_hook(
-                thisPtr,
-                
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
-        // lift function
-        { Unit },
-        
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `requireCurrentUserId`() : kotlin.ULong {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
@@ -11260,29 +11146,6 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_network_hint(
                 thisPtr,
                 FfiConverterTypeNetworkHint.lower(`hint`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
-        // lift function
-        { Unit },
-        
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `setVideoProcessHook`(`hook`: VideoProcessHook?) {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_video_process_hook(
-                thisPtr,
-                FfiConverterOptionalTypeVideoProcessHook.lower(`hook`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
@@ -14688,19 +14551,25 @@ object FfiConverterTypeMediaJobResult: FfiConverterRustBuffer<MediaJobResult> {
             FfiConverterBoolean.read(buf),
             FfiConverterOptionalString.read(buf),
             FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalUInt.read(buf),
+            FfiConverterOptionalUInt.read(buf),
         )
     }
 
     override fun allocationSize(value: MediaJobResult) = (
             FfiConverterBoolean.allocationSize(value.`ok`) +
             FfiConverterOptionalString.allocationSize(value.`outputPath`) +
-            FfiConverterOptionalString.allocationSize(value.`error`)
+            FfiConverterOptionalString.allocationSize(value.`error`) +
+            FfiConverterOptionalUInt.allocationSize(value.`width`) +
+            FfiConverterOptionalUInt.allocationSize(value.`height`)
     )
 
     override fun write(value: MediaJobResult, buf: ByteBuffer) {
             FfiConverterBoolean.write(value.`ok`, buf)
             FfiConverterOptionalString.write(value.`outputPath`, buf)
             FfiConverterOptionalString.write(value.`error`, buf)
+            FfiConverterOptionalUInt.write(value.`width`, buf)
+            FfiConverterOptionalUInt.write(value.`height`, buf)
     }
 }
 
@@ -18033,26 +17902,6 @@ object FfiConverterTypeMediaDownloadState : FfiConverterRustBuffer<MediaDownload
 
 
 
-object FfiConverterTypeMediaProcessOp: FfiConverterRustBuffer<MediaProcessOp> {
-    override fun read(buf: ByteBuffer) = try {
-        MediaProcessOp.values()[buf.getInt() - 1]
-    } catch (e: IndexOutOfBoundsException) {
-        throw RuntimeException("invalid enum value, something is very wrong!!", e)
-    }
-
-    override fun allocationSize(value: MediaProcessOp) = 4UL
-
-    override fun write(value: MediaProcessOp, buf: ByteBuffer) {
-        buf.putInt(value.ordinal + 1)
-    }
-}
-
-
-
-
-
-
-
 object FfiConverterTypeNetworkHint: FfiConverterRustBuffer<NetworkHint> {
     override fun read(buf: ByteBuffer) = try {
         NetworkHint.values()[buf.getInt() - 1]
@@ -19050,79 +18899,6 @@ object FfiConverterTypeTypingActionType: FfiConverterRustBuffer<TypingActionType
 
 
 
-
-internal const val IDX_CALLBACK_FREE = 0
-// Callback return codes
-internal const val UNIFFI_CALLBACK_SUCCESS = 0
-internal const val UNIFFI_CALLBACK_ERROR = 1
-internal const val UNIFFI_CALLBACK_UNEXPECTED_ERROR = 2
-
-public abstract class FfiConverterCallbackInterface<CallbackInterface: Any>: FfiConverter<CallbackInterface, Long> {
-    internal val handleMap = UniffiHandleMap<CallbackInterface>()
-
-    internal fun drop(handle: Long) {
-        handleMap.remove(handle)
-    }
-
-    override fun lift(value: Long): CallbackInterface {
-        return handleMap.get(value)
-    }
-
-    override fun read(buf: ByteBuffer) = lift(buf.getLong())
-
-    override fun lower(value: CallbackInterface) = handleMap.insert(value)
-
-    override fun allocationSize(value: CallbackInterface) = 8UL
-
-    override fun write(value: CallbackInterface, buf: ByteBuffer) {
-        buf.putLong(lower(value))
-    }
-}
-
-
-// Put the implementation in an object so we don't pollute the top-level namespace
-internal object uniffiCallbackInterfaceVideoProcessHook {
-    internal fun `process`(`uniffiHandle`: Long,`op`: RustBufferByValue,`sourcePath`: RustBufferByValue,`metaPath`: RustBufferByValue,`outputPath`: RustBufferByValue,`uniffiOutReturn`: ByteByReference,uniffiCallStatus: UniffiRustCallStatus, ) {
-        val uniffiObj = FfiConverterTypeVideoProcessHook.handleMap.get(uniffiHandle)
-        val makeCall = { ->
-            uniffiObj.`process`(
-                FfiConverterTypeMediaProcessOp.lift(`op`!!),
-                FfiConverterString.lift(`sourcePath`!!),
-                FfiConverterString.lift(`metaPath`!!),
-                FfiConverterString.lift(`outputPath`!!),
-            )
-        }
-        val writeReturn = { value: kotlin.Boolean -> uniffiOutReturn.setValue(FfiConverterBoolean.lower(value)) }
-        uniffiTraitInterfaceCallWithError(
-            uniffiCallStatus,
-            makeCall,
-            writeReturn,
-            { e: PrivchatFfiException -> FfiConverterTypePrivchatFfiError.lower(e) }
-        )
-    }
-    internal fun uniffiFree(handle: Long) {
-        FfiConverterTypeVideoProcessHook.handleMap.remove(handle)
-    }
-
-    internal val vtable = nativeHeap.alloc<privchat_sdk_ffi.cinterop.UniffiVTableCallbackInterfaceVideoProcessHook> {
-        this.`process` = staticCFunction {`uniffiHandle`:Long,`op`:RustBufferByValue,`sourcePath`:RustBufferByValue,`metaPath`:RustBufferByValue,`outputPath`:RustBufferByValue,`uniffiOutReturn`:ByteByReference,uniffiCallStatus: UniffiRustCallStatus,->
-            uniffiCallbackInterfaceVideoProcessHook.`process`(`uniffiHandle`,`op`,`sourcePath`,`metaPath`,`outputPath`,`uniffiOutReturn`,uniffiCallStatus,)
-        } as privchat_sdk_ffi.cinterop.UniffiCallbackInterfaceVideoProcessHookMethod0
-        this.uniffiFree = staticCFunction { handle: Long ->
-            uniffiCallbackInterfaceVideoProcessHook.uniffiFree(handle)
-        } as privchat_sdk_ffi.cinterop.UniffiCallbackInterfaceFree
-    }.ptr
-
-    internal fun register(lib: UniffiLib) {
-        lib.uniffi_privchat_sdk_ffi_fn_init_callback_vtable_videoprocesshook(vtable)
-    }
-}
-
-object FfiConverterTypeVideoProcessHook: FfiConverterCallbackInterface<VideoProcessHook>()
-
-
-
-
 public object FfiConverterOptionalUByte: FfiConverterRustBuffer<kotlin.UByte?> {
     override fun read(buf: ByteBuffer): kotlin.UByte? {
         if (buf.get().toInt() == 0) {
@@ -19783,35 +19559,6 @@ public object FfiConverterOptionalTypeSyncRunKind: FfiConverterRustBuffer<SyncRu
         } else {
             buf.put(1)
             FfiConverterTypeSyncRunKind.write(value, buf)
-        }
-    }
-}
-
-
-
-
-public object FfiConverterOptionalTypeVideoProcessHook: FfiConverterRustBuffer<VideoProcessHook?> {
-    override fun read(buf: ByteBuffer): VideoProcessHook? {
-        if (buf.get().toInt() == 0) {
-            return null
-        }
-        return FfiConverterTypeVideoProcessHook.read(buf)
-    }
-
-    override fun allocationSize(value: VideoProcessHook?): ULong {
-        if (value == null) {
-            return 1UL
-        } else {
-            return 1UL + FfiConverterTypeVideoProcessHook.allocationSize(value)
-        }
-    }
-
-    override fun write(value: VideoProcessHook?, buf: ByteBuffer) {
-        if (value == null) {
-            buf.put(0)
-        } else {
-            buf.put(1)
-            FfiConverterTypeVideoProcessHook.write(value, buf)
         }
     }
 }

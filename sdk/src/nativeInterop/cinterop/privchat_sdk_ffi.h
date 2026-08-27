@@ -151,15 +151,6 @@ typedef struct UniffiForeignFutureStructVoid {
 typedef void (*UniffiForeignFutureCompleteVoid)(int64_t, UniffiForeignFutureStructVoid
     );
 
-typedef void (*UniffiCallbackInterfaceVideoProcessHookMethod0)(int64_t, RustBuffer, RustBuffer, RustBuffer, RustBuffer, int8_t *, 
-        UniffiRustCallStatus *_Nonnull uniffiCallStatus
-    );
-
-typedef struct UniffiVTableCallbackInterfaceVideoProcessHook {
-    UniffiCallbackInterfaceVideoProcessHookMethod0 process;
-    UniffiCallbackInterfaceFree uniffiFree;
-} UniffiVTableCallbackInterfaceVideoProcessHook;
-
 void * uniffi_privchat_sdk_ffi_fn_clone_privchatclient(void * ptr, UniffiRustCallStatus *_Nonnull out_status
 );
 void uniffi_privchat_sdk_ffi_fn_free_privchatclient(void * ptr, UniffiRustCallStatus *_Nonnull out_status
@@ -610,8 +601,6 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_remove_group_member(voi
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_remove_reaction(void * ptr, int64_t serverMessageId, RustBuffer emoji
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_remove_video_process_hook(void * ptr
-);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_require_current_user_id(void * ptr
 );
 RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_attachment_path(void * ptr, int64_t uid, int64_t messageId, int64_t createdAtMs, RustBuffer filename, UniffiRustCallStatus *_Nonnull out_status
@@ -693,8 +682,6 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_pinned(void
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_revoke(void * ptr, int64_t messageId, int8_t revoked, RustBuffer revoker
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_network_hint(void * ptr, RustBuffer hint
-);
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_video_process_hook(void * ptr, RustBuffer hook
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_shutdown(void * ptr
 );
@@ -819,8 +806,6 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_qrcode_resolve(voi
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_user_storage_paths(void * ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_wipe_current_user_full(void * ptr
-);
-void uniffi_privchat_sdk_ffi_fn_init_callback_vtable_videoprocesshook(UniffiVTableCallbackInterfaceVideoProcessHook * vtable
 );
 RustBuffer uniffi_privchat_sdk_ffi_fn_func_build_time(UniffiRustCallStatus *_Nonnull out_status
     
@@ -1628,9 +1613,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_remove_group_memb
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_remove_reaction(void
     
 );
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_remove_video_process_hook(void
-    
-);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_require_current_user_id(void
     
 );
@@ -1752,9 +1734,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_revok
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_network_hint(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_video_process_hook(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_shutdown(void
@@ -1944,9 +1923,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_wipe_current_user
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_constructor_privchatclient_new(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_videoprocesshook_process(void
     
 );
 int32_t ffi_privchat_sdk_ffi_uniffi_contract_version(void

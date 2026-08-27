@@ -690,8 +690,6 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `removeReaction`(`serverMessageId`: kotlin.ULong, `emoji`: kotlin.String): kotlin.Boolean
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `removeVideoProcessHook`()
-    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `requireCurrentUserId`(): kotlin.ULong
     
     /**
@@ -795,8 +793,6 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setMessageRevoke`(`messageId`: kotlin.ULong, `revoked`: kotlin.Boolean, `revoker`: kotlin.ULong?)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setNetworkHint`(`hint`: NetworkHint)
-    
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setVideoProcessHook`(`hook`: VideoProcessHook?)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `shutdown`()
     
@@ -2231,11 +2227,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `removeVideoProcessHook`()
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `requireCurrentUserId`() : kotlin.ULong
 
     
@@ -2454,11 +2445,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `setNetworkHint`(`hint`: NetworkHint)
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `setVideoProcessHook`(`hook`: VideoProcessHook?)
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -4069,6 +4055,14 @@ data class MediaJobResult (
     var `outputPath`: kotlin.String?
          = null , 
     var `error`: kotlin.String?
+         = null , 
+    /**
+     * 媒体的**显示**宽高（已按旋转摆正）。宿主拿得到就填，Core 优先用它；
+     * 缺省则 Core 回退到解首帧（Spec §3.8.3）。
+     */
+    var `width`: kotlin.UInt?
+         = null , 
+    var `height`: kotlin.UInt?
          = null 
 ) {
     
@@ -6182,19 +6176,6 @@ sealed class MediaDownloadState {
 
 
 
-enum class MediaProcessOp {
-    
-    THUMBNAIL,
-    COMPRESS;
-    companion object
-}
-
-
-
-
-
-
-
 enum class NetworkHint {
     
     UNKNOWN,
@@ -6689,20 +6670,6 @@ enum class TypingActionType {
     CHOOSING_STICKER;
     companion object
 }
-
-
-
-
-
-
-
-interface VideoProcessHook {
-    
-        @Throws(PrivchatFfiException::class)fun `process`(`op`: MediaProcessOp, `sourcePath`: kotlin.String, `metaPath`: kotlin.String, `outputPath`: kotlin.String): kotlin.Boolean
-    
-    companion object
-}
-
 
 
 
