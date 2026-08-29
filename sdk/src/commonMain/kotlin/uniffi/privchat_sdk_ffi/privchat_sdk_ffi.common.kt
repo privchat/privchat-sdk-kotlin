@@ -4506,6 +4506,12 @@ data class PrivchatConfig (
     var `connectionTimeoutSecs`: kotlin.ULong
         , 
     var `dataDir`: kotlin.String
+        , 
+    /**
+     * 允许的服务端 SPKI pin（base64 SHA-256），QUIC 与 TLS/TCP 共用。
+     * 正式构建缺 pin 直接拒绝连接。
+     */
+    var `spkiPins`: List<kotlin.String>
         
 ) {
     

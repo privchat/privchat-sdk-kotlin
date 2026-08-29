@@ -15274,19 +15274,22 @@ object FfiConverterTypePrivchatConfig: FfiConverterRustBuffer<PrivchatConfig> {
             FfiConverterSequenceTypeServerEndpoint.read(buf),
             FfiConverterULong.read(buf),
             FfiConverterString.read(buf),
+            FfiConverterSequenceString.read(buf),
         )
     }
 
     override fun allocationSize(value: PrivchatConfig) = (
             FfiConverterSequenceTypeServerEndpoint.allocationSize(value.`endpoints`) +
             FfiConverterULong.allocationSize(value.`connectionTimeoutSecs`) +
-            FfiConverterString.allocationSize(value.`dataDir`)
+            FfiConverterString.allocationSize(value.`dataDir`) +
+            FfiConverterSequenceString.allocationSize(value.`spkiPins`)
     )
 
     override fun write(value: PrivchatConfig, buf: ByteBuffer) {
             FfiConverterSequenceTypeServerEndpoint.write(value.`endpoints`, buf)
             FfiConverterULong.write(value.`connectionTimeoutSecs`, buf)
             FfiConverterString.write(value.`dataDir`, buf)
+            FfiConverterSequenceString.write(value.`spkiPins`, buf)
     }
 }
 
