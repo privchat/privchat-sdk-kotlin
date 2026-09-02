@@ -206,6 +206,12 @@ interface PrivchatClientInterface {
      */
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `deleteMessageLocal`(`messageId`: kotlin.ULong): kotlin.Boolean
     
+    /**
+     * 摘掉当前会话但保留它的盘上快照。「添加账号」用这个，不要用
+     * [`Self::clear_local_state`]——那个会把上一个账号一起登出。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `detachCurrentSession`()
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `disconnect`()
     
     /**
@@ -1239,6 +1245,15 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `deleteMessageLocal`(`messageId`: kotlin.ULong) : kotlin.Boolean
+
+    
+    /**
+     * 摘掉当前会话但保留它的盘上快照。「添加账号」用这个，不要用
+     * [`Self::clear_local_state`]——那个会把上一个账号一起登出。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `detachCurrentSession`()
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)

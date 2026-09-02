@@ -454,6 +454,16 @@ actual class PrivchatClient private actual constructor() {
         }
     }
 
+    actual suspend fun detachCurrentSession(): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        // 只摘会话，不清凭证、不通知服务端登出——那个账号还登着。
+        return callAsync("detachCurrentSession failed") {
+            c.detachCurrentSession()
+            cachedUserId = null
+            cachedConnectionState = ConnectionState.Disconnected
+        }
+    }
+
     actual suspend fun lastTerminalReason(): Result<TerminalReason?> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching { c.lastTerminalReason()?.let(::mapCoreTerminalReason) }.fold(

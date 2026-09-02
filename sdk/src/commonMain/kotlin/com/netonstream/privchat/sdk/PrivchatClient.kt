@@ -64,6 +64,15 @@ expect class PrivchatClient private constructor() {
     suspend fun updateDevicePushState(deviceId: String, apnsArmed: Boolean, pushToken: String?): Result<Unit>
     suspend fun restoreLocalSession(): Result<Boolean>
     suspend fun logout(): Result<Unit>
+
+    /**
+     * 摘掉当前会话，但**保留**它的本地会话快照。
+     *
+     * 「添加账号」用这个：新身份要重新握手，不能让 connect 再拿上一个账号已过期的
+     * access token 去自动恢复；而那个账号并没有要求退出，它的快照必须留着，否则
+     * 切回去时只剩 no_local_session，用户被迫重新输密码。
+     */
+    suspend fun detachCurrentSession(): Result<Unit>
     /**
      * 查询上一次 ForcedLogout 终局记录。成功 Connect 后会被清空。
      * 用途：冷启动时如果返回非 null，说明旧 token 已被服务端拒掉；UI 应直接跳登录页，
