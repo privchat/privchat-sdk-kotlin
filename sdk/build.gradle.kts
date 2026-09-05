@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "com.netonstream.privchat"
-version = "0.1.0"
+version = "1.0.0-beta.1"
 
 // ========== 100% Native Stack（不含 JVM）==========
 // 架构：Rust Core + FFI + Kotlin/Native + KuiklyUI
