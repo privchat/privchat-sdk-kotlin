@@ -2342,23 +2342,6 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
-    actual suspend fun startMessageMediaDownload(
-        messageId: ULong,
-        downloadUrl: String,
-        mime: String,
-        filenameHint: String?,
-        createdAtMs: Long,
-    ): Result<Unit> {
-        val c = requireClient().getOrElse { return Result.failure(it) }
-        return runCatching {
-            c.startMessageMediaDownload(messageId, downloadUrl, mime, filenameHint, createdAtMs)
-            Unit
-        }.fold(
-            onSuccess = { Result.success(it) },
-            onFailure = { Result.failure(toSdkError("startMessageMediaDownload failed", it)) },
-        )
-    }
-
     actual suspend fun startMessageMediaDownloadByFileId(
         messageId: ULong,
         fileId: ULong,
@@ -3237,6 +3220,20 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         channelId = event.channelId,
         channelType = event.channelType,
         isTyping = event.isTyping,
+    )
+
+    // app→user 的 Channel Transfer 推送。
+    //
+    // ⚠️ 这个变体在 Rust FFI 里存在已久，而签入的 Kotlin 绑定里一次都没有——绑定是
+    // 手工重生成的，过期了照样能编译，所以一直没人发现。这里按
+    // SubscriptionMessageReceived 的既有约定映射（route→topic，body→payload），
+    // 只为把它接出去；这个特性的上层语义由它的作者决定。
+    is CoreSdkEvent.TransferReceived -> SdkEventPayload(
+        type = "transfer_received",
+        channelId = event.channelId,
+        entityId = event.requestId,
+        topic = event.route,
+        payload = event.body,
     )
 
     is CoreSdkEvent.SubscriptionMessageReceived -> SdkEventPayload(

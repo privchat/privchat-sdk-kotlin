@@ -822,18 +822,11 @@ interface PrivchatClientInterface {
      */fun `startFirstScreenHydration`(`limit`: kotlin.UInt, `maxChannels`: kotlin.UInt): kotlin.Boolean
     
     /**
-     * Start a streaming Telegram-style download for a message's primary attachment.
-     * Delegates to [`PrivchatSdk::start_message_media_download`] — the core SDK owns
-     * the state machine, so the Rust iced UI and the FFI Kotlin/iOS layer share it.
-     */
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `startMessageMediaDownload`(`messageId`: kotlin.ULong, `downloadUrl`: kotlin.String, `mime`: kotlin.String, `filenameHint`: kotlin.String?, `createdAtMs`: kotlin.Long)
-    
-    /**
      * Start a streaming download for an attachment-encrypted (v1) message by
      * `file_id`. The SDK resolves the signed URL + cek via `file/get_url` and
-     * decrypts the blob on completion. Prefer this over the URL-driven entry for
-     * any message that carries a `file_id`; the legacy URL form is retained only
-     * for plaintext (pre-encryption) attachments.
+     * decrypts the blob on completion.
+     *
+     * 🔴 这是唯一的下载入口。收 URL 的那个已经删除——消息里不再携带地址。
      */
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `startMessageMediaDownloadByFileId`(`messageId`: kotlin.ULong, `fileId`: kotlin.ULong, `mime`: kotlin.String, `filenameHint`: kotlin.String?, `createdAtMs`: kotlin.Long)
     
@@ -2492,21 +2485,11 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
 
     
     /**
-     * Start a streaming Telegram-style download for a message's primary attachment.
-     * Delegates to [`PrivchatSdk::start_message_media_download`] — the core SDK owns
-     * the state machine, so the Rust iced UI and the FFI Kotlin/iOS layer share it.
-     */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `startMessageMediaDownload`(`messageId`: kotlin.ULong, `downloadUrl`: kotlin.String, `mime`: kotlin.String, `filenameHint`: kotlin.String?, `createdAtMs`: kotlin.Long)
-
-    
-    /**
      * Start a streaming download for an attachment-encrypted (v1) message by
      * `file_id`. The SDK resolves the signed URL + cek via `file/get_url` and
-     * decrypts the blob on completion. Prefer this over the URL-driven entry for
-     * any message that carries a `file_id`; the legacy URL form is retained only
-     * for plaintext (pre-encryption) attachments.
+     * decrypts the blob on completion.
+     *
+     * 🔴 这是唯一的下载入口。收 URL 的那个已经删除——消息里不再携带地址。
      */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
@@ -6508,6 +6491,18 @@ sealed class SdkEvent {
         val `publisher`: kotlin.String?  = null  , 
         val `serverMessageId`: kotlin.ULong?  = null  , 
         val `timestamp`: kotlin.ULong  ) : SdkEvent() {
+        
+    }
+    
+    /**
+     * app→user Channel Transfer push; see `privchat_sdk::SdkEvent::TransferReceived`.
+     */
+    
+    data class TransferReceived(
+        val `channelId`: kotlin.ULong  , 
+        val `requestId`: kotlin.String  , 
+        val `route`: kotlin.String  , 
+        val `body`: kotlin.ByteArray  ) : SdkEvent() {
         
     }
     

@@ -551,10 +551,6 @@ expect class PrivchatClient private constructor() {
     suspend fun attachmentTransferStats(): Result<AttachmentTransferStats>
     suspend fun downloadAttachmentToPath(fileUrl: String, outputPath: String, progress: ProgressObserver?): Result<Unit>
     suspend fun updateMediaDownloaded(messageId: ULong, downloaded: Boolean): Result<Unit>
-
-    // ========== Media Download (Telegram-style: stream + Range resume + pause/cancel) ==========
-    /** Start (or no-op if already in-flight) a streaming download. Emits MediaDownloadStateChanged events. */
-    suspend fun startMessageMediaDownload(messageId: ULong, downloadUrl: String, mime: String, filenameHint: String?, createdAtMs: Long): Result<Unit>
     /**
      * Start a streaming download for an attachment-encrypted (v1) message by `fileId`.
      * The core SDK resolves the signed URL + cek via `file/get_url` and decrypts the blob

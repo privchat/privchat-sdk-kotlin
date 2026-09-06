@@ -807,8 +807,6 @@ import okio.utf8Size
 
 
 
-
-
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -1362,8 +1360,6 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_first_screen_hydration(`ptr`: Pointer?,`limit`: Int,`maxChannels`: Int,uniffiCallStatus: UniffiRustCallStatus, 
     ): Byte
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download(`ptr`: Pointer?,`messageId`: Long,`downloadUrl`: RustBufferByValue,`mime`: RustBufferByValue,`filenameHint`: RustBufferByValue,`createdAtMs`: Long,
-    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download_by_file_id(`ptr`: Pointer?,`messageId`: Long,`fileId`: Long,`mime`: RustBufferByValue,`filenameHint`: RustBufferByValue,`createdAtMs`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_supervised_sync(`ptr`: Pointer?,`intervalSecs`: Long,uniffiCallStatus: UniffiRustCallStatus, 
@@ -2145,8 +2141,6 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_shutdown_blocking(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_first_screen_hydration(
-    ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_message_media_download(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_message_media_download_by_file_id(
     ): Short
@@ -3351,10 +3345,6 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_first_screen_hydration(`ptr`: Pointer?,`limit`: Int,`maxChannels`: Int,uniffiCallStatus: UniffiRustCallStatus, 
     ): Byte
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_first_screen_hydration(`ptr`?.inner,`limit`,`maxChannels`,uniffiCallStatus.reinterpret(), )as Byte
-    
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download(`ptr`: Pointer?,`messageId`: Long,`downloadUrl`: RustBufferByValue,`mime`: RustBufferByValue,`filenameHint`: RustBufferByValue,`createdAtMs`: Long,
-    ): Long
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download(`ptr`?.inner,`messageId`,`downloadUrl` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`mime` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`filenameHint` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`createdAtMs`,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download_by_file_id(`ptr`: Pointer?,`messageId`: Long,`fileId`: Long,`mime`: RustBufferByValue,`filenameHint`: RustBufferByValue,`createdAtMs`: Long,
     ): Long
@@ -4919,10 +4909,6 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_first_screen_hydration(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_first_screen_hydration()as Short
-    
-    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_message_media_download(
-    ): Short
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_message_media_download()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_start_message_media_download_by_file_id(
     ): Short
@@ -11277,39 +11263,11 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
 
     
     /**
-     * Start a streaming Telegram-style download for a message's primary attachment.
-     * Delegates to [`PrivchatSdk::start_message_media_download`] — the core SDK owns
-     * the state machine, so the Rust iced UI and the FFI Kotlin/iOS layer share it.
-     */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `startMessageMediaDownload`(`messageId`: kotlin.ULong, `downloadUrl`: kotlin.String, `mime`: kotlin.String, `filenameHint`: kotlin.String?, `createdAtMs`: kotlin.Long) {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_start_message_media_download(
-                thisPtr,
-                FfiConverterULong.lower(`messageId`),FfiConverterString.lower(`downloadUrl`),FfiConverterString.lower(`mime`),FfiConverterOptionalString.lower(`filenameHint`),FfiConverterLong.lower(`createdAtMs`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
-        // lift function
-        { Unit },
-        
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    /**
      * Start a streaming download for an attachment-encrypted (v1) message by
      * `file_id`. The SDK resolves the signed URL + cek via `file/get_url` and
-     * decrypts the blob on completion. Prefer this over the URL-driven entry for
-     * any message that carries a `file_id`; the legacy URL form is retained only
-     * for plaintext (pre-encryption) attachments.
+     * decrypts the blob on completion.
+     *
+     * 🔴 这是唯一的下载入口。收 URL 的那个已经删除——消息里不再携带地址。
      */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
@@ -18273,24 +18231,30 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterOptionalULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            23 -> SdkEvent.PeerReadPtsAdvanced(
+            23 -> SdkEvent.TransferReceived(
+                FfiConverterULong.read(buf),
+                FfiConverterString.read(buf),
+                FfiConverterString.read(buf),
+                FfiConverterByteArray.read(buf),
+                )
+            24 -> SdkEvent.PeerReadPtsAdvanced(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            24 -> SdkEvent.MessageDelivered(
+            25 -> SdkEvent.MessageDelivered(
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            25 -> SdkEvent.MediaDownloadStateChanged(
+            26 -> SdkEvent.MediaDownloadStateChanged(
                 FfiConverterULong.read(buf),
                 FfiConverterTypeMediaDownloadState.read(buf),
                 )
-            26 -> SdkEvent.MediaJobRequested(
+            27 -> SdkEvent.MediaJobRequested(
                 FfiConverterString.read(buf),
                 FfiConverterString.read(buf),
                 FfiConverterString.read(buf),
@@ -18299,20 +18263,20 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterULong.read(buf),
                 FfiConverterULong.read(buf),
                 )
-            27 -> SdkEvent.TokenRefreshed(
+            28 -> SdkEvent.TokenRefreshed(
                 FfiConverterULong.read(buf),
                 )
-            28 -> SdkEvent.AccessTokenRefreshNeeded(
+            29 -> SdkEvent.AccessTokenRefreshNeeded(
                 FfiConverterUInt.read(buf),
                 FfiConverterString.read(buf),
                 )
-            29 -> SdkEvent.ForcedLogout(
+            30 -> SdkEvent.ForcedLogout(
                 FfiConverterUInt.read(buf),
                 FfiConverterString.read(buf),
                 FfiConverterTypeForcedLogoutSource.read(buf),
                 )
-            30 -> SdkEvent.ShutdownStarted
-            31 -> SdkEvent.ShutdownCompleted
+            31 -> SdkEvent.ShutdownStarted
+            32 -> SdkEvent.ShutdownCompleted
             else -> throw RuntimeException("invalid enum value, something is very wrong!!")
         }
     }
@@ -18515,6 +18479,16 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 + FfiConverterOptionalString.allocationSize(value.`publisher`)
                 + FfiConverterOptionalULong.allocationSize(value.`serverMessageId`)
                 + FfiConverterULong.allocationSize(value.`timestamp`)
+            )
+        }
+        is SdkEvent.TransferReceived -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterULong.allocationSize(value.`channelId`)
+                + FfiConverterString.allocationSize(value.`requestId`)
+                + FfiConverterString.allocationSize(value.`route`)
+                + FfiConverterByteArray.allocationSize(value.`body`)
             )
         }
         is SdkEvent.PeerReadPtsAdvanced -> {
@@ -18754,8 +18728,16 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterULong.write(value.`timestamp`, buf)
                 Unit
             }
-            is SdkEvent.PeerReadPtsAdvanced -> {
+            is SdkEvent.TransferReceived -> {
                 buf.putInt(23)
+                FfiConverterULong.write(value.`channelId`, buf)
+                FfiConverterString.write(value.`requestId`, buf)
+                FfiConverterString.write(value.`route`, buf)
+                FfiConverterByteArray.write(value.`body`, buf)
+                Unit
+            }
+            is SdkEvent.PeerReadPtsAdvanced -> {
+                buf.putInt(24)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterInt.write(value.`channelType`, buf)
                 FfiConverterULong.write(value.`readerId`, buf)
@@ -18763,7 +18745,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.MessageDelivered -> {
-                buf.putInt(24)
+                buf.putInt(25)
                 FfiConverterULong.write(value.`channelId`, buf)
                 FfiConverterInt.write(value.`channelType`, buf)
                 FfiConverterULong.write(value.`messageId`, buf)
@@ -18772,13 +18754,13 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.MediaDownloadStateChanged -> {
-                buf.putInt(25)
+                buf.putInt(26)
                 FfiConverterULong.write(value.`messageId`, buf)
                 FfiConverterTypeMediaDownloadState.write(value.`state`, buf)
                 Unit
             }
             is SdkEvent.MediaJobRequested -> {
-                buf.putInt(26)
+                buf.putInt(27)
                 FfiConverterString.write(value.`jobId`, buf)
                 FfiConverterString.write(value.`jobKind`, buf)
                 FfiConverterString.write(value.`sourcePath`, buf)
@@ -18789,29 +18771,29 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 Unit
             }
             is SdkEvent.TokenRefreshed -> {
-                buf.putInt(27)
+                buf.putInt(28)
                 FfiConverterULong.write(value.`expiresAt`, buf)
                 Unit
             }
             is SdkEvent.AccessTokenRefreshNeeded -> {
-                buf.putInt(28)
+                buf.putInt(29)
                 FfiConverterUInt.write(value.`code`, buf)
                 FfiConverterString.write(value.`message`, buf)
                 Unit
             }
             is SdkEvent.ForcedLogout -> {
-                buf.putInt(29)
+                buf.putInt(30)
                 FfiConverterUInt.write(value.`code`, buf)
                 FfiConverterString.write(value.`message`, buf)
                 FfiConverterTypeForcedLogoutSource.write(value.`source`, buf)
                 Unit
             }
             is SdkEvent.ShutdownStarted -> {
-                buf.putInt(30)
+                buf.putInt(31)
                 Unit
             }
             is SdkEvent.ShutdownCompleted -> {
-                buf.putInt(31)
+                buf.putInt(32)
                 Unit
             }
         }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }
