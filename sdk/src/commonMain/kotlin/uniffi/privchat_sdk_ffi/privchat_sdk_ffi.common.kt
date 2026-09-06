@@ -918,7 +918,16 @@ interface PrivchatClientInterface {
      */
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `unsubscribeChannel`(`channelId`: kotlin.ULong, `channelType`: kotlin.UByte)
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `updateDevicePushState`(`deviceId`: kotlin.String, `apnsArmed`: kotlin.Boolean, `pushToken`: kotlin.String?): DevicePushUpdateView
+    /**
+     * 上报本设备的推送状态。
+     *
+     * `vendor` 和 `locale` 都由宿主给：
+     * - vendor：服务端能从 platform 猜（ios→apns / android→fcm），但装了国内厂商
+     * 通道的 Android 包必须显式说自己是 hms/xiaomi/…，猜是猜不出来的。
+     * - locale：iOS 的通知由系统直接展示，App 没机会本地化，服务端得知道用哪种
+     * 语言拼文案。不传的话服务端按简体中文兜底。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `updateDevicePushState`(`deviceId`: kotlin.String, `apnsArmed`: kotlin.Boolean, `pushToken`: kotlin.String?, `vendor`: kotlin.String?, `locale`: kotlin.String?): DevicePushUpdateView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `updateMediaDownloaded`(`messageId`: kotlin.ULong, `downloaded`: kotlin.Boolean)
     
@@ -2674,9 +2683,18 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `unsubscribeChannel`(`channelId`: kotlin.ULong, `channelType`: kotlin.UByte)
 
     
+    /**
+     * 上报本设备的推送状态。
+     *
+     * `vendor` 和 `locale` 都由宿主给：
+     * - vendor：服务端能从 platform 猜（ios→apns / android→fcm），但装了国内厂商
+     * 通道的 Android 包必须显式说自己是 hms/xiaomi/…，猜是猜不出来的。
+     * - locale：iOS 的通知由系统直接展示，App 没机会本地化，服务端得知道用哪种
+     * 语言拼文案。不传的话服务端按简体中文兜底。
+     */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `updateDevicePushState`(`deviceId`: kotlin.String, `apnsArmed`: kotlin.Boolean, `pushToken`: kotlin.String?) : DevicePushUpdateView
+    override suspend fun `updateDevicePushState`(`deviceId`: kotlin.String, `apnsArmed`: kotlin.Boolean, `pushToken`: kotlin.String?, `vendor`: kotlin.String?, `locale`: kotlin.String?) : DevicePushUpdateView
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)

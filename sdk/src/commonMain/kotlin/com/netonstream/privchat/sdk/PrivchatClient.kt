@@ -61,7 +61,21 @@ expect class PrivchatClient private constructor() {
     suspend fun recacheUserAvatar(userId: ULong, avatarUrl: String): Result<com.netonstream.privchat.sdk.dto.AvatarCacheResult>
     /** [recacheUserAvatar] 的便捷封装 = recache 当前登录用户头像。 */
     suspend fun recacheSelfAvatar(avatarUrl: String): Result<com.netonstream.privchat.sdk.dto.AvatarCacheResult>
-    suspend fun updateDevicePushState(deviceId: String, apnsArmed: Boolean, pushToken: String?): Result<Unit>
+    /**
+     * 上报本设备的推送状态。
+     *
+     * @param vendor 推送通道（apns/fcm/hms/xiaomi/…）。服务端能按 platform 猜出
+     *   apns/fcm，但装了厂商通道的 Android 包必须显式说明。null = 让服务端猜。
+     * @param locale 设备语言（BCP-47）。iOS 的通知由系统展示，App 没机会本地化，
+     *   服务端要靠它决定用哪种语言拼文案。null = 服务端按简体中文兜底。
+     */
+    suspend fun updateDevicePushState(
+        deviceId: String,
+        apnsArmed: Boolean,
+        pushToken: String?,
+        vendor: String? = null,
+        locale: String? = null,
+    ): Result<Unit>
     suspend fun restoreLocalSession(): Result<Boolean>
     suspend fun logout(): Result<Unit>
 

@@ -408,10 +408,12 @@ actual class PrivchatClient private actual constructor() {
         deviceId: String,
         apnsArmed: Boolean,
         pushToken: String?,
+        vendor: String?,
+        locale: String?,
     ): Result<Unit> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return callAsync("updateDevicePushState failed") {
-            c.updateDevicePushState(deviceId, apnsArmed, pushToken)
+            c.updateDevicePushState(deviceId, apnsArmed, pushToken, vendor, locale)
         }
     }
 

@@ -1418,7 +1418,7 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_unsubscribe_channel(`ptr`: Pointer?,`channelId`: Long,`channelType`: Byte,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_device_push_state(`ptr`: Pointer?,`deviceId`: RustBufferByValue,`apnsArmed`: Byte,`pushToken`: RustBufferByValue,
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_device_push_state(`ptr`: Pointer?,`deviceId`: RustBufferByValue,`apnsArmed`: Byte,`pushToken`: RustBufferByValue,`vendor`: RustBufferByValue,`locale`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_media_downloaded(`ptr`: Pointer?,`messageId`: Long,`downloaded`: Byte,
     ): Long
@@ -3186,7 +3186,7 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unsubscribe_channel() != 37420.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_device_push_state() != 39909.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_device_push_state() != 26791.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_media_downloaded() != 59843.toShort()) {
@@ -9833,14 +9833,23 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     
+    /**
+     * 上报本设备的推送状态。
+     *
+     * `vendor` 和 `locale` 都由宿主给：
+     * - vendor：服务端能从 platform 猜（ios→apns / android→fcm），但装了国内厂商
+     * 通道的 Android 包必须显式说自己是 hms/xiaomi/…，猜是猜不出来的。
+     * - locale：iOS 的通知由系统直接展示，App 没机会本地化，服务端得知道用哪种
+     * 语言拼文案。不传的话服务端按简体中文兜底。
+     */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `updateDevicePushState`(`deviceId`: kotlin.String, `apnsArmed`: kotlin.Boolean, `pushToken`: kotlin.String?) : DevicePushUpdateView {
+    actual override suspend fun `updateDevicePushState`(`deviceId`: kotlin.String, `apnsArmed`: kotlin.Boolean, `pushToken`: kotlin.String?, `vendor`: kotlin.String?, `locale`: kotlin.String?) : DevicePushUpdateView {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_device_push_state(
                 thisPtr,
-                FfiConverterString.lower(`deviceId`),FfiConverterBoolean.lower(`apnsArmed`),FfiConverterOptionalString.lower(`pushToken`),
+                FfiConverterString.lower(`deviceId`),FfiConverterBoolean.lower(`apnsArmed`),FfiConverterOptionalString.lower(`pushToken`),FfiConverterOptionalString.lower(`vendor`),FfiConverterOptionalString.lower(`locale`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
