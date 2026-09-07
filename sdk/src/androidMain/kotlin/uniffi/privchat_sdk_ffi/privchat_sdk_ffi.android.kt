@@ -774,6 +774,10 @@ import kotlinx.coroutines.withContext
 
 
 
+
+
+
+
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -1023,6 +1027,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_privacy_settings(`ptr`: Pointer?,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_profile(`ptr`: Pointer?,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_push_preference(`ptr`: Pointer?,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_total_unread_count(`ptr`: Pointer?,`excludeMuted`: Byte,
     ): Long
@@ -1428,6 +1434,8 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_profile(`ptr`: Pointer?,`payload`: RustBufferByValue,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_push_preference(`ptr`: Pointer?,`showPreview`: RustBufferByValue,`globalMute`: RustBufferByValue,
+    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_thumb_status(`ptr`: Pointer?,`messageId`: Long,`thumbStatus`: Int,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_user_alias(`ptr`: Pointer?,`userId`: Long,`alias`: RustBufferByValue,
@@ -1805,6 +1813,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_privacy_settings(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_profile(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_push_preference(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_total_unread_count(
     ): Short
@@ -2210,6 +2220,8 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_profile(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_push_preference(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_thumb_status(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_user_alias(
@@ -2593,6 +2605,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_profile() != 36197.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_push_preference() != 36337.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_total_unread_count() != 36516.toShort()) {
@@ -3199,6 +3214,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_profile() != 44028.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_push_preference() != 43894.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_thumb_status() != 3643.toShort()) {
@@ -5627,6 +5645,31 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
         { FfiConverterTypeProfileView.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * 读取账号级推送偏好。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `getPushPreference`() : PushPreferenceView {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_push_preference(
+                thisPtr,
+                
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterTypePushPreferenceView.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -9954,6 +9997,34 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     
+    /**
+     * 更新账号级推送偏好。
+     *
+     * 两个字段都可选，只传要改的那个：读改写在服务端完成，两台设备同时改不同
+     * 开关时不会互相覆盖。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `updatePushPreference`(`showPreview`: kotlin.Boolean?, `globalMute`: kotlin.Boolean?) : PushPreferenceView {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_push_preference(
+                thisPtr,
+                FfiConverterOptionalBoolean.lower(`showPreview`),FfiConverterOptionalBoolean.lower(`globalMute`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterTypePushPreferenceView.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `updateThumbStatus`(`messageId`: kotlin.ULong, `thumbStatus`: kotlin.Int) {
@@ -13178,6 +13249,28 @@ object FfiConverterTypeProfileView: FfiConverterRustBuffer<ProfileView> {
             FfiConverterString.write(value.`status`, buf)
             FfiConverterString.write(value.`action`, buf)
             FfiConverterULong.write(value.`timestamp`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypePushPreferenceView: FfiConverterRustBuffer<PushPreferenceView> {
+    override fun read(buf: ByteBuffer): PushPreferenceView {
+        return PushPreferenceView(
+            FfiConverterBoolean.read(buf),
+            FfiConverterBoolean.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: PushPreferenceView) = (
+            FfiConverterBoolean.allocationSize(value.`showPreview`) +
+            FfiConverterBoolean.allocationSize(value.`globalMute`)
+    )
+
+    override fun write(value: PushPreferenceView, buf: ByteBuffer) {
+            FfiConverterBoolean.write(value.`showPreview`, buf)
+            FfiConverterBoolean.write(value.`globalMute`, buf)
     }
 }
 

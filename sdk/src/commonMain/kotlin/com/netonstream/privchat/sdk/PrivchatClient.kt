@@ -76,6 +76,20 @@ expect class PrivchatClient private constructor() {
         vendor: String? = null,
         locale: String? = null,
     ): Result<Unit>
+    /**
+     * 读取账号级推送偏好（是否显示消息预览 / 全局免打扰）。
+     *
+     * 这两项必须由服务端保存并执行：iOS 的通知由系统直接展示，"不显示预览"
+     * 只能在推送发出前做掉，客户端拿到时已经晚了。
+     */
+    suspend fun getPushPreference(): Result<com.netonstream.privchat.sdk.dto.PushPreference>
+
+    /** 更新账号级推送偏好。只传要改的那个字段，另一个留 null。 */
+    suspend fun updatePushPreference(
+        showPreview: Boolean? = null,
+        globalMute: Boolean? = null,
+    ): Result<com.netonstream.privchat.sdk.dto.PushPreference>
+
     suspend fun restoreLocalSession(): Result<Boolean>
     suspend fun logout(): Result<Unit>
 

@@ -367,6 +367,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_privacy_settings(vo
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_profile(void * ptr
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_push_preference(void * ptr
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_total_unread_count(void * ptr, int8_t excludeMuted
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_typing_stats(void * ptr
@@ -770,6 +772,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_message_status(v
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_privacy_settings(void * ptr, RustBuffer payload
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_profile(void * ptr, RustBuffer payload
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_push_preference(void * ptr, RustBuffer showPreview, RustBuffer globalMute
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_thumb_status(void * ptr, int64_t messageId, int32_t thumbStatus
 );
@@ -1260,6 +1264,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_privacy_setti
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_profile(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_push_preference(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_total_unread_count(void
@@ -1866,6 +1873,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_privacy_se
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_profile(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_push_preference(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_thumb_status(void

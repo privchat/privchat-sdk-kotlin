@@ -356,6 +356,11 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getProfile`(): ProfileView
     
+    /**
+     * 读取账号级推送偏好。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getPushPreference`(): PushPreferenceView
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getTotalUnreadCount`(`excludeMuted`: kotlin.Boolean): kotlin.Int
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getTypingStats`(): TypingStatsView
@@ -936,6 +941,14 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `updatePrivacySettings`(`payload`: AccountPrivacyUpdateInput): kotlin.Boolean
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `updateProfile`(`payload`: ProfileUpdateInput): ProfileView
+    
+    /**
+     * 更新账号级推送偏好。
+     *
+     * 两个字段都可选，只传要改的那个：读改写在服务端完成，两台设备同时改不同
+     * 开关时不会互相覆盖。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `updatePushPreference`(`showPreview`: kotlin.Boolean?, `globalMute`: kotlin.Boolean?): PushPreferenceView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `updateThumbStatus`(`messageId`: kotlin.ULong, `thumbStatus`: kotlin.Int)
     
@@ -1564,6 +1577,14 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getProfile`() : ProfileView
+
+    
+    /**
+     * 读取账号级推送偏好。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `getPushPreference`() : PushPreferenceView
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -2715,6 +2736,17 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `updateProfile`(`payload`: ProfileUpdateInput) : ProfileView
+
+    
+    /**
+     * 更新账号级推送偏好。
+     *
+     * 两个字段都可选，只传要改的那个：读改写在服务端完成，两台设备同时改不同
+     * 开关时不会互相覆盖。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `updatePushPreference`(`showPreview`: kotlin.Boolean?, `globalMute`: kotlin.Boolean?) : PushPreferenceView
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -4556,6 +4588,27 @@ data class ProfileView (
     var `action`: kotlin.String
         , 
     var `timestamp`: kotlin.ULong
+        
+) {
+    
+    companion object
+}
+
+
+
+/**
+ * 账号级推送偏好。跨设备一致，不是设备状态。
+ */
+data class PushPreferenceView (
+    /**
+     * 通知里是否显示消息内容。false = 只显示"你收到一条新消息"。
+     */
+    var `showPreview`: kotlin.Boolean
+        , 
+    /**
+     * 全局免打扰：所有会话都不推送。
+     */
+    var `globalMute`: kotlin.Boolean
         
 ) {
     

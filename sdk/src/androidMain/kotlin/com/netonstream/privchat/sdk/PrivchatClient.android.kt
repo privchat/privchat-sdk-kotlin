@@ -412,6 +412,39 @@ actual class PrivchatClient private actual constructor() {
         }
     }
 
+    actual suspend fun getPushPreference(): Result<com.netonstream.privchat.sdk.dto.PushPreference> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.getPushPreference() }.fold(
+            onSuccess = { r ->
+                Result.success(
+                    com.netonstream.privchat.sdk.dto.PushPreference(
+                        showPreview = r.showPreview,
+                        globalMute = r.globalMute,
+                    )
+                )
+            },
+            onFailure = { Result.failure(toSdkError("getPushPreference failed", it)) },
+        )
+    }
+
+    actual suspend fun updatePushPreference(
+        showPreview: Boolean?,
+        globalMute: Boolean?,
+    ): Result<com.netonstream.privchat.sdk.dto.PushPreference> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.updatePushPreference(showPreview, globalMute) }.fold(
+            onSuccess = { r ->
+                Result.success(
+                    com.netonstream.privchat.sdk.dto.PushPreference(
+                        showPreview = r.showPreview,
+                        globalMute = r.globalMute,
+                    )
+                )
+            },
+            onFailure = { Result.failure(toSdkError("updatePushPreference failed", it)) },
+        )
+    }
+
     actual suspend fun restoreLocalSession(): Result<Boolean> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
