@@ -763,7 +763,7 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_unfollow_bot(void * ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_unsubscribe_channel(void * ptr, int64_t channelId, int8_t channelType
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_device_push_state(void * ptr, RustBuffer deviceId, int8_t apnsArmed, RustBuffer pushToken, RustBuffer vendor, RustBuffer locale
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_device_push_state(void * ptr, RustBuffer deviceId, int8_t apnsArmed, RustBuffer pushToken, RustBuffer vendor, RustBuffer locale, RustBuffer pushSound
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_media_downloaded(void * ptr, int64_t messageId, int8_t downloaded
 );

@@ -931,8 +931,10 @@ interface PrivchatClientInterface {
      * 通道的 Android 包必须显式说自己是 hms/xiaomi/…，猜是猜不出来的。
      * - locale：iOS 的通知由系统直接展示，App 没机会本地化，服务端得知道用哪种
      * 语言拼文案。不传的话服务端按简体中文兜底。
+     * - push_sound：远程通知是否带提示音。`sound` 在 APNs payload 里，App 拦不住
+     * 自己的远程通知，所以这个开关也只能由服务端执行。
      */
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `updateDevicePushState`(`deviceId`: kotlin.String, `apnsArmed`: kotlin.Boolean, `pushToken`: kotlin.String?, `vendor`: kotlin.String?, `locale`: kotlin.String?): DevicePushUpdateView
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `updateDevicePushState`(`deviceId`: kotlin.String, `apnsArmed`: kotlin.Boolean, `pushToken`: kotlin.String?, `vendor`: kotlin.String?, `locale`: kotlin.String?, `pushSound`: kotlin.Boolean?): DevicePushUpdateView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `updateMediaDownloaded`(`messageId`: kotlin.ULong, `downloaded`: kotlin.Boolean)
     
@@ -2712,10 +2714,12 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * 通道的 Android 包必须显式说自己是 hms/xiaomi/…，猜是猜不出来的。
      * - locale：iOS 的通知由系统直接展示，App 没机会本地化，服务端得知道用哪种
      * 语言拼文案。不传的话服务端按简体中文兜底。
+     * - push_sound：远程通知是否带提示音。`sound` 在 APNs payload 里，App 拦不住
+     * 自己的远程通知，所以这个开关也只能由服务端执行。
      */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `updateDevicePushState`(`deviceId`: kotlin.String, `apnsArmed`: kotlin.Boolean, `pushToken`: kotlin.String?, `vendor`: kotlin.String?, `locale`: kotlin.String?) : DevicePushUpdateView
+    override suspend fun `updateDevicePushState`(`deviceId`: kotlin.String, `apnsArmed`: kotlin.Boolean, `pushToken`: kotlin.String?, `vendor`: kotlin.String?, `locale`: kotlin.String?, `pushSound`: kotlin.Boolean?) : DevicePushUpdateView
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)

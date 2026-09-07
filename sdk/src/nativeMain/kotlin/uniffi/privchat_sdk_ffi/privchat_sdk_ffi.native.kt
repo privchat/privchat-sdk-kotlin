@@ -1436,7 +1436,7 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_unsubscribe_channel(`ptr`: Pointer?,`channelId`: Long,`channelType`: Byte,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_device_push_state(`ptr`: Pointer?,`deviceId`: RustBufferByValue,`apnsArmed`: Byte,`pushToken`: RustBufferByValue,`vendor`: RustBufferByValue,`locale`: RustBufferByValue,
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_device_push_state(`ptr`: Pointer?,`deviceId`: RustBufferByValue,`apnsArmed`: Byte,`pushToken`: RustBufferByValue,`vendor`: RustBufferByValue,`locale`: RustBufferByValue,`pushSound`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_media_downloaded(`ptr`: Pointer?,`messageId`: Long,`downloaded`: Byte,
     ): Long
@@ -3502,9 +3502,9 @@ internal class UniffiLibInstance: UniffiLib {
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_unsubscribe_channel(`ptr`?.inner,`channelId`,`channelType`,)as Long
     
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_device_push_state(`ptr`: Pointer?,`deviceId`: RustBufferByValue,`apnsArmed`: Byte,`pushToken`: RustBufferByValue,`vendor`: RustBufferByValue,`locale`: RustBufferByValue,
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_device_push_state(`ptr`: Pointer?,`deviceId`: RustBufferByValue,`apnsArmed`: Byte,`pushToken`: RustBufferByValue,`vendor`: RustBufferByValue,`locale`: RustBufferByValue,`pushSound`: RustBufferByValue,
     ): Long
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_device_push_state(`ptr`?.inner,`deviceId` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`apnsArmed`,`pushToken` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`vendor` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`locale` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_device_push_state(`ptr`?.inner,`deviceId` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`apnsArmed`,`pushToken` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`vendor` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`locale` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`pushSound` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_media_downloaded(`ptr`: Pointer?,`messageId`: Long,`downloaded`: Byte,
     ): Long
@@ -12017,15 +12017,17 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
      * 通道的 Android 包必须显式说自己是 hms/xiaomi/…，猜是猜不出来的。
      * - locale：iOS 的通知由系统直接展示，App 没机会本地化，服务端得知道用哪种
      * 语言拼文案。不传的话服务端按简体中文兜底。
+     * - push_sound：远程通知是否带提示音。`sound` 在 APNs payload 里，App 拦不住
+     * 自己的远程通知，所以这个开关也只能由服务端执行。
      */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `updateDevicePushState`(`deviceId`: kotlin.String, `apnsArmed`: kotlin.Boolean, `pushToken`: kotlin.String?, `vendor`: kotlin.String?, `locale`: kotlin.String?) : DevicePushUpdateView {
+    actual override suspend fun `updateDevicePushState`(`deviceId`: kotlin.String, `apnsArmed`: kotlin.Boolean, `pushToken`: kotlin.String?, `vendor`: kotlin.String?, `locale`: kotlin.String?, `pushSound`: kotlin.Boolean?) : DevicePushUpdateView {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_update_device_push_state(
                 thisPtr,
-                FfiConverterString.lower(`deviceId`),FfiConverterBoolean.lower(`apnsArmed`),FfiConverterOptionalString.lower(`pushToken`),FfiConverterOptionalString.lower(`vendor`),FfiConverterOptionalString.lower(`locale`),
+                FfiConverterString.lower(`deviceId`),FfiConverterBoolean.lower(`apnsArmed`),FfiConverterOptionalString.lower(`pushToken`),FfiConverterOptionalString.lower(`vendor`),FfiConverterOptionalString.lower(`locale`),FfiConverterOptionalBoolean.lower(`pushSound`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },

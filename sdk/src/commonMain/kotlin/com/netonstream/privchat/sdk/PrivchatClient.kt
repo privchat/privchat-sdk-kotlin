@@ -68,6 +68,8 @@ expect class PrivchatClient private constructor() {
      *   apns/fcm，但装了厂商通道的 Android 包必须显式说明。null = 让服务端猜。
      * @param locale 设备语言（BCP-47）。iOS 的通知由系统展示，App 没机会本地化，
      *   服务端要靠它决定用哪种语言拼文案。null = 服务端按简体中文兜底。
+     * @param pushSound 这台设备的远程通知是否带提示音。`sound` 字段在 APNs payload 里，
+     *   App 拦不住自己的远程通知，所以关掉声音也必须让服务端知道。null = 不修改。
      */
     suspend fun updateDevicePushState(
         deviceId: String,
@@ -75,6 +77,7 @@ expect class PrivchatClient private constructor() {
         pushToken: String?,
         vendor: String? = null,
         locale: String? = null,
+        pushSound: Boolean? = null,
     ): Result<Unit>
     /**
      * 读取账号级推送偏好（是否显示消息预览 / 全局免打扰）。
