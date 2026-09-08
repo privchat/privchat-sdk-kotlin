@@ -15532,7 +15532,7 @@ object FfiConverterTypeUpsertUserInput: FfiConverterRustBuffer<UpsertUserInput> 
             FfiConverterOptionalString.read(buf),
             FfiConverterOptionalString.read(buf),
             FfiConverterOptionalString.read(buf),
-            FfiConverterString.read(buf),
+            FfiConverterOptionalString.read(buf),
             FfiConverterInt.read(buf),
             FfiConverterBoolean.read(buf),
             FfiConverterString.read(buf),
@@ -15545,7 +15545,7 @@ object FfiConverterTypeUpsertUserInput: FfiConverterRustBuffer<UpsertUserInput> 
             FfiConverterOptionalString.allocationSize(value.`username`) +
             FfiConverterOptionalString.allocationSize(value.`nickname`) +
             FfiConverterOptionalString.allocationSize(value.`alias`) +
-            FfiConverterString.allocationSize(value.`avatar`) +
+            FfiConverterOptionalString.allocationSize(value.`avatar`) +
             FfiConverterInt.allocationSize(value.`userType`) +
             FfiConverterBoolean.allocationSize(value.`isDeleted`) +
             FfiConverterString.allocationSize(value.`channelId`) +
@@ -15557,7 +15557,7 @@ object FfiConverterTypeUpsertUserInput: FfiConverterRustBuffer<UpsertUserInput> 
             FfiConverterOptionalString.write(value.`username`, buf)
             FfiConverterOptionalString.write(value.`nickname`, buf)
             FfiConverterOptionalString.write(value.`alias`, buf)
-            FfiConverterString.write(value.`avatar`, buf)
+            FfiConverterOptionalString.write(value.`avatar`, buf)
             FfiConverterInt.write(value.`userType`, buf)
             FfiConverterBoolean.write(value.`isDeleted`, buf)
             FfiConverterString.write(value.`channelId`, buf)

@@ -2908,16 +2908,29 @@ private fun AccountUserDetailView.toSearchedUserDto() = SearchedUserDto(
     isFollow = isFollow,
 )
 
+/**
+ * 权威点读(detail 接口)的结果转成入库参数。
+ *
+ * 三态语义（core 的 upsert 据此区分「没这条信息」和「确实为空」）：detail 是**全量
+ * 点读**，服务端说空就是真的空，所以昵称/头像一律原样传 `Some`，不再 `takeIf
+ * { isNotBlank() }` 转成 null——那样会让「用户删了头像」被当成「本次没查到头像」，
+ * 旧头像永远留在本地。alias 是本地私有字段，远端不下发，用 null 表示不动它。
+ *
+ * `updatedAt` 只是「我们什么时候读到的」，**不是实体版本**。这里曾经写
+ * `local.updatedAt + 1` 去自造一个递增版本，FFI 又把它当成 `user.version` 写进库；
+ * 一个毫秒时间戳一旦落进那一列，之后所有正常的 `sync_version` 都比它小、全被版本
+ * 闸挡死，那个用户的资料就再也刷不动了。版本由服务端的实体流负责，这里不声称。
+ */
 private fun AccountUserDetailView.toCoreUpsertUserInput(local: StoredUser?) = CoreUpsertUserInput(
     userId = userId,
-    username = username.takeIf { it.isNotBlank() },
-    nickname = nickname.takeIf { it.isNotBlank() },
-    alias = local?.alias?.takeIf { it.isNotBlank() },
+    username = username,
+    nickname = nickname,
+    alias = null,
     avatar = avatarUrl.orEmpty(),
     userType = userType.toInt(),
     isDeleted = false,
     channelId = local?.channelId.orEmpty(),
-    updatedAt = ((local?.updatedAt ?: 0L) + 1L).coerceAtLeast(1L),
+    updatedAt = System.currentTimeMillis(),
 )
 
 private fun StoredGroup.toCommonGroup() = GroupEntry(

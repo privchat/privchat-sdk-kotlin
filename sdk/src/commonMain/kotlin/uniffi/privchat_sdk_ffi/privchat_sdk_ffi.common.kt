@@ -6072,14 +6072,18 @@ data class UpsertReminderInput (
 data class UpsertUserInput (
     var `userId`: kotlin.ULong
         , 
+    /**
+     * `None` = 本次写入没有这个字段的信息（保留本地已有值）；
+     * `Some("")` = 权威来源明确说它是空的（清除）；`Some(v)` = 新值。
+     */
     var `username`: kotlin.String?
          = null , 
     var `nickname`: kotlin.String?
          = null , 
     var `alias`: kotlin.String?
          = null , 
-    var `avatar`: kotlin.String
-        , 
+    var `avatar`: kotlin.String?
+         = null , 
     var `userType`: kotlin.Int
         , 
     var `isDeleted`: kotlin.Boolean
