@@ -127,7 +127,12 @@ val privchatHostLibFile = privchatWorkspaceTargetDir.file(privchatHostLibName)
 // 只要有一个 ABI 缺我们的 FFI,设备一旦以该 ABI 启动进程就会
 // `dlopen failed: libprivchat_sdk_ffi.so not found` 直接卡在登录页(2026-07-27 生产)。
 // androidApp 侧用 abiFilters 锁到同一份清单,保证「有 ABI 就有 FFI」。
-val targetAbis = listOf("arm64-v8a", "armeabi-v7a")
+//
+// 2026-09-08 起只发 arm64-v8a。32 位 ARM 设备最后一批出货在 2019 年前后,minSdk 24
+// 也早就把它们中的大多数挡在外面;为它们多打一份 FFI(约 12MB)让每个 64 位用户都多下
+// 一半的包。清单缩短不违反上面那条不变量——不变量要的是「APK 里有的 ABI 都得有 FFI」,
+// 不是「所有 ABI 都要在」。
+val targetAbis = listOf("arm64-v8a")
 val localProps = Properties()
 rootProject.file("local.properties").takeIf { it.exists() }?.reader()?.use { localProps.load(it) }
 val ndkDirPath = localProps.getProperty("ndk.dir") ?: run {
