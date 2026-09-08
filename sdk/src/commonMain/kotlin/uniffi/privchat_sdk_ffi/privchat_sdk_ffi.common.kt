@@ -2930,6 +2930,12 @@ data class AccountUserDetailView (
      * 是否已关注（仅 user_type=2 Bot 有意义；非 bot 永远 false）
      */
     var `isFollow`: kotlin.Boolean
+        , 
+    /**
+     * 这份资料在 user 实体序列里的位置，与字段同一次读取。宿主入库时原样带上，
+     * 让详情响应和实体增量在同一条版本轴上比较；0 = 老 server 没下发。
+     */
+    var `syncVersion`: kotlin.ULong
         
 ) {
     
@@ -6089,6 +6095,12 @@ data class UpsertUserInput (
     var `isDeleted`: kotlin.Boolean
         , 
     var `channelId`: kotlin.String
+        , 
+    /**
+     * 这份内容在 user 实体序列里的位置。详情响应传服务端下发的 `sync_version`；
+     * 只知道部分字段、无法声称位置的写入方传 0。**不要传时间戳**。
+     */
+    var `version`: kotlin.Long
         , 
     var `updatedAt`: kotlin.Long
         

@@ -348,6 +348,24 @@ expect class PrivchatClient private constructor() {
         userId: ULong,
         context: ProfileAccessContext = ProfileAccessContext.Unknown,
     ): Result<SearchedUserDto>
+
+    /**
+     * 强制回源并**等待远端结果**，落库后返回新资料。
+     *
+     * 与 [getUserProfileLocalFirst] 的区别是整个语义都不同，不是同一个函数加开关：
+     * 那个是「本地优先」——本地命中就立刻返回旧值，远程刷新丢到后台 fire-and-forget，
+     * 调用方拿到的**始终是旧值**。列表渲染要的正是这个（快、不打服务器）。
+     *
+     * 但 AVATAR_CACHE_SPEC §2 要求查看资料页做强制远端校准，而「校准」的意思是这一次
+     * 调用要把新资料交到调用方手上。用 local-first 去实现它，只能做到「请求发出去了」，
+     * 页面上还是旧名字旧头像——请求发生不等于页面更新。
+     *
+     * 没有合法来源（[ProfileAccessContext.Unknown]）时返回参数错误，不伪造来源。
+     */
+    suspend fun refreshUserProfile(
+        userId: ULong,
+        context: ProfileAccessContext,
+    ): Result<SearchedUserDto>
     suspend fun listUsersByIds(userIds: List<ULong>): Result<List<UserEntry>>
 
     /**

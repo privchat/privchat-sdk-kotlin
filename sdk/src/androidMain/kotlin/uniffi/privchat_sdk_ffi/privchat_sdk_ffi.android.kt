@@ -10594,6 +10594,7 @@ object FfiConverterTypeAccountUserDetailView: FfiConverterRustBuffer<AccountUser
             FfiConverterString.read(buf),
             FfiConverterString.read(buf),
             FfiConverterBoolean.read(buf),
+            FfiConverterULong.read(buf),
         )
     }
 
@@ -10609,7 +10610,8 @@ object FfiConverterTypeAccountUserDetailView: FfiConverterRustBuffer<AccountUser
             FfiConverterBoolean.allocationSize(value.`canSendMessage`) +
             FfiConverterString.allocationSize(value.`sourceType`) +
             FfiConverterString.allocationSize(value.`sourceId`) +
-            FfiConverterBoolean.allocationSize(value.`isFollow`)
+            FfiConverterBoolean.allocationSize(value.`isFollow`) +
+            FfiConverterULong.allocationSize(value.`syncVersion`)
     )
 
     override fun write(value: AccountUserDetailView, buf: ByteBuffer) {
@@ -10625,6 +10627,7 @@ object FfiConverterTypeAccountUserDetailView: FfiConverterRustBuffer<AccountUser
             FfiConverterString.write(value.`sourceType`, buf)
             FfiConverterString.write(value.`sourceId`, buf)
             FfiConverterBoolean.write(value.`isFollow`, buf)
+            FfiConverterULong.write(value.`syncVersion`, buf)
     }
 }
 
@@ -15537,6 +15540,7 @@ object FfiConverterTypeUpsertUserInput: FfiConverterRustBuffer<UpsertUserInput> 
             FfiConverterBoolean.read(buf),
             FfiConverterString.read(buf),
             FfiConverterLong.read(buf),
+            FfiConverterLong.read(buf),
         )
     }
 
@@ -15549,6 +15553,7 @@ object FfiConverterTypeUpsertUserInput: FfiConverterRustBuffer<UpsertUserInput> 
             FfiConverterInt.allocationSize(value.`userType`) +
             FfiConverterBoolean.allocationSize(value.`isDeleted`) +
             FfiConverterString.allocationSize(value.`channelId`) +
+            FfiConverterLong.allocationSize(value.`version`) +
             FfiConverterLong.allocationSize(value.`updatedAt`)
     )
 
@@ -15561,6 +15566,7 @@ object FfiConverterTypeUpsertUserInput: FfiConverterRustBuffer<UpsertUserInput> 
             FfiConverterInt.write(value.`userType`, buf)
             FfiConverterBoolean.write(value.`isDeleted`, buf)
             FfiConverterString.write(value.`channelId`, buf)
+            FfiConverterLong.write(value.`version`, buf)
             FfiConverterLong.write(value.`updatedAt`, buf)
     }
 }

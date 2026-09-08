@@ -1501,6 +1501,39 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun refreshUserProfile(
+        userId: ULong,
+        context: ProfileAccessContext,
+    ): Result<SearchedUserDto> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        val source = context.wireSource
+        val sourceId = context.wireSourceId(userId)
+        if (source == null || sourceId == null) {
+            return Result.failure(
+                SdkError.InvalidParameter(
+                    "profileAccessContext",
+                    "profile refresh requires an access context (got Unknown)",
+                )
+            )
+        }
+        return runCatching {
+            val local = c.getUserById(userId)
+            val remote = c.accountUserDetailRemote(userId, source, sourceId)
+            // 先落库再返回：会话标题、头像观察流和这个页面读的是同一份本地行，
+            // 页面拿到新值而库里还是旧值,就成了两份真相。
+            c.upsertUser(remote.toCoreUpsertUserInput(local))
+            profileRefreshPolicy.onSuccess(profileRefreshPolicy.key(userId, context))
+            // 回读本地：版本闸可能判定这次响应比库里的旧(晚到的旧响应),那就以库里为准。
+            c.getUserById(userId)?.toSearchedUserDto() ?: remote.toSearchedUserDto()
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = {
+                profileRefreshPolicy.onFailure(profileRefreshPolicy.key(userId, context))
+                Result.failure(toSdkError("refreshUserProfile failed", it))
+            },
+        )
+    }
+
     actual suspend fun invalidateProfileCache(userId: ULong) {
         profileRefreshPolicy.invalidate(userId)
     }
@@ -2705,6 +2738,9 @@ private fun AccountUserDetailView.toCoreUpsertUserInput(local: StoredUser?) = Co
     userType = userType.toInt(),
     isDeleted = false,
     channelId = local?.channelId.orEmpty(),
+    // 服务端那次读取的位置，和字段同一份快照。带上它，晚到的旧详情响应才会被版本闸
+    // 正确拒掉；不带（老 server ⇒ 0）就只当作补空缺的部分写入，不覆盖已确认资料。
+    version = syncVersion.toLong(),
     updatedAt = kotlinx.datetime.Clock.System.now().toEpochMilliseconds(),
 )
 
