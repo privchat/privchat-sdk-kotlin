@@ -94,7 +94,36 @@ expect class PrivchatClient private constructor() {
     ): Result<com.netonstream.privchat.sdk.dto.PushPreference>
 
     suspend fun restoreLocalSession(): Result<Boolean>
+
+    /**
+     * 退出登录：通知服务端 → 清本地凭证 → 断连，**三步顺序等待**。
+     *
+     * 第一步是网络调用。调用方如果在等它，就是在等服务端可达性；这条链真机上卡死过。
+     * 需要「本地已经登出」这个保证而又不能等网络的调用方，用
+     * [clearLocalSessionState] + [notifyServerSignedOut] 各自安排。
+     */
     suspend fun logout(): Result<Unit>
+
+    /**
+     * 只清本地会话凭证并断连，**不碰网络**。
+     *
+     * 存在的理由是 [logout] 把「通知服务端」排在了清本地前面：那一步被取消或超时，
+     * 本地清理**根本不会执行**，账号在盘上仍是「当前账号」。要求「下一段会话开始前，
+     * 上一段的本地状态一定已经清干净」的调用方必须等这个，而不是等 [logout]。
+     *
+     * ⚠️ 它清的不只是本账号的会话，还有共享的「当前 uid」指针（Rust
+     * `clear_current_session` 里的 `clear_current_uid`，无条件执行）。所以它绝不能在
+     * 别的账号已经激活之后才跑完——那会把「当前账号是谁」抹掉。调用方负责让它
+     * 与下一段会话的建立互斥。
+     */
+    suspend fun clearLocalSessionState(): Result<Unit>
+
+    /**
+     * 告诉服务端本账号已登出。尽力而为，可以慢，失败无所谓。
+     *
+     * 必须在 [clearLocalSessionState] **之前**发出：这条 RPC 要带凭证，凭证清掉就发不出去了。
+     */
+    suspend fun notifyServerSignedOut(): Result<Unit>
 
     /**
      * 摘掉当前会话，但**保留**它的本地会话快照。

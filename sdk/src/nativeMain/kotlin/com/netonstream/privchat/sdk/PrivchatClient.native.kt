@@ -490,6 +490,24 @@ actual class PrivchatClient private actual constructor() {
         }
     }
 
+    actual suspend fun clearLocalSessionState(): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("clearLocalSessionState failed") {
+            c.clearLocalState()
+            c.disconnect()
+            cachedUserId = null
+            cachedConnectionState = ConnectionState.Disconnected
+            runCatching { c.clearPresenceCache() }
+        }
+    }
+
+    actual suspend fun notifyServerSignedOut(): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callAsync("notifyServerSignedOut failed") {
+            c.authLogoutRemote()
+        }
+    }
+
     actual suspend fun detachCurrentSession(): Result<Unit> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         // 只摘会话，不清凭证、不通知服务端登出——那个账号还登着。
