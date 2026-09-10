@@ -774,10 +774,6 @@ import kotlinx.coroutines.withContext
 
 
 
-
-
-
-
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -1086,8 +1082,6 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_connected(`ptr`: Pointer?,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_event_read_by(`ptr`: Pointer?,`serverMessageId`: Long,`userId`: Long,
-    ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_initialized(`ptr`: Pointer?,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_shutting_down(`ptr`: Pointer?,
@@ -1156,7 +1150,7 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_reminder_done(`ptr`: Pointer?,`reminderId`: Long,`done`: Byte,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_message_read_list(`ptr`: Pointer?,`serverMessageId`: Long,`channelId`: Long,
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_message_read_list(`ptr`: Pointer?,`serverMessageId`: Long,`channelId`: Long,`afterUserId`: Long,`limit`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_message_read_stats(`ptr`: Pointer?,`serverMessageId`: Long,`channelId`: Long,
     ): Long
@@ -1297,8 +1291,6 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_search_user_by_qrcode(`ptr`: Pointer?,`qrKey`: RustBufferByValue,`token`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_search_users(`ptr`: Pointer?,`query`: RustBufferByValue,
-    ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_seen_by_for_event(`ptr`: Pointer?,`serverMessageId`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_contact_card_message(`ptr`: Pointer?,`input`: RustBufferByValue,
     ): Long
@@ -1872,8 +1864,6 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_is_connected(
     ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_is_event_read_by(
-    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_is_initialized(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_is_shutting_down(
@@ -2083,8 +2073,6 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_search_user_by_qrcode(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_search_users(
-    ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_seen_by_for_event(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_contact_card_message(
     ): Short
@@ -2694,9 +2682,6 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_is_connected() != 25363.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_is_event_read_by() != 53244.toShort()) {
-        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
-    }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_is_initialized() != 19487.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
@@ -2799,7 +2784,7 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_mark_reminder_done() != 39125.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_message_read_list() != 63495.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_message_read_list() != 2186.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_message_read_stats() != 58974.toShort()) {
@@ -3010,9 +2995,6 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_search_users() != 11420.toShort()) {
-        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
-    }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_seen_by_for_event() != 52071.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_contact_card_message() != 16803.toShort()) {
@@ -6303,28 +6285,6 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `isEventReadBy`(`serverMessageId`: kotlin.ULong, `userId`: kotlin.ULong) : kotlin.Boolean {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_event_read_by(
-                thisPtr,
-                FfiConverterULong.lower(`serverMessageId`),FfiConverterULong.lower(`userId`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_i8(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_i8(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_i8(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_i8(future) },
-        // lift function
-        { FfiConverterBoolean.lift(it!!) },
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     actual override suspend fun `isInitialized`() : kotlin.Boolean {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
@@ -7099,14 +7059,19 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     
+    /**
+     * 群消息已读名单，按 user_id 键集分页（READ_STATUS_SPEC §6.5.7）。
+     *
+     * `after_user_id` 传上一页的 `next_after_user_id`，首页传 0。
+     */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `messageReadList`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong) : MessageReadListView {
+    actual override suspend fun `messageReadList`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong, `afterUserId`: kotlin.ULong, `limit`: kotlin.UInt?) : MessageReadListView {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_message_read_list(
                 thisPtr,
-                FfiConverterULong.lower(`serverMessageId`),FfiConverterULong.lower(`channelId`),
+                FfiConverterULong.lower(`serverMessageId`),FfiConverterULong.lower(`channelId`),FfiConverterULong.lower(`afterUserId`),FfiConverterOptionalUInt.lower(`limit`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -8548,28 +8513,6 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
         { FfiConverterSequenceTypeSearchUserEntry.lift(it!!) },
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `seenByForEvent`(`serverMessageId`: kotlin.ULong) : List<SeenByEntry> {
-        return uniffiRustCallAsync(
-        callWithPointer { thisPtr ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_seen_by_for_event(
-                thisPtr,
-                FfiConverterULong.lower(`serverMessageId`),
-            )!!
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
-        // lift function
-        { FfiConverterSequenceTypeSeenByEntry.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -12826,18 +12769,30 @@ object FfiConverterTypeMessageReadListView: FfiConverterRustBuffer<MessageReadLi
     override fun read(buf: ByteBuffer): MessageReadListView {
         return MessageReadListView(
             FfiConverterSequenceTypeMessageReadUserView.read(buf),
-            FfiConverterULong.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterOptionalULong.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterLong.read(buf),
         )
     }
 
     override fun allocationSize(value: MessageReadListView) = (
             FfiConverterSequenceTypeMessageReadUserView.allocationSize(value.`readers`) +
-            FfiConverterULong.allocationSize(value.`total`)
+            FfiConverterUInt.allocationSize(value.`recipientCount`) +
+            FfiConverterUInt.allocationSize(value.`readCount`) +
+            FfiConverterOptionalULong.allocationSize(value.`nextAfterUserId`) +
+            FfiConverterBoolean.allocationSize(value.`hasMore`) +
+            FfiConverterLong.allocationSize(value.`detailExpiresAt`)
     )
 
     override fun write(value: MessageReadListView, buf: ByteBuffer) {
             FfiConverterSequenceTypeMessageReadUserView.write(value.`readers`, buf)
-            FfiConverterULong.write(value.`total`, buf)
+            FfiConverterUInt.write(value.`recipientCount`, buf)
+            FfiConverterUInt.write(value.`readCount`, buf)
+            FfiConverterOptionalULong.write(value.`nextAfterUserId`, buf)
+            FfiConverterBoolean.write(value.`hasMore`, buf)
+            FfiConverterLong.write(value.`detailExpiresAt`, buf)
     }
 }
 
@@ -12849,17 +12804,23 @@ object FfiConverterTypeMessageReadStatsView: FfiConverterRustBuffer<MessageReadS
         return MessageReadStatsView(
             FfiConverterUInt.read(buf),
             FfiConverterUInt.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterLong.read(buf),
         )
     }
 
     override fun allocationSize(value: MessageReadStatsView) = (
             FfiConverterUInt.allocationSize(value.`readCount`) +
-            FfiConverterUInt.allocationSize(value.`totalCount`)
+            FfiConverterUInt.allocationSize(value.`recipientCount`) +
+            FfiConverterUInt.allocationSize(value.`unreadCount`) +
+            FfiConverterLong.allocationSize(value.`detailExpiresAt`)
     )
 
     override fun write(value: MessageReadStatsView, buf: ByteBuffer) {
             FfiConverterUInt.write(value.`readCount`, buf)
-            FfiConverterUInt.write(value.`totalCount`, buf)
+            FfiConverterUInt.write(value.`recipientCount`, buf)
+            FfiConverterUInt.write(value.`unreadCount`, buf)
+            FfiConverterLong.write(value.`detailExpiresAt`, buf)
     }
 }
 
@@ -12873,7 +12834,7 @@ object FfiConverterTypeMessageReadUserView: FfiConverterRustBuffer<MessageReadUs
             FfiConverterOptionalString.read(buf),
             FfiConverterOptionalString.read(buf),
             FfiConverterOptionalString.read(buf),
-            FfiConverterOptionalULong.read(buf),
+            FfiConverterBoolean.read(buf),
         )
     }
 
@@ -12882,7 +12843,7 @@ object FfiConverterTypeMessageReadUserView: FfiConverterRustBuffer<MessageReadUs
             FfiConverterOptionalString.allocationSize(value.`username`) +
             FfiConverterOptionalString.allocationSize(value.`nickname`) +
             FfiConverterOptionalString.allocationSize(value.`avatarUrl`) +
-            FfiConverterOptionalULong.allocationSize(value.`readAt`)
+            FfiConverterBoolean.allocationSize(value.`profileLoaded`)
     )
 
     override fun write(value: MessageReadUserView, buf: ByteBuffer) {
@@ -12890,7 +12851,7 @@ object FfiConverterTypeMessageReadUserView: FfiConverterRustBuffer<MessageReadUs
             FfiConverterOptionalString.write(value.`username`, buf)
             FfiConverterOptionalString.write(value.`nickname`, buf)
             FfiConverterOptionalString.write(value.`avatarUrl`, buf)
-            FfiConverterOptionalULong.write(value.`readAt`, buf)
+            FfiConverterBoolean.write(value.`profileLoaded`, buf)
     }
 }
 
@@ -13780,28 +13741,6 @@ object FfiConverterTypeSearchUserEntry: FfiConverterRustBuffer<SearchUserEntry> 
             FfiConverterBoolean.write(value.`isFriend`, buf)
             FfiConverterBoolean.write(value.`canSendMessage`, buf)
             FfiConverterBoolean.write(value.`isFollow`, buf)
-    }
-}
-
-
-
-
-object FfiConverterTypeSeenByEntry: FfiConverterRustBuffer<SeenByEntry> {
-    override fun read(buf: ByteBuffer): SeenByEntry {
-        return SeenByEntry(
-            FfiConverterULong.read(buf),
-            FfiConverterOptionalULong.read(buf),
-        )
-    }
-
-    override fun allocationSize(value: SeenByEntry) = (
-            FfiConverterULong.allocationSize(value.`userId`) +
-            FfiConverterOptionalULong.allocationSize(value.`readAt`)
-    )
-
-    override fun write(value: SeenByEntry, buf: ByteBuffer) {
-            FfiConverterULong.write(value.`userId`, buf)
-            FfiConverterOptionalULong.write(value.`readAt`, buf)
     }
 }
 
@@ -18154,31 +18093,6 @@ public object FfiConverterSequenceTypeSearchUserEntry: FfiConverterRustBuffer<Li
         buf.putInt(value.size)
         value.iterator().forEach {
             FfiConverterTypeSearchUserEntry.write(it, buf)
-        }
-    }
-}
-
-
-
-
-public object FfiConverterSequenceTypeSeenByEntry: FfiConverterRustBuffer<List<SeenByEntry>> {
-    override fun read(buf: ByteBuffer): List<SeenByEntry> {
-        val len = buf.getInt()
-        return List<SeenByEntry>(len) {
-            FfiConverterTypeSeenByEntry.read(buf)
-        }
-    }
-
-    override fun allocationSize(value: List<SeenByEntry>): ULong {
-        val sizeForLength = 4UL
-        val sizeForItems = value.map { FfiConverterTypeSeenByEntry.allocationSize(it) }.sum()
-        return sizeForLength + sizeForItems
-    }
-
-    override fun write(value: List<SeenByEntry>, buf: ByteBuffer) {
-        buf.putInt(value.size)
-        value.iterator().forEach {
-            FfiConverterTypeSeenByEntry.write(it, buf)
         }
     }
 }

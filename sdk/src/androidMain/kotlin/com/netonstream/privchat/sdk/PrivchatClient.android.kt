@@ -847,31 +847,6 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
-    actual suspend fun isEventReadBy(channelId: ULong, messageId: ULong, userId: ULong): Result<Boolean> {
-        val c = requireClient().getOrElse { return Result.failure(it) }
-        return runCatching { c.isEventReadBy(messageId, userId) }.fold(
-            onSuccess = { Result.success(it) },
-            onFailure = { Result.failure(toSdkError("isEventReadBy failed", it)) },
-        )
-    }
-
-    actual suspend fun seenByForEvent(channelId: ULong, messageId: ULong, limit: UInt?): Result<List<SeenByEntry>> {
-        val c = requireClient().getOrElse { return Result.failure(it) }
-        return runCatching {
-            val entries = c.seenByForEvent(messageId)
-            val mapped = entries.map {
-                SeenByEntry(
-                    userId = it.userId,
-                    readAt = it.readAt ?: 0uL,
-                )
-            }
-            limit?.let { mapped.take(it.toInt()) } ?: mapped
-        }.fold(
-            onSuccess = { Result.success(it) },
-            onFailure = { Result.failure(toSdkError("seenByForEvent failed", it)) },
-        )
-    }
-
     actual suspend fun searchMessages(query: String, channelId: String?): Result<List<MessageEntry>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
@@ -1913,6 +1888,30 @@ actual class PrivchatClient private actual constructor() {
         return runCatching { c.groupPinnedMessagesRemote(groupId) }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("groupPinnedMessages failed", it)) },
+        )
+    }
+
+    actual suspend fun messageReadStats(
+        serverMessageId: ULong,
+        channelId: ULong,
+    ): Result<MessageReadStatsView> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.messageReadStats(serverMessageId, channelId) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("messageReadStats failed", it)) },
+        )
+    }
+
+    actual suspend fun messageReadList(
+        serverMessageId: ULong,
+        channelId: ULong,
+        afterUserId: ULong,
+        limit: UInt?,
+    ): Result<MessageReadListView> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.messageReadList(serverMessageId, channelId, afterUserId, limit) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("messageReadList failed", it)) },
         )
     }
 
@@ -3049,20 +3048,6 @@ private fun NetworkHint.toCoreNetworkHint(): uniffi.privchat_sdk_ffi.NetworkHint
     NetworkHint.Wifi -> uniffi.privchat_sdk_ffi.NetworkHint.WIFI
     NetworkHint.Cellular -> uniffi.privchat_sdk_ffi.NetworkHint.CELLULAR
     NetworkHint.Ethernet -> uniffi.privchat_sdk_ffi.NetworkHint.ETHERNET
-}
-
-private fun decodeSeenBy(raw: String, limit: UInt?): List<SeenByEntry> {
-    val arr = parseJsonObject(raw).array("items")
-        ?: parseJsonElement(raw).takeIf { it is JsonArray } as? JsonArray
-        ?: return emptyList()
-    val all = arr.mapNotNull { elem ->
-        val obj = elem as? JsonObject ?: return@mapNotNull null
-        SeenByEntry(
-            userId = obj.ulong("user_id") ?: obj.ulong("userId") ?: return@mapNotNull null,
-            readAt = obj.ulong("read_at") ?: obj.ulong("readAt") ?: 0uL,
-        )
-    }
-    return limit?.let { all.take(it.toInt()) } ?: all
 }
 
 private fun decodeSyncState(raw: String, channelId: ULong, channelType: Int): SyncStateEntry {

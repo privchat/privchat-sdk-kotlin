@@ -425,8 +425,6 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_bootstrap_completed(
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_connected(void * ptr
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_event_read_by(void * ptr, int64_t serverMessageId, int64_t userId
-);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_initialized(void * ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_shutting_down(void * ptr
@@ -495,7 +493,7 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_read_to_pts_blocki
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_mark_reminder_done(void * ptr, int64_t reminderId, int8_t done
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_message_read_list(void * ptr, int64_t serverMessageId, int64_t channelId
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_message_read_list(void * ptr, int64_t serverMessageId, int64_t channelId, int64_t afterUserId, RustBuffer limit
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_message_read_stats(void * ptr, int64_t serverMessageId, int64_t channelId
 );
@@ -636,8 +634,6 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_search_messages(void * 
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_search_user_by_qrcode(void * ptr, RustBuffer qrKey, RustBuffer token
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_search_users(void * ptr, RustBuffer query
-);
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_seen_by_for_event(void * ptr, int64_t serverMessageId
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_send_contact_card_message(void * ptr, RustBuffer input
 );
@@ -1353,9 +1349,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_is_bootstrap_comp
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_is_connected(void
     
 );
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_is_event_read_by(void
-    
-);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_is_initialized(void
     
 );
@@ -1669,9 +1662,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_search_user_by_qr
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_search_users(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_seen_by_for_event(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_send_contact_card_message(void

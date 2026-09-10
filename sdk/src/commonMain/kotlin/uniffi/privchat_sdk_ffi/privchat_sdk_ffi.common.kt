@@ -453,8 +453,6 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `isConnected`(): kotlin.Boolean
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `isEventReadBy`(`serverMessageId`: kotlin.ULong, `userId`: kotlin.ULong): kotlin.Boolean
-    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `isInitialized`(): kotlin.Boolean
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `isShuttingDown`(): kotlin.Boolean
@@ -555,7 +553,12 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `markReminderDone`(`reminderId`: kotlin.ULong, `done`: kotlin.Boolean)
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `messageReadList`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong): MessageReadListView
+    /**
+     * 群消息已读名单，按 user_id 键集分页（READ_STATUS_SPEC §6.5.7）。
+     *
+     * `after_user_id` 传上一页的 `next_after_user_id`，首页传 0。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `messageReadList`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong, `afterUserId`: kotlin.ULong, `limit`: kotlin.UInt?): MessageReadListView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `messageReadStats`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong): MessageReadStatsView
     
@@ -743,8 +746,6 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `searchUserByQrcode`(`qrKey`: kotlin.String, `token`: kotlin.String?): AccountSearchResultView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `searchUsers`(`query`: kotlin.String): List<SearchUserEntry>
-    
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `seenByForEvent`(`serverMessageId`: kotlin.ULong): List<SeenByEntry>
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `sendContactCardMessage`(`input`: ContactCardMessageInput): kotlin.ULong
     
@@ -1764,11 +1765,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `isEventReadBy`(`serverMessageId`: kotlin.ULong, `userId`: kotlin.ULong) : kotlin.Boolean
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `isInitialized`() : kotlin.Boolean
 
     
@@ -1968,9 +1964,14 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `markReminderDone`(`reminderId`: kotlin.ULong, `done`: kotlin.Boolean)
 
     
+    /**
+     * 群消息已读名单，按 user_id 键集分页（READ_STATUS_SPEC §6.5.7）。
+     *
+     * `after_user_id` 传上一页的 `next_after_user_id`，首页传 0。
+     */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `messageReadList`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong) : MessageReadListView
+    override suspend fun `messageReadList`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong, `afterUserId`: kotlin.ULong, `limit`: kotlin.UInt?) : MessageReadListView
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -2351,11 +2352,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `searchUsers`(`query`: kotlin.String) : List<SearchUserEntry>
-
-    
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `seenByForEvent`(`serverMessageId`: kotlin.ULong) : List<SeenByEntry>
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -4335,7 +4331,25 @@ data class MessageReactionStatsView (
 data class MessageReadListView (
     var `readers`: List<MessageReadUserView>
         , 
-    var `total`: kotlin.ULong
+    /**
+     * 发送时有权接收的人数（不含发送者）。不是当前群成员数：
+     * 退群的人当时确实收到了，后加入的人当时并不在。
+     */
+    var `recipientCount`: kotlin.UInt
+        , 
+    var `readCount`: kotlin.UInt
+        , 
+    /**
+     * 下一页游标；None = 到底了。键集分页，不要换成 offset。
+     */
+    var `nextAfterUserId`: kotlin.ULong?
+         = null , 
+    var `hasMore`: kotlin.Boolean
+        , 
+    /**
+     * 明细可查截止时间（毫秒）。到点后服务端直接拒绝，UI 显示"已读详情已过期"。
+     */
+    var `detailExpiresAt`: kotlin.Long
         
 ) {
     
@@ -4347,7 +4361,14 @@ data class MessageReadListView (
 data class MessageReadStatsView (
     var `readCount`: kotlin.UInt
         , 
-    var `totalCount`: kotlin.UInt
+    /**
+     * 发送时有权接收的人数（不含发送者）。
+     */
+    var `recipientCount`: kotlin.UInt
+        , 
+    var `unreadCount`: kotlin.UInt
+        , 
+    var `detailExpiresAt`: kotlin.Long
         
 ) {
     
@@ -4365,8 +4386,11 @@ data class MessageReadUserView (
          = null , 
     var `avatarUrl`: kotlin.String?
          = null , 
-    var `readAt`: kotlin.ULong?
-         = null 
+    /**
+     * 资料没取到时仍然在名单里，UI 显示占位而不是把人丢掉。
+     */
+    var `profileLoaded`: kotlin.Boolean
+        
 ) {
     
     companion object
@@ -4944,18 +4968,6 @@ data class SearchUserEntry (
      */
     var `isFollow`: kotlin.Boolean
         
-) {
-    
-    companion object
-}
-
-
-
-data class SeenByEntry (
-    var `userId`: kotlin.ULong
-        , 
-    var `readAt`: kotlin.ULong?
-         = null 
 ) {
     
     companion object
@@ -6777,8 +6789,6 @@ enum class TypingActionType {
     CHOOSING_STICKER;
     companion object
 }
-
-
 
 
 

@@ -173,8 +173,6 @@ expect class PrivchatClient private constructor() {
     suspend fun removeReaction(messageId: ULong, emoji: String): Result<Unit>
     suspend fun reactions(channelId: ULong, messageId: ULong): Result<List<ReactionChip>>
     suspend fun reactionsBatch(channelId: ULong, messageIds: List<ULong>): Result<Map<ULong, List<ReactionChip>>>
-    suspend fun isEventReadBy(channelId: ULong, messageId: ULong, userId: ULong): Result<Boolean>
-    suspend fun seenByForEvent(channelId: ULong, messageId: ULong, limit: UInt?): Result<List<SeenByEntry>>
     suspend fun searchMessages(query: String, channelId: String?): Result<List<MessageEntry>>
 
     /**
@@ -519,6 +517,31 @@ expect class PrivchatClient private constructor() {
 
     /** 群置顶消息列表（群成员可读，按置顶时间倒序）。 */
     suspend fun groupPinnedMessages(groupId: ULong): Result<List<GroupPinnedMessageView>>
+
+    // ========== 群已读明细（READ_STATUS_SPEC §6.5）==========
+    //
+    // 气泡上的"已读"是聚合水位投影，不需要这两个接口；只有用户主动展开
+    // 名单时才查服务端。两个接口都**只有发送者本人**能调用，且只在消息发出后
+    // N 天内可查（服务端配置，默认 7 天），过期返回错误而不是空名单。
+
+    /** 某条群消息的已读人数统计。 */
+    suspend fun messageReadStats(
+        serverMessageId: ULong,
+        channelId: ULong,
+    ): Result<MessageReadStatsView>
+
+    /**
+     * 某条群消息的已读名单，按 user_id 键集分页。
+     *
+     * [afterUserId] 传上一页返回的 `nextAfterUserId`，首页传 0；不要换成 offset，
+     * 名单在翻页途中会增长，offset 会把同一个人返回两次。
+     */
+    suspend fun messageReadList(
+        serverMessageId: ULong,
+        channelId: ULong,
+        afterUserId: ULong = 0uL,
+        limit: UInt? = null,
+    ): Result<MessageReadListView>
 
     // ========== QR Code v1.4 (QR_CODE_SPEC v1.4) ==========
     //
