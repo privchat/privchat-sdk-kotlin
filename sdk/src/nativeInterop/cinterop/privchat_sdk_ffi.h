@@ -545,7 +545,7 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_pin_channel(void * ptr,
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_ping(void * ptr
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_prepare_avatar_image(void * ptr, RustBuffer srcPath
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_prepare_avatar_image(void * ptr, RustBuffer srcPath, RustBuffer cropX, RustBuffer cropY, RustBuffer cropSize
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_qrcode_generate(void * ptr, RustBuffer qrType, RustBuffer payload, RustBuffer expireSeconds
 );
