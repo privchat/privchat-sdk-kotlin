@@ -359,9 +359,14 @@ actual class PrivchatClient private actual constructor() {
         }
     }
 
-    actual suspend fun prepareAvatarImage(path: String): Result<String> {
+    actual suspend fun prepareAvatarImage(
+        path: String,
+        cropX: Float?,
+        cropY: Float?,
+        cropSize: Float?,
+    ): Result<String> {
         val c = requireClient().getOrElse { return Result.failure(it) }
-        return runCatching { c.prepareAvatarImage(path) }.fold(
+        return runCatching { c.prepareAvatarImage(path, cropX, cropY, cropSize) }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("prepareAvatarImage failed", it)) },
         )

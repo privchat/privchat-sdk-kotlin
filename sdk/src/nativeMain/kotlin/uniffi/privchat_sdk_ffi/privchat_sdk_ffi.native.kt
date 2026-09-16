@@ -1214,7 +1214,7 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_ping(`ptr`: Pointer?,
     ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_prepare_avatar_image(`ptr`: Pointer?,`srcPath`: RustBufferByValue,
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_prepare_avatar_image(`ptr`: Pointer?,`srcPath`: RustBufferByValue,`cropX`: RustBufferByValue,`cropY`: RustBufferByValue,`cropSize`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_qrcode_generate(`ptr`: Pointer?,`qrType`: RustBufferByValue,`payload`: RustBufferByValue,`expireSeconds`: RustBufferByValue,
     ): Long
@@ -3054,9 +3054,9 @@ internal class UniffiLibInstance: UniffiLib {
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_ping(`ptr`?.inner,)as Long
     
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_prepare_avatar_image(`ptr`: Pointer?,`srcPath`: RustBufferByValue,
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_prepare_avatar_image(`ptr`: Pointer?,`srcPath`: RustBufferByValue,`cropX`: RustBufferByValue,`cropY`: RustBufferByValue,`cropSize`: RustBufferByValue,
     ): Long
-        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_prepare_avatar_image(`ptr`?.inner,`srcPath` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_prepare_avatar_image(`ptr`?.inner,`srcPath` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`cropX` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`cropY` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,`cropSize` as CValue<privchat_sdk_ffi.cinterop.RustBuffer>,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_qrcode_generate(`ptr`: Pointer?,`qrType`: RustBufferByValue,`payload`: RustBufferByValue,`expireSeconds`: RustBufferByValue,
     ): Long
@@ -5300,6 +5300,27 @@ public object FfiConverterLong: FfiConverter<Long, Long> {
 
     override fun write(value: Long, buf: ByteBuffer) {
         buf.putLong(value)
+    }
+}
+
+
+public object FfiConverterFloat: FfiConverter<Float, Float> {
+    override fun lift(value: Float): Float {
+        return value
+    }
+
+    override fun read(buf: ByteBuffer): Float {
+        return buf.getFloat()
+    }
+
+    override fun lower(value: Float): Float {
+        return value
+    }
+
+    override fun allocationSize(value: Float) = 4UL
+
+    override fun write(value: Float, buf: ByteBuffer) {
+        buf.putFloat(value)
     }
 }
 
@@ -9706,17 +9727,27 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
      * AVATAR_CACHE_SPEC §8: 头像上传前客户端预处理。
      *
      * decode（白名单 jpeg/png/webp，gif/损坏格式直接 Err，不消耗上传流量）→
-     * 中心裁剪正方形 → 边长 >480 缩放到 480x480（≤480 不放大）→ 编码 PNG
-     * 写临时文件。返回处理后文件路径，App 选图后先过它再走上传管道。
+     * 按裁剪矩形裁正方形 → 缩到 720x720 → 白底合成 → 编码 JPEG 写临时文件。
+     * 返回处理后文件路径，App 选图 + 裁剪后先过它再走上传管道。
+     *
+     * `crop_x` / `crop_y` / `crop_size` 三者要么全给要么全不给；全不给 = 中心裁剪
+     * （兼容没有裁剪界面的调用方）。**归一化到 0..1**，相对 EXIF 方向校正之后的图像；
+     * x/y 相对宽高，size 相对短边。见 AVATAR_CACHE_SPEC §8.1。
+     *
+     * 用归一化而不是像素：像素要求 UI 先知道源图尺寸，而那又要求 UI 自己读 EXIF
+     * 判断宽高是否交换。归一化把方向这件事整个留在 Rust。
+     *
+     * 用三个独立可空参数而不是一个结构体：uniffi 的绑定是手工维护的，多一个 record
+     * 类型就要同步三个平台的绑定文件，而这里只是三个整数。
      */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `prepareAvatarImage`(`srcPath`: kotlin.String) : kotlin.String {
+    actual override suspend fun `prepareAvatarImage`(`srcPath`: kotlin.String, `cropX`: kotlin.Float?, `cropY`: kotlin.Float?, `cropSize`: kotlin.Float?) : kotlin.String {
         return uniffiRustCallAsync(
         callWithPointer { thisPtr ->
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_prepare_avatar_image(
                 thisPtr,
-                FfiConverterString.lower(`srcPath`),
+                FfiConverterString.lower(`srcPath`),FfiConverterOptionalFloat.lower(`cropX`),FfiConverterOptionalFloat.lower(`cropY`),FfiConverterOptionalFloat.lower(`cropSize`),
             )!!
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
@@ -19112,6 +19143,35 @@ public object FfiConverterOptionalLong: FfiConverterRustBuffer<kotlin.Long?> {
         } else {
             buf.put(1)
             FfiConverterLong.write(value, buf)
+        }
+    }
+}
+
+
+
+
+public object FfiConverterOptionalFloat: FfiConverterRustBuffer<kotlin.Float?> {
+    override fun read(buf: ByteBuffer): kotlin.Float? {
+        if (buf.get().toInt() == 0) {
+            return null
+        }
+        return FfiConverterFloat.read(buf)
+    }
+
+    override fun allocationSize(value: kotlin.Float?): ULong {
+        if (value == null) {
+            return 1UL
+        } else {
+            return 1UL + FfiConverterFloat.allocationSize(value)
+        }
+    }
+
+    override fun write(value: kotlin.Float?, buf: ByteBuffer) {
+        if (value == null) {
+            buf.put(0)
+        } else {
+            buf.put(1)
+            FfiConverterFloat.write(value, buf)
         }
     }
 }

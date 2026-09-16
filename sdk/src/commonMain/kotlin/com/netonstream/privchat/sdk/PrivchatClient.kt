@@ -48,10 +48,22 @@ expect class PrivchatClient private constructor() {
     /**
      * AVATAR_CACHE_SPEC §8: 头像上传前客户端预处理（Rust image 管道，与消息缩略图同库）。
      * decode（白名单 jpeg/png/webp，gif/损坏格式直接失败，不消耗上传流量）→
-     * 中心裁剪正方形 → 边长 >480 缩放到 480x480（≤480 不放大）→ 编码 PNG 写临时文件。
-     * 返回处理后文件路径；App 选图后先过它再走上传管道。
+     * 按裁剪矩形裁正方形 → 缩到 720x720 → 白底合成 → 编码 JPEG 写临时文件。
+     * 返回处理后文件路径；App 选图 + 裁剪后先过它再走上传管道。
+     *
+     * [cropX] / [cropY] / [cropSize] 要么全给要么全不给；全不给 = 中心裁剪（兼容
+     * 没有裁剪界面的调用方）。**归一化到 0..1**，相对 EXIF 方向校正之后的图像：
+     * x/y 相对宽高，size 相对短边。见 AVATAR_CACHE_SPEC §8.1。
+     *
+     * 归一化而不是像素，是为了让 UI 不必知道源图尺寸——那又会逼 UI 自己读 EXIF
+     * 判断宽高是否交换，而方向这件事应该只在 Rust 里处理一次。
      */
-    suspend fun prepareAvatarImage(path: String): Result<String>
+    suspend fun prepareAvatarImage(
+        path: String,
+        cropX: Float? = null,
+        cropY: Float? = null,
+        cropSize: Float? = null,
+    ): Result<String>
     /**
      * 底层唯一头像 re-cache 能力（CLIENT_GLOBAL_STATE §4 全局统一）：把 [userId] 的头像从
      * [avatarUrl] 下载到本地并强制落库（avatar_local_path 是展示主字段，avatarUrl 只是下载源）。
