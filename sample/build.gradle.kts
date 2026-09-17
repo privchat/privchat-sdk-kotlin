@@ -43,8 +43,8 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation(project(":sdk"))
-                implementation("com.tencent.kuikly-open:core:${Version.getKuiklyVersion()}")
-                implementation("com.tencent.kuikly-open:core-annotations:${Version.getKuiklyVersion()}")
+                implementation("com.tencent.kuikly-open:core:${Version.getKuiklyVersion(rootDir)}")
+                implementation("com.tencent.kuikly-open:core-annotations:${Version.getKuiklyVersion(rootDir)}")
 
                 // Coroutines
                 implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
@@ -57,7 +57,7 @@ kotlin {
         }
         val androidMain by getting {
             dependencies {
-                api("com.tencent.kuikly-open:core-render-android:${Version.getKuiklyVersion()}")
+                api("com.tencent.kuikly-open:core-render-android:${Version.getKuiklyVersion(rootDir)}")
             }
         }
 
@@ -102,7 +102,7 @@ ksp {
 }
 
 dependencies {
-    compileOnly("com.tencent.kuikly-open:core-ksp:${Version.getKuiklyVersion()}") {
+    compileOnly("com.tencent.kuikly-open:core-ksp:${Version.getKuiklyVersion(rootDir)}") {
         add("kspAndroid", this)
         add("kspIosArm64", this)
         add("kspIosX64", this)

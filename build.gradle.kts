@@ -14,7 +14,7 @@ buildscript {
         maven { url = uri("https://mirrors.tencent.com/nexus/repository/maven-tencent/") }
     }
     dependencies {
-        classpath(BuildPlugin.kuikly)
+        classpath(BuildPlugin.kuikly(rootDir))
     }
 }
 
