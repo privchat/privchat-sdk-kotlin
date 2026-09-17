@@ -78,26 +78,27 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(libs.kotlinx.coroutines.core)
-            implementation("org.jetbrains.kotlinx:atomicfu:0.25.0")
-            implementation("com.squareup.okio:okio:3.9.0")
-            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.1")
-            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+            implementation("org.jetbrains.kotlinx:atomicfu:0.28.0")
+            // Later Okio Native artifacts require Kotlin 2.2 ABI despite their POM.
+            implementation("com.squareup.okio:okio:3.15.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.8.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
         }
         commonTest.dependencies {
             implementation(kotlin("test"))
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
         }
         androidMain.dependencies {
-            implementation("androidx.annotation:annotation:1.8.0")
-            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
-            implementation("net.java.dev.jna:jna:5.15.0@aar")
+            implementation("androidx.annotation:annotation:1.9.1")
+            implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+            implementation("net.java.dev.jna:jna:5.19.1@aar")
         }
     }
 }
 
 android {
     namespace = "com.netonstream.privchat.sdk"
-    compileSdk = 34
+    compileSdk = 36
     defaultConfig { minSdk = 24 }
     buildFeatures { buildConfig = false }
     sourceSets["main"].jniLibs.srcDirs(layout.buildDirectory.dir("generated/jniLibs"))

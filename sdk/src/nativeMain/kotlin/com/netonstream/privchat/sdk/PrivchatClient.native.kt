@@ -2763,7 +2763,7 @@ private fun AccountUserDetailView.toCoreUpsertUserInput(local: StoredUser?) = Co
     // 服务端那次读取的位置，和字段同一份快照。带上它，晚到的旧详情响应才会被版本闸
     // 正确拒掉；不带（老 server ⇒ 0）就只当作补空缺的部分写入，不覆盖已确认资料。
     version = syncVersion.toLong(),
-    updatedAt = kotlinx.datetime.Clock.System.now().toEpochMilliseconds(),
+    updatedAt = (NSDate().timeIntervalSince1970 * 1000.0).toLong(),
 )
 
 private fun StoredGroup.toCommonGroup() = GroupEntry(

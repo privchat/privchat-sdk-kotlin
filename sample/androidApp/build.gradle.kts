@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.netonstream.privchat.sdk.kotlin.sample"
-    compileSdk = 34
+    compileSdk = 36
     buildFeatures {
         buildConfig = true
     }
@@ -35,19 +35,19 @@ dependencies {
     implementation(project(":sample"))
 
     // AndroidX Core
-    implementation("androidx.core:core-ktx:1.6.0")
-    implementation("androidx.appcompat:appcompat:1.3.1")
-    implementation("androidx.recyclerview:recyclerview:1.2.1")
-    implementation("androidx.dynamicanimation:dynamicanimation:1.0.0")
+    implementation("androidx.core:core-ktx:1.18.0")
+    implementation("androidx.appcompat:appcompat:1.8.0")
+    implementation("androidx.recyclerview:recyclerview:1.4.0")
+    implementation("androidx.dynamicanimation:dynamicanimation:1.1.0")
 
     // Lifecycle (for lifecycleScope)
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.11.0")
     
     // Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     
     // Image loading
-    implementation("com.squareup.picasso:picasso:2.71828")
-    implementation("com.github.bumptech.glide:glide:4.12.0")
-    annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
+    implementation("com.squareup.picasso:picasso:2.8")
+    implementation("com.github.bumptech.glide:glide:5.0.7")
+    annotationProcessor("com.github.bumptech.glide:compiler:5.0.7")
 }

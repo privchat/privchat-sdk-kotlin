@@ -47,7 +47,7 @@ kotlin {
                 implementation("com.tencent.kuikly-open:core-annotations:${Version.getKuiklyVersion(rootDir)}")
 
                 // Coroutines
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
             }
         }
         val commonTest by getting {
@@ -112,7 +112,7 @@ dependencies {
 
 android {
     namespace = "com.netonstream.privchat.sdk.kotlin.sample.shared"
-    compileSdk = 34
+    compileSdk = 36
     defaultConfig {
         minSdk = 21
         targetSdk = 30
