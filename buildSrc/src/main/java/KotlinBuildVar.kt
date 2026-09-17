@@ -1,6 +1,6 @@
 object Version {
 
-    private const val KUIKLY_VERSION = "2.23.2"
+    private const val KUIKLY_VERSION = "2.28.0"
     private const val KOTLIN_VERSION = "2.1.21"
     private const val KOTLIN_OHOS_VERSION = "2.0.21-ohos"
 
@@ -21,9 +21,9 @@ object Version {
 }
 
 object BuildPlugin {
-    private const val KUIKLY_GRADLE_PLUGIN_VERSION = "2.4.0-2.0.21"
-
+    // Gradle 插件与运行时同版本、同 Kotlin 后缀发布（2.5.0 之后不再有独立的
+    // 2.4.x 插件线；旧坐标 2.4.0-2.0.21 在镜像上已经拿不到）。
     val kuikly by lazy {
-        "com.tencent.kuikly-open:core-gradle-plugin:$KUIKLY_GRADLE_PLUGIN_VERSION"
+        "com.tencent.kuikly-open:core-gradle-plugin:${Version.getKuiklyVersion()}"
     }
 }
