@@ -871,7 +871,7 @@ interface PrivchatClientInterface {
     
     /**
      * 订阅频道事件（进入聊天页面时调用，接收 typing / presence 等状态事件）
-     * channel_type: 0=Private, 1=Group, 2=Room
+     * channel_type: wire 编号 1=Direct, 2=Group, 3=Room（0 非法；见 privchat_protocol::protocol::ChannelType）
      * token: 可选，Room 类型订阅时传入业务 API 签发的 ticket（JWT）
      */
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `subscribeChannel`(`channelId`: kotlin.ULong, `channelType`: kotlin.UByte, `token`: kotlin.String?)
@@ -932,7 +932,7 @@ interface PrivchatClientInterface {
     
     /**
      * 取消订阅频道事件（离开聊天页面时调用）
-     * channel_type: 0=Private, 1=Group, 2=Room
+     * channel_type: wire 编号 1=Direct, 2=Group, 3=Room（0 非法；见 privchat_protocol::protocol::ChannelType）
      */
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `unsubscribeChannel`(`channelId`: kotlin.ULong, `channelType`: kotlin.UByte)
     
@@ -2595,7 +2595,7 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     /**
      * 订阅频道事件（进入聊天页面时调用，接收 typing / presence 等状态事件）
-     * channel_type: 0=Private, 1=Group, 2=Room
+     * channel_type: wire 编号 1=Direct, 2=Group, 3=Room（0 非法；见 privchat_protocol::protocol::ChannelType）
      * token: 可选，Room 类型订阅时传入业务 API 签发的 ticket（JWT）
      */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -2717,7 +2717,7 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     /**
      * 取消订阅频道事件（离开聊天页面时调用）
-     * channel_type: 0=Private, 1=Group, 2=Room
+     * channel_type: wire 编号 1=Direct, 2=Group, 3=Room（0 非法；见 privchat_protocol::protocol::ChannelType）
      */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")

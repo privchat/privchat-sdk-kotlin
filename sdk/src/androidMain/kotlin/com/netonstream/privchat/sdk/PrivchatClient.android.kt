@@ -2850,7 +2850,7 @@ private fun StoredChannel.toCommonChannel() = ChannelListEntry(
     isFavourite = top > 0,
     isLowPriority = mute > 0,
     avatarUrl = avatar.takeIf { it.isNotBlank() },
-    isDm = channelType == 1,
+    isDm = channelType == ChannelType.DIRECT.wire,
     isEncrypted = false,
     memberCount = this.memberCount,
     topic = channelRemark.takeIf { it.isNotBlank() },

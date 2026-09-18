@@ -603,6 +603,7 @@ expect class PrivchatClient private constructor() {
     suspend fun stopTyping(channelId: ULong): Result<Unit>
 
     // ========== Channel Event Subscription ==========
+    /** [channelType] 是 wire 编号([ChannelType.wireUByte]:1=Direct / 2=Group / 3=Room);Room 订阅须带 [token](票据)。 */
     suspend fun subscribeChannel(channelId: ULong, channelType: UByte, token: String? = null): Result<Unit>
     suspend fun unsubscribeChannel(channelId: ULong, channelType: UByte): Result<Unit>
 
