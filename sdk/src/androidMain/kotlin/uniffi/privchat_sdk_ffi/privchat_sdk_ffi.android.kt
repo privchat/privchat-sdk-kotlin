@@ -3111,7 +3111,7 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_submit_media_job_result() != 25446.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_channel() != 22385.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_channel() != 61621.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_subscribe_events() != 14471.toShort()) {
@@ -3180,7 +3180,7 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unfollow_bot() != 20569.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
-    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unsubscribe_channel() != 37420.toShort()) {
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_unsubscribe_channel() != 46193.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_update_device_push_state() != 22884.toShort()) {
