@@ -6596,7 +6596,11 @@ sealed class SdkEvent {
     data class MessageSendStatusChanged(
         val `messageId`: kotlin.ULong  , 
         val `status`: kotlin.Int  , 
-        val `serverMessageId`: kotlin.ULong?  = null  ) : SdkEvent() {
+        val `serverMessageId`: kotlin.ULong?  = null  , 
+        /**
+         * Server refusal code when status is 3 (failed); None otherwise.
+         */
+        val `errorCode`: kotlin.UInt?  = null  ) : SdkEvent() {
         
     }
     

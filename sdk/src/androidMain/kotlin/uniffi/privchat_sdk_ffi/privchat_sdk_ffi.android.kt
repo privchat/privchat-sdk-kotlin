@@ -16108,6 +16108,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterULong.read(buf),
                 FfiConverterInt.read(buf),
                 FfiConverterOptionalULong.read(buf),
+                FfiConverterOptionalUInt.read(buf),
                 )
             21 -> SdkEvent.TypingSent(
                 FfiConverterULong.read(buf),
@@ -16349,6 +16350,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 + FfiConverterULong.allocationSize(value.`messageId`)
                 + FfiConverterInt.allocationSize(value.`status`)
                 + FfiConverterOptionalULong.allocationSize(value.`serverMessageId`)
+                + FfiConverterOptionalUInt.allocationSize(value.`errorCode`)
             )
         }
         is SdkEvent.TypingSent -> {
@@ -16600,6 +16602,7 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 FfiConverterULong.write(value.`messageId`, buf)
                 FfiConverterInt.write(value.`status`, buf)
                 FfiConverterOptionalULong.write(value.`serverMessageId`, buf)
+                FfiConverterOptionalUInt.write(value.`errorCode`, buf)
                 Unit
             }
             is SdkEvent.TypingSent -> {

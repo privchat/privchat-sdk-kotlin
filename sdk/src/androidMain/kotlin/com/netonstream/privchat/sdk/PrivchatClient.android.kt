@@ -3306,6 +3306,7 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         messageId = event.messageId,
         status = event.status,
         serverMessageId = event.serverMessageId,
+        errorCode = event.errorCode,
     )
 
     is CoreSdkEvent.TypingSent -> SdkEventPayload(
