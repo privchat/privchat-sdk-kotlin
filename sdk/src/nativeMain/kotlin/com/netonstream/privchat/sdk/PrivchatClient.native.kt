@@ -33,15 +33,6 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.cinterop.useContents
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
-import platform.Foundation.NSData
-import platform.Foundation.NSDate
-import platform.Foundation.dataWithContentsOfFile
-import platform.Foundation.NSFileManager
-import platform.Foundation.NSFileSize
-import platform.Foundation.NSNumber
-import platform.Foundation.create
-import platform.Foundation.timeIntervalSince1970
-import platform.Foundation.writeToFile
 import uniffi.privchat_sdk_ffi.ConnectionState as CoreConnectionState
 import uniffi.privchat_sdk_ffi.GetChannelPtsInput
 import uniffi.privchat_sdk_ffi.LoginResult
@@ -1431,7 +1422,7 @@ actual class PrivchatClient private actual constructor() {
     }
 
     /** 资料远程刷新的 TTL / 退避 / 单飞闸门（见 ProfileRefreshPolicy）。 */
-    private val profileRefreshPolicy = ProfileRefreshPolicy(nowMs = { (NSDate().timeIntervalSince1970 * 1000.0).toLong() })
+    private val profileRefreshPolicy = ProfileRefreshPolicy(nowMs = { nativeNowMillis() })
 
     actual suspend fun getUserProfileLocalFirst(
         userId: ULong,
@@ -2032,20 +2023,10 @@ actual class PrivchatClient private actual constructor() {
         val height: Int?,
     )
 
-    @OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
     private fun extractVideoMetadata(path: String): VideoMeta {
         return try {
-            val url = platform.Foundation.NSURL.fileURLWithPath(path)
-            val asset = platform.AVFoundation.AVURLAsset.URLAssetWithURL(url, null)
-            val durationSec = asset.duration.useContents {
-                val ts = timescale
-                if (ts != 0) {
-                    val secs = value.toDouble() / ts.toDouble()
-                    if (secs.isFinite() && secs > 0.0) secs.toLong().coerceAtLeast(1) else null
-                } else null
-            }
             // 宽高从 iOS 侧异步获取成本较高，留给上层或后续补齐
-            VideoMeta(durationSec, null, null)
+            VideoMeta(nativeVideoDurationSeconds(path), null, null)
         } catch (t: Throwable) {
             VideoMeta(null, null, null)
         }
@@ -2083,7 +2064,7 @@ actual class PrivchatClient private actual constructor() {
     private fun attachmentPreparationPort(c: CorePrivchatClient) = object : AttachmentPreparationPort {
         override fun generateLocalMessageId(): ULong = c.generateLocalMessageId()
         override fun nowEpochMillis(): Long =
-            (NSDate().timeIntervalSince1970 * 1000.0).toLong()
+            nativeNowMillis()
 
         override suspend fun createPlaceholder(input: LocalAttachmentPlaceholder): ULong =
             c.createLocalAttachmentPlaceholderTyped(
@@ -2155,15 +2136,13 @@ actual class PrivchatClient private actual constructor() {
             messageType: Int,
         ): MaterializedAttachment {
             val targetPath = "$targetDirectory/$targetFileName"
-            // 🔴 走文件系统复制，不要读进 NSData：几百 MB 的视频那样会在内存里多出
+            // 🔴 走文件系统复制，不要读进内存：几百 MB 的视频那样会在内存里多出
             // 一整份（明文一份、密文旁挂再一份），手机上直接被系统杀掉。
-            val fm = NSFileManager.defaultManager
-            if (fm.fileExistsAtPath(targetPath)) fm.removeItemAtPath(targetPath, null)
-            check(fm.copyItemAtPath(sourcePath, targetPath, null)) {
+            if (nativeFileExists(targetPath)) nativeRemoveFile(targetPath)
+            check(nativeCopyFile(sourcePath, targetPath)) {
                 "Unable to materialize attachment: $targetPath"
             }
-            val size = (fm.attributesOfItemAtPath(targetPath, null)
-                ?.get(NSFileSize) as? NSNumber)?.unsignedLongLongValue
+            val size = nativeFileSize(targetPath)
                 ?: error("Unable to size materialized attachment: $targetPath")
             carrySealedSidecar(sourcePath, targetPath)
             val video = if (messageType == ContentMessageType.VIDEO.value) {
@@ -2184,8 +2163,7 @@ actual class PrivchatClient private actual constructor() {
             targetFileName: String,
         ): MaterializedAttachment {
             val targetPath = "$targetDirectory/$targetFileName"
-            val nativeData = data.toNSData()
-            check(nativeData.writeToFile(targetPath, atomically = true)) {
+            check(nativeWriteFileAtomically(targetPath, data)) {
                 "Unable to materialize attachment: $targetPath"
             }
             return MaterializedAttachment(targetPath, data.size.toULong())
@@ -2551,13 +2529,6 @@ actual class PrivchatClient private actual constructor() {
     }
 }
 
-@OptIn(kotlinx.cinterop.ExperimentalForeignApi::class, kotlinx.cinterop.BetaInteropApi::class)
-private fun ByteArray.toNSData(): NSData = if (isEmpty()) {
-    NSData()
-} else {
-    usePinned { pinned -> NSData.create(bytes = pinned.addressOf(0), length = size.toULong()) }
-}
-
 private fun mapFfiCodeToSdkError(prefix: String, code: UInt, detail: String): SdkError = when (code) {
     in 10000u..10010u -> SdkError.Authentication("$prefix: [$code] $detail")
     SdkErrorCodes.NETWORK_DISCONNECTED,
@@ -2763,7 +2734,7 @@ private fun AccountUserDetailView.toCoreUpsertUserInput(local: StoredUser?) = Co
     // 服务端那次读取的位置，和字段同一份快照。带上它，晚到的旧详情响应才会被版本闸
     // 正确拒掉；不带（老 server ⇒ 0）就只当作补空缺的部分写入，不覆盖已确认资料。
     version = syncVersion.toLong(),
-    updatedAt = (NSDate().timeIntervalSince1970 * 1000.0).toLong(),
+    updatedAt = nativeNowMillis(),
 )
 
 private fun StoredGroup.toCommonGroup() = GroupEntry(
@@ -3239,9 +3210,7 @@ private fun parseTimestampUlong(raw: String): ULong = parseTimestampUlongOrNull(
  * 落成托管目录里的 `body.sealed`（+ `.sealed.json` 提交标记，两个都在才算数），跟发送侧
  * 自己写的那份同名，这样 ack 之后的清理和过期回收照常认得它，不会留下永不回收的垃圾。
  */
-@OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
 private fun carrySealedSidecar(sourcePath: String, targetPath: String) {
-    val fm = NSFileManager.defaultManager
     val sourceDir = sourcePath.substringBeforeLast('/', "")
     val sourceName = sourcePath.substringAfterLast('/')
     // 缩略图和主文件躺在同一个消息目录里，各有各的密文；发的是主文件就别去拿 thumb 那份。
@@ -3251,14 +3220,14 @@ private fun carrySealedSidecar(sourcePath: String, targetPath: String) {
         listOf("$sourcePath.sealed", "$sourceDir/body.sealed")
     }
     val blob = candidates.firstOrNull {
-        fm.fileExistsAtPath(it) && fm.fileExistsAtPath("$it.json")
+        nativeFileExists(it) && nativeFileExists("$it.json")
     } ?: return
     val dir = targetPath.substringBeforeLast('/', "")
     if (dir.isEmpty()) return
     // 标记最后写：先有密文再有标记，跟 SDK 的 seal_once 同序。
-    // 用文件系统复制而不是读进 NSData：几百 MB 的视频会在内存里多出一整份。
+    // 用文件系统复制而不是读进内存：几百 MB 的视频会在内存里多出一整份。
     for ((from, to) in listOf(blob to "$dir/body.sealed", "$blob.json" to "$dir/body.sealed.json")) {
-        if (fm.fileExistsAtPath(to)) fm.removeItemAtPath(to, null)
-        if (!fm.copyItemAtPath(from, to, null)) return
+        if (nativeFileExists(to)) nativeRemoveFile(to)
+        if (!nativeCopyFile(from, to)) return
     }
 }
