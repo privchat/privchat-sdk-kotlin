@@ -14,9 +14,11 @@ staticLibraries.ios_simulator_arm64 = libprivchat_sdk_ffi.a
 staticLibraries.ios_x64 = libprivchat_sdk_ffi.a
 staticLibraries.macos_arm64 = libprivchat_sdk_ffi.a
 staticLibraries.macos_x64 = libprivchat_sdk_ffi.a
+staticLibraries.ohos_arm64 = libprivchat_sdk_ffi.a
 
 libraryPaths.ios_arm64 = ../../privchat-sdk/target/aarch64-apple-ios/release
 libraryPaths.ios_simulator_arm64 = ../../privchat-sdk/target/aarch64-apple-ios-sim/release
 libraryPaths.ios_x64 = ../../privchat-sdk/target/x86_64-apple-ios/release
 libraryPaths.macos_arm64 = ../../privchat-sdk/target/aarch64-apple-darwin/release
 libraryPaths.macos_x64 = ../../privchat-sdk/target/x86_64-apple-darwin/release
+libraryPaths.ohos_arm64 = ../../privchat-sdk/target/aarch64-unknown-linux-ohos/release
