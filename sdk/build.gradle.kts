@@ -170,6 +170,7 @@ val cargoBuildAndroid = tasks.register<CargoNdkTask>("privchatCargoBuildAndroid"
     jniOut.set(layout.buildDirectory.dir("generated/jniLibs"))
     ndkDir.set(ndkDirPath ?: "")
     gitSha.set(sdkGitShaProvider)
+    inputs.property("nativeDebugSymbols", "line-tables-v1")
 }
 
 val cargoBuildHost = tasks.register<CargoHostTask>("privchatCargoBuildHost") {
@@ -211,6 +212,18 @@ val cargoBuildIosArm64 = registerAppleFfiBuildTask("privchatCargoBuildIosArm64",
 val cargoBuildIosSimulatorArm64 = registerAppleFfiBuildTask("privchatCargoBuildIosSimulatorArm64", "aarch64-apple-ios-sim")
 val cargoBuildIosX64 = registerAppleFfiBuildTask("privchatCargoBuildIosX64", "x86_64-apple-ios")
 val cargoBuildMacosArm64 = registerAppleFfiBuildTask("privchatCargoBuildMacosArm64", "aarch64-apple-darwin")
+
+val appleFfiTasks = mapOf(
+    "IosArm64" to cargoBuildIosArm64,
+    "IosSimulatorArm64" to cargoBuildIosSimulatorArm64,
+    "IosX64" to cargoBuildIosX64,
+    "MacosArm64" to cargoBuildMacosArm64,
+)
+tasks.matching { it.name.startsWith("cinterop") }.configureEach {
+    appleFfiTasks.entries.firstOrNull { name.endsWith(it.key) }?.let {
+        dependsOn(it.value)
+    }
+}
 
 tasks.register("privchatCargoBuildAppleFfi") {
     group = "build"
@@ -272,6 +285,9 @@ abstract class CargoNdkTask @Inject constructor(private val execOps: org.gradle.
             execOps.exec {
                 workingDir = rustDirFile
                 environment("ANDROID_NDK_HOME", ndk)
+                // AGP extracts symbols before stripping the installed library.
+                environment("CARGO_PROFILE_RELEASE_DEBUG", "1")
+                environment("CARGO_PROFILE_RELEASE_STRIP", "none")
                 environment("GIT_SHA", gitSha.get())
                 environment("FFI_BUILD_TIMESTAMP", buildTime)
                 commandLine(cargoBin.get(), "ndk", "-t", abi, "-o", outDir.absolutePath, "build", "--release")
