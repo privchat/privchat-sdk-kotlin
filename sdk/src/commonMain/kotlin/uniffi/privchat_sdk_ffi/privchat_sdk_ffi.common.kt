@@ -329,6 +329,15 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getGroupMembers`(`groupId`: kotlin.ULong, `limit`: kotlin.ULong, `offset`: kotlin.ULong): List<StoredGroupMember>
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getGroups`(`limit`: kotlin.ULong, `offset`: kotlin.ULong): List<StoredGroup>
+    
+    /**
+     * 本地优先首读（绕开网络 actor，不发网络）。
+     *
+     * `get_messages` / `open_conversation` 的本地读都排在网络 actor 的命令队列里，首屏预取
+     * 扫补正打网络时会把它们顶在后面，表现为「有些会话点进去要等一会儿才出历史」。本方法走
+     * 独立存储 actor，点开会话时先用它从 SQLite 瞬读渲染，再调 `open_conversation` 追增量。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getLocalTimeline`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `limit`: kotlin.ULong): List<StoredMessage>
     suspend fun `getMediaDownloadState`(`messageId`: kotlin.ULong): MediaDownloadState
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getMessageById`(`messageId`: kotlin.ULong): StoredMessage?
@@ -1528,6 +1537,18 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getGroups`(`limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredGroup>
+
+    
+    /**
+     * 本地优先首读（绕开网络 actor，不发网络）。
+     *
+     * `get_messages` / `open_conversation` 的本地读都排在网络 actor 的命令队列里，首屏预取
+     * 扫补正打网络时会把它们顶在后面，表现为「有些会话点进去要等一会儿才出历史」。本方法走
+     * 独立存储 actor，点开会话时先用它从 SQLite 瞬读渲染，再调 `open_conversation` 追增量。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `getLocalTimeline`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `limit`: kotlin.ULong) : List<StoredMessage>
 
     
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")

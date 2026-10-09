@@ -343,6 +343,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_group_members(void 
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_groups(void * ptr, int64_t limit, int64_t offset
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_local_timeline(void * ptr, int64_t channelId, int32_t channelType, int64_t limit
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_media_download_state(void * ptr, int64_t messageId
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_message_by_id(void * ptr, int64_t messageId
@@ -1224,6 +1226,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_group_members
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_groups(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_local_timeline(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_media_download_state(void

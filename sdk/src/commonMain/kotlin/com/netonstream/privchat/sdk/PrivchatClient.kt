@@ -228,6 +228,24 @@ expect class PrivchatClient private constructor() {
     ): Result<List<MessageEntry>>
 
     /**
+     * 本地优先首读（绕开网络 actor，不发网络）。
+     *
+     * [openConversation] / [getMessagesByType] 的本地读都排在 SDK 网络 actor 的命令队列里，
+     * 而首屏预取扫补（[startFirstScreenHydration]）会在同一个 actor 循环里逐个内联拉历史。
+     * 扫补正打网络时点开一个会话，哪怕消息早已在本地库，那次本地读也要排在扫补的网络 RPC
+     * 后面——表现为「往下滑点进去的会话要等一会儿才出历史」。本方法走独立存储 actor（只做本地
+     * IO），不受此阻塞。
+     *
+     * 用法：点开会话先用它瞬渲染，再调 [openConversation] 追增量（push-tap 正确性不变）。
+     * 排序/投影与 [openConversation] 的本地重读同源，不会跳动；本地无缓存返回空列表。
+     */
+    suspend fun getLocalTimeline(
+        channelId: ULong,
+        channelType: Int,
+        limit: UInt = 50u,
+    ): Result<List<MessageEntry>>
+
+    /**
      * 上滑加载更早历史（SDK-HISTORY-5，MESSAGE_HISTORY spec §2.5/§2.5.1）。
      * **架构（Telegram 式）**：聊天页读本地库为渲染真源；本地翻到最早时由 SDK 用
      * `message/history/get` 只补缺口并回填本地（带真实 pts），再从本地重查返回。

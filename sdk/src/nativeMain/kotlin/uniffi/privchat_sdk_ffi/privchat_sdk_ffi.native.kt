@@ -807,6 +807,8 @@ import okio.utf8Size
 
 
 
+
+
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -1011,6 +1013,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_group_members(`ptr`: Pointer?,`groupId`: Long,`limit`: Long,`offset`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_groups(`ptr`: Pointer?,`limit`: Long,`offset`: Long,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_local_timeline(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`limit`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_media_download_state(`ptr`: Pointer?,`messageId`: Long,
     ): Long
@@ -1793,6 +1797,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_group_members(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_groups(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_local_timeline(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_media_download_state(
     ): Short
@@ -2649,6 +2655,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_groups(`ptr`: Pointer?,`limit`: Long,`offset`: Long,
     ): Long
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_groups(`ptr`?.inner,`limit`,`offset`,)as Long
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_local_timeline(`ptr`: Pointer?,`channelId`: Long,`channelType`: Int,`limit`: Long,
+    ): Long
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_local_timeline(`ptr`?.inner,`channelId`,`channelType`,`limit`,)as Long
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_media_download_state(`ptr`: Pointer?,`messageId`: Long,
     ): Long
@@ -4213,6 +4223,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_groups(
     ): Short
         = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_groups()as Short
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_local_timeline(
+    ): Short
+        = privchat_sdk_ffi.cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_local_timeline()as Short
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_media_download_state(
     ): Short
@@ -7503,6 +7517,35 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
         { FfiConverterSequenceTypeStoredGroup.lift(it!!) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * 本地优先首读（绕开网络 actor，不发网络）。
+     *
+     * `get_messages` / `open_conversation` 的本地读都排在网络 actor 的命令队列里，首屏预取
+     * 扫补正打网络时会把它们顶在后面，表现为「有些会话点进去要等一会儿才出历史」。本方法走
+     * 独立存储 actor，点开会话时先用它从 SQLite 瞬读渲染，再调 `open_conversation` 追增量。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `getLocalTimeline`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `limit`: kotlin.ULong) : List<StoredMessage> {
+        return uniffiRustCallAsync(
+        callWithPointer { thisPtr ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_local_timeline(
+                thisPtr,
+                FfiConverterULong.lower(`channelId`),FfiConverterInt.lower(`channelType`),FfiConverterULong.lower(`limit`),
+            )!!
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation)!! },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterSequenceTypeStoredMessage.lift(it!!) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )

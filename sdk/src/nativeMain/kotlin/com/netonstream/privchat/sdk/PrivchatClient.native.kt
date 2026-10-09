@@ -872,6 +872,21 @@ actual class PrivchatClient private actual constructor() {
             onFailure = { Result.failure(toSdkError("getLocalMessagesAround failed", it)) },
         )
     }
+    actual suspend fun getLocalTimeline(
+        channelId: ULong,
+        channelType: Int,
+        limit: UInt,
+    ): Result<List<MessageEntry>> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            c.getLocalTimeline(channelId, channelType, limit.toULong())
+                .map { it.toCommonMessage(c, cachedUserId) }
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("getLocalTimeline failed", it)) },
+        )
+    }
+
     actual suspend fun fetchOlderHistory(
         channelId: ULong,
         channelType: Int,
