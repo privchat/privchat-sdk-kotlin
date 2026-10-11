@@ -1,22 +1,32 @@
 #!/usr/bin/env bash
+# Regenerate the Kotlin Multiplatform UniFFI bindings for privchat-sdk-ffi and
+# refresh the vendored uniffi runtime from the SAME generator checkout.
+#
+# Bindings and runtime must come from one generator version: the runtime is
+# the other half of the generated code's contract. They used to drift apart
+# (runtime from generator 0.4.3, bindings patched to pass a newer contract
+# check), which is what this script now prevents.
+#
+#   scripts/regenerate-uniffi.sh
+#
+# Env overrides:
+#   KMP_BINDGEN_DIR  generator checkout (default ../uniffi-kotlin-multiplatform-bindings)
+#   KMP_BINDGEN      generator binary  (default $KMP_BINDGEN_DIR/target/release/uniffi-bindgen-kotlin-multiplatform)
 set -euo pipefail
-
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 RUST_DIR="${ROOT_DIR}/../privchat-sdk"
-KMP_BINDGEN_DEFAULT="${ROOT_DIR}/../uniffi-kotlin-multiplatform-bindings/target/release/uniffi-bindgen-kotlin-multiplatform"
-KMP_BINDGEN="${KMP_BINDGEN:-$KMP_BINDGEN_DEFAULT}"
-UNIFFI_CONTRACT_VERSION="${UNIFFI_CONTRACT_VERSION:-30}"
-ANDROID_BINDING_FILE="sdk/src/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt"
+GEN_DIR="${KMP_BINDGEN_DIR:-${ROOT_DIR}/../uniffi-kotlin-multiplatform-bindings}"
+KMP_BINDGEN="${KMP_BINDGEN:-${GEN_DIR}/target/release/uniffi-bindgen-kotlin-multiplatform}"
 
 if [[ ! -x "$KMP_BINDGEN" ]]; then
   echo "[regen] missing bindgen binary: $KMP_BINDGEN"
-  echo "[regen] build it first in uniffi-kotlin-multiplatform-bindings"
+  echo "[regen] build it: (cd $GEN_DIR && cargo build --release -p uniffi_bindgen_kotlin_multiplatform)"
   exit 1
 fi
+echo "[regen] generator: $(git -C "$GEN_DIR" describe --tags --always 2>/dev/null || echo unknown) ($KMP_BINDGEN)"
 
 echo "[regen] build rust ffi dylib"
-cd "$RUST_DIR"
-cargo build -p privchat-sdk-ffi --release
+(cd "$RUST_DIR" && cargo build -p privchat-sdk-ffi --release)
 
 OUT_DIR="$(mktemp -d /tmp/privchat-uniffi-gen-XXXXXX)"
 echo "[regen] generate bindings -> $OUT_DIR"
@@ -27,44 +37,41 @@ echo "[regen] generate bindings -> $OUT_DIR"
   --out-dir "$OUT_DIR" \
   "$RUST_DIR/target/release/libprivchat_sdk_ffi.dylib"
 
-echo "[regen] install generated kotlin/headers"
 cd "$ROOT_DIR"
-FILES=(
-  "sdk/src/commonMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.common.kt"
-  "sdk/src/nativeMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.native.kt"
-  "sdk/src/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt"
-  "sdk/src/nativeInterop/cinterop/privchat_sdk_ffi.h"
+SRC=sdk/src
+TOUCHED=(
+  "$SRC/commonMain/kotlin/uniffi"
+  "$SRC/androidMain/kotlin/uniffi"
+  "$SRC/nativeMain/kotlin/uniffi"
+  "$SRC/nativeInterop/cinterop/headers"
 )
-BACKUP_DIR="$(mktemp -d /tmp/privchat-uniffi-backup-XXXXXX)"
-for f in "${FILES[@]}"; do
-  cp "$f" "$BACKUP_DIR/$(basename "$f")"
-done
-
+BACKUP="$(mktemp /tmp/privchat-uniffi-backup-XXXXXX).tar"
+tar -cf "$BACKUP" "${TOUCHED[@]}"
 restore_backup() {
-  cp "$BACKUP_DIR/privchat_sdk_ffi.common.kt" "sdk/src/commonMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.common.kt"
-  cp "$BACKUP_DIR/privchat_sdk_ffi.native.kt" "sdk/src/nativeMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.native.kt"
-  cp "$BACKUP_DIR/privchat_sdk_ffi.android.kt" "sdk/src/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt"
-  cp "$BACKUP_DIR/privchat_sdk_ffi.h" "sdk/src/nativeInterop/cinterop/privchat_sdk_ffi.h"
+  rm -rf "${TOUCHED[@]}"
+  tar -xf "$BACKUP"
 }
 
-install -m 0644 "$OUT_DIR/commonMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.common.kt" \
-  "sdk/src/commonMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.common.kt"
-install -m 0644 "$OUT_DIR/nativeMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.native.kt" \
-  "sdk/src/nativeMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.native.kt"
-install -m 0644 "$OUT_DIR/androidMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.android.kt" \
-  "$ANDROID_BINDING_FILE"
+echo "[regen] install generated bindings and headers"
+for ss in commonMain androidMain nativeMain; do
+  install -m 0644 "$OUT_DIR/$ss/kotlin/uniffi/privchat_sdk_ffi/"*.kt "$SRC/$ss/kotlin/uniffi/privchat_sdk_ffi/"
+done
+install -m 0644 "$OUT_DIR/nativeInterop/cinterop/headers/common/common.h" \
+  "$SRC/nativeInterop/cinterop/headers/common/common.h"
 install -m 0644 "$OUT_DIR/nativeInterop/cinterop/headers/privchat_sdk_ffi/privchat_sdk_ffi.h" \
-  "sdk/src/nativeInterop/cinterop/privchat_sdk_ffi.h"
+  "$SRC/nativeInterop/cinterop/headers/privchat_sdk_ffi/privchat_sdk_ffi.h"
 
-echo "[regen] patch android UniFFI contract version -> $UNIFFI_CONTRACT_VERSION"
-perl -0777 -i -pe "s/val bindings_contract_version = \\d+/val bindings_contract_version = ${UNIFFI_CONTRACT_VERSION}/g" \
-  "$ANDROID_BINDING_FILE"
+echo "[regen] refresh vendored runtime from the generator (keeping UniffiRuntimeBridge*)"
+for ss in commonMain androidMain nativeMain; do
+  dir="$SRC/$ss/kotlin/uniffi/runtime"
+  find "$dir" -type f ! -name 'UniffiRuntimeBridge*.kt' -delete
+  install -m 0644 "$GEN_DIR/runtime/src/$ss/kotlin/uniffi/runtime/"*.kt "$dir/"
+done
 
 echo "[regen] verify kotlin compile"
 if ! ./gradlew :sdk:compileDebugKotlinAndroid :sdk:compileKotlinIosSimulatorArm64 --no-daemon; then
-  echo "[regen] generated bindings do not compile with current runtime/templates, rolling back"
+  echo "[regen] generated bindings do not compile, rolling back"
   restore_backup
   exit 1
 fi
-
 echo "[regen] done"

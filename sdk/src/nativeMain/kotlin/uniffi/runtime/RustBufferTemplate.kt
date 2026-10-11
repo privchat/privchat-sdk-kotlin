@@ -5,13 +5,15 @@ package uniffi.runtime
 import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.cValue
 import kotlinx.cinterop.pointed
 import kotlinx.cinterop.readValue
 import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.useContents
+import kotlinx.cinterop.usePinned
 
-typealias RustBuffer = CPointer<uniffi_runtime.cinterop.RustBuffer>
+typealias RustBuffer = CPointer<cinterop.RustBuffer>
 
 var RustBuffer.capacity: Long
     get() = pointed.capacity
@@ -34,13 +36,13 @@ fun RustBuffer.asByteBuffer(): ByteBuffer? {
     )
 }
 
-typealias RustBufferByValue = CValue<uniffi_runtime.cinterop.RustBuffer>
+typealias RustBufferByValue = CValue<cinterop.RustBuffer>
 fun RustBufferByValue(
     capacity: Long,
     len: Long,
     data: Pointer?,
 ): RustBufferByValue {
-    return cValue<uniffi_runtime.cinterop.RustBuffer> {
+    return cValue<cinterop.RustBuffer> {
         this.capacity = capacity
         this.len = len
         this.data = data?.inner?.reinterpret()
@@ -69,7 +71,7 @@ fun RustBufferByValue.asByteBuffer(): ByteBuffer? {
  *
  * Size is the sum of all values in the struct.
  */
-typealias RustBufferByReference = CPointer<uniffi_runtime.cinterop.RustBufferByReference>
+typealias RustBufferByReference = CPointer<cinterop.RustBufferByReference>
 
 fun RustBufferByReference.setValue(value: RustBufferByValue) {
     pointed.capacity = value.capacity
@@ -77,10 +79,10 @@ fun RustBufferByReference.setValue(value: RustBufferByValue) {
     pointed.data = value.data?.inner?.reinterpret()
 }
 fun RustBufferByReference.getValue(): RustBufferByValue
-        = pointed.reinterpret<uniffi_runtime.cinterop.RustBuffer>().readValue()
+        = pointed.reinterpret<cinterop.RustBuffer>().readValue()
 
 
-typealias ForeignBytes = CPointer<uniffi_runtime.cinterop.ForeignBytes>
+typealias ForeignBytes = CPointer<cinterop.ForeignBytes>
 var ForeignBytes.len: Int
     get() = pointed.len
     set(value) { pointed.len = value }
@@ -88,11 +90,32 @@ var ForeignBytes.data: Pointer?
     get() = pointed.data?.let { Pointer(it) }
     set(value) { pointed.data = value?.inner?.reinterpret() }
 
-typealias ForeignBytesByValue = CValue<uniffi_runtime.cinterop.ForeignBytes>
+typealias ForeignBytesByValue = CValue<cinterop.ForeignBytes>
 val ForeignBytesByValue.len: Int
     get() = useContents { len }
 val ForeignBytesByValue.data: Pointer?
     get() = useContents { data }?.let { Pointer(it) }
+
+/**
+ * Lend [value] to Rust as a `ForeignBytes` for the duration of [block].
+ *
+ * The array is pinned rather than copied, so Rust reads the caller's bytes in place.
+ * The pin is released as soon as [block] returns, which makes the pointer valid only
+ * while the call is on the stack - exactly the contract `ForeignBytes` documents on
+ * the Rust side, and why lowering a borrowed byte slice has to be a scope rather than
+ * an expression.
+ *
+ * An empty array is passed as `(null, 0)`, which Rust lifts as an empty slice. It also
+ * cannot be pinned: there is no element 0 to take the address of.
+ */
+inline fun <R> withForeignBytes(value: ByteArray, block: (ForeignBytesByValue) -> R): R {
+    if (value.isEmpty()) {
+        return block(cValue { len = 0; data = null })
+    }
+    return value.usePinned { pinned ->
+        block(cValue { len = value.size; data = pinned.addressOf(0).reinterpret() })
+    }
+}
 
 fun RustBuffer.setValue(array: RustBufferByValue) {
     this.data = array.data

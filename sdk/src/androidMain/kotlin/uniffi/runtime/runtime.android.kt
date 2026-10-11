@@ -5,8 +5,6 @@ package uniffi.runtime
 import com.sun.jna.Structure
 import com.sun.jna.Callback
 
-actual fun foo() = "Android"
-
 //////// POINTER ////////
 actual typealias Pointer = com.sun.jna.Pointer
 actual val NullPointer: Pointer? = com.sun.jna.Pointer.NULL
@@ -56,9 +54,13 @@ fun <U> UniffiRustCallStatusHelper.withReference(
 interface UniffiRustFutureContinuationCallback: Callback {
     fun callback(handle: Long, pollResult: Byte)
 }
-interface UniffiForeignFutureFree: Callback {
+interface UniffiForeignFutureDroppedCallback: Callback {
     fun callback(handle: Long)
 }
 interface UniffiCallbackInterfaceFree: Callback {
     fun callback(handle: Long)
+}
+
+interface UniffiCallbackInterfaceClone: Callback {
+    fun callback(handle: Long): Long
 }

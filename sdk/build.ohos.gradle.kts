@@ -19,13 +19,10 @@ kotlin {
             cinterops {
                 create("privchat_sdk_ffi") {
                     defFile(project.file("src/nativeInterop/cinterop/privchat_sdk_ffi.def"))
-                    packageName("privchat_sdk_ffi.cinterop")
-                    includeDirs { allHeaders(project.file("src/nativeInterop/cinterop")) }
-                }
-                create("uniffi_runtime") {
-                    defFile(project.file("src/nativeInterop/cinterop/uniffi_runtime.def"))
-                    packageName("uniffi_runtime.cinterop")
-                    includeDirs { allHeaders(project.file("src/nativeInterop/cinterop")) }
+                    // Bindings and vendored runtime (uniffi-kotlin-multiplatform-
+                    // bindings 1.x) both refer to C declarations as `cinterop.X`.
+                    packageName("cinterop")
+                    includeDirs { allHeaders(project.file("src/nativeInterop/cinterop/headers")) }
                 }
             }
         }

@@ -28,7 +28,6 @@ kotlin {
     // Apple 平台（iosMain 一等公民 + macOS）
     // 配置 cinterop 链接 Rust FFI 静态库
     val privchatFfiDefFile = file("src/nativeInterop/cinterop/privchat_sdk_ffi.def")
-    val uniffiRuntimeDefFile = file("src/nativeInterop/cinterop/uniffi_runtime.def")
 
     listOf(
         iosX64(),
@@ -45,18 +44,14 @@ kotlin {
         // 配置 cinterop 链接 privchat-ffi
         target.compilations.getByName("main") {
             cinterops {
+                // One cinterop serving both the generated bindings and the
+                // vendored uniffi runtime: since uniffi-kotlin-multiplatform-
+                // bindings 1.x both refer to C declarations as `cinterop.X`.
                 create("privchat_sdk_ffi") {
                     defFile(privchatFfiDefFile)
-                    packageName("privchat_sdk_ffi.cinterop")
+                    packageName("cinterop")
                     includeDirs {
-                        allHeaders(project.file("src/nativeInterop/cinterop"))
-                    }
-                }
-                create("uniffi_runtime") {
-                    defFile(uniffiRuntimeDefFile)
-                    packageName("uniffi_runtime.cinterop")
-                    includeDirs {
-                        allHeaders(project.file("src/nativeInterop/cinterop"))
+                        allHeaders(project.file("src/nativeInterop/cinterop/headers"))
                     }
                 }
             }

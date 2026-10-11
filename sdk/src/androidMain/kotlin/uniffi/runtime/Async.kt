@@ -24,7 +24,7 @@ object UniffiRustFutureContinuationCallbackCallback: UniffiRustFutureContinuatio
 // FFI type for Rust future continuations
 suspend fun<T, F, E: Exception> uniffiRustCallAsync(
     rustFuture: Long,
-    pollFunc: (Long, Any, Long) -> Unit,
+    pollFunc: (Long, UniffiRustFutureContinuationCallback, Long) -> Unit,
     completeFunc: (Long, UniffiRustCallStatus) -> F,
     freeFunc: (Long) -> Unit,
     cancelFunc: (Long) -> Unit,
@@ -56,7 +56,7 @@ suspend fun<T, F, E: Exception> uniffiRustCallAsync(
     }
 }
 
-object UniffiForeignFutureFreeImpl: UniffiForeignFutureFree {
+object UniffiForeignFutureDroppedCallbackImpl: UniffiForeignFutureDroppedCallback {
     override fun callback(handle: Long) {
         val job = uniffiForeignFutureHandleMap.remove(handle)
         if (!job.isCompleted) {
@@ -69,12 +69,12 @@ inline fun<T> uniffiTraitInterfaceCallAsync(
     crossinline makeCall: suspend () -> T,
     crossinline handleSuccess: (T) -> Unit,
     crossinline handleError: (UniffiRustCallStatusByValue) -> Unit,
-): UniffiForeignFutureUniffiByValue {
+): UniffiForeignFutureDroppedCallbackStructUniffiByValue {
     // Using `GlobalScope` is labeled as a "delicate API" and generally discouraged in Kotlin programs, since it breaks structured concurrency.
     // However, our parent task is a Rust future, so we're going to need to break structure concurrency in any case.
     //
     // Uniffi does its best to support structured concurrency across the FFI.
-    // If the Rust future is dropped, `uniffiForeignFutureFreeImpl` is called, which will cancel the Kotlin coroutine if it's still running.
+    // If the Rust future is dropped, `UniffiForeignFutureDroppedCallbackImpl` is called, which will cancel the Kotlin coroutine if it's still running.
     @OptIn(DelicateCoroutinesApi::class)
     val job = GlobalScope.launch {
         try {
@@ -88,7 +88,7 @@ inline fun<T> uniffiTraitInterfaceCallAsync(
         }
     }
     val handle = uniffiForeignFutureHandleMap.insert(job)
-    return UniffiForeignFutureUniffiByValue(handle, UniffiForeignFutureFreeImpl)
+    return UniffiForeignFutureDroppedCallbackStructUniffiByValue(handle, UniffiForeignFutureDroppedCallbackImpl)
 }
 
 inline fun<T, reified E: Throwable> uniffiTraitInterfaceCallAsyncWithError(
@@ -96,7 +96,7 @@ inline fun<T, reified E: Throwable> uniffiTraitInterfaceCallAsyncWithError(
     crossinline handleSuccess: (T) -> Unit,
     crossinline handleError: (UniffiRustCallStatusByValue) -> Unit,
     crossinline lowerError: (E) -> RustBufferByValue,
-): UniffiForeignFutureUniffiByValue {
+): UniffiForeignFutureDroppedCallbackStructUniffiByValue {
     // See uniffiTraitInterfaceCallAsync for details on `DelicateCoroutinesApi`
     @OptIn(DelicateCoroutinesApi::class)
     val job = GlobalScope.launch {
@@ -119,7 +119,7 @@ inline fun<T, reified E: Throwable> uniffiTraitInterfaceCallAsyncWithError(
         }
     }
     val handle = uniffiForeignFutureHandleMap.insert(job)
-    return UniffiForeignFutureUniffiByValue(handle, UniffiForeignFutureFreeImpl)
+    return UniffiForeignFutureDroppedCallbackStructUniffiByValue(handle, UniffiForeignFutureDroppedCallbackImpl)
 }
 
 val uniffiForeignFutureHandleMap = UniffiHandleMap<Job>()

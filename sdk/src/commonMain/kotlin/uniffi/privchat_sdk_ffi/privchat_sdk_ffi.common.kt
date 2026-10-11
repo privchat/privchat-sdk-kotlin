@@ -10,30 +10,31 @@
     "RemoveRedundantQualifierName",
     "UnnecessaryOptInAnnotation"
 )
-@file:OptIn(ExperimentalStdlibApi::class, kotlin.time.ExperimentalTime::class)
+@file:OptIn(
+    ExperimentalStdlibApi::class,
+    kotlin.time.ExperimentalTime::class,
+)
 
 package uniffi.privchat_sdk_ffi
 
-// Common helper code.
-//
-// Ideally this would live in a separate .kt file where it can be unittested etc
-// in isolation, and perhaps even published as a re-useable package.
-//
-// However, it's important that the details of how this helper code works (e.g. the
-// way that different builtin types are passed across the FFI) exactly match what's
-// expected by the Rust code on the other side of the interface. In practice right
-// now that means coming from the exact some version of `uniffi` that was used to
-// compile the Rust component. The easiest way to ensure this is to bundle the Kotlin
-// helpers directly inline like we're doing here.
+// Helper code that doesn't depend on this crate comes from the `uniffi.runtime` package.
+// It must match the version of the generator that produced this file.
 
 import uniffi.runtime.*
 
 import kotlin.jvm.JvmField
-
+import kotlin.coroutines.resume
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 
 typealias InternalException = uniffi.runtime.InternalException
-
-
 
 // Public interface members begin here.
 
@@ -46,6 +47,11 @@ typealias InternalException = uniffi.runtime.InternalException
 //
 // The easiest way to ensure this method is called is to use the `.use`
 // helper method to execute a block and destroy the object at the end.
+//
+// N.B. this is declared here rather than taken from `uniffi.runtime` on purpose:
+// it is a supertype of every generated object, so sourcing it from the runtime
+// would make the runtime part of this module's public ABI and force consumers of
+// these bindings to depend on it too.
 interface Disposable : AutoCloseable {
     fun destroy()
     override fun close() = destroy()
@@ -69,8 +75,11 @@ inline fun <T : Disposable?, R> T.use(block: (T) -> R) =
         }
     }
 
-/** Used to instantiate an interface without an actual pointer, for fakes in tests, mostly. */
-object NoPointer
+/** Used to instantiate an interface without an actual handle, for fakes in tests, mostly. */
+object NoHandle
+
+// Marker for the internal "wrap an existing Rust handle" constructor.
+object UniffiWithHandle
 
 
 
@@ -1027,24 +1036,30 @@ interface PrivchatClientInterface {
 }
 
 expect open class PrivchatClient: Disposable, PrivchatClientInterface {
-    constructor(pointer: Pointer)
+    constructor(uniffiWithHandle: UniffiWithHandle, handle: Long)
 
     /**
      * This constructor can be used to instantiate a fake object. Only used for tests. Any
      * attempt to actually use an object constructed this way will fail as there is no
      * connected Rust object.
      */
-    constructor(noPointer: NoPointer)
+    constructor(noHandle: NoHandle)
     constructor(`config`: PrivchatConfig)
+
+    /**
+     * Whether this object has been destroyed and its reference on the Rust side is gone.
+     *
+     * Once this is `true` every method call on the object throws, and `destroy()` is a no-op.
+     */
+    val uniffiIsDestroyed: Boolean
 
     override fun destroy()
     override fun close()
 
-    internal inline fun <R> callWithPointer(block: (ptr: Pointer) -> R): R
-    fun uniffiClonePointer(): Pointer
+    internal inline fun <R> callWithHandle(block: (handle: Long) -> R): R
+    fun uniffiCloneHandle(): Long
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `acceptFriendRequest`(`fromUserId`: kotlin.ULong, `message`: kotlin.String?) : kotlin.ULong
 
@@ -1054,46 +1069,37 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * **真实来源**——会话场景传 "conversation"+channel_id,好友场景传 "friend"。
      * 历史实现固定谎报 friend,对非好友(如系统账号 DM 对端)必被闸口拒绝。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `accountUserDetailRemote`(`userId`: kotlin.ULong, `source`: kotlin.String, `sourceId`: kotlin.String) : AccountUserDetailView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `accountUserShareCardRemote`(`userId`: kotlin.ULong) : AccountUserShareCardView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `accountUserUpdateRemote`(`payload`: AccountUserUpdateInput) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `addChannelMembers`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `memberUids`: List<kotlin.ULong>)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `addReaction`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong?, `emoji`: kotlin.String) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `addReactionBlocking`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong?, `emoji`: kotlin.String) : kotlin.Boolean
 
-    
-    @Throws(PrivchatFfiException::class)override fun `addServer`(`endpoint`: ServerEndpoint)
+    override fun `addServer`(`endpoint`: ServerEndpoint)
     
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `addToBlacklist`(`blockedUserId`: kotlin.ULong) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `assetsDir`() : kotlin.String
 
@@ -1109,17 +1115,14 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `authLogoutRemote`() : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `authenticate`(`userId`: kotlin.ULong, `token`: kotlin.String, `deviceId`: kotlin.String)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `batchGetPresence`(`userIds`: List<kotlin.ULong>) : List<PresenceStatus>
 
@@ -1134,67 +1137,54 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `cancelMessageMediaDownload`(`messageId`: kotlin.ULong)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `channelBroadcastCreateRemote`(`payload`: ChannelBroadcastCreateInput) : ChannelBroadcastCreateView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `channelBroadcastListRemote`(`payload`: ChannelBroadcastListInput) : ChannelBroadcastListView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `channelBroadcastSubscribeRemote`(`payload`: ChannelBroadcastSubscribeInput) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `channelContentListRemote`(`payload`: ChannelContentListInput) : ChannelContentListView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `channelContentPublishRemote`(`payload`: ChannelContentPublishInput) : ChannelContentPublishView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `channelNotificationMode`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) : kotlin.Int
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `channelSendQueueSetEnabled`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `enabled`: kotlin.Boolean)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `channelTags`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) : List<kotlin.String>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `channelUnreadStats`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) : kotlin.Int
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `checkBlacklist`(`targetUserId`: kotlin.ULong) : BlacklistCheckResult
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `checkFriend`(`friendId`: kotlin.ULong) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `clearLocalState`()
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `clearPresenceCache`()
 
@@ -1202,17 +1192,14 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `connect`()
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `connectBlocking`()
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `connectionState`() : ConnectionState
 
@@ -1220,32 +1207,26 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `createGroup`(`name`: kotlin.String, `description`: kotlin.String?, `memberIds`: List<kotlin.ULong>?) : GroupCreateResult
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `createLocalAttachmentPlaceholder`(`input`: NewMessage, `localMessageId`: kotlin.ULong?) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `createLocalAttachmentPlaceholderTyped`(`input`: NewMessage, `localMessageId`: kotlin.ULong, `metadata`: LocalAttachmentMetadataInput) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `createLocalMessage`(`input`: NewMessage) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `createLocalMessageWithId`(`input`: NewMessage, `localMessageId`: kotlin.ULong?) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `dataDir`() : kotlin.String
 
@@ -1253,7 +1234,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `deleteBlacklistEntry`(`blockedUserId`: kotlin.ULong)
 
@@ -1262,17 +1242,14 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * 本地删除 channel：标记隐藏 + 清空所有关联消息与附件文件。不触达服务端。
      * 返回 true 表示 channel 原本存在；false 表示 channel 不存在或没有消息（幂等）。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `deleteChannelLocal`(`channelId`: kotlin.ULong) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `deleteChannelMember`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `memberUid`: kotlin.ULong)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `deleteFriend`(`friendId`: kotlin.ULong) : kotlin.Boolean
 
@@ -1281,7 +1258,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * 本地删除消息：删 DB 行 + 清附件目录。不触达服务端。
      * 返回 true 表示确实删到了行；false 表示消息不存在（幂等）。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `deleteMessageLocal`(`messageId`: kotlin.ULong) : kotlin.Boolean
 
@@ -1290,12 +1266,10 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * 摘掉当前会话但保留它的盘上快照。「添加账号」用这个，不要用
      * [`Self::clear_local_state`]——那个会把上一个账号一起登出。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `detachCurrentSession`()
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `disconnect`()
 
@@ -1306,7 +1280,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * 与 [`download_attachment_to_cache`] 的差别只有一条：调用方**不再需要先猜名字**。
      * 旧接口留着是为了兼容既有调用点。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `downloadAttachmentIntoCache`(`sourcePath`: kotlin.String, `messageFileName`: kotlin.String?, `messageMimeType`: kotlin.String?) : DownloadedAttachmentView
 
@@ -1320,42 +1293,34 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      *
      * [`message_file_name`] / [`message_mime_type`] 是本地那条消息上的值，只作兜底。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `downloadAttachmentIntoDir`(`sourcePath`: kotlin.String, `targetDir`: kotlin.String, `messageFileName`: kotlin.String?, `messageMimeType`: kotlin.String?) : DownloadedAttachmentView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `downloadAttachmentToCache`(`sourcePath`: kotlin.String, `fileName`: kotlin.String) : kotlin.String
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `downloadAttachmentToPath`(`sourcePath`: kotlin.String, `targetPath`: kotlin.String) : kotlin.String
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `editMessage`(`messageId`: kotlin.ULong, `content`: kotlin.String, `editedAt`: kotlin.Int)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `editMessageBlocking`(`messageId`: kotlin.ULong, `content`: kotlin.String, `editedAt`: kotlin.Int)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `enqueueLocalMessage`(`input`: NewMessage) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `enqueueText`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `enqueueTextWithLocalId`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String, `localMessageId`: kotlin.ULong?) : kotlin.ULong
 
@@ -1363,12 +1328,10 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     /**
      * 确保某条消息的缩略图已在本地（见 SDK 同名方法）。UI 在气泡进入可视区时调。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `ensureMessageThumbnail`(`messageId`: kotlin.ULong)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `ensureSynced`()
 
@@ -1379,7 +1342,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `entitySyncRemote`(`payload`: SyncEntitiesInput) : SyncEntitiesView
 
@@ -1393,17 +1355,14 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `fetchGroupMembersRemote`(`groupId`: kotlin.ULong, `page`: kotlin.UInt?, `pageSize`: kotlin.UInt?) : GroupMemberRemoteList
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `fileRequestUploadTokenRemote`(`payload`: FileRequestUploadTokenInput) : FileRequestUploadTokenView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `fileUploadCallbackRemote`(`payload`: FileUploadCallbackInput) : kotlin.Boolean
 
@@ -1411,12 +1370,10 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     /**
      * 附件定稿 + 入队，同一事务。取代 finalize + enqueue 两步调用。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `finalizeAttachmentAndEnqueue`(`messageId`: kotlin.ULong, `content`: kotlin.String, `thumbStatus`: kotlin.Int, `routeKey`: kotlin.String)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `finalizeLocalAttachment`(`messageId`: kotlin.ULong, `content`: kotlin.String, `thumbStatus`: kotlin.Int)
 
@@ -1427,65 +1384,52 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      *
      * Spec: `02-server/SERVICE_ACCOUNT_FOLLOW_SPEC` §3.1。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `followBot`(`botUserId`: kotlin.ULong) : BotFollowResult
 
-    
-    @Throws(PrivchatFfiException::class)override fun `generateLocalMessageId`(): kotlin.ULong
+    override fun `generateLocalMessageId`(): kotlin.ULong
     
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getAllUnreadMentionCounts`(`userId`: kotlin.ULong) : List<UnreadMentionCount>
 
-    
-    @Throws(PrivchatFfiException::class)override fun `getAttachmentTargetDir`(`uid`: kotlin.ULong, `messageId`: kotlin.Long, `createdAtMs`: kotlin.Long): kotlin.String
+    override fun `getAttachmentTargetDir`(`uid`: kotlin.ULong, `messageId`: kotlin.Long, `createdAtMs`: kotlin.Long): kotlin.String
     
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getBlacklist`() : List<StoredBlacklistEntry>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getChannelById`(`channelId`: kotlin.ULong) : StoredChannel?
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getChannelExtra`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) : StoredChannelExtra?
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getChannelListEntries`(`page`: kotlin.ULong, `pageSize`: kotlin.ULong) : List<StoredChannel>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getChannelSyncState`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) : ChannelSyncState
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getChannelUnreadCount`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) : kotlin.Int
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getChannels`(`limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredChannel>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getConnectionState`() : ConnectionState
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getConnectionSummary`() : ConnectionSummary
 
@@ -1494,47 +1438,38 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * 读取当前会话的 access token（只读拉取模式）。
      * SDK 权威地管理 token；app 层通常无需直接使用，仅在需要透传给外部服务时调用。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getCurrentAccessToken`() : kotlin.String?
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getDevicePushStatus`(`deviceId`: kotlin.String?) : DevicePushStatusView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getEarliestId`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) : kotlin.ULong?
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getFriendPendingRequests`() : List<FriendPendingEntry>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getFriends`(`limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredFriend>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getGroupById`(`groupId`: kotlin.ULong) : StoredGroup?
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getGroupInfo`(`groupId`: kotlin.ULong) : GroupInfoView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getGroupMembers`(`groupId`: kotlin.ULong, `limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredGroupMember>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getGroups`(`limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredGroup>
 
@@ -1546,7 +1481,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * 扫补正打网络时会把它们顶在后面，表现为「有些会话点进去要等一会儿才出历史」。本方法走
      * 独立存储 actor，点开会话时先用它从 SQLite 瞬读渲染，再调 `open_conversation` 追增量。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getLocalTimeline`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `limit`: kotlin.ULong) : List<StoredMessage>
 
@@ -1555,17 +1489,14 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `getMediaDownloadState`(`messageId`: kotlin.ULong) : MediaDownloadState
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getMessageById`(`messageId`: kotlin.ULong) : StoredMessage?
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getMessageExtra`(`messageId`: kotlin.ULong) : StoredMessageExtra?
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getMessages`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredMessage>
 
@@ -1575,42 +1506,34 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * UI 从本地重查渲染并定位/高亮 anchor。anchor 不可见（不存在/撤回/删除/无权限）
      * 时服务端统一 not_found。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getMessagesAround`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `messageId`: kotlin.ULong, `beforeLimit`: kotlin.UInt?, `afterLimit`: kotlin.UInt?) : MessagesAroundView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getMessagesRemote`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `beforeServerMessageId`: kotlin.ULong?, `limit`: kotlin.UInt?) : MessageHistoryView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getOrCreateDirectChannel`(`peerUserId`: kotlin.ULong) : DirectChannelResult
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getPeerReadPts`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) : kotlin.ULong?
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getPresence`(`userId`: kotlin.ULong) : PresenceStatus?
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getPresenceStats`() : PresenceStatsView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getPrivacySettings`() : PrivacySettingsView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getProfile`() : ProfileView
 
@@ -1618,22 +1541,18 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     /**
      * 读取账号级推送偏好。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getPushPreference`() : PushPreferenceView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getTotalUnreadCount`(`excludeMuted`: kotlin.Boolean) : kotlin.Int
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getTypingStats`() : TypingStatsView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getUnreadMentionCount`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `userId`: kotlin.ULong) : kotlin.Int
 
@@ -1657,42 +1576,34 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * `Group(group_id)`),没有合法来源时按 `Unknown` 只读本地、根本不发请求。一个拿不到
      * 上下文的底层函数没有资格代它编一个。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getUserById`(`userId`: kotlin.ULong) : StoredUser?
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `groupAddMembersRemote`(`groupId`: kotlin.ULong, `userIds`: List<kotlin.ULong>) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `groupApprovalHandleRemote`(`requestId`: kotlin.String, `approved`: kotlin.Boolean, `reason`: kotlin.String?) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `groupApprovalListRemote`(`groupId`: kotlin.ULong, `page`: kotlin.UInt?, `pageSize`: kotlin.UInt?) : GroupApprovalListView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `groupGetSettingsRemote`(`groupId`: kotlin.ULong) : GroupSettingsView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `groupLeaveRemote`(`groupId`: kotlin.ULong) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `groupMuteAllRemote`(`groupId`: kotlin.ULong, `enabled`: kotlin.Boolean) : GroupMuteAllView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `groupMuteMemberRemote`(`groupId`: kotlin.ULong, `userId`: kotlin.ULong, `durationSeconds`: kotlin.ULong?) : kotlin.ULong
 
@@ -1701,7 +1612,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * 群消息置顶 / 取消置顶（仅群主/管理员；`pinned=false` 为取消置顶）。
      * `channel_id` 为消息所在通信频道（群聊场景等于 group_id），服务端会三方校验一致性。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `groupPinMessageRemote`(`groupId`: kotlin.ULong, `channelId`: kotlin.ULong, `messageId`: kotlin.ULong, `pinned`: kotlin.Boolean) : GroupPinMessageView
 
@@ -1709,7 +1619,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     /**
      * 获取群置顶消息列表（群成员可读，按置顶时间倒序）。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `groupPinnedMessagesRemote`(`groupId`: kotlin.ULong) : List<GroupPinnedMessageView>
 
@@ -1718,7 +1627,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * QR_CODE_SPEC v1.3 — `group/qrcode/get`：读群当前永久二维码。
      * Member 及以上可见（server 鉴权）。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `groupQrcodeGetRemote`(`groupId`: kotlin.ULong) : GroupQrCodeGetView
 
@@ -1728,7 +1636,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * Server 用 `qr_key` 反查 `group_id` 后走与邀请相同的 join_need_approval 流程。
      * v1.3 删除了 token 参数（UNIQUE qr_key 本身就是不可枚举凭证）。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `groupQrcodeJoinRemote`(`qrKey`: kotlin.String, `message`: kotlin.String?) : GroupQrCodeJoinResult
 
@@ -1737,32 +1644,26 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * QR_CODE_SPEC v1.3 — `group/qrcode/refresh`：旋转群二维码。
      * Owner/Admin only（server 鉴权）。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `groupQrcodeRefreshRemote`(`groupId`: kotlin.ULong) : GroupQrCodeRefreshView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `groupRemoveMemberRemote`(`groupId`: kotlin.ULong, `userId`: kotlin.ULong) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `groupSetRoleRemote`(`groupId`: kotlin.ULong, `userId`: kotlin.ULong, `role`: kotlin.String) : GroupRoleSetView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `groupTransferOwnerRemote`(`groupId`: kotlin.ULong, `targetUserId`: kotlin.ULong) : GroupTransferOwnerView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `groupUnmuteMemberRemote`(`groupId`: kotlin.ULong, `userId`: kotlin.ULong) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `groupUpdateSettingsRemote`(`payload`: GroupSettingsUpdateInput) : kotlin.Boolean
 
@@ -1770,7 +1671,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `hideChannel`(`channelId`: kotlin.ULong) : kotlin.Boolean
 
@@ -1781,27 +1681,22 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `inviteToGroup`(`groupId`: kotlin.ULong, `memberIds`: List<kotlin.ULong>) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `isBootstrapCompleted`() : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `isConnected`() : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `isInitialized`() : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `isShuttingDown`() : kotlin.Boolean
 
@@ -1809,7 +1704,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `joinGroupByQrcode`(`qrKey`: kotlin.String) : GroupQrCodeJoinResult
 
@@ -1818,32 +1712,26 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * 读取最近一次 Terminal 认证错误快照。
      * `None` 表示当前没有未清的 ForcedLogout 记录（例如已成功 Connect 一次）。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `lastTerminalReason`() : TerminalReason?
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `leaveChannel`(`channelId`: kotlin.ULong) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `leaveGroup`(`groupId`: kotlin.ULong) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `listBlacklistEntries`(`limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredBlacklistEntry>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `listChannelMembers`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredChannelMember>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `listChannels`(`limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredChannel>
 
@@ -1855,27 +1743,22 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * - `statuses` 留空 = 全要 pending/rejected/recalled/expired；具体传如
      * [0] 只看 pending、[0,3] pending+rejected 等。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `listFriendRequests`(`outgoing`: kotlin.Boolean, `statuses`: List<kotlin.Short>, `limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredFriend>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `listFriends`(`limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredFriend>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `listGroupMembers`(`groupId`: kotlin.ULong, `limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredGroupMember>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `listGroups`(`limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredGroup>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `listLocalAccounts`() : List<LocalAccountSummary>
 
@@ -1884,42 +1767,34 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * 以 anchor 为轴的本地上下文窗口（显示排序；spec §5 跳转渲染原语）。
      * 通常先调 get_messages_around 完成服务端回填，再用本方法从本地读窗口渲染。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `listLocalMessagesAround`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `anchorServerMessageId`: kotlin.ULong, `beforeLimit`: kotlin.ULong, `afterLimit`: kotlin.ULong) : List<StoredMessage>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `listMessageReactions`(`messageId`: kotlin.ULong, `limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredMessageReaction>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `listMessages`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredMessage>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `listMyDevices`() : List<DeviceInfoView>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `listPendingReminders`(`uid`: kotlin.ULong, `limit`: kotlin.ULong, `offset`: kotlin.ULong) : List<StoredReminder>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `listReactions`(`serverMessageId`: kotlin.ULong) : MessageReactionListView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `listUnreadMentionMessageIds`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `userId`: kotlin.ULong, `limit`: kotlin.ULong) : List<kotlin.ULong>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `listUsersByIds`(`userIds`: List<kotlin.ULong>) : List<StoredUser>
 
@@ -1930,17 +1805,14 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * gap 水位（has_more_before）由 SDK 持久化在 KV，跨会话有效。返回本次更早消息 +
      * has_more_before（服务端是否还有更早，false=到顶，UI 停止继续上滑加载）。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `loadOlderHistory`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `beforeServerMessageId`: kotlin.ULong, `limit`: kotlin.UInt) : OlderHistoryView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `logConnectionState`() : ConnectionSummary
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `login`(`username`: kotlin.String, `password`: kotlin.String, `deviceId`: kotlin.String) : LoginResult
 
@@ -1957,42 +1829,34 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * 注意这里清的是**凭证**（`clear_local_state`），不是本地数据：退出登录不是
      * 注销账号，本地库留着，同一个账号再登录只做增量。要真删数据走 `wipe_user_full`。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `logout`()
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `markAllMentionsRead`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `userId`: kotlin.ULong)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `markFullyReadAt`(`channelId`: kotlin.ULong, `readPts`: kotlin.ULong) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `markMentionRead`(`messageId`: kotlin.ULong, `userId`: kotlin.ULong)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `markMessageSent`(`messageId`: kotlin.ULong, `serverMessageId`: kotlin.ULong, `messageSeq`: kotlin.UInt)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `markReadToPts`(`channelId`: kotlin.ULong, `readPts`: kotlin.ULong) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `markReadToPtsBlocking`(`channelId`: kotlin.ULong, `readPts`: kotlin.ULong) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `markReminderDone`(`reminderId`: kotlin.ULong, `done`: kotlin.Boolean)
 
@@ -2002,27 +1866,22 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      *
      * `after_user_id` 传上一页的 `next_after_user_id`，首页传 0。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `messageReadList`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong, `afterUserId`: kotlin.ULong, `limit`: kotlin.UInt?) : MessageReadListView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `messageReadStats`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong) : MessageReadStatsView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `messageUnreadCountRemote`(`channelId`: kotlin.ULong) : MessageUnreadCountView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `muteChannel`(`channelId`: kotlin.ULong, `muted`: kotlin.Boolean) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `needsSync`() : kotlin.Boolean
 
@@ -2030,32 +1889,26 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `nextEvent`(`timeoutMs`: kotlin.ULong) : SdkEvent?
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `nextEventEnvelope`(`timeoutMs`: kotlin.ULong) : SequencedSdkEvent?
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `nextNetworkEvent`(`timeoutMs`: kotlin.ULong) : SdkEvent?
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `nextNetworkEventEnvelope`(`timeoutMs`: kotlin.ULong) : SequencedSdkEvent?
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `nextTimelineEvent`(`timeoutMs`: kotlin.ULong) : SdkEvent?
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `nextTimelineEventEnvelope`(`timeoutMs`: kotlin.ULong) : SequencedSdkEvent?
 
@@ -2086,22 +1939,18 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      *
      * 空会话返回空列表，**不注入任何占位/问候消息**。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `openConversation`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `limit`: kotlin.UInt) : OpenConversationView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `ownLastRead`(`channelId`: kotlin.ULong) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `paginateBack`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `page`: kotlin.ULong, `pageSize`: kotlin.ULong) : List<StoredMessage>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `paginateForward`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `page`: kotlin.ULong, `pageSize`: kotlin.ULong) : List<StoredMessage>
 
@@ -2119,17 +1968,14 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * target ∈ channel → 公开投影)。此处原本固定报 `friend`,而 follow 一个 bot
      * 并不建立好友关系,闸口一律以 10004 拒绝,写回从未发生。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `persistUserProfileLocal`(`targetUserId`: kotlin.ULong, `channelId`: kotlin.ULong)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `pinChannel`(`channelId`: kotlin.ULong, `pinned`: kotlin.Boolean) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `ping`()
 
@@ -2151,32 +1997,26 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * 用三个独立可空参数而不是一个结构体：uniffi 的绑定是手工维护的，多一个 record
      * 类型就要同步三个平台的绑定文件，而这里只是三个整数。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `prepareAvatarImage`(`srcPath`: kotlin.String, `cropX`: kotlin.Float?, `cropY`: kotlin.Float?, `cropSize`: kotlin.Float?) : kotlin.String
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `qrcodeGenerate`(`qrType`: kotlin.String, `payload`: kotlin.String, `expireSeconds`: kotlin.ULong?) : QrCodeGenerateView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `qrcodeList`(`includeRevoked`: kotlin.Boolean?) : QrCodeListView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `qrcodeRefresh`(`qrType`: kotlin.String, `targetId`: kotlin.String) : QrCodeRefreshView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `qrcodeResolve`(`qrKey`: kotlin.String, `token`: kotlin.String?) : QrCodeResolveView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `qrcodeRevoke`(`qrKey`: kotlin.String) : QrCodeRevokeView
 
@@ -2184,17 +2024,14 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `reactionStats`(`serverMessageId`: kotlin.ULong) : MessageReactionStatsView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `reactions`(`serverMessageId`: kotlin.ULong) : MessageReactionListView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `reactionsBatch`(`serverMessageIds`: List<kotlin.ULong>) : ReactionsBatchView
 
@@ -2202,7 +2039,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     /**
      * [`Self::recache_user_avatar`] 的便捷封装 = recache 当前登录用户头像。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `recacheSelfAvatar`(`avatarUrl`: kotlin.String) : AvatarCacheResult
 
@@ -2213,7 +2049,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * **任意头像来源**（当前用户 / 好友 / 群成员 / 会话 peer / 资料页刷新）都走这一个入口——
      * `avatar_local_path` 是展示主字段，`avatar_url` 只是下载源。下载失败返回 Err，不污染旧缓存。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `recacheUserAvatar`(`userId`: kotlin.ULong, `avatarUrl`: kotlin.String) : AvatarCacheResult
 
@@ -2225,17 +2060,14 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * Recalled(4)，并通过 push + entity sync 广播给双方所有设备。本地状态由
      * entity sync 拉到 friend 表（status=4），UI Sent tab 据此显示"已撤回"。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `recallFriendRequest`(`targetUserId`: kotlin.ULong) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `recallMessage`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `recallMessageBlocking`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong) : kotlin.Boolean
 
@@ -2255,7 +2087,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `recordMention`(`input`: MentionInput) : kotlin.ULong
 
@@ -2271,12 +2102,10 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      *
      * 详见 TOKEN_REFRESH_SPEC v1.0 §5。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `refreshAccessToken`(`input`: RefreshAccessTokenInput) : RefreshAccessTokenResult
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `register`(`username`: kotlin.String, `password`: kotlin.String, `deviceId`: kotlin.String) : LoginResult
 
@@ -2284,32 +2113,26 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `rejectFriendRequest`(`fromUserId`: kotlin.ULong, `message`: kotlin.String?) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `removeChannelMember`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `memberUid`: kotlin.ULong)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `removeFromBlacklist`(`blockedUserId`: kotlin.ULong) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `removeGroupMember`(`groupId`: kotlin.ULong, `userId`: kotlin.ULong) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `removeReaction`(`serverMessageId`: kotlin.ULong, `emoji`: kotlin.String) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `requireCurrentUserId`() : kotlin.ULong
 
@@ -2320,7 +2143,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `resolveChannelIdByServerMessageId`(`serverMessageId`: kotlin.ULong) : kotlin.ULong
 
@@ -2329,7 +2151,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `resolveChannelType`(`channelId`: kotlin.ULong) : kotlin.Int
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `resolveLocalMessageIdByServerMessageId`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `serverMessageId`: kotlin.ULong) : kotlin.ULong?
 
@@ -2352,22 +2173,18 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * （SDK_LAYERED spec §4.1「消息生命周期、上传下载编排、结构化错误」）。FFI 只做
      * 调用与错误映射，不得在此维护第二套重试状态机。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `retryMessage`(`messageId`: kotlin.ULong) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `rpcCall`(`route`: kotlin.String, `bodyJson`: kotlin.String) : kotlin.String
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `runBootstrapSync`()
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `searchChannel`(`keyword`: kotlin.String) : List<StoredChannel>
 
@@ -2377,77 +2194,62 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * 命中是 snippet 投影不落本地库；服务端限频 300ms/user——UI 必须 debounce
      * 300–500ms、忽略过期 in-flight 结果、query<2 字符不发起远程。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `searchMessageHistory`(`query`: kotlin.String, `channelId`: kotlin.ULong?, `cursor`: kotlin.String?, `limit`: kotlin.UInt?) : SearchHistoryView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `searchMessages`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `keyword`: kotlin.String) : List<StoredMessage>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `searchUserByQrcode`(`qrKey`: kotlin.String, `token`: kotlin.String?) : AccountSearchResultView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `searchUsers`(`query`: kotlin.String) : List<SearchUserEntry>
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `sendContactCardMessage`(`input`: ContactCardMessageInput) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `sendFriendRequest`(`targetUserId`: kotlin.ULong, `message`: kotlin.String?, `source`: kotlin.String?, `sourceId`: kotlin.String?) : FriendRequestResult
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `sendLinkMessage`(`input`: LinkMessageInput) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `sendLocalMessageNow`(`input`: NewMessage) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `sendLocationMessage`(`input`: LocationMessageInput) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `sendMessage`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `sendMessageBlocking`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `fromUid`: kotlin.ULong, `content`: kotlin.String) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `sendMessageWithInput`(`input`: NewMessage) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `sendMessageWithOptions`(`input`: NewMessage, `options`: SendMessageOptionsInput) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `sendQueueSetEnabled`(`enabled`: kotlin.Boolean)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `sendTyping`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `isTyping`: kotlin.Boolean, `actionType`: TypingActionType)
 
@@ -2458,7 +2260,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `sessionSnapshot`() : SessionSnapshot?
 
@@ -2469,12 +2270,10 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * 宿主对账连接横幅时必须用它，不要用 [`connection_state`]：那个值不带身份，
      * 而同一个 client 会原地切号，「读到阶段后再问当前是谁」两次读之间账号可能已换。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `sessionStatus`() : SessionStatus
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `setChannelFavourite`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `enabled`: kotlin.Boolean)
 
@@ -2483,22 +2282,18 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * 设置本地 channel 隐藏标记（不触达服务端）。
      * 隐藏后会话列表不再显示该 channel，收到新消息时自动取消隐藏。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `setChannelHiddenLocal`(`channelId`: kotlin.ULong, `hidden`: kotlin.Boolean)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `setChannelLowPriority`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `enabled`: kotlin.Boolean)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `setChannelNotificationMode`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `mode`: kotlin.Int)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `setCurrentUid`(`uid`: kotlin.String)
 
@@ -2506,32 +2301,26 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     /**
      * 记录某个本地账号的展示名，供切换账号列表渲染（见 SDK 同名方法）。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `setLocalAccountDisplayName`(`uid`: kotlin.String, `displayName`: kotlin.String?, `username`: kotlin.String?, `loginMode`: kotlin.String?, `loginIdentifier`: kotlin.String?)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `setMessagePinned`(`messageId`: kotlin.ULong, `isPinned`: kotlin.Boolean)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `setMessageRevoke`(`messageId`: kotlin.ULong, `revoked`: kotlin.Boolean, `revoker`: kotlin.ULong?)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `setNetworkHint`(`hint`: NetworkHint)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `shutdown`()
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `shutdownBlocking`()
 
@@ -2562,34 +2351,28 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      *
      * 🔴 这是唯一的下载入口。收 URL 的那个已经删除——消息里不再携带地址。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `startMessageMediaDownloadByFileId`(`messageId`: kotlin.ULong, `fileId`: kotlin.ULong, `mime`: kotlin.String, `filenameHint`: kotlin.String?, `createdAtMs`: kotlin.Long)
 
-    
-    @Throws(PrivchatFfiException::class)override fun `startSupervisedSync`(`intervalSecs`: kotlin.ULong)
+    override fun `startSupervisedSync`(`intervalSecs`: kotlin.ULong)
     
 
     override fun `startTransportDisconnectListener`()
     
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `startTyping`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `startTypingBlocking`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `stickerPackageDetailRemote`(`payload`: StickerPackageDetailInput) : StickerPackageDetailView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `stickerPackageListRemote`(`payload`: StickerPackageListInput) : StickerPackageListView
 
@@ -2597,20 +2380,17 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `stopTyping`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `storage`() : UserStoragePaths
 
     
     /**
      * Plan 2：宿主处理完 `SdkEvent::MediaJobRequested` 后回传结果。
-     */
-    @Throws(PrivchatFfiException::class)override fun `submitMediaJobResult`(`jobId`: kotlin.String, `result`: MediaJobResult)
+     */override fun `submitMediaJobResult`(`jobId`: kotlin.String, `result`: MediaJobResult)
     
 
     
@@ -2619,7 +2399,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * channel_type: wire 编号 1=Direct, 2=Group, 3=Room（0 非法；见 privchat_protocol::protocol::ChannelType）
      * token: 可选，Room 类型订阅时传入业务 API 签发的 ticket（JWT）
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `subscribeChannel`(`channelId`: kotlin.ULong, `channelType`: kotlin.UByte, `token`: kotlin.String?)
 
@@ -2636,62 +2415,50 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * 宿主不要再自己拼 set_current_uid + shutdown + 重新登录：那几步之间旧会话
      * 仍在跑而 uid 已指向新账号，旧账号的事件会被当成新账号的状态。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `switchLocalAccount`(`uid`: kotlin.String)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `syncAllChannels`() : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `syncBatchGetChannelPtsRemote`(`payload`: BatchGetChannelPtsInput) : BatchGetChannelPtsView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `syncChannel`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `syncEntities`(`entityType`: kotlin.String, `scope`: kotlin.String?) : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `syncEntitiesInBackground`(`entityType`: kotlin.String, `scope`: kotlin.String?)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `syncGetChannelPtsRemote`(`payload`: GetChannelPtsInput) : ChannelPtsView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `syncGetDifferenceRemote`(`payload`: GetDifferenceInput) : GetDifferenceView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `syncMessages`() : kotlin.ULong
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `syncMessagesInBackground`()
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `syncState`() : SyncStateSnapshot
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `syncSubmitRemote`(`payload`: SyncSubmitInput) : SyncSubmitView
 
@@ -2721,7 +2488,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * See `02-server/CHANNEL_TRANSFER_SPEC.md` v2.0 and
      * `07-application/BOT_INTERACTION_SPEC.md` for typical routes.
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `transfer`(`channelId`: kotlin.ULong, `route`: kotlin.String, `body`: kotlin.ByteArray, `timeoutMs`: kotlin.ULong) : TransferReplyView
 
@@ -2731,7 +2497,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      *
      * Spec: `02-server/SERVICE_ACCOUNT_FOLLOW_SPEC` §3.2。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `unfollowBot`(`botUserId`: kotlin.ULong) : BotUnfollowResult
 
@@ -2740,7 +2505,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * 取消订阅频道事件（离开聊天页面时调用）
      * channel_type: wire 编号 1=Direct, 2=Group, 3=Room（0 非法；见 privchat_protocol::protocol::ChannelType）
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `unsubscribeChannel`(`channelId`: kotlin.ULong, `channelType`: kotlin.UByte)
 
@@ -2756,27 +2520,22 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * - push_sound：远程通知是否带提示音。`sound` 在 APNs payload 里，App 拦不住
      * 自己的远程通知，所以这个开关也只能由服务端执行。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `updateDevicePushState`(`deviceId`: kotlin.String, `apnsArmed`: kotlin.Boolean, `pushToken`: kotlin.String?, `vendor`: kotlin.String?, `locale`: kotlin.String?, `pushSound`: kotlin.Boolean?) : DevicePushUpdateView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `updateMediaDownloaded`(`messageId`: kotlin.ULong, `downloaded`: kotlin.Boolean)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `updateMessageStatus`(`messageId`: kotlin.ULong, `status`: kotlin.Int)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `updatePrivacySettings`(`payload`: AccountPrivacyUpdateInput) : kotlin.Boolean
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `updateProfile`(`payload`: ProfileUpdateInput) : ProfileView
 
@@ -2787,12 +2546,10 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * 两个字段都可选，只传要改的那个：读改写在服务端完成，两台设备同时改不同
      * 开关时不会互相覆盖。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `updatePushPreference`(`showPreview`: kotlin.Boolean?, `globalMute`: kotlin.Boolean?) : PushPreferenceView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `updateThumbStatus`(`messageId`: kotlin.ULong, `thumbStatus`: kotlin.Int)
 
@@ -2800,62 +2557,50 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     /**
      * 设置用户备注（本地）
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `updateUserAlias`(`userId`: kotlin.ULong, `alias`: kotlin.String?)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `upsertBlacklistEntry`(`input`: UpsertBlacklistInput)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `upsertChannel`(`input`: UpsertChannelInput)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `upsertChannelExtra`(`input`: UpsertChannelExtraInput)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `upsertChannelMember`(`input`: UpsertChannelMemberInput)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `upsertFriend`(`input`: UpsertFriendInput)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `upsertGroup`(`input`: UpsertGroupInput)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `upsertGroupMember`(`input`: UpsertGroupMemberInput)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `upsertMessageReaction`(`input`: UpsertMessageReactionInput)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `upsertReminder`(`input`: UpsertReminderInput)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `upsertUser`(`input`: UpsertUserInput)
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `userId`() : kotlin.ULong?
 
@@ -2863,7 +2608,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     /**
      * QR_CODE_SPEC v1.3 — `user/qrcode/get`：读自己的永久 qr_key + URL。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `userQrcodeGet`() : UserQrCodeGetView
 
@@ -2871,7 +2615,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     /**
      * QR_CODE_SPEC v1.3 — `user/qrcode/refresh`：旋转自己的 qr_key。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `userQrcodeRefresh`() : UserQrCodeRefreshView
 
@@ -2880,17 +2623,14 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      * QR_CODE_SPEC v1.3 — `user/qrcode/resolve`：把对端 qrkey 翻译成最小用户卡片。
      * 响应**不含** qr_key（避免二次扩散）。
      */
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `userQrcodeResolve`(`qrKey`: kotlin.String) : UserQrCodeResolveView
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `userStoragePaths`() : UserStoragePaths
 
     
-    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `wipeCurrentUserFull`()
 
@@ -2923,6 +2663,7 @@ data class AccountPrivacyUpdateInput (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -2936,6 +2677,7 @@ data class AccountSearchResultView (
     var `query`: kotlin.String
         
 ) {
+    
     
     companion object
 }
@@ -2978,6 +2720,7 @@ data class AccountUserDetailView (
         
 ) {
     
+    
     companion object
 }
 
@@ -2992,6 +2735,7 @@ data class AccountUserShareCardView (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -3005,6 +2749,7 @@ data class AccountUserUpdateInput (
     var `bio`: kotlin.String?
          = null 
 ) {
+    
     
     companion object
 }
@@ -3022,6 +2767,7 @@ data class AttachmentTransferStatsView (
     var `thumbnailUploads`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -3041,6 +2787,7 @@ data class AvatarCacheResult (
         
 ) {
     
+    
     companion object
 }
 
@@ -3050,6 +2797,7 @@ data class BatchGetChannelPtsInput (
     var `channels`: List<GetChannelPtsInput>
         
 ) {
+    
     
     companion object
 }
@@ -3061,6 +2809,7 @@ data class BatchGetChannelPtsView (
         
 ) {
     
+    
     companion object
 }
 
@@ -3070,6 +2819,7 @@ data class BlacklistCheckResult (
     var `isBlocked`: kotlin.Boolean
         
 ) {
+    
     
     companion object
 }
@@ -3101,6 +2851,7 @@ data class BotFollowResult (
         
 ) {
     
+    
     companion object
 }
 
@@ -3124,6 +2875,7 @@ data class BotUnfollowResult (
         
 ) {
     
+    
     companion object
 }
 
@@ -3137,6 +2889,7 @@ data class ChannelBroadcastCreateInput (
     var `avatarUrl`: kotlin.String?
          = null 
 ) {
+    
     
     companion object
 }
@@ -3152,6 +2905,7 @@ data class ChannelBroadcastCreateView (
         
 ) {
     
+    
     companion object
 }
 
@@ -3163,6 +2917,7 @@ data class ChannelBroadcastListInput (
     var `pageSize`: kotlin.UInt?
          = null 
 ) {
+    
     
     companion object
 }
@@ -3178,6 +2933,7 @@ data class ChannelBroadcastListView (
         
 ) {
     
+    
     companion object
 }
 
@@ -3187,6 +2943,7 @@ data class ChannelBroadcastSubscribeInput (
     var `channelId`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -3202,6 +2959,7 @@ data class ChannelContentListInput (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -3215,6 +2973,7 @@ data class ChannelContentListView (
     var `timestamp`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -3232,6 +2991,7 @@ data class ChannelContentPublishInput (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -3245,6 +3005,7 @@ data class ChannelContentPublishView (
     var `timestamp`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -3260,6 +3021,7 @@ data class ChannelPtsView (
         
 ) {
     
+    
     companion object
 }
 
@@ -3273,6 +3035,7 @@ data class ChannelSyncState (
     var `unread`: kotlin.Int
         
 ) {
+    
     
     companion object
 }
@@ -3310,6 +3073,7 @@ data class ConnectionSummary (
         
 ) {
     
+    
     companion object
 }
 
@@ -3328,6 +3092,7 @@ data class ContactCardMessageInput (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -3343,6 +3108,7 @@ data class DeviceInfoView (
     var `appInBackground`: kotlin.Boolean
         
 ) {
+    
     
     companion object
 }
@@ -3362,6 +3128,7 @@ data class DevicePushInfoView (
         
 ) {
     
+    
     companion object
 }
 
@@ -3373,6 +3140,7 @@ data class DevicePushStatusView (
     var `userPushEnabled`: kotlin.Boolean
         
 ) {
+    
     
     companion object
 }
@@ -3388,6 +3156,7 @@ data class DevicePushUpdateView (
         
 ) {
     
+    
     companion object
 }
 
@@ -3399,6 +3168,7 @@ data class DirectChannelResult (
     var `created`: kotlin.Boolean
         
 ) {
+    
     
     companion object
 }
@@ -3435,6 +3205,7 @@ data class DownloadedAttachmentView (
         
 ) {
     
+    
     companion object
 }
 
@@ -3457,6 +3228,7 @@ data class EventConfigView (
         
 ) {
     
+    
     companion object
 }
 
@@ -3475,6 +3247,7 @@ data class FileRequestUploadTokenInput (
         
 ) {
     
+    
     companion object
 }
 
@@ -3489,6 +3262,7 @@ data class FileRequestUploadTokenView (
         
 ) {
     
+    
     companion object
 }
 
@@ -3500,6 +3274,7 @@ data class FileUploadCallbackInput (
     var `status`: kotlin.String
         
 ) {
+    
     
     companion object
 }
@@ -3516,6 +3291,7 @@ data class FriendPendingEntry (
     var `createdAt`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -3535,6 +3311,7 @@ data class FriendRequestResult (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -3546,6 +3323,7 @@ data class GetChannelPtsInput (
     var `channelType`: kotlin.UByte
         
 ) {
+    
     
     companion object
 }
@@ -3575,6 +3353,7 @@ data class GetDifferenceCommitView (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -3591,6 +3370,7 @@ data class GetDifferenceInput (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -3604,6 +3384,7 @@ data class GetDifferenceView (
     var `hasMore`: kotlin.Boolean
         
 ) {
+    
     
     companion object
 }
@@ -3627,6 +3408,7 @@ data class GroupApprovalItemView (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -3640,6 +3422,7 @@ data class GroupApprovalListView (
     var `total`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -3660,6 +3443,7 @@ data class GroupCreateResult (
     var `creatorId`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -3693,6 +3477,7 @@ data class GroupInfoView (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -3717,6 +3502,7 @@ data class GroupMemberRemoteEntry (
         
 ) {
     
+    
     companion object
 }
 
@@ -3728,6 +3514,7 @@ data class GroupMemberRemoteList (
     var `total`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -3748,6 +3535,7 @@ data class GroupMuteAllView (
     var `updatedAt`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -3772,6 +3560,7 @@ data class GroupPinMessageView (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -3791,6 +3580,7 @@ data class GroupPinnedMessageView (
         
 ) {
     
+    
     companion object
 }
 
@@ -3807,6 +3597,7 @@ data class GroupQrCodeGetView (
     var `groupId`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -3832,6 +3623,7 @@ data class GroupQrCodeJoinResult (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -3851,6 +3643,7 @@ data class GroupQrCodeRefreshView (
         
 ) {
     
+    
     companion object
 }
 
@@ -3866,6 +3659,7 @@ data class GroupRoleSetView (
     var `updatedAt`: kotlin.ULong?
          = null 
 ) {
+    
     
     companion object
 }
@@ -3923,6 +3717,7 @@ data class GroupSettingsUpdateInput (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -3964,6 +3759,7 @@ data class GroupSettingsView (
         
 ) {
     
+    
     companion object
 }
 
@@ -3977,6 +3773,7 @@ data class GroupTransferOwnerView (
     var `transferredAt`: kotlin.ULong?
          = null 
 ) {
+    
     
     companion object
 }
@@ -3992,6 +3789,7 @@ data class HttpClientConfigView (
         
 ) {
     
+    
     companion object
 }
 
@@ -4003,6 +3801,7 @@ data class KeyValueEntry (
     var `value`: kotlin.ByteArray
         
 ) {
+    
     
     companion object
 }
@@ -4027,6 +3826,7 @@ data class LinkMessageInput (
     var `options`: StructuredSendOptionsInput?
          = null 
 ) {
+    
     
     companion object
 }
@@ -4062,6 +3862,7 @@ data class LocalAccountSummary (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -4090,6 +3891,7 @@ data class LocalAttachmentMetadataInput (
     var `extensionJson`: kotlin.String?
          = null 
 ) {
+    
     
     companion object
 }
@@ -4123,6 +3925,7 @@ data class LocationMessageInput (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -4140,6 +3943,7 @@ data class LoginResult (
     var `expiresAt`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -4163,6 +3967,7 @@ data class MediaJobResult (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -4184,6 +3989,7 @@ data class MentionInput (
     var `createdAt`: kotlin.Long
         
 ) {
+    
     
     companion object
 }
@@ -4265,6 +4071,7 @@ data class MessageContentBody (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -4278,6 +4085,7 @@ data class MessageContentRef (
     var `text`: kotlin.String?
          = null 
 ) {
+    
     
     companion object
 }
@@ -4314,6 +4122,7 @@ data class MessageHistoryItemView (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -4326,6 +4135,7 @@ data class MessageHistoryView (
         
 ) {
     
+    
     companion object
 }
 
@@ -4337,6 +4147,7 @@ data class MessageReactionEmojiUsersView (
     var `userIds`: List<kotlin.ULong>
         
 ) {
+    
     
     companion object
 }
@@ -4352,6 +4163,7 @@ data class MessageReactionListView (
         
 ) {
     
+    
     companion object
 }
 
@@ -4365,6 +4177,7 @@ data class MessageReactionStatsView (
     var `reactions`: List<MessageReactionEmojiUsersView>
         
 ) {
+    
     
     companion object
 }
@@ -4396,6 +4209,7 @@ data class MessageReadListView (
         
 ) {
     
+    
     companion object
 }
 
@@ -4414,6 +4228,7 @@ data class MessageReadStatsView (
     var `detailExpiresAt`: kotlin.Long
         
 ) {
+    
     
     companion object
 }
@@ -4436,6 +4251,7 @@ data class MessageReadUserView (
         
 ) {
     
+    
     companion object
 }
 
@@ -4456,6 +4272,7 @@ data class MessageTextEntity (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -4467,6 +4284,7 @@ data class MessageUnreadCountView (
     var `channelId`: kotlin.String?
          = null 
 ) {
+    
     
     companion object
 }
@@ -4488,6 +4306,7 @@ data class MessagesAroundView (
     var `hasMoreAfter`: kotlin.Boolean
         
 ) {
+    
     
     companion object
 }
@@ -4519,6 +4338,7 @@ data class NewMessage (
         
 ) {
     
+    
     companion object
 }
 
@@ -4535,6 +4355,7 @@ data class OlderHistoryView (
     var `hasMoreBefore`: kotlin.Boolean
         
 ) {
+    
     
     companion object
 }
@@ -4557,6 +4378,7 @@ data class OpenConversationView (
         
 ) {
     
+    
     companion object
 }
 
@@ -4570,6 +4392,7 @@ data class PresenceStatsView (
     var `total`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -4588,6 +4411,7 @@ data class PresenceStatus (
     var `version`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -4620,6 +4444,7 @@ data class PrivacySettingsView (
         
 ) {
     
+    
     companion object
 }
 
@@ -4640,6 +4465,7 @@ data class PrivchatConfig (
         
 ) {
     
+    
     companion object
 }
 
@@ -4654,6 +4480,7 @@ data class ProfileUpdateInput (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -4667,6 +4494,7 @@ data class ProfileView (
     var `timestamp`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -4688,6 +4516,7 @@ data class PushPreferenceView (
     var `globalMute`: kotlin.Boolean
         
 ) {
+    
     
     companion object
 }
@@ -4715,6 +4544,7 @@ data class QrCodeEntryView (
         
 ) {
     
+    
     companion object
 }
 
@@ -4739,6 +4569,7 @@ data class QrCodeGenerateView (
         
 ) {
     
+    
     companion object
 }
 
@@ -4750,6 +4581,7 @@ data class QrCodeListView (
     var `total`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -4766,6 +4598,7 @@ data class QrCodeRefreshView (
     var `revokedAt`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -4789,6 +4622,7 @@ data class QrCodeResolveView (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -4802,6 +4636,7 @@ data class QrCodeRevokeView (
     var `revokedAt`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -4823,6 +4658,7 @@ data class QrMatrixView (
         
 ) {
     
+    
     companion object
 }
 
@@ -4835,6 +4671,7 @@ data class QueueConfigView (
         
 ) {
     
+    
     companion object
 }
 
@@ -4846,6 +4683,7 @@ data class QueueMessage (
     var `payload`: kotlin.ByteArray
         
 ) {
+    
     
     companion object
 }
@@ -4863,6 +4701,7 @@ data class ReactionsBatchItemView (
         
 ) {
     
+    
     companion object
 }
 
@@ -4872,6 +4711,7 @@ data class ReactionsBatchView (
     var `items`: List<ReactionsBatchItemView>
         
 ) {
+    
     
     companion object
 }
@@ -4890,6 +4730,7 @@ data class RefreshAccessTokenInput (
     var `deviceId`: kotlin.String
         
 ) {
+    
     
     companion object
 }
@@ -4913,6 +4754,7 @@ data class RefreshAccessTokenResult (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -4924,6 +4766,7 @@ data class RetryConfigView (
     var `strategy`: kotlin.String
         
 ) {
+    
     
     companion object
 }
@@ -4939,6 +4782,7 @@ data class SearchHighlightRangeView (
     var `end`: kotlin.UInt
         
 ) {
+    
     
     companion object
 }
@@ -4969,6 +4813,7 @@ data class SearchHistoryHitView (
         
 ) {
     
+    
     companion object
 }
 
@@ -4983,6 +4828,7 @@ data class SearchHistoryView (
     var `nextCursor`: kotlin.String?
          = null 
 ) {
+    
     
     companion object
 }
@@ -5013,6 +4859,7 @@ data class SearchUserEntry (
         
 ) {
     
+    
     companion object
 }
 
@@ -5029,6 +4876,7 @@ data class SendMessageOptionsInput (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -5042,6 +4890,7 @@ data class SequencedSdkEvent (
     var `event`: SdkEvent
         
 ) {
+    
     
     companion object
 }
@@ -5061,6 +4910,7 @@ data class ServerEndpoint (
         
 ) {
     
+    
     companion object
 }
 
@@ -5076,6 +4926,7 @@ data class SessionSnapshot (
     var `bootstrapCompleted`: kotlin.Boolean
         
 ) {
+    
     
     companion object
 }
@@ -5099,6 +4950,7 @@ data class SessionStatus (
     var `sessionEpoch`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -5124,6 +4976,7 @@ data class StickerInfoView (
         
 ) {
     
+    
     companion object
 }
 
@@ -5134,6 +4987,7 @@ data class StickerPackageDetailInput (
         
 ) {
     
+    
     companion object
 }
 
@@ -5143,6 +4997,7 @@ data class StickerPackageDetailView (
     var `package`: StickerPackageInfoView
         
 ) {
+    
     
     companion object
 }
@@ -5166,12 +5021,14 @@ data class StickerPackageInfoView (
         
 ) {
     
+    
     companion object
 }
 
 
 
 class StickerPackageListInput {
+    
     override fun equals(other: Any?): Boolean {
         return other is StickerPackageListInput
     }
@@ -5190,6 +5047,7 @@ data class StickerPackageListView (
         
 ) {
     
+    
     companion object
 }
 
@@ -5203,6 +5061,7 @@ data class StoredBlacklistEntry (
     var `updatedAt`: kotlin.Long
         
 ) {
+    
     
     companion object
 }
@@ -5275,6 +5134,7 @@ data class StoredChannel (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -5298,6 +5158,7 @@ data class StoredChannelExtra (
     var `version`: kotlin.Long
         
 ) {
+    
     
     companion object
 }
@@ -5340,6 +5201,7 @@ data class StoredChannelMember (
     var `memberAvatarCacheKey`: kotlin.String
         
 ) {
+    
     
     companion object
 }
@@ -5402,6 +5264,7 @@ data class StoredFriend (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -5423,6 +5286,7 @@ data class StoredGroup (
     var `updatedAt`: kotlin.Long
         
 ) {
+    
     
     companion object
 }
@@ -5459,6 +5323,7 @@ data class StoredGroupMember (
     var `updatedAt`: kotlin.Long
         
 ) {
+    
     
     companion object
 }
@@ -5521,6 +5386,7 @@ data class StoredMessage (
         
 ) {
     
+    
     companion object
 }
 
@@ -5561,6 +5427,7 @@ data class StoredMessageExtra (
         
 ) {
     
+    
     companion object
 }
 
@@ -5588,6 +5455,7 @@ data class StoredMessageReaction (
     var `createdAt`: kotlin.Long
         
 ) {
+    
     
     companion object
 }
@@ -5627,6 +5495,7 @@ data class StoredReminder (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -5659,6 +5528,7 @@ data class StoredUser (
         
 ) {
     
+    
     companion object
 }
 
@@ -5670,6 +5540,7 @@ data class StructuredSendOptionsInput (
     var `mentionedUserIds`: List<kotlin.ULong>
         
 ) {
+    
     
     companion object
 }
@@ -5687,6 +5558,7 @@ data class SyncEntitiesInput (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -5702,6 +5574,7 @@ data class SyncEntitiesView (
     var `minVersion`: kotlin.ULong?
          = null 
 ) {
+    
     
     companion object
 }
@@ -5719,6 +5592,7 @@ data class SyncEntityItemView (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -5730,6 +5604,7 @@ data class SyncPayloadEntry (
     var `value`: kotlin.String
         
 ) {
+    
     
     companion object
 }
@@ -5760,6 +5635,7 @@ data class SyncStateSnapshot (
         
 ) {
     
+    
     companion object
 }
 
@@ -5783,6 +5659,7 @@ data class SyncSubmitInput (
     var `deviceId`: kotlin.String?
          = null 
 ) {
+    
     
     companion object
 }
@@ -5808,6 +5685,7 @@ data class SyncSubmitView (
         
 ) {
     
+    
     companion object
 }
 
@@ -5826,6 +5704,7 @@ data class TerminalReason (
     var `atMs`: kotlin.Long
         
 ) {
+    
     
     companion object
 }
@@ -5849,6 +5728,7 @@ data class TransferReplyView (
         
 ) {
     
+    
     companion object
 }
 
@@ -5860,6 +5740,7 @@ data class TypingChannelView (
     var `channelType`: kotlin.Int
         
 ) {
+    
     
     companion object
 }
@@ -5877,6 +5758,7 @@ data class TypingStatsView (
         
 ) {
     
+    
     companion object
 }
 
@@ -5891,6 +5773,7 @@ data class UnreadMentionCount (
         
 ) {
     
+    
     companion object
 }
 
@@ -5904,6 +5787,7 @@ data class UpsertBlacklistInput (
     var `updatedAt`: kotlin.Long
         
 ) {
+    
     
     companion object
 }
@@ -5926,6 +5810,7 @@ data class UpsertChannelExtraInput (
     var `draftUpdatedAt`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -5956,6 +5841,7 @@ data class UpsertChannelInput (
     var `lastMsgContent`: kotlin.String
         
 ) {
+    
     
     companion object
 }
@@ -5999,6 +5885,7 @@ data class UpsertChannelMemberInput (
         
 ) {
     
+    
     companion object
 }
 
@@ -6016,6 +5903,7 @@ data class UpsertFriendInput (
     var `updatedAt`: kotlin.Long
         
 ) {
+    
     
     companion object
 }
@@ -6038,6 +5926,7 @@ data class UpsertGroupInput (
     var `updatedAt`: kotlin.Long
         
 ) {
+    
     
     companion object
 }
@@ -6062,6 +5951,7 @@ data class UpsertGroupMemberInput (
     var `updatedAt`: kotlin.Long
         
 ) {
+    
     
     companion object
 }
@@ -6088,6 +5978,7 @@ data class UpsertMessageReactionInput (
     var `createdAt`: kotlin.Long
         
 ) {
+    
     
     companion object
 }
@@ -6125,6 +6016,7 @@ data class UpsertReminderInput (
          = null 
 ) {
     
+    
     companion object
 }
 
@@ -6161,6 +6053,7 @@ data class UpsertUserInput (
         
 ) {
     
+    
     companion object
 }
 
@@ -6177,6 +6070,7 @@ data class UserQrCodeGetView (
     var `userId`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -6196,6 +6090,7 @@ data class UserQrCodeRefreshView (
     var `userId`: kotlin.ULong
         
 ) {
+    
     
     companion object
 }
@@ -6222,6 +6117,7 @@ data class UserQrCodeResolveView (
         
 ) {
     
+    
     companion object
 }
 
@@ -6244,6 +6140,7 @@ data class UserStoragePaths (
         
 ) {
     
+    
     companion object
 }
 
@@ -6263,6 +6160,9 @@ enum class ConnectionState {
      */
     TERMINATED,
     SHUTDOWN;
+
+    
+
     companion object
 }
 
@@ -6277,6 +6177,9 @@ enum class ForcedLogoutSource {
     CONNECT_AUTH,
     RPC_AUTH,
     MANUAL;
+
+    
+
     companion object
 }
 
@@ -6287,36 +6190,44 @@ enum class ForcedLogoutSource {
 
 sealed class MediaDownloadState {
     
-    @kotlinx.serialization.Serializable
+    
     object Idle : MediaDownloadState() 
     
     
     
     data class Downloading(
-        val `bytes`: kotlin.ULong  , 
-        val `total`: kotlin.ULong?  = null  ) : MediaDownloadState() {
+        val `bytes`: kotlin.ULong
+        , 
+        val `total`: kotlin.ULong?
+         = null ) : MediaDownloadState() {
         
     }
     
     
     data class Paused(
-        val `bytes`: kotlin.ULong  , 
-        val `total`: kotlin.ULong?  = null  ) : MediaDownloadState() {
+        val `bytes`: kotlin.ULong
+        , 
+        val `total`: kotlin.ULong?
+         = null ) : MediaDownloadState() {
         
     }
     
     
     data class Done(
-        val `path`: kotlin.String  ) : MediaDownloadState() {
+        val `path`: kotlin.String
+        ) : MediaDownloadState() {
         
     }
     
     
     data class Failed(
-        val `code`: kotlin.UInt  , 
-        val `message`: kotlin.String  ) : MediaDownloadState() {
+        val `code`: kotlin.UInt
+        , 
+        val `message`: kotlin.String
+        ) : MediaDownloadState() {
         
     }
+    
     
 }
 
@@ -6333,6 +6244,9 @@ enum class NetworkHint {
     WIFI,
     CELLULAR,
     ETHERNET;
+
+    
+
     companion object
 }
 
@@ -6355,6 +6269,8 @@ sealed class PrivchatFfiException: kotlin.Exception() {
 
         
     }
+    
+
     
 }
 
@@ -6392,6 +6308,8 @@ sealed class QrDecodeException: kotlin.Exception() {
         
     }
     
+
+    
 }
 
 
@@ -6422,6 +6340,8 @@ sealed class QrEncodeException: kotlin.Exception() {
         
     }
     
+
+    
 }
 
 
@@ -6434,6 +6354,9 @@ enum class ResumeEscalationScope {
     CHANNEL_SCOPED_RESYNC,
     ENTITY_SCOPED_RESYNC,
     FULL_REBUILD;
+
+    
+
     companion object
 }
 
@@ -6450,6 +6373,9 @@ enum class ResumeFailureClass {
     ENTITY_RESYNC_REQUIRED,
     FULL_REBUILD_REQUIRED,
     FATAL_PROTOCOL_ERROR;
+
+    
+
     companion object
 }
 
@@ -6462,89 +6388,123 @@ sealed class SdkEvent {
     
     
     data class ConnectionStateChanged(
-        val `from`: ConnectionState  , 
-        val `to`: ConnectionState  ) : SdkEvent() {
+        val `from`: ConnectionState
+        , 
+        val `to`: ConnectionState
+        ) : SdkEvent() {
         
     }
     
     
     data class BootstrapCompleted(
-        val `userId`: kotlin.ULong  ) : SdkEvent() {
+        val `userId`: kotlin.ULong
+        ) : SdkEvent() {
         
     }
     
     
     data class SyncStateChanged(
-        val `state`: SyncStateSnapshot  ) : SdkEvent() {
+        val `state`: SyncStateSnapshot
+        ) : SdkEvent() {
         
     }
     
-    @kotlinx.serialization.Serializable
+    
     object ResumeSyncStarted : SdkEvent() 
     
     
     
     data class ResumeSyncCompleted(
-        val `entityTypesSynced`: kotlin.ULong  , 
-        val `channelsScanned`: kotlin.ULong  , 
-        val `channelsApplied`: kotlin.ULong  , 
-        val `channelFailures`: kotlin.ULong  ) : SdkEvent() {
+        val `entityTypesSynced`: kotlin.ULong
+        , 
+        val `channelsScanned`: kotlin.ULong
+        , 
+        val `channelsApplied`: kotlin.ULong
+        , 
+        val `channelFailures`: kotlin.ULong
+        ) : SdkEvent() {
         
     }
     
     
     data class ResumeSyncFailed(
-        val `classification`: ResumeFailureClass  , 
-        val `scope`: ResumeEscalationScope  , 
-        val `errorCode`: kotlin.UInt  , 
-        val `message`: kotlin.String  ) : SdkEvent() {
+        val `classification`: ResumeFailureClass
+        , 
+        val `scope`: ResumeEscalationScope
+        , 
+        val `errorCode`: kotlin.UInt
+        , 
+        val `message`: kotlin.String
+        ) : SdkEvent() {
         
     }
     
     
     data class ResumeSyncEscalated(
-        val `classification`: ResumeFailureClass  , 
-        val `scope`: ResumeEscalationScope  , 
-        val `reason`: kotlin.String  , 
-        val `entityType`: kotlin.String?  = null  , 
-        val `channelId`: kotlin.ULong?  = null  , 
-        val `channelType`: kotlin.Int?  = null  ) : SdkEvent() {
+        val `classification`: ResumeFailureClass
+        , 
+        val `scope`: ResumeEscalationScope
+        , 
+        val `reason`: kotlin.String
+        , 
+        val `entityType`: kotlin.String?
+         = null , 
+        val `channelId`: kotlin.ULong?
+         = null , 
+        val `channelType`: kotlin.Int?
+         = null ) : SdkEvent() {
         
     }
     
     
     data class ResumeSyncChannelStarted(
-        val `channelId`: kotlin.ULong  , 
-        val `channelType`: kotlin.Int  ) : SdkEvent() {
+        val `channelId`: kotlin.ULong
+        , 
+        val `channelType`: kotlin.Int
+        ) : SdkEvent() {
         
     }
     
     
     data class ResumeSyncChannelCompleted(
-        val `channelId`: kotlin.ULong  , 
-        val `channelType`: kotlin.Int  , 
-        val `applied`: kotlin.ULong  ) : SdkEvent() {
+        val `channelId`: kotlin.ULong
+        , 
+        val `channelType`: kotlin.Int
+        , 
+        val `applied`: kotlin.ULong
+        ) : SdkEvent() {
         
     }
     
     
     data class ResumeSyncChannelFailed(
-        val `channelId`: kotlin.ULong  , 
-        val `channelType`: kotlin.Int  , 
-        val `classification`: ResumeFailureClass  , 
-        val `scope`: ResumeEscalationScope  , 
-        val `errorCode`: kotlin.UInt  , 
-        val `message`: kotlin.String  ) : SdkEvent() {
+        val `channelId`: kotlin.ULong
+        , 
+        val `channelType`: kotlin.Int
+        , 
+        val `classification`: ResumeFailureClass
+        , 
+        val `scope`: ResumeEscalationScope
+        , 
+        val `errorCode`: kotlin.UInt
+        , 
+        val `message`: kotlin.String
+        ) : SdkEvent() {
         
     }
     
     
     data class SyncEntitiesApplied(
-        val `entityType`: kotlin.String  , 
-        val `scope`: kotlin.String?  = null  , 
-        val `queued`: kotlin.ULong  , 
-        val `applied`: kotlin.ULong  , 
-        val `droppedDuplicates`: kotlin.ULong  ) : SdkEvent() {
+        val `entityType`: kotlin.String
+        , 
+        val `scope`: kotlin.String?
+         = null , 
+        val `queued`: kotlin.ULong
+        , 
+        val `applied`: kotlin.ULong
+        , 
+        val `droppedDuplicates`: kotlin.ULong
+        ) : SdkEvent() {
         
     }
     
@@ -6554,93 +6514,127 @@ sealed class SdkEvent {
      */
     
     data class AttachmentUploadProgress(
-        val `localMessageId`: kotlin.String  , 
-        val `uploaded`: kotlin.ULong  , 
-        val `total`: kotlin.ULong  ) : SdkEvent() {
+        val `localMessageId`: kotlin.String
+        , 
+        val `uploaded`: kotlin.ULong
+        , 
+        val `total`: kotlin.ULong
+        ) : SdkEvent() {
         
     }
     
     
     data class SyncEntityPageApplied(
-        val `entityType`: kotlin.String  , 
-        val `page`: kotlin.UInt  ) : SdkEvent() {
+        val `entityType`: kotlin.String
+        , 
+        val `page`: kotlin.UInt
+        ) : SdkEvent() {
         
     }
     
     
     data class SyncEntityChanged(
-        val `entityType`: kotlin.String  , 
-        val `entityId`: kotlin.String  , 
-        val `deleted`: kotlin.Boolean  ) : SdkEvent() {
+        val `entityType`: kotlin.String
+        , 
+        val `entityId`: kotlin.String
+        , 
+        val `deleted`: kotlin.Boolean
+        ) : SdkEvent() {
         
     }
     
     
     data class SyncChannelApplied(
-        val `channelId`: kotlin.ULong  , 
-        val `channelType`: kotlin.Int  , 
-        val `applied`: kotlin.ULong  ) : SdkEvent() {
+        val `channelId`: kotlin.ULong
+        , 
+        val `channelType`: kotlin.Int
+        , 
+        val `applied`: kotlin.ULong
+        ) : SdkEvent() {
         
     }
     
     
     data class SyncAllChannelsApplied(
-        val `applied`: kotlin.ULong  ) : SdkEvent() {
+        val `applied`: kotlin.ULong
+        ) : SdkEvent() {
         
     }
     
     
     data class NetworkHintChanged(
-        val `from`: NetworkHint  , 
-        val `to`: NetworkHint  ) : SdkEvent() {
+        val `from`: NetworkHint
+        , 
+        val `to`: NetworkHint
+        ) : SdkEvent() {
         
     }
     
     
     data class OutboundQueueUpdated(
-        val `kind`: kotlin.String  , 
-        val `action`: kotlin.String  , 
-        val `messageId`: kotlin.ULong?  = null  ) : SdkEvent() {
+        val `kind`: kotlin.String
+        , 
+        val `action`: kotlin.String
+        , 
+        val `messageId`: kotlin.ULong?
+         = null ) : SdkEvent() {
         
     }
     
     
     data class TimelineUpdated(
-        val `channelId`: kotlin.ULong  , 
-        val `channelType`: kotlin.Int  , 
-        val `messageId`: kotlin.ULong  , 
-        val `reason`: kotlin.String  ) : SdkEvent() {
+        val `channelId`: kotlin.ULong
+        , 
+        val `channelType`: kotlin.Int
+        , 
+        val `messageId`: kotlin.ULong
+        , 
+        val `reason`: kotlin.String
+        ) : SdkEvent() {
         
     }
     
     
     data class MessageSendStatusChanged(
-        val `messageId`: kotlin.ULong  , 
-        val `status`: kotlin.Int  , 
-        val `serverMessageId`: kotlin.ULong?  = null  , 
+        val `messageId`: kotlin.ULong
+        , 
+        val `status`: kotlin.Int
+        , 
+        val `serverMessageId`: kotlin.ULong?
+         = null , 
         /**
          * Server refusal code when status is 3 (failed); None otherwise.
          */
-        val `errorCode`: kotlin.UInt?  = null  ) : SdkEvent() {
+        val `errorCode`: kotlin.UInt?
+         = null ) : SdkEvent() {
         
     }
     
     
     data class TypingSent(
-        val `channelId`: kotlin.ULong  , 
-        val `channelType`: kotlin.Int  , 
-        val `isTyping`: kotlin.Boolean  ) : SdkEvent() {
+        val `channelId`: kotlin.ULong
+        , 
+        val `channelType`: kotlin.Int
+        , 
+        val `isTyping`: kotlin.Boolean
+        ) : SdkEvent() {
         
     }
     
     
     data class SubscriptionMessageReceived(
-        val `channelId`: kotlin.ULong  , 
-        val `topic`: kotlin.String?  = null  , 
-        val `payload`: kotlin.ByteArray  , 
-        val `publisher`: kotlin.String?  = null  , 
-        val `serverMessageId`: kotlin.ULong?  = null  , 
-        val `timestamp`: kotlin.ULong  ) : SdkEvent() {
+        val `channelId`: kotlin.ULong
+        , 
+        val `topic`: kotlin.String?
+         = null , 
+        val `payload`: kotlin.ByteArray
+        , 
+        val `publisher`: kotlin.String?
+         = null , 
+        val `serverMessageId`: kotlin.ULong?
+         = null , 
+        val `timestamp`: kotlin.ULong
+        ) : SdkEvent() {
         
     }
     
@@ -6649,48 +6643,70 @@ sealed class SdkEvent {
      */
     
     data class TransferReceived(
-        val `channelId`: kotlin.ULong  , 
-        val `requestId`: kotlin.String  , 
-        val `route`: kotlin.String  , 
-        val `body`: kotlin.ByteArray  ) : SdkEvent() {
+        val `channelId`: kotlin.ULong
+        , 
+        val `requestId`: kotlin.String
+        , 
+        val `route`: kotlin.String
+        , 
+        val `body`: kotlin.ByteArray
+        ) : SdkEvent() {
         
     }
     
     
     data class PeerReadPtsAdvanced(
-        val `channelId`: kotlin.ULong  , 
-        val `channelType`: kotlin.Int  , 
-        val `readerId`: kotlin.ULong  , 
-        val `readPts`: kotlin.ULong  ) : SdkEvent() {
+        val `channelId`: kotlin.ULong
+        , 
+        val `channelType`: kotlin.Int
+        , 
+        val `readerId`: kotlin.ULong
+        , 
+        val `readPts`: kotlin.ULong
+        ) : SdkEvent() {
         
     }
     
     
     data class MessageDelivered(
-        val `channelId`: kotlin.ULong  , 
-        val `channelType`: kotlin.Int  , 
-        val `messageId`: kotlin.ULong  , 
-        val `serverMessageId`: kotlin.ULong  , 
-        val `deliveredAt`: kotlin.ULong  ) : SdkEvent() {
+        val `channelId`: kotlin.ULong
+        , 
+        val `channelType`: kotlin.Int
+        , 
+        val `messageId`: kotlin.ULong
+        , 
+        val `serverMessageId`: kotlin.ULong
+        , 
+        val `deliveredAt`: kotlin.ULong
+        ) : SdkEvent() {
         
     }
     
     
     data class MediaDownloadStateChanged(
-        val `messageId`: kotlin.ULong  , 
-        val `state`: MediaDownloadState  ) : SdkEvent() {
+        val `messageId`: kotlin.ULong
+        , 
+        val `state`: MediaDownloadState
+        ) : SdkEvent() {
         
     }
     
     
     data class MediaJobRequested(
-        val `jobId`: kotlin.String  , 
-        val `jobKind`: kotlin.String  , 
-        val `sourcePath`: kotlin.String  , 
-        val `outputPath`: kotlin.String  , 
-        val `mimeType`: kotlin.String  , 
-        val `messageId`: kotlin.ULong  , 
-        val `timeoutMs`: kotlin.ULong  ) : SdkEvent() {
+        val `jobId`: kotlin.String
+        , 
+        val `jobKind`: kotlin.String
+        , 
+        val `sourcePath`: kotlin.String
+        , 
+        val `outputPath`: kotlin.String
+        , 
+        val `mimeType`: kotlin.String
+        , 
+        val `messageId`: kotlin.ULong
+        , 
+        val `timeoutMs`: kotlin.ULong
+        ) : SdkEvent() {
         
     }
     
@@ -6703,7 +6719,8 @@ sealed class SdkEvent {
         /**
          * 新 access_token 过期时间（Unix 毫秒，服务端下发）。
          */
-        val `expiresAt`: kotlin.ULong  ) : SdkEvent() {
+        val `expiresAt`: kotlin.ULong
+        ) : SdkEvent() {
         
     }
     
@@ -6716,11 +6733,13 @@ sealed class SdkEvent {
         /**
          * 服务端原始错误码，典型 10002。
          */
-        val `code`: kotlin.UInt  , 
+        val `code`: kotlin.UInt
+        , 
         /**
          * 服务端原始 message，仅作日志/审计。
          */
-        val `message`: kotlin.String  ) : SdkEvent() {
+        val `message`: kotlin.String
+        ) : SdkEvent() {
         
     }
     
@@ -6729,18 +6748,22 @@ sealed class SdkEvent {
         /**
          * `privchat_protocol::ErrorCode` 对应的 u32 码；未携带时为 0。
          */
-        val `code`: kotlin.UInt  , 
-        val `message`: kotlin.String  , 
-        val `source`: ForcedLogoutSource  ) : SdkEvent() {
+        val `code`: kotlin.UInt
+        , 
+        val `message`: kotlin.String
+        , 
+        val `source`: ForcedLogoutSource
+        ) : SdkEvent() {
         
     }
     
-    @kotlinx.serialization.Serializable
+    
     object ShutdownStarted : SdkEvent() 
     
     
-    @kotlinx.serialization.Serializable
+    
     object ShutdownCompleted : SdkEvent() 
+    
     
     
 }
@@ -6758,6 +6781,9 @@ enum class SyncCriticalFailure {
     PROTOCOL,
     STORAGE,
     UNKNOWN;
+
+    
+
     companion object
 }
 
@@ -6774,6 +6800,9 @@ enum class SyncPhase {
     SYNCED,
     RETRYING,
     FAILED_TERMINAL;
+
+    
+
     companion object
 }
 
@@ -6790,6 +6819,9 @@ enum class SyncReadiness {
     SYNCING_CRITICAL,
     READY,
     CRITICAL_FAILED;
+
+    
+
     companion object
 }
 
@@ -6803,6 +6835,9 @@ enum class SyncRunKind {
     
     BOOTSTRAP,
     RESUME;
+
+    
+
     companion object
 }
 
@@ -6817,6 +6852,9 @@ enum class TransportProtocol {
     QUIC,
     TCP,
     WEB_SOCKET;
+
+    
+
     companion object
 }
 
@@ -6834,6 +6872,9 @@ enum class TypingActionType {
     UPLOADING_VIDEO,
     UPLOADING_FILE,
     CHOOSING_STICKER;
+
+    
+
     companion object
 }
 
