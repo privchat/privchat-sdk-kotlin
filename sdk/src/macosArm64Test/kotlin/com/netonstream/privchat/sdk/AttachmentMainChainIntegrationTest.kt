@@ -44,6 +44,15 @@ class AttachmentMainChainIntegrationTest {
     private fun host() = env("PRIVCHAT_HOST") ?: "127.0.0.1"
     private fun port() = env("PRIVCHAT_TCP_PORT")?.toIntOrNull() ?: 9001
 
+    /**
+     * TLS/TCP refuses to connect without an SPKI pin, so without this the
+     * test can only ever reach its [SKIP] branch. Comma-separated, e.g.
+     * `PRIVCHAT_SPKI_PINS=$(openssl ... | base64)` for the local gateway cert.
+     */
+    private fun pins() = env("PRIVCHAT_SPKI_PINS")
+        ?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() }
+        .orEmpty()
+
     private fun endpoints() = listOf(
         ServerEndpoint(protocol = TransportProtocol.Tcp, host = host(), port = port()),
     )
@@ -86,7 +95,7 @@ class AttachmentMainChainIntegrationTest {
 
     private fun newClient(tag: String): PrivchatClient =
         PrivchatClient.create(
-            PrivchatConfig(dataDir = tempDir(tag), serverEndpoints = endpoints()),
+            PrivchatConfig(dataDir = tempDir(tag), serverEndpoints = endpoints(), spkiPins = pins()),
         ).getOrThrow()
 
     @Test

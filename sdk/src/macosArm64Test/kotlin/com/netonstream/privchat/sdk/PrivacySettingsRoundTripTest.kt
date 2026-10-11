@@ -34,6 +34,15 @@ class PrivacySettingsRoundTripTest {
     private fun host() = env("PRIVCHAT_HOST") ?: "127.0.0.1"
     private fun port() = env("PRIVCHAT_TCP_PORT")?.toIntOrNull() ?: 9001
 
+    /**
+     * TLS/TCP refuses to connect without an SPKI pin, so without this the
+     * test can only ever reach its [SKIP] branch. Comma-separated, e.g.
+     * `PRIVCHAT_SPKI_PINS=$(openssl ... | base64)` for the local gateway cert.
+     */
+    private fun pins() = env("PRIVCHAT_SPKI_PINS")
+        ?.split(',')?.map { it.trim() }?.filter { it.isNotEmpty() }
+        .orEmpty()
+
     private fun tempDir(tag: String): String {
         val base = env("TMPDIR")?.trimEnd('/') ?: "/tmp"
         val dir = "$base/privchat-kt-privacy-${getpid()}-${time(null)}-$tag"
@@ -60,6 +69,7 @@ class PrivacySettingsRoundTripTest {
                 serverEndpoints = listOf(
                     ServerEndpoint(protocol = TransportProtocol.Tcp, host = host(), port = port()),
                 ),
+                spkiPins = pins(),
             ),
         ).getOrThrow()
 
