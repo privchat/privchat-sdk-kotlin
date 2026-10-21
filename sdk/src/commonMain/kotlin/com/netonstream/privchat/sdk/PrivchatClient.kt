@@ -16,6 +16,8 @@ expect fun parseServerUrl(url: String): ServerEndpoint?
  * expect/actual 由各平台实现，API 与 privchat-sdk-android / privchat-sdk-swift 保持一致。
  */
 expect class PrivchatClient private constructor() {
+    /** Transport for typed call control; uses existing FFI, without regenerating bindings. */
+    internal suspend fun callRpc(route: String, body: String): Result<String>
     // ========== Client ==========
     suspend fun connect(): Result<Unit>
     suspend fun disconnect(): Result<Unit>

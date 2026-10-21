@@ -58,6 +58,7 @@ data class MessageContent(
     val contactAvatarUrl: String? = null,
     val systemTemplate: String? = null,
     val systemRefs: List<MessageContentRef> = emptyList(),
+    val callHistory: com.netonstream.privchat.sdk.dto.call.CallHistory? = null,
     val moneyRefId: String? = null,
     val moneyTitle: String? = null,
     val moneySummary: String? = null,

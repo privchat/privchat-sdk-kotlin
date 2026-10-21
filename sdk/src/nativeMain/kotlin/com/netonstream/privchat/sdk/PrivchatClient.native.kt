@@ -2363,6 +2363,13 @@ actual class PrivchatClient private actual constructor() {
     }
 
 
+    internal actual suspend fun callRpc(route: String, body: String): Result<String> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return try { Result.success(c.rpcCall(route, body)) }
+        catch (error: kotlinx.coroutines.CancellationException) { throw error }
+        catch (error: Exception) { Result.failure(toSdkError("call RPC failed", error)) }
+    }
+
     actual suspend fun privacyGet(): Result<PrivacySettingsView> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
@@ -2576,7 +2583,7 @@ private fun StoredMessage.toCommonMessage(
     channelType = channelType,
     fromUid = fromUid,
     content = content,
-    body = body.toSdkMessageContent(),
+    body = body.toSdkMessageContent(content, extra),
     status = when (status) {
         0 -> MessageStatus.Pending
         1 -> MessageStatus.Sending
@@ -2634,8 +2641,9 @@ private fun StoredChannel.toCommonChannel() = ChannelListEntry(
         LatestChannelEvent(
             eventType = "message",
             content = lastMsgContent,
-            body = lastMessageBody?.toSdkMessageContent()
-                ?: MessageContent(MessageContentKind.Unknown, lastMsgContent),
+            body = lastMessageBody?.toSdkMessageContent(lastMsgContent)
+                ?: MessageContent(if (lastMessageType == 5) MessageContentKind.System else MessageContentKind.Unknown, lastMsgContent,
+                    callHistory = if (lastMessageType == 5) com.netonstream.privchat.sdk.dto.call.parseCallHistory(lastMsgContent) else null),
             timestamp = lastMsgTimestamp.toULong(),
             messageType = lastMessageType,
             isRevoked = lastMessageIsRevoked,

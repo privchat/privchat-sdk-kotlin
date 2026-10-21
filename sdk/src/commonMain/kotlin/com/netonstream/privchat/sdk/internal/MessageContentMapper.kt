@@ -7,7 +7,7 @@ import com.netonstream.privchat.sdk.dto.MessageTextEntity
 import com.netonstream.privchat.sdk.dto.MessageTextEntityType
 import uniffi.privchat_sdk_ffi.MessageContentBody
 
-internal fun MessageContentBody.toSdkMessageContent() = MessageContent(
+internal fun MessageContentBody.toSdkMessageContent(rawContent: String? = null, rawExtra: String? = null) = MessageContent(
     kind = when (kind) {
         "text" -> MessageContentKind.Text
         "voice" -> MessageContentKind.Voice
@@ -68,6 +68,10 @@ internal fun MessageContentBody.toSdkMessageContent() = MessageContent(
     contactAvatarUrl = contactAvatarUrl,
     systemTemplate = systemTemplate,
     systemRefs = systemRefs.map { MessageContentRef(it.kind, it.targetId, it.text) },
+    callHistory = if (kind == "system") {
+        com.netonstream.privchat.sdk.dto.call.parseCallHistory(rawContent)
+            ?: com.netonstream.privchat.sdk.dto.call.parseCallHistory(rawExtra)
+    } else null,
     moneyRefId = moneyRefId,
     moneyTitle = moneyTitle,
     moneySummary = moneySummary,
