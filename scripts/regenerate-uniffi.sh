@@ -12,6 +12,8 @@
 # Env overrides:
 #   KMP_BINDGEN_DIR  generator checkout (default ../uniffi-kotlin-multiplatform-bindings)
 #   KMP_BINDGEN      generator binary  (default $KMP_BINDGEN_DIR/target/release/uniffi-bindgen-kotlin-multiplatform)
+#   FFI_LIBRARY     already built host library (e.g. target/debug/*.dylib); skips cargo build
+#   REGEN_SKIP_COMPILE=1 generate only; run a separately scoped compile before shipping
 set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 RUST_DIR="${ROOT_DIR}/../privchat-sdk"
@@ -25,17 +27,21 @@ if [[ ! -x "$KMP_BINDGEN" ]]; then
 fi
 echo "[regen] generator: $(git -C "$GEN_DIR" describe --tags --always 2>/dev/null || echo unknown) ($KMP_BINDGEN)"
 
-echo "[regen] build rust ffi dylib"
-(cd "$RUST_DIR" && cargo build -p privchat-sdk-ffi --release)
+if [[ -z "${FFI_LIBRARY:-}" ]]; then
+  echo "[regen] build rust ffi dylib"
+  (cd "$RUST_DIR" && cargo build -p privchat-sdk-ffi --release)
+  FFI_LIBRARY="$RUST_DIR/target/release/libprivchat_sdk_ffi.dylib"
+fi
+test -f "$FFI_LIBRARY"
 
 OUT_DIR="$(mktemp -d /tmp/privchat-uniffi-gen-XXXXXX)"
 echo "[regen] generate bindings -> $OUT_DIR"
-"$KMP_BINDGEN" \
+(cd "$RUST_DIR" && "$KMP_BINDGEN" \
   --library \
   --crate privchat_sdk_ffi \
   --config "$RUST_DIR/crates/privchat-sdk-ffi/uniffi.toml" \
   --out-dir "$OUT_DIR" \
-  "$RUST_DIR/target/release/libprivchat_sdk_ffi.dylib"
+  "$FFI_LIBRARY")
 
 cd "$ROOT_DIR"
 SRC=sdk/src
@@ -56,6 +62,9 @@ echo "[regen] install generated bindings and headers"
 for ss in commonMain androidMain nativeMain; do
   install -m 0644 "$OUT_DIR/$ss/kotlin/uniffi/privchat_sdk_ffi/"*.kt "$SRC/$ss/kotlin/uniffi/privchat_sdk_ffi/"
 done
+# Normalize only the newly added field; preserve legacy generator formatting elsewhere.
+perl -0pi -e 's/(var \x60stickerId\x60: kotlin\.String\?\n[^\n]*?)[ \t]+(?=\n)/$1/g' \
+  "$SRC/commonMain/kotlin/uniffi/privchat_sdk_ffi/privchat_sdk_ffi.common.kt"
 install -m 0644 "$OUT_DIR/nativeInterop/cinterop/headers/common/common.h" \
   "$SRC/nativeInterop/cinterop/headers/common/common.h"
 install -m 0644 "$OUT_DIR/nativeInterop/cinterop/headers/privchat_sdk_ffi/privchat_sdk_ffi.h" \
@@ -69,6 +78,10 @@ for ss in commonMain androidMain nativeMain; do
 done
 
 echo "[regen] verify kotlin compile"
+if [[ "${REGEN_SKIP_COMPILE:-0}" == 1 ]]; then
+  echo "[regen] compile deferred; native mobile libraries MUST be rebuilt before device execution"
+  exit 0
+fi
 if ! ./gradlew :sdk:compileDebugKotlinAndroid :sdk:compileKotlinIosSimulatorArm64 --no-daemon; then
   echo "[regen] generated bindings do not compile, rolling back"
   restore_backup

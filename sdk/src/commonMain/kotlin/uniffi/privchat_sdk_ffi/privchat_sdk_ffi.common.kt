@@ -4009,6 +4009,8 @@ data class MessageContentBody (
         , 
     var `attachmentUrl`: kotlin.String?
          = null , 
+    var `stickerId`: kotlin.String?
+         = null ,
     var `attachmentFileId`: kotlin.ULong?
          = null , 
     var `thumbnailUrl`: kotlin.String?
@@ -6766,6 +6768,15 @@ sealed class SdkEvent {
     
     
     
+    data class RpcNotificationReceived(
+        val `route`: kotlin.String
+        ,
+        val `body`: kotlin.ByteArray
+        ) : SdkEvent() {
+
+    }
+
+
 }
 
 

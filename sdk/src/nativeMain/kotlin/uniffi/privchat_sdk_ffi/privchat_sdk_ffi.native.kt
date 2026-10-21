@@ -14170,6 +14170,7 @@ object FfiConverterTypeMessageContentBody: FfiConverterRustBuffer<MessageContent
             FfiConverterOptionalString.read(buf),
             FfiConverterSequenceULong.read(buf),
             FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
             FfiConverterOptionalULong.read(buf),
             FfiConverterOptionalString.read(buf),
             FfiConverterOptionalULong.read(buf),
@@ -14210,6 +14211,7 @@ object FfiConverterTypeMessageContentBody: FfiConverterRustBuffer<MessageContent
             FfiConverterOptionalString.allocationSize(value.`replyToMessageId`) +
             FfiConverterSequenceULong.allocationSize(value.`mentionedUserIds`) +
             FfiConverterOptionalString.allocationSize(value.`attachmentUrl`) +
+            FfiConverterOptionalString.allocationSize(value.`stickerId`) +
             FfiConverterOptionalULong.allocationSize(value.`attachmentFileId`) +
             FfiConverterOptionalString.allocationSize(value.`thumbnailUrl`) +
             FfiConverterOptionalULong.allocationSize(value.`thumbnailFileId`) +
@@ -14249,6 +14251,7 @@ object FfiConverterTypeMessageContentBody: FfiConverterRustBuffer<MessageContent
             FfiConverterOptionalString.write(value.`replyToMessageId`, buf)
             FfiConverterSequenceULong.write(value.`mentionedUserIds`, buf)
             FfiConverterOptionalString.write(value.`attachmentUrl`, buf)
+            FfiConverterOptionalString.write(value.`stickerId`, buf)
             FfiConverterOptionalULong.write(value.`attachmentFileId`, buf)
             FfiConverterOptionalString.write(value.`thumbnailUrl`, buf)
             FfiConverterOptionalULong.write(value.`thumbnailFileId`, buf)
@@ -17848,6 +17851,10 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 )
             31 -> SdkEvent.ShutdownStarted
             32 -> SdkEvent.ShutdownCompleted
+            33 -> SdkEvent.RpcNotificationReceived(
+                FfiConverterString.read(buf),
+                FfiConverterByteArray.read(buf),
+                )
             else -> throw RuntimeException("invalid enum value, something is very wrong!!")
         }
     }
@@ -18141,6 +18148,14 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
                 4UL
             )
         }
+        is SdkEvent.RpcNotificationReceived -> {
+            // Add the size for the Int that specifies the variant plus the size needed for all fields
+            (
+                4UL
+                + FfiConverterString.allocationSize(value.`route`)
+                + FfiConverterByteArray.allocationSize(value.`body`)
+            )
+        }
     }
 
     override fun write(value: SdkEvent, buf: ByteBuffer) {
@@ -18367,6 +18382,12 @@ object FfiConverterTypeSdkEvent : FfiConverterRustBuffer<SdkEvent>{
             }
             is SdkEvent.ShutdownCompleted -> {
                 buf.putInt(32)
+                Unit
+            }
+            is SdkEvent.RpcNotificationReceived -> {
+                buf.putInt(33)
+                FfiConverterString.write(value.`route`, buf)
+                FfiConverterByteArray.write(value.`body`, buf)
                 Unit
             }
         }.let { /* this makes the `when` an expression, which ensures it is exhaustive */ }

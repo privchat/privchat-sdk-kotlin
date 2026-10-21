@@ -70,4 +70,7 @@ data class SdkEventPayload(
      */
     val code: UInt? = null,
     val source: String? = null,
+    /** Server one-way RPC notification; independent of channel subscriptions. */
+    val route: String? = null,
+    val body: ByteArray? = null,
 )

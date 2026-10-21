@@ -658,6 +658,17 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun sendSticker(channelId: ULong, channelType: Int, payload: StickerMessagePayload): Result<ULong> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        val uid = cachedUserId ?: return Result.failure(SdkError.NotInitialized)
+        return runCatching {
+            c.sendMessageWithInput(com.netonstream.privchat.sdk.internal.stickerMessageInput(channelId, channelType, uid, payload))
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { if (it is kotlinx.coroutines.CancellationException) throw it else Result.failure(toSdkError("sendSticker failed", it)) },
+        )
+    }
+
     actual suspend fun sendRedPacket(
         channelId: ULong,
         channelType: Int,
@@ -1764,6 +1775,24 @@ actual class PrivchatClient private actual constructor() {
         return runCatching { c.groupGetSettingsRemote(groupId) }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("groupGetSettings failed", it)) },
+        )
+    }
+
+    actual suspend fun groupUpdateProfile(groupId: ULong, name: String?, description: String?): Result<Boolean> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching {
+            val body = buildJsonObject {
+                put("group_id", JsonPrimitive(groupId.toString().toLong()))
+                put("profile", buildJsonObject {
+                    name?.let { put("name", it) }
+                    description?.let { put("description", it) }
+                })
+            }
+            c.rpcCall("group/group/update", body.toString())
+            true
+        }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("groupUpdateProfile failed", it)) },
         )
     }
 
@@ -3097,6 +3126,12 @@ private fun mapSdkEvent(event: CoreSdkEvent): SdkEventPayload = when (event) {
         entityId = event.requestId,
         topic = event.route,
         payload = event.body,
+    )
+
+    is CoreSdkEvent.RpcNotificationReceived -> SdkEventPayload(
+        type = "rpc_notification_received",
+        route = event.route,
+        body = event.body,
     )
 
     is CoreSdkEvent.SubscriptionMessageReceived -> SdkEventPayload(

@@ -162,6 +162,7 @@ expect class PrivchatClient private constructor() {
     suspend fun sendLink(channelId: ULong, channelType: Int, payload: LinkMessagePayload, options: SendMessageOptions = SendMessageOptions()): Result<ULong>
     suspend fun sendLocation(channelId: ULong, channelType: Int, payload: LocationMessagePayload, options: SendMessageOptions = SendMessageOptions()): Result<ULong>
     suspend fun sendContactCard(channelId: ULong, channelType: Int, payload: ContactCardMessagePayload, options: SendMessageOptions = SendMessageOptions()): Result<ULong>
+    suspend fun sendSticker(channelId: ULong, channelType: Int, payload: StickerMessagePayload): Result<ULong>
     /**
      * 发红包消息（PrivChat 标准 IM 能力，RP-ferry）。content 只带引用+展示快照；
      * 资金动作须先走 platform `/app/red-packet/send`（money-first），SDK 不碰资金。
@@ -503,6 +504,7 @@ expect class PrivchatClient private constructor() {
 
     /** 更新群设置（仅群主，服务端鉴权）。仅设置了的可选字段会被更新。 */
     suspend fun groupUpdateSettings(input: GroupSettingsUpdateInput): Result<Boolean>
+    suspend fun groupUpdateProfile(groupId: ULong, name: String? = null, description: String? = null): Result<Boolean>
 
     /** 单人禁言（群主/管理员）。durationSeconds=null/0 表示永久，>0 表示秒数。返回禁言截止毫秒。 */
     suspend fun groupMuteMember(

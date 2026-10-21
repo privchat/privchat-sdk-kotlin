@@ -55,9 +55,15 @@ class CallControlTest {
         assertSame(error, RpcCallControl(CallRpcTransport { _, _ -> Result.failure(error) }).active().exceptionOrNull())
         assertTrue(RpcCallControl(CallRpcTransport { _, _ -> Result.success("{}") }).active().isFailure)
         assertNull(SdkEventPayload("unrelated", topic = "call/state").callStateSnapshot())
-        assertTrue(SdkEventPayload("subscription_message_received", topic = "call/state", payload = byteArrayOf()).callStateSnapshot()!!.isFailure)
-        assertEquals(ULong.MAX_VALUE, SdkEventPayload("subscription_message_received", topic = "call/state",
-            payload = """{"call":$snapshot}""".encodeToByteArray()).callStateSnapshot()!!.getOrThrow().callId)
+        assertNull(SdkEventPayload("subscription_message_received", topic = "call/state",
+            payload = """{"call":$snapshot}""".encodeToByteArray()).callStateSnapshot())
+        assertNull(SdkEventPayload("subscription_message_received", route = "call/state",
+            body = """{"call":$snapshot}""".encodeToByteArray()).callStateSnapshot())
+        assertNull(SdkEventPayload("rpc_notification_received", route = "other").callStateSnapshot())
+        assertTrue(SdkEventPayload("rpc_notification_received", route = "call/state", body = byteArrayOf()).callStateSnapshot()!!.isFailure)
+        assertTrue(SdkEventPayload("rpc_notification_received", route = "call/state").callStateSnapshot()!!.isFailure)
+        assertEquals(ULong.MAX_VALUE, SdkEventPayload("rpc_notification_received", route = "call/state",
+            body = """{"call":$snapshot}""".encodeToByteArray()).callStateSnapshot()!!.getOrThrow().callId)
     }
 
     @Test fun peerDtosAndReliableRpcKeepIdsAndAdvertiseCapability() = runTest {

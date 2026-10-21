@@ -54,8 +54,8 @@ class RpcCallControl(private val transport: CallRpcTransport) : CallControl {
         rpc("peer/events", callJson.encodeToString(request))
 }
 
-/** Decode the existing SDK publish event. The host forwards its single event stream. */
+/** Decode server RPC notifications only. The host forwards its single event stream. */
 fun SdkEventPayload.callStateSnapshot(): Result<CallSnapshot>? {
-    if (type != "subscription_message_received" || topic != "call/state") return null
-    return runCatching { callJson.decodeFromString<CallResponse>(requireNotNull(payload).decodeToString()).call }
+    if (type != "rpc_notification_received" || route != "call/state") return null
+    return runCatching { callJson.decodeFromString<CallResponse>(requireNotNull(body).decodeToString()).call }
 }

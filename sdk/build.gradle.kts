@@ -189,6 +189,8 @@ fun registerAppleFfiBuildTask(taskName: String, targetTriple: String) = tasks.re
     inputs.file(privchatFfiManifest)
     inputs.property("gitSha", sdkGitShaProvider)
     outputs.file(outputLib)
+    // Cargo tracks uncommitted sources, Cargo.lock and transitive local path dependencies.
+    outputs.upToDateWhen { false }
     doFirst {
         environment("GIT_SHA", sdkGitShaProvider.get())
         environment("FFI_BUILD_TIMESTAMP", OffsetDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss XXX")))
@@ -217,6 +219,10 @@ val appleFfiTasks = mapOf(
 tasks.matching { it.name.startsWith("cinterop") }.configureEach {
     appleFfiTasks.entries.firstOrNull { name.endsWith(it.key) }?.let {
         dependsOn(it.value)
+        // staticLibraries embeds the archive in the klib; ordering alone cannot invalidate it.
+        inputs.files(it.value.map { task -> task.outputs.files })
+            .withPropertyName("privchatFfiStaticLibrary")
+            .withPathSensitivity(PathSensitivity.NONE)
     }
 }
 

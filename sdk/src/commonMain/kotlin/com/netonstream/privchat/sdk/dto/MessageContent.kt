@@ -35,6 +35,7 @@ data class MessageContent(
     val replyToServerMessageId: String? = null,
     val mentionedUserIds: List<ULong> = emptyList(),
     val attachmentUrl: String? = null,
+    val stickerId: String? = null,
     val attachmentFileId: ULong? = null,
     val thumbnailUrl: String? = null,
     val thumbnailFileId: ULong? = null,
