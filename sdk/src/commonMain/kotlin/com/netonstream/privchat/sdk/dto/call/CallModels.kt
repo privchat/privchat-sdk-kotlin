@@ -6,6 +6,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 enum class CallMediaKind { @SerialName("audio") AUDIO, @SerialName("video") VIDEO }
 @Serializable
+enum class CallTransport { @SerialName("livekit") LIVEKIT, @SerialName("webrtc") WEBRTC }
+@Serializable
 enum class CallState { @SerialName("ringing") RINGING, @SerialName("active") ACTIVE, @SerialName("ended") ENDED }
 @Serializable
 enum class CallEndReason {
@@ -34,6 +36,7 @@ data class CallSnapshot(
     @SerialName("ended_at_ms") val endedAtMs: Long? = null,
     @SerialName("expires_at_ms") val expiresAtMs: Long,
     val participants: List<CallParticipant>,
+    val transport: CallTransport = CallTransport.LIVEKIT,
 )
 @Serializable
 data class CallInviteRequest(
@@ -41,9 +44,14 @@ data class CallInviteRequest(
     @SerialName("channel_id") val channelId: ULong,
     @SerialName("media_kind") val mediaKind: CallMediaKind,
     @SerialName("invitee_ids") val inviteeIds: List<ULong> = emptyList(),
+    @SerialName("supports_peer") val supportsPeer: Boolean = true,
 )
 @Serializable
-data class CallMutationRequest(@SerialName("command_id") val commandId: String, @SerialName("call_id") val callId: ULong)
+data class CallMutationRequest(
+    @SerialName("command_id") val commandId: String,
+    @SerialName("call_id") val callId: ULong,
+    @SerialName("supports_peer") val supportsPeer: Boolean = true,
+)
 @Serializable
 data class CallGetRequest(@SerialName("call_id") val callId: ULong)
 @Serializable
@@ -51,9 +59,10 @@ data class CallResponse(val call: CallSnapshot)
 @Serializable
 data class CallJoinResponse(
     val call: CallSnapshot,
-    val url: String,
-    val token: String,
-    @SerialName("expires_at_ms") val expiresAtMs: Long,
+    val url: String = "",
+    val token: String = "",
+    @SerialName("expires_at_ms") val expiresAtMs: Long = 0,
+    val peer: CallPeerConfig? = null,
 ) {
     override fun toString(): String = "CallJoinResponse(call=$call, credentials=<redacted>)"
 }
@@ -66,4 +75,6 @@ data class CallCapabilitiesResponse(
     @SerialName("video_participant_limit") val videoParticipantLimit: UInt,
     @SerialName("ringing_timeout_seconds") val ringingTimeoutSeconds: UInt,
     @SerialName("heartbeat_lease_seconds") val heartbeatLeaseSeconds: UInt = 60u,
+    @SerialName("peer_enabled") val peerEnabled: Boolean = false,
+    @SerialName("livekit_enabled") val livekitEnabled: Boolean = false,
 )

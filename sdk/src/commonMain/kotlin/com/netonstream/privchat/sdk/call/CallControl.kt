@@ -18,6 +18,8 @@ interface CallControl {
     suspend fun active(): Result<CallActiveResponse>
     suspend fun capabilities(): Result<CallCapabilitiesResponse>
     suspend fun heartbeat(request: CallMutationRequest): Result<CallResponse>
+    suspend fun peerSignal(request: CallPeerSignalRequest): Result<Unit> = Result.failure(UnsupportedOperationException("Peer signalling unavailable"))
+    suspend fun peerEvents(request: CallPeerEventsRequest): Result<CallPeerEventsResponse> = Result.failure(UnsupportedOperationException("Peer signalling unavailable"))
 }
 
 fun interface CallRpcTransport {
@@ -44,6 +46,12 @@ class RpcCallControl(private val transport: CallRpcTransport) : CallControl {
     override suspend fun active(): Result<CallActiveResponse> = rpc("active")
     override suspend fun capabilities(): Result<CallCapabilitiesResponse> = rpc("capabilities")
     override suspend fun heartbeat(request: CallMutationRequest): Result<CallResponse> = rpc("heartbeat", callJson.encodeToString(request))
+    override suspend fun peerSignal(request: CallPeerSignalRequest): Result<Unit> = try {
+        transport.call("call/peer/signal", callJson.encodeToString(request)).map { Unit }
+    } catch (cancelled: CancellationException) { throw cancelled }
+    catch (failure: Exception) { Result.failure(failure) }
+    override suspend fun peerEvents(request: CallPeerEventsRequest): Result<CallPeerEventsResponse> =
+        rpc("peer/events", callJson.encodeToString(request))
 }
 
 /** Decode the existing SDK publish event. The host forwards its single event stream. */
