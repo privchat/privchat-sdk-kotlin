@@ -297,6 +297,10 @@ expect class PrivchatClient private constructor() {
     ): Boolean
 
     // ========== Storage ==========
+    /** Current-account local bytes. Requires a selected user with local bootstrap completed; no network. */
+    suspend fun kvGetLocal(key: String): Result<ByteArray?>
+    /** Writes to the same current-account SDK KV store after local bootstrap; no network. */
+    suspend fun kvPutLocal(key: String, value: ByteArray): Result<Unit>
     suspend fun getMessages(channelId: ULong, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>>
     suspend fun getMessagesByType(channelId: ULong, channelType: Int, limit: UInt, beforeSeq: ULong?): Result<List<MessageEntry>>
     suspend fun getMessageById(messageId: ULong): Result<MessageEntry?>

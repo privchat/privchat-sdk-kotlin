@@ -761,6 +761,10 @@ import kotlinx.coroutines.withContext
 
 
 
+
+
+
+
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -1078,6 +1082,10 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_supervised_sync_running(`ptr`: Long,uniffiCallStatus: UniffiRustCallStatus, 
     ): Byte
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_join_group_by_qrcode(`ptr`: Long,`qrKey`: RustBufferByValue,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_get_local(`ptr`: Long,`key`: RustBufferByValue,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_put_local(`ptr`: Long,`key`: RustBufferByValue,`value`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_last_terminal_reason(`ptr`: Long,
     ): Long
@@ -1854,6 +1862,10 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_is_supervised_sync_running(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_join_group_by_qrcode(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_get_local(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_put_local(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_last_terminal_reason(
     ): Short
@@ -2678,6 +2690,12 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_join_group_by_qrcode() != 55079.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_get_local() != 33511.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_put_local() != 8417.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_last_terminal_reason() != 44639.toShort()) {
@@ -6410,6 +6428,57 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     }
 
     
+    /**
+     * Read bytes from the current user's local KV store; no network is required.
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `kvGetLocal`(`key`: kotlin.String) : kotlin.ByteArray? {
+        return uniffiRustCallAsync(
+        callWithHandle { thisHandle ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_get_local(
+                thisHandle,
+                FfiConverterString.lower(`key`),
+            )
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation) },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
+        // lift function
+        { FfiConverterOptionalByteArray.lift(it) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+
+    /**
+     * Write bytes to the current user's local KV store after local initialization.
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `kvPutLocal`(`key`: kotlin.String, `value`: kotlin.ByteArray) {
+        return uniffiRustCallAsync(
+        callWithHandle { thisHandle ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_put_local(
+                thisHandle,
+                FfiConverterString.lower(`key`),FfiConverterByteArray.lower(`value`),
+            )
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_void(future, callback, continuation) },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_void(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_void(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
+        // lift function
+        { _ -> },
+
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+
     /**
      * 读取最近一次 Terminal 认证错误快照。
      * `None` 表示当前没有未清的 ForcedLogout 记录（例如已成功 Connect 一次）。
@@ -17172,6 +17241,35 @@ public object FfiConverterOptionalString: FfiConverterRustBuffer<kotlin.String?>
         } else {
             buf.put(1)
             FfiConverterString.write(value, buf)
+        }
+    }
+}
+
+
+
+
+public object FfiConverterOptionalByteArray: FfiConverterRustBuffer<kotlin.ByteArray?> {
+    override fun read(buf: ByteBuffer): kotlin.ByteArray? {
+        if (buf.get().toInt() == 0) {
+            return null
+        }
+        return FfiConverterByteArray.read(buf)
+    }
+
+    override fun allocationSize(value: kotlin.ByteArray?): ULong {
+        if (value == null) {
+            return 1UL
+        } else {
+            return 1UL + FfiConverterByteArray.allocationSize(value)
+        }
+    }
+
+    override fun write(value: kotlin.ByteArray?, buf: ByteBuffer) {
+        if (value == null) {
+            buf.put(0)
+        } else {
+            buf.put(1)
+            FfiConverterByteArray.write(value, buf)
         }
     }
 }

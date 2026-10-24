@@ -481,6 +481,16 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `joinGroupByQrcode`(`qrKey`: kotlin.String): GroupQrCodeJoinResult
     
     /**
+     * Read bytes from the current user's local KV store; no network is required.
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `kvGetLocal`(`key`: kotlin.String): kotlin.ByteArray?
+
+    /**
+     * Write bytes to the current user's local KV store after local initialization.
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `kvPutLocal`(`key`: kotlin.String, `value`: kotlin.ByteArray)
+
+    /**
      * 读取最近一次 Terminal 认证错误快照。
      * `None` 表示当前没有未清的 ForcedLogout 记录（例如已成功 Connect 一次）。
      */
@@ -1708,6 +1718,20 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `joinGroupByQrcode`(`qrKey`: kotlin.String) : GroupQrCodeJoinResult
 
     
+    /**
+     * Read bytes from the current user's local KV store; no network is required.
+     */
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `kvGetLocal`(`key`: kotlin.String) : kotlin.ByteArray?
+
+
+    /**
+     * Write bytes to the current user's local KV store after local initialization.
+     */
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `kvPutLocal`(`key`: kotlin.String, `value`: kotlin.ByteArray)
+
+
     /**
      * 读取最近一次 Terminal 认证错误快照。
      * `None` 表示当前没有未清的 ForcedLogout 记录（例如已成功 Connect 一次）。
@@ -6888,6 +6912,8 @@ enum class TypingActionType {
 
     companion object
 }
+
+
 
 
 

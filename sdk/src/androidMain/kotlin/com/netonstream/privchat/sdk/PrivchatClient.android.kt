@@ -1056,6 +1056,22 @@ actual class PrivchatClient private actual constructor() {
         )
     }
 
+    actual suspend fun kvGetLocal(key: String): Result<ByteArray?> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.kvGetLocal(key) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { if (it is kotlinx.coroutines.CancellationException) throw it else Result.failure(toSdkError("kvGetLocal failed", it)) },
+        )
+    }
+
+    actual suspend fun kvPutLocal(key: String, value: ByteArray): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.kvPutLocal(key, value) }.fold(
+            onSuccess = { Result.success(Unit) },
+            onFailure = { if (it is kotlinx.coroutines.CancellationException) throw it else Result.failure(toSdkError("kvPutLocal failed", it)) },
+        )
+    }
+
     actual suspend fun listLocalAccounts(): Result<List<LocalAccountInfo>> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {

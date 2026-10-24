@@ -292,6 +292,10 @@ int8_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_is_supervised_sync_runni
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_join_group_by_qrcode(int64_t ptr, RustBuffer qrKey
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_get_local(int64_t ptr, RustBuffer key
+);
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_put_local(int64_t ptr, RustBuffer key, RustBuffer value
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_last_terminal_reason(int64_t ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_leave_channel(int64_t ptr, int64_t channelId
@@ -1214,6 +1218,12 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_is_supervised_syn
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_join_group_by_qrcode(void
     
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_get_local(void
+
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_put_local(void
+
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_last_terminal_reason(void
     
