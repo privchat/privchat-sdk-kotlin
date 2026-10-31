@@ -2549,6 +2549,10 @@ actual class PrivchatClient private actual constructor() {
 
         private fun toSdkErrorStatic(prefix: String, t: Throwable): SdkError {
             return when (t) {
+                // Cancellation is not a failure: the caller left (a screen closed, a scope ended).
+                // Wrapped as an SdkError it lost its type, and callers that rightly rethrow
+                // CancellationException showed "operation failed" for a page the user just left.
+                is kotlin.coroutines.cancellation.CancellationException -> throw t
                 is SdkError -> t
                 is PrivchatFfiException.SdkException -> mapFfiCodeToSdkError(prefix, t.code.toUInt(), t.detail)
                 else -> SdkError.Generic("$prefix: ${t.message ?: t::class.simpleName ?: "unknown"}")
@@ -2589,6 +2593,10 @@ actual class PrivchatClient private actual constructor() {
 
     private fun toSdkError(prefix: String, t: Throwable): SdkError {
         return when (t) {
+            // Cancellation is not a failure: the caller left (a screen closed, a scope ended).
+            // Wrapped as an SdkError it lost its type, and callers that rightly rethrow
+            // CancellationException showed "operation failed" for a page the user just left.
+            is kotlin.coroutines.cancellation.CancellationException -> throw t
             is SdkError -> t
             is PrivchatFfiException.SdkException -> mapFfiCodeToSdkError(prefix, t.code.toUInt(), t.detail)
             else -> SdkError.Generic("$prefix: ${t.message ?: t::class.simpleName ?: "unknown"}")
