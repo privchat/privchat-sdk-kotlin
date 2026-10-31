@@ -24,3 +24,17 @@ sealed class SdkError(message: String, cause: Throwable? = null) : Exception(mes
      */
     data class SessionNotReady(val msg: String) : SdkError(msg)
 }
+
+/**
+ * The SdkError a failed call reports, with one rule for every call: cancellation is never a
+ * failure. A [kotlin.coroutines.cancellation.CancellationException] is rethrown so the coroutine
+ * ends as cancelled; mapped to an SdkError it lost its type, and callers that rightly rethrow
+ * cancellation showed "operation failed" for a page the user had just left.
+ *
+ * [platform] maps the platform's own FFI exception, or returns null for anything else.
+ */
+internal inline fun sdkErrorOf(prefix: String, t: Throwable, platform: (Throwable) -> SdkError?): SdkError = when (t) {
+    is kotlin.coroutines.cancellation.CancellationException -> throw t
+    is SdkError -> t
+    else -> platform(t) ?: SdkError.Generic("$prefix: ${t.message ?: t::class.simpleName ?: "unknown"}")
+}
