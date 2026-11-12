@@ -484,6 +484,13 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `groupUnmuteMemberRemote`(`groupId`: kotlin.ULong, `userId`: kotlin.ULong): kotlin.Boolean
     
+    /**
+     * 群资料（名称/简介）修改，走 `group/group/update`——与 owner-only 的治理设置
+     * `group_settings::UPDATE` 是两条路由。operator 由服务端会话推断，请求体只带
+     * group_id + profile，与协议 GroupUpdateRequest 一致。
+     */
+        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `groupUpdateProfileRemote`(`groupId`: kotlin.ULong, `name`: kotlin.String?, `description`: kotlin.String?): kotlin.Boolean
+    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `groupUpdateSettingsRemote`(`payload`: GroupSettingsUpdateInput): kotlin.Boolean
     fun `heartbeatInterval`(): kotlin.ULong
     
@@ -1741,6 +1748,15 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     override suspend fun `groupUnmuteMemberRemote`(`groupId`: kotlin.ULong, `userId`: kotlin.ULong) : kotlin.Boolean
 
     
+    /**
+     * 群资料（名称/简介）修改，走 `group/group/update`——与 owner-only 的治理设置
+     * `group_settings::UPDATE` 是两条路由。operator 由服务端会话推断，请求体只带
+     * group_id + profile，与协议 GroupUpdateRequest 一致。
+     */
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    override suspend fun `groupUpdateProfileRemote`(`groupId`: kotlin.ULong, `name`: kotlin.String?, `description`: kotlin.String?) : kotlin.Boolean
+
+    
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `groupUpdateSettingsRemote`(`payload`: GroupSettingsUpdateInput) : kotlin.Boolean
 
@@ -2812,6 +2828,21 @@ data class AccountUserDetailView (
         , 
     var `canSendMessage`: kotlin.Boolean
         , 
+    /**
+     * 服务端算好的加好友能力位（PROFILE_VISIBILITY §2.5）；老 server 缺省 true。
+     */
+    var `canAddFriend`: kotlin.Boolean
+        , 
+    /**
+     * can_add_friend=false 时的原因：group_policy / personal_privacy / blacklist / already_friend。
+     */
+    var `denyReason`: kotlin.String?
+         = null , 
+    /**
+     * 查看凭证（§2.5.1，字符串防 JS 精度）；friend/apply 凭此放行。
+     */
+    var `grantId`: kotlin.String?
+         = null , 
     var `sourceType`: kotlin.String
         , 
     var `sourceId`: kotlin.String

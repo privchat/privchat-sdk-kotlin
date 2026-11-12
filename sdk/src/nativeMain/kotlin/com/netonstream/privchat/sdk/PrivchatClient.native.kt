@@ -19,8 +19,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.put
-import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -66,8 +64,6 @@ import uniffi.privchat_sdk_ffi.SyncReadiness as CoreSyncReadiness
 import uniffi.privchat_sdk_ffi.SyncRunKind as CoreSyncRunKind
 import uniffi.privchat_sdk_ffi.SyncStateSnapshot as CoreSyncStateSnapshot
 import uniffi.privchat_sdk_ffi.sdkVersion
-
-private val json = Json { ignoreUnknownKeys = true }
 
 actual fun parseServerUrl(url: String): ServerEndpoint? {
     val regex = Regex("^(quic|wss|ws|tcp)://([^:/]+)(?::(\\d+))?(/.*)?$")
@@ -1869,17 +1865,7 @@ actual class PrivchatClient private actual constructor() {
 
     actual suspend fun groupUpdateProfile(groupId: ULong, name: String?, description: String?): Result<Boolean> {
         val c = requireClient().getOrElse { return Result.failure(it) }
-        return runCatching {
-            val body = buildJsonObject {
-                put("group_id", JsonPrimitive(groupId.toString().toLong()))
-                put("profile", buildJsonObject {
-                    name?.let { put("name", it) }
-                    description?.let { put("description", it) }
-                })
-            }
-            c.rpcCall("group/group/update", body.toString())
-            true
-        }.fold(
+        return runCatching { c.groupUpdateProfileRemote(groupId, name, description) }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("groupUpdateProfile failed", it)) },
         )
@@ -2491,18 +2477,15 @@ actual class PrivchatClient private actual constructor() {
     actual suspend fun privacyGet(): Result<PrivacySettingsView> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
-            val raw = c.rpcCall("account/privacy/get", "{}")
-            val obj = json.parseToJsonElement(raw).jsonObject
-            fun b(key: String, default: Boolean) =
-                (obj[key] as? JsonPrimitive)?.booleanOrNull ?: default
+            val v = c.getPrivacySettings()
             PrivacySettingsView(
-                allowAddByGroup = b("allow_add_by_group", true),
-                allowAddByCard = b("allow_add_by_card", true),
-                allowSearchByUsername = b("allow_search_by_username", true),
-                allowSearchByPhone = b("allow_search_by_phone", true),
-                allowSearchByQrcode = b("allow_search_by_qrcode", true),
-                allowReceiveMessageFromNonFriend = b("allow_receive_message_from_non_friend", true),
-                allowViewByNonFriend = b("allow_view_by_non_friend", false),
+                allowAddByGroup = v.allowAddByGroup,
+                allowAddByCard = v.allowAddByCard,
+                allowSearchByUsername = v.allowSearchByUsername,
+                allowSearchByPhone = v.allowSearchByPhone,
+                allowSearchByQrcode = v.allowSearchByQrcode,
+                allowReceiveMessageFromNonFriend = v.allowReceiveMessageFromNonFriend,
+                allowViewByNonFriend = v.allowViewByNonFriend,
             )
         }.fold(
             onSuccess = { Result.success(it) },
@@ -2513,19 +2496,18 @@ actual class PrivchatClient private actual constructor() {
     actual suspend fun privacyUpdate(patch: PrivacySettingsPatch): Result<Boolean> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
-            val body = buildJsonObject {
-                patch.allowAddByGroup?.let { put("allow_add_by_group", it) }
-                patch.allowAddByCard?.let { put("allow_add_by_card", it) }
-                patch.allowSearchByUsername?.let { put("allow_search_by_username", it) }
-                patch.allowSearchByPhone?.let { put("allow_search_by_phone", it) }
-                patch.allowSearchByQrcode?.let { put("allow_search_by_qrcode", it) }
-                patch.allowReceiveMessageFromNonFriend?.let {
-                    put("allow_receive_message_from_non_friend", it)
-                }
-                patch.allowViewByNonFriend?.let { put("allow_view_by_non_friend", it) }
-            }
-            c.rpcCall("account/privacy/update", body.toString())
-            true
+            c.updatePrivacySettings(
+                uniffi.privchat_sdk_ffi.AccountPrivacyUpdateInput(
+                    allowAddByGroup = patch.allowAddByGroup,
+                    allowAddByCard = patch.allowAddByCard,
+                    allowSearchByPhone = patch.allowSearchByPhone,
+                    allowSearchByUsername = patch.allowSearchByUsername,
+                    allowSearchByEmail = null,
+                    allowSearchByQrcode = patch.allowSearchByQrcode,
+                    allowViewByNonFriend = patch.allowViewByNonFriend,
+                    allowReceiveMessageFromNonFriend = patch.allowReceiveMessageFromNonFriend,
+                )
+            )
         }.fold(
             onSuccess = { Result.success(it) },
             onFailure = { Result.failure(toSdkError("privacyUpdate failed", it)) },
@@ -2540,20 +2522,14 @@ actual class PrivchatClient private actual constructor() {
     ): Result<UserDetailVerdictView> {
         val c = requireClient().getOrElse { return Result.failure(it) }
         return runCatching {
-            val body = buildJsonObject {
-                put("target_user_id", targetUserId.toLong())
-                put("source", source)
-                put("source_id", sourceId)
-            }
-            val raw = c.rpcCall("account/user/detail", body.toString())
-            val obj = json.parseToJsonElement(raw).jsonObject
+            val v = c.accountUserDetailRemote(targetUserId, source, sourceId)
             UserDetailVerdictView(
-                isFriend = (obj["is_friend"] as? JsonPrimitive)?.booleanOrNull ?: false,
-                canAddFriend = (obj["can_add_friend"] as? JsonPrimitive)?.booleanOrNull ?: true,
-                denyReason = (obj["deny_reason"] as? JsonPrimitive)?.contentOrNull,
-                grantId = (obj["grant_id"] as? JsonPrimitive)?.contentOrNull,
-                username = (obj["username"] as? JsonPrimitive)?.contentOrNull ?: "",
-                nickname = (obj["nickname"] as? JsonPrimitive)?.contentOrNull,
+                isFriend = v.isFriend,
+                canAddFriend = v.canAddFriend,
+                denyReason = v.denyReason,
+                grantId = v.grantId,
+                username = v.username,
+                nickname = v.nickname,
             )
         }.fold(
             onSuccess = { Result.success(it) },

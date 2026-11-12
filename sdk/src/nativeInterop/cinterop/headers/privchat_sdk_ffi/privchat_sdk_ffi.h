@@ -278,6 +278,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_transfer_owner_re
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_unmute_member_remote(int64_t ptr, int64_t groupId, int64_t userId
 );
+int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_update_profile_remote(int64_t ptr, int64_t groupId, RustBuffer name, RustBuffer description
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_update_settings_remote(int64_t ptr, RustBuffer payload
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_heartbeat_interval(int64_t ptr, UniffiRustCallStatus *_Nonnull out_status
@@ -1212,6 +1214,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_transfer_ow
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_unmute_member_remote(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_update_profile_remote(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_update_settings_remote(void

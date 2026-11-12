@@ -781,6 +781,8 @@ import kotlinx.coroutines.withContext
 
 
 
+
+
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -1084,6 +1086,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_transfer_owner_remote(`ptr`: Long,`groupId`: Long,`targetUserId`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_unmute_member_remote(`ptr`: Long,`groupId`: Long,`userId`: Long,
+    ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_update_profile_remote(`ptr`: Long,`groupId`: Long,`name`: RustBufferByValue,`description`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_update_settings_remote(`ptr`: Long,`payload`: RustBufferByValue,
     ): Long
@@ -1880,6 +1884,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_transfer_owner_remote(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_unmute_member_remote(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_update_profile_remote(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_update_settings_remote(
     ): Short
@@ -2717,6 +2723,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_unmute_member_remote() != 11284.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_update_profile_remote() != 5753.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_group_update_settings_remote() != 18458.toShort()) {
@@ -6342,6 +6351,33 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
             UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_unmute_member_remote(
                 thisHandle,
                 FfiConverterULong.lower(`groupId`),FfiConverterULong.lower(`userId`),
+            )
+        },
+        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_i8(future, callback, continuation) },
+        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_i8(future, continuation) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_i8(future) },
+        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_i8(future) },
+        // lift function
+        { FfiConverterBoolean.lift(it) },
+        // Error FFI converter
+        PrivchatFfiExceptionErrorHandler,
+    )
+    }
+
+    
+    /**
+     * 群资料（名称/简介）修改，走 `group/group/update`——与 owner-only 的治理设置
+     * `group_settings::UPDATE` 是两条路由。operator 由服务端会话推断，请求体只带
+     * group_id + profile，与协议 GroupUpdateRequest 一致。
+     */
+    @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
+    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
+    actual override suspend fun `groupUpdateProfileRemote`(`groupId`: kotlin.ULong, `name`: kotlin.String?, `description`: kotlin.String?) : kotlin.Boolean {
+        return uniffiRustCallAsync(
+        callWithHandle { thisHandle ->
+            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_group_update_profile_remote(
+                thisHandle,
+                FfiConverterULong.lower(`groupId`),FfiConverterOptionalString.lower(`name`),FfiConverterOptionalString.lower(`description`),
             )
         },
         { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_i8(future, callback, continuation) },
@@ -10896,6 +10932,9 @@ object FfiConverterTypeAccountUserDetailView: FfiConverterRustBuffer<AccountUser
             FfiConverterShort.read(buf),
             FfiConverterBoolean.read(buf),
             FfiConverterBoolean.read(buf),
+            FfiConverterBoolean.read(buf),
+            FfiConverterOptionalString.read(buf),
+            FfiConverterOptionalString.read(buf),
             FfiConverterString.read(buf),
             FfiConverterString.read(buf),
             FfiConverterBoolean.read(buf),
@@ -10913,6 +10952,9 @@ object FfiConverterTypeAccountUserDetailView: FfiConverterRustBuffer<AccountUser
             FfiConverterShort.allocationSize(value.`userType`) +
             FfiConverterBoolean.allocationSize(value.`isFriend`) +
             FfiConverterBoolean.allocationSize(value.`canSendMessage`) +
+            FfiConverterBoolean.allocationSize(value.`canAddFriend`) +
+            FfiConverterOptionalString.allocationSize(value.`denyReason`) +
+            FfiConverterOptionalString.allocationSize(value.`grantId`) +
             FfiConverterString.allocationSize(value.`sourceType`) +
             FfiConverterString.allocationSize(value.`sourceId`) +
             FfiConverterBoolean.allocationSize(value.`isFollow`) +
@@ -10929,6 +10971,9 @@ object FfiConverterTypeAccountUserDetailView: FfiConverterRustBuffer<AccountUser
             FfiConverterShort.write(value.`userType`, buf)
             FfiConverterBoolean.write(value.`isFriend`, buf)
             FfiConverterBoolean.write(value.`canSendMessage`, buf)
+            FfiConverterBoolean.write(value.`canAddFriend`, buf)
+            FfiConverterOptionalString.write(value.`denyReason`, buf)
+            FfiConverterOptionalString.write(value.`grantId`, buf)
             FfiConverterString.write(value.`sourceType`, buf)
             FfiConverterString.write(value.`sourceId`, buf)
             FfiConverterBoolean.write(value.`isFollow`, buf)

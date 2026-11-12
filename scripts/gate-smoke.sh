@@ -18,6 +18,10 @@ if [[ -z "${JAVA_HOME:-}" ]]; then
   export PATH="$JAVA_HOME/bin:$PATH"
 fi
 
+echo "[gate] sdk layering (fast, no build)"
+cd "$KOTLIN_DIR"
+./scripts/check-sdk-layering.sh
+
 echo "[gate] cargo check"
 cd "$RUST_DIR"
 cargo check -p privchat-sdk -p privchat-sdk-ffi
@@ -27,6 +31,6 @@ cargo test -p privchat-sdk --lib
 
 echo "[gate] kotlin compile (ios+android)"
 cd "$KOTLIN_DIR"
-./gradlew :shared:compileKotlinIosSimulatorArm64 :shared:compileDebugKotlinAndroid --no-daemon
+./gradlew :sdk:compileKotlinIosSimulatorArm64 :sdk:compileDebugKotlinAndroid --no-daemon
 
 echo "[gate] done"

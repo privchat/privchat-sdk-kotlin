@@ -729,7 +729,7 @@ expect class PrivchatClient private constructor() {
 
     // ========== 隐私设置(PROFILE_VISIBILITY P2:「添加我的方式」) ==========
 
-    /** 读取自己的隐私设置(server account/privacy/get;通用 rpcCall 透传)。 */
+    /** 读取自己的隐私设置(server account/privacy/get;typed FFI getPrivacySettings)。 */
     suspend fun privacyGet(): Result<PrivacySettingsView>
 
     /** 更新自己的隐私设置(部分字段;null=不修改)。 */
