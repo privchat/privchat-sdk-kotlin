@@ -20,8 +20,6 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_account_user_detail_rem
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_account_user_share_card_remote(int64_t ptr, int64_t userId
 );
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_account_user_update_remote(int64_t ptr, RustBuffer payload
-);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_add_channel_members(int64_t ptr, int64_t channelId, int32_t channelType, RustBuffer memberUids
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_add_reaction(int64_t ptr, int64_t serverMessageId, RustBuffer channelId, RustBuffer emoji
@@ -233,8 +231,6 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_presence(int64_t pt
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_presence_stats(int64_t ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_privacy_settings(int64_t ptr
-);
-int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_profile(int64_t ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_push_preference(int64_t ptr
 );
@@ -829,9 +825,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_account_user_deta
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_account_user_share_card_remote(void
     
 );
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_account_user_update_remote(void
-    
-);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_add_channel_members(void
     
 );
@@ -1148,9 +1141,6 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_presence_stat
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_privacy_settings(void
-    
-);
-int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_profile(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_push_preference(void

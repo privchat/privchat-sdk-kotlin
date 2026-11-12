@@ -120,8 +120,6 @@ interface PrivchatClientInterface {
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `accountUserShareCardRemote`(`userId`: kotlin.ULong): AccountUserShareCardView
     
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `accountUserUpdateRemote`(`payload`: AccountUserUpdateInput): kotlin.Boolean
-    
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `addChannelMembers`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `memberUids`: List<kotlin.ULong>)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `addReaction`(`serverMessageId`: kotlin.ULong, `channelId`: kotlin.ULong?, `emoji`: kotlin.String): kotlin.Boolean
@@ -397,8 +395,6 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getPresenceStats`(): PresenceStatsView
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getPrivacySettings`(): PrivacySettingsView
-    
-        @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getProfile`(): ProfileView
     
     /**
      * 读取账号级推送偏好。
@@ -1132,10 +1128,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
 
     
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `accountUserUpdateRemote`(`payload`: AccountUserUpdateInput) : kotlin.Boolean
-
-    
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `addChannelMembers`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `memberUids`: List<kotlin.ULong>)
 
     
@@ -1616,10 +1608,6 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getPrivacySettings`() : PrivacySettingsView
-
-    
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    override suspend fun `getProfile`() : ProfileView
 
     
     /**
@@ -2872,21 +2860,6 @@ data class AccountUserShareCardView (
     var `shareUrl`: kotlin.String
         , 
     var `expireAt`: kotlin.ULong?
-         = null 
-) {
-    
-    
-    companion object
-}
-
-
-
-data class AccountUserUpdateInput (
-    var `displayName`: kotlin.String?
-         = null , 
-    var `avatarUrl`: kotlin.String?
-         = null , 
-    var `bio`: kotlin.String?
          = null 
 ) {
     

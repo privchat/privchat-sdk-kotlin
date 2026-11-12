@@ -807,10 +807,6 @@ import kotlinx.coroutines.withContext
 
 
 
-
-
-
-
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -835,8 +831,6 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_account_user_detail_remote(`ptr`: Long,`userId`: Long,`source`: RustBufferByValue,`sourceId`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_account_user_share_card_remote(`ptr`: Long,`userId`: Long,
-    ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_account_user_update_remote(`ptr`: Long,`payload`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_add_channel_members(`ptr`: Long,`channelId`: Long,`channelType`: Int,`memberUids`: RustBufferByValue,
     ): Long
@@ -1049,8 +1043,6 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_presence_stats(`ptr`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_privacy_settings(`ptr`: Long,
-    ): Long
-    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_profile(`ptr`: Long,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_push_preference(`ptr`: Long,
     ): Long
@@ -1634,8 +1626,6 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_account_user_share_card_remote(
     ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_account_user_update_remote(
-    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_add_channel_members(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_add_reaction(
@@ -1847,8 +1837,6 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_presence_stats(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_privacy_settings(
-    ): Short
-    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_profile(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_push_preference(
     ): Short
@@ -2334,10 +2322,6 @@ internal class UniffiLibInstance: UniffiLib {
     ): Long
         = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_account_user_share_card_remote(`ptr`,`userId`,)
     
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_account_user_update_remote(`ptr`: Long,`payload`: RustBufferByValue,
-    ): Long
-        = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_account_user_update_remote(`ptr`,`payload`,)
-    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_add_channel_members(`ptr`: Long,`channelId`: Long,`channelType`: Int,`memberUids`: RustBufferByValue,
     ): Long
         = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_add_channel_members(`ptr`,`channelId`,`channelType`,`memberUids`,)
@@ -2761,10 +2745,6 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_privacy_settings(`ptr`: Long,
     ): Long
         = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_privacy_settings(`ptr`,)
-    
-    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_profile(`ptr`: Long,
-    ): Long
-        = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_profile(`ptr`,)
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_push_preference(`ptr`: Long,
     ): Long
@@ -3930,10 +3910,6 @@ internal class UniffiLibInstance: UniffiLib {
     ): Short
         = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_account_user_share_card_remote()
     
-    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_account_user_update_remote(
-    ): Short
-        = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_account_user_update_remote()
-    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_add_channel_members(
     ): Short
         = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_add_channel_members()
@@ -4357,10 +4333,6 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_privacy_settings(
     ): Short
         = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_privacy_settings()
-    
-    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_profile(
-    ): Short
-        = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_profile()
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_push_preference(
     ): Short
@@ -5481,27 +5453,6 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
         { FfiConverterTypeAccountUserShareCardView.lift(it) },
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `accountUserUpdateRemote`(`payload`: AccountUserUpdateInput) : kotlin.Boolean {
-        return uniffiRustCallAsync(
-        callWithHandle { thisHandle ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_account_user_update_remote(
-                thisHandle,
-                FfiConverterTypeAccountUserUpdateInput.lower(`payload`),
-            )
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_i8(future, callback, continuation) },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_i8(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_i8(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_i8(future) },
-        // lift function
-        { FfiConverterBoolean.lift(it) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -7669,27 +7620,6 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
         // lift function
         { FfiConverterTypePrivacySettingsView.lift(it) },
-        // Error FFI converter
-        PrivchatFfiExceptionErrorHandler,
-    )
-    }
-
-    
-    @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
-    actual override suspend fun `getProfile`() : ProfileView {
-        return uniffiRustCallAsync(
-        callWithHandle { thisHandle ->
-            UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_profile(
-                thisHandle,
-                
-            )
-        },
-        { future, callback, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_poll_rust_buffer(future, callback, continuation) },
-        { future, continuation -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_complete_rust_buffer(future, continuation) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_free_rust_buffer(future) },
-        { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_rust_buffer(future) },
-        // lift function
-        { FfiConverterTypeProfileView.lift(it) },
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
@@ -12651,31 +12581,6 @@ object FfiConverterTypeAccountUserShareCardView: FfiConverterRustBuffer<AccountU
             FfiConverterString.write(value.`shareKey`, buf)
             FfiConverterString.write(value.`shareUrl`, buf)
             FfiConverterOptionalULong.write(value.`expireAt`, buf)
-    }
-}
-
-
-
-
-object FfiConverterTypeAccountUserUpdateInput: FfiConverterRustBuffer<AccountUserUpdateInput> {
-    override fun read(buf: ByteBuffer): AccountUserUpdateInput {
-        return AccountUserUpdateInput(
-            FfiConverterOptionalString.read(buf),
-            FfiConverterOptionalString.read(buf),
-            FfiConverterOptionalString.read(buf),
-        )
-    }
-
-    override fun allocationSize(value: AccountUserUpdateInput) = (
-            FfiConverterOptionalString.allocationSize(value.`displayName`) +
-            FfiConverterOptionalString.allocationSize(value.`avatarUrl`) +
-            FfiConverterOptionalString.allocationSize(value.`bio`)
-    )
-
-    override fun write(value: AccountUserUpdateInput, buf: ByteBuffer) {
-            FfiConverterOptionalString.write(value.`displayName`, buf)
-            FfiConverterOptionalString.write(value.`avatarUrl`, buf)
-            FfiConverterOptionalString.write(value.`bio`, buf)
     }
 }
 
