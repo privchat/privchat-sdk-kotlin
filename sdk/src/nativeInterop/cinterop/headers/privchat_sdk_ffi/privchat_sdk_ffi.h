@@ -140,6 +140,8 @@ void uniffi_privchat_sdk_ffi_fn_method_privchatclient_enter_foreground(int64_t p
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_entity_sync_remote(int64_t ptr, RustBuffer payload
 );
+RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_epoch_millis_to_local_datetime(int64_t ptr, int64_t millis, RustBuffer zoneId, UniffiRustCallStatus *_Nonnull out_status
+);
 RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_event_config(int64_t ptr, UniffiRustCallStatus *_Nonnull out_status
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_event_stream_cursor(int64_t ptr, UniffiRustCallStatus *_Nonnull out_status
@@ -157,6 +159,12 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_finalize_attachment_and
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_finalize_local_attachment(int64_t ptr, int64_t messageId, RustBuffer content, int32_t thumbStatus
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_follow_bot(int64_t ptr, int64_t botUserId
+);
+RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_conversation_time(int64_t ptr, int64_t millis, UniffiRustCallStatus *_Nonnull out_status
+);
+RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_message_time(int64_t ptr, int64_t millis, UniffiRustCallStatus *_Nonnull out_status
+);
+RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_separator_time(int64_t ptr, int64_t millis, UniffiRustCallStatus *_Nonnull out_status
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_generate_local_message_id(int64_t ptr, UniffiRustCallStatus *_Nonnull out_status
 );
@@ -185,6 +193,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_connection_summary(
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_current_access_token(int64_t ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_device_push_status(int64_t ptr, RustBuffer deviceId
+);
+RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_display_timezone(int64_t ptr, UniffiRustCallStatus *_Nonnull out_status
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_earliest_id(int64_t ptr, int64_t channelId, int32_t channelType
 );
@@ -468,6 +478,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_remove_reaction(int64_t
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_require_current_user_id(int64_t ptr
 );
+void uniffi_privchat_sdk_ffi_fn_method_privchatclient_reset_display_timezone(int64_t ptr, UniffiRustCallStatus *_Nonnull out_status
+);
 RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_attachment_path(int64_t ptr, int64_t uid, int64_t messageId, int64_t createdAtMs, RustBuffer filename, UniffiRustCallStatus *_Nonnull out_status
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_channel_id_by_server_message_id(int64_t ptr, int64_t serverMessageId
@@ -538,6 +550,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_channel_notificatio
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_current_uid(int64_t ptr, RustBuffer uid
 );
+void uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_display_timezone(int64_t ptr, RustBuffer zoneId, UniffiRustCallStatus *_Nonnull out_status
+);
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_local_account_display_name(int64_t ptr, RustBuffer uid, RustBuffer displayName, RustBuffer username, RustBuffer loginMode, RustBuffer loginIdentifier
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_pinned(int64_t ptr, int64_t messageId, int8_t isPinned
@@ -603,6 +617,8 @@ int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_messages_in_backgr
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_state(int64_t ptr
 );
 int64_t uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_submit_remote(int64_t ptr, RustBuffer payload
+);
+RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_system_default_timezone_id(int64_t ptr, UniffiRustCallStatus *_Nonnull out_status
 );
 RustBuffer uniffi_privchat_sdk_ffi_fn_method_privchatclient_timeline_events_since(int64_t ptr, int64_t sequenceId, int64_t limit, UniffiRustCallStatus *_Nonnull out_status
 );
@@ -991,6 +1007,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_enter_foreground(
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_entity_sync_remote(void
     
 );
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_epoch_millis_to_local_datetime(void
+    
+);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_event_config(void
     
 );
@@ -1016,6 +1035,15 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_finalize_local_at
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_follow_bot(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_format_conversation_time(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_format_message_time(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_format_separator_time(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_generate_local_message_id(void
@@ -1058,6 +1086,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_current_acces
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_device_push_status(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_display_timezone(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_earliest_id(void
@@ -1220,10 +1251,10 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_join_group_by_qrc
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_get_local(void
-
+    
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_put_local(void
-
+    
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_last_terminal_reason(void
     
@@ -1483,6 +1514,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_remove_reaction(v
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_require_current_user_id(void
     
 );
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_reset_display_timezone(void
+    
+);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_attachment_path(void
     
 );
@@ -1588,6 +1622,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_channel_notif
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_current_uid(void
     
 );
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_display_timezone(void
+    
+);
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_local_account_display_name(void
     
 );
@@ -1685,6 +1722,9 @@ int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_state(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_submit_remote(void
+    
+);
+int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_system_default_timezone_id(void
     
 );
 int16_t uniffi_privchat_sdk_ffi_checksum_method_privchatclient_timeline_events_since(void

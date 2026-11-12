@@ -16,3 +16,12 @@ libraryPaths.ios_x64 = ../../privchat-sdk/target/x86_64-apple-ios/release
 libraryPaths.macos_arm64 = ../../privchat-sdk/target/aarch64-apple-darwin/release
 libraryPaths.macos_x64 = ../../privchat-sdk/target/x86_64-apple-darwin/release
 libraryPaths.ohos_arm64 = ../../privchat-sdk/target/aarch64-unknown-linux-ohos/release
+
+# SQLCipher 的 Apple 随机数走 CommonCrypto（SecRandomCopyBytes/kSecRandomDefault），
+# 静态库本身不带 autolink 元数据，必须由 cinterop 显式声明 Security.framework，
+# 否则 macosArm64 测试可执行文件链接报 undefined symbols（iOS 由宿主 Xcode 工程链接）。
+linkerOpts.ios_arm64 = -framework Security
+linkerOpts.ios_simulator_arm64 = -framework Security
+linkerOpts.ios_x64 = -framework Security
+linkerOpts.macos_arm64 = -framework Security
+linkerOpts.macos_x64 = -framework Security

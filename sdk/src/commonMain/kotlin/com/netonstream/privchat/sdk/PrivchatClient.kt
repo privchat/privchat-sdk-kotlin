@@ -34,6 +34,25 @@ expect class PrivchatClient private constructor() {
     fun enterBackground(): Result<Unit>
     fun enterForeground(): Result<Unit>
 
+    // ========== Timezone (TIMEZONE_SPEC) ==========
+    // 纯本地计算，不触网：UTC 毫秒在数据层永不偏移，时区只影响格式化输出。
+    /** 设置显示时区（IANA ID，如 "Asia/Ho_Chi_Minh"）。非法 ID 报错且保留原配置。 */
+    fun setDisplayTimezone(zoneId: String): Result<Unit>
+    /** 获取当前显示时区 IANA ID。 */
+    fun getDisplayTimezone(): Result<String>
+    /** 重置显示时区为设备系统默认。 */
+    fun resetDisplayTimezone(): Result<Unit>
+    /** 消息气泡时间 "HH:mm"，按实例配置时区。millis <= 0 返回空串。 */
+    fun formatMessageTime(millis: Long): Result<String>
+    /** 会话列表时间（今天 HH:mm / 昨天 / 周X / MM-dd），按实例配置时区，"现在" 取当前 UTC。 */
+    fun formatConversationTime(millis: Long): Result<String>
+    /** 消息时间分隔符（今天/昨天/MM月dd日/yyyy年MM月dd日 + HH:mm），按实例配置时区。 */
+    fun formatSeparatorTime(millis: Long): Result<String>
+    /** UTC 毫秒 → 指定 IANA 时区的本地日期时间分量（原子能力，不依赖实例配置时区）。 */
+    fun epochMillisToLocalDateTime(millis: Long, zoneId: String): Result<LocalDateTimeParts>
+    /** 设备系统时区的 IANA ID（原子能力）。 */
+    fun systemDefaultTimezoneId(): Result<String>
+
     // ========== Auth ==========
     suspend fun register(username: String, password: String, deviceId: String): Result<AuthResult>
     suspend fun login(username: String, password: String, deviceId: String): Result<AuthResult>

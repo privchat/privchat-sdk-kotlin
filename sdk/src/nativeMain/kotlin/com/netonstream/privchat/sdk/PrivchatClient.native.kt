@@ -187,6 +187,79 @@ actual class PrivchatClient private actual constructor() {
         return callSync("enterForeground failed") { c.enterForeground() }
     }
 
+    actual fun setDisplayTimezone(zoneId: String): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callSync("setDisplayTimezone failed") { c.setDisplayTimezone(zoneId) }
+    }
+
+    actual fun getDisplayTimezone(): Result<String> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.getDisplayTimezone() }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("getDisplayTimezone failed", it)) },
+        )
+    }
+
+    actual fun resetDisplayTimezone(): Result<Unit> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return callSync("resetDisplayTimezone failed") { c.resetDisplayTimezone() }
+    }
+
+    actual fun formatMessageTime(millis: Long): Result<String> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.formatMessageTime(millis) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("formatMessageTime failed", it)) },
+        )
+    }
+
+    actual fun formatConversationTime(millis: Long): Result<String> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.formatConversationTime(millis) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("formatConversationTime failed", it)) },
+        )
+    }
+
+    actual fun formatSeparatorTime(millis: Long): Result<String> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.formatSeparatorTime(millis) }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("formatSeparatorTime failed", it)) },
+        )
+    }
+
+    actual fun epochMillisToLocalDateTime(
+        millis: Long,
+        zoneId: String,
+    ): Result<com.netonstream.privchat.sdk.dto.LocalDateTimeParts> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.epochMillisToLocalDatetime(millis, zoneId) }.fold(
+            onSuccess = { p ->
+                Result.success(
+                    com.netonstream.privchat.sdk.dto.LocalDateTimeParts(
+                        year = p.year,
+                        month = p.month.toInt(),
+                        day = p.day.toInt(),
+                        hour = p.hour.toInt(),
+                        minute = p.minute.toInt(),
+                        second = p.second.toInt(),
+                        dayOfWeek = p.dayOfWeek.toInt(),
+                    )
+                )
+            },
+            onFailure = { Result.failure(toSdkError("epochMillisToLocalDateTime failed", it)) },
+        )
+    }
+
+    actual fun systemDefaultTimezoneId(): Result<String> {
+        val c = requireClient().getOrElse { return Result.failure(it) }
+        return runCatching { c.systemDefaultTimezoneId() }.fold(
+            onSuccess = { Result.success(it) },
+            onFailure = { Result.failure(toSdkError("systemDefaultTimezoneId failed", it)) },
+        )
+    }
+
     private fun startConnectionMonitor(core: CorePrivchatClient) {
         connectionMonitorJob?.cancel()
         connectionMonitorJob = backgroundScope.launch {

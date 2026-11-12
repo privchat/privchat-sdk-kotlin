@@ -793,6 +793,22 @@ import kotlinx.coroutines.withContext
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 internal interface UniffiLib {
     companion object {
         internal val INSTANCE: UniffiLib by lazy {
@@ -938,6 +954,8 @@ internal interface UniffiLib {
     ): Unit
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_entity_sync_remote(`ptr`: Long,`payload`: RustBufferByValue,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_epoch_millis_to_local_datetime(`ptr`: Long,`millis`: Long,`zoneId`: RustBufferByValue,uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_event_config(`ptr`: Long,uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_event_stream_cursor(`ptr`: Long,uniffiCallStatus: UniffiRustCallStatus, 
@@ -956,6 +974,12 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_follow_bot(`ptr`: Long,`botUserId`: Long,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_conversation_time(`ptr`: Long,`millis`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_message_time(`ptr`: Long,`millis`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_separator_time(`ptr`: Long,`millis`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_generate_local_message_id(`ptr`: Long,uniffiCallStatus: UniffiRustCallStatus, 
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_all_unread_mention_counts(`ptr`: Long,`userId`: Long,
@@ -984,6 +1008,8 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_device_push_status(`ptr`: Long,`deviceId`: RustBufferByValue,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_display_timezone(`ptr`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_earliest_id(`ptr`: Long,`channelId`: Long,`channelType`: Int,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_friend_pending_requests(`ptr`: Long,
@@ -1266,6 +1292,8 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_require_current_user_id(`ptr`: Long,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_reset_display_timezone(`ptr`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    ): Unit
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_attachment_path(`ptr`: Long,`uid`: Long,`messageId`: Long,`createdAtMs`: Long,`filename`: RustBufferByValue,uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_channel_id_by_server_message_id(`ptr`: Long,`serverMessageId`: Long,
@@ -1336,6 +1364,8 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_current_uid(`ptr`: Long,`uid`: RustBufferByValue,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_display_timezone(`ptr`: Long,`zoneId`: RustBufferByValue,uniffiCallStatus: UniffiRustCallStatus, 
+    ): Unit
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_local_account_display_name(`ptr`: Long,`uid`: RustBufferByValue,`displayName`: RustBufferByValue,`username`: RustBufferByValue,`loginMode`: RustBufferByValue,`loginIdentifier`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_pinned(`ptr`: Long,`messageId`: Long,`isPinned`: Byte,
@@ -1402,6 +1432,8 @@ internal interface UniffiLib {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_submit_remote(`ptr`: Long,`payload`: RustBufferByValue,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_system_default_timezone_id(`ptr`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_timeline_events_since(`ptr`: Long,`sequenceId`: Long,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_timezone_hours(`ptr`: Long,uniffiCallStatus: UniffiRustCallStatus, 
@@ -1718,6 +1750,8 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_entity_sync_remote(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_epoch_millis_to_local_datetime(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_event_config(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_event_stream_cursor(
@@ -1735,6 +1769,12 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_finalize_local_attachment(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_follow_bot(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_format_conversation_time(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_format_message_time(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_format_separator_time(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_generate_local_message_id(
     ): Short
@@ -1763,6 +1803,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_current_access_token(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_device_push_status(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_display_timezone(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_earliest_id(
     ): Short
@@ -2046,6 +2088,8 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_require_current_user_id(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_reset_display_timezone(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_attachment_path(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_channel_id_by_server_message_id(
@@ -2116,6 +2160,8 @@ internal interface UniffiLib {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_current_uid(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_display_timezone(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_local_account_display_name(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_pinned(
@@ -2181,6 +2227,8 @@ internal interface UniffiLib {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_state(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_submit_remote(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_system_default_timezone_id(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_timeline_events_since(
     ): Short
@@ -2520,6 +2568,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Long
         = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_entity_sync_remote(`ptr`,`payload`,)
     
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_epoch_millis_to_local_datetime(`ptr`: Long,`millis`: Long,`zoneId`: RustBufferByValue,uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
+        = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_epoch_millis_to_local_datetime(`ptr`,`millis`,`zoneId`,uniffiCallStatus.reinterpret(), )
+    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_event_config(`ptr`: Long,uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
         = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_event_config(`ptr`,uniffiCallStatus.reinterpret(), )
@@ -2555,6 +2607,18 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_follow_bot(`ptr`: Long,`botUserId`: Long,
     ): Long
         = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_follow_bot(`ptr`,`botUserId`,)
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_conversation_time(`ptr`: Long,`millis`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
+        = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_conversation_time(`ptr`,`millis`,uniffiCallStatus.reinterpret(), )
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_message_time(`ptr`: Long,`millis`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
+        = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_message_time(`ptr`,`millis`,uniffiCallStatus.reinterpret(), )
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_separator_time(`ptr`: Long,`millis`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
+        = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_separator_time(`ptr`,`millis`,uniffiCallStatus.reinterpret(), )
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_generate_local_message_id(`ptr`: Long,uniffiCallStatus: UniffiRustCallStatus, 
     ): Long
@@ -2611,6 +2675,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_device_push_status(`ptr`: Long,`deviceId`: RustBufferByValue,
     ): Long
         = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_device_push_status(`ptr`,`deviceId`,)
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_display_timezone(`ptr`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
+        = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_display_timezone(`ptr`,uniffiCallStatus.reinterpret(), )
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_earliest_id(`ptr`: Long,`channelId`: Long,`channelType`: Int,
     ): Long
@@ -2827,11 +2895,11 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_get_local(`ptr`: Long,`key`: RustBufferByValue,
     ): Long
         = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_get_local(`ptr`,`key`,)
-
+    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_put_local(`ptr`: Long,`key`: RustBufferByValue,`value`: RustBufferByValue,
     ): Long
         = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_kv_put_local(`ptr`,`key`,`value`,)
-
+    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_last_terminal_reason(`ptr`: Long,
     ): Long
         = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_last_terminal_reason(`ptr`,)
@@ -3176,6 +3244,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Long
         = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_require_current_user_id(`ptr`,)
     
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_reset_display_timezone(`ptr`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    ): Unit
+        = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_reset_display_timezone(`ptr`,uniffiCallStatus.reinterpret(), )
+    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_attachment_path(`ptr`: Long,`uid`: Long,`messageId`: Long,`createdAtMs`: Long,`filename`: RustBufferByValue,uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
         = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_attachment_path(`ptr`,`uid`,`messageId`,`createdAtMs`,`filename`,uniffiCallStatus.reinterpret(), )
@@ -3316,6 +3388,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Long
         = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_current_uid(`ptr`,`uid`,)
     
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_display_timezone(`ptr`: Long,`zoneId`: RustBufferByValue,uniffiCallStatus: UniffiRustCallStatus, 
+    ): Unit
+        = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_display_timezone(`ptr`,`zoneId`,uniffiCallStatus.reinterpret(), )
+    
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_local_account_display_name(`ptr`: Long,`uid`: RustBufferByValue,`displayName`: RustBufferByValue,`username`: RustBufferByValue,`loginMode`: RustBufferByValue,`loginIdentifier`: RustBufferByValue,
     ): Long
         = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_local_account_display_name(`ptr`,`uid`,`displayName`,`username`,`loginMode`,`loginIdentifier`,)
@@ -3447,6 +3523,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_submit_remote(`ptr`: Long,`payload`: RustBufferByValue,
     ): Long
         = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_submit_remote(`ptr`,`payload`,)
+    
+    override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_system_default_timezone_id(`ptr`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
+        = cinterop.uniffi_privchat_sdk_ffi_fn_method_privchatclient_system_default_timezone_id(`ptr`,uniffiCallStatus.reinterpret(), )
     
     override fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_timeline_events_since(`ptr`: Long,`sequenceId`: Long,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
@@ -4080,6 +4160,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Short
         = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_entity_sync_remote()
     
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_epoch_millis_to_local_datetime(
+    ): Short
+        = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_epoch_millis_to_local_datetime()
+    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_event_config(
     ): Short
         = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_event_config()
@@ -4115,6 +4199,18 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_follow_bot(
     ): Short
         = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_follow_bot()
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_format_conversation_time(
+    ): Short
+        = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_format_conversation_time()
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_format_message_time(
+    ): Short
+        = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_format_message_time()
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_format_separator_time(
+    ): Short
+        = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_format_separator_time()
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_generate_local_message_id(
     ): Short
@@ -4171,6 +4267,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_device_push_status(
     ): Short
         = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_device_push_status()
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_display_timezone(
+    ): Short
+        = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_display_timezone()
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_earliest_id(
     ): Short
@@ -4387,11 +4487,11 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_get_local(
     ): Short
         = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_get_local()
-
+    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_put_local(
     ): Short
         = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_kv_put_local()
-
+    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_last_terminal_reason(
     ): Short
         = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_last_terminal_reason()
@@ -4736,6 +4836,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Short
         = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_require_current_user_id()
     
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_reset_display_timezone(
+    ): Short
+        = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_reset_display_timezone()
+    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_attachment_path(
     ): Short
         = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_attachment_path()
@@ -4876,6 +4980,10 @@ internal class UniffiLibInstance: UniffiLib {
     ): Short
         = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_current_uid()
     
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_display_timezone(
+    ): Short
+        = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_display_timezone()
+    
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_local_account_display_name(
     ): Short
         = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_local_account_display_name()
@@ -5007,6 +5115,10 @@ internal class UniffiLibInstance: UniffiLib {
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_submit_remote(
     ): Short
         = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_submit_remote()
+    
+    override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_system_default_timezone_id(
+    ): Short
+        = cinterop.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_system_default_timezone_id()
     
     override fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_timeline_events_since(
     ): Short
@@ -6599,6 +6711,22 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
+    
+    /**
+     * UTC 毫秒 → 指定 IANA 时区的本地日期时间分量（原子能力，不依赖实例配置时区）。
+     */actual override fun `epochMillisToLocalDatetime`(`millis`: kotlin.Long, `zoneId`: kotlin.String): LocalDateTimeParts {
+            return FfiConverterTypeLocalDateTimeParts.lift(
+    callWithHandle {
+    uniffiRustCallWithError(PrivchatFfiExceptionErrorHandler) { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_epoch_millis_to_local_datetime(
+        it,
+        FfiConverterLong.lower(`millis`),FfiConverterString.lower(`zoneId`),_status)
+}
+    }
+    )
+    }
+    
+
     actual override fun `eventConfig`(): EventConfigView {
             return FfiConverterTypeEventConfigView.lift(
     callWithHandle {
@@ -6774,6 +6902,54 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         PrivchatFfiExceptionErrorHandler,
     )
     }
+
+    
+    /**
+     * 会话列表时间（今天 HH:mm / 昨天 / 周X / MM-dd），按实例配置时区，"现在" 取当前 UTC。
+     */actual override fun `formatConversationTime`(`millis`: kotlin.Long): kotlin.String {
+            return FfiConverterString.lift(
+    callWithHandle {
+    uniffiRustCallWithError(PrivchatFfiExceptionErrorHandler) { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_conversation_time(
+        it,
+        FfiConverterLong.lower(`millis`),_status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * 消息气泡时间 `"HH:mm"`，按实例配置时区。`millis <= 0` 返回空串。
+     */actual override fun `formatMessageTime`(`millis`: kotlin.Long): kotlin.String {
+            return FfiConverterString.lift(
+    callWithHandle {
+    uniffiRustCallWithError(PrivchatFfiExceptionErrorHandler) { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_message_time(
+        it,
+        FfiConverterLong.lower(`millis`),_status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * 消息时间分隔符（今天/昨天/MM月dd日/yyyy年MM月dd日 + HH:mm），按实例配置时区。
+     */actual override fun `formatSeparatorTime`(`millis`: kotlin.Long): kotlin.String {
+            return FfiConverterString.lift(
+    callWithHandle {
+    uniffiRustCallWithError(PrivchatFfiExceptionErrorHandler) { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_separator_time(
+        it,
+        FfiConverterLong.lower(`millis`),_status)
+}
+    }
+    )
+    }
+    
 
     actual override fun `generateLocalMessageId`(): kotlin.ULong {
             return FfiConverterULong.lift(
@@ -7056,6 +7232,22 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         PrivchatFfiExceptionErrorHandler,
     )
     }
+
+    
+    /**
+     * 获取当前显示时区 IANA ID。
+     */actual override fun `getDisplayTimezone`(): kotlin.String {
+            return FfiConverterString.lift(
+    callWithHandle {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_display_timezone(
+        it,
+        _status)
+}
+    }
+    )
+    }
+    
 
     
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
@@ -8216,7 +8408,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-
+    
     /**
      * Write bytes to the current user's local KV store after local initialization.
      */
@@ -8235,13 +8427,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { _ -> },
-
+        
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-
+    
     /**
      * 读取最近一次 Terminal 认证错误快照。
      * `None` 表示当前没有未清的 ForcedLogout 记录（例如已成功 Connect 一次）。
@@ -10038,6 +10230,21 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
 
     
     /**
+     * 重置显示时区为设备系统默认。
+     */actual override fun `resetDisplayTimezone`()
+        = 
+    callWithHandle {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_reset_display_timezone(
+        it,
+        _status)
+}
+    }
+    
+    
+
+    
+    /**
      * 解析本地已存在的附件路径 (含 Legacy 兼容)
      */actual override fun `resolveAttachmentPath`(`uid`: kotlin.ULong, `messageId`: kotlin.Long, `createdAtMs`: kotlin.Long, `filename`: kotlin.String?): kotlin.String? {
             return FfiConverterOptionalString.lift(
@@ -10768,6 +10975,21 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
 
     
     /**
+     * 设置显示时区（IANA ID，如 `"Asia/Ho_Chi_Minh"`）。非法 ID 报错且保留原配置。
+     */actual override fun `setDisplayTimezone`(`zoneId`: kotlin.String)
+        = 
+    callWithHandle {
+    uniffiRustCallWithError(PrivchatFfiExceptionErrorHandler) { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_display_timezone(
+        it,
+        FfiConverterString.lower(`zoneId`),_status)
+}
+    }
+    
+    
+
+    
+    /**
      * 记录某个本地账号的展示名，供切换账号列表渲染（见 SDK 同名方法）。
      */
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
@@ -11452,6 +11674,22 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         PrivchatFfiExceptionErrorHandler,
     )
     }
+
+    
+    /**
+     * 设备系统时区的 IANA ID（原子能力）。
+     */actual override fun `systemDefaultTimezoneId`(): kotlin.String {
+            return FfiConverterString.lift(
+    callWithHandle {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_system_default_timezone_id(
+        it,
+        _status)
+}
+    }
+    )
+    }
+    
 
     actual override fun `timelineEventsSince`(`sequenceId`: kotlin.ULong, `limit`: kotlin.ULong): List<SequencedSdkEvent> {
             return FfiConverterSequenceTypeSequencedSdkEvent.lift(
@@ -14081,6 +14319,43 @@ object FfiConverterTypeLocalAttachmentMetadataInput: FfiConverterRustBuffer<Loca
             FfiConverterOptionalUInt.write(value.`thumbnailWidth`, buf)
             FfiConverterOptionalUInt.write(value.`thumbnailHeight`, buf)
             FfiConverterOptionalString.write(value.`extensionJson`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeLocalDateTimeParts: FfiConverterRustBuffer<LocalDateTimeParts> {
+    override fun read(buf: ByteBuffer): LocalDateTimeParts {
+        return LocalDateTimeParts(
+            FfiConverterInt.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterUInt.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: LocalDateTimeParts) = (
+            FfiConverterInt.allocationSize(value.`year`) +
+            FfiConverterUInt.allocationSize(value.`month`) +
+            FfiConverterUInt.allocationSize(value.`day`) +
+            FfiConverterUInt.allocationSize(value.`hour`) +
+            FfiConverterUInt.allocationSize(value.`minute`) +
+            FfiConverterUInt.allocationSize(value.`second`) +
+            FfiConverterUInt.allocationSize(value.`dayOfWeek`)
+    )
+
+    override fun write(value: LocalDateTimeParts, buf: ByteBuffer) {
+            FfiConverterInt.write(value.`year`, buf)
+            FfiConverterUInt.write(value.`month`, buf)
+            FfiConverterUInt.write(value.`day`, buf)
+            FfiConverterUInt.write(value.`hour`, buf)
+            FfiConverterUInt.write(value.`minute`, buf)
+            FfiConverterUInt.write(value.`second`, buf)
+            FfiConverterUInt.write(value.`dayOfWeek`, buf)
     }
 }
 

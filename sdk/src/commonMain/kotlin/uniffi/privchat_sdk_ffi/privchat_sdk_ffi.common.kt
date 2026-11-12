@@ -268,6 +268,11 @@ interface PrivchatClientInterface {
     fun `enterForeground`()
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `entitySyncRemote`(`payload`: SyncEntitiesInput): SyncEntitiesView
+    
+    /**
+     * UTC 毫秒 → 指定 IANA 时区的本地日期时间分量（原子能力，不依赖实例配置时区）。
+     */
+        @Throws(PrivchatFfiException::class)fun `epochMillisToLocalDatetime`(`millis`: kotlin.Long, `zoneId`: kotlin.String): LocalDateTimeParts
     fun `eventConfig`(): EventConfigView
     fun `eventStreamCursor`(): kotlin.ULong
     fun `eventsSince`(`sequenceId`: kotlin.ULong, `limit`: kotlin.ULong): List<SequencedSdkEvent>
@@ -292,6 +297,21 @@ interface PrivchatClientInterface {
      * Spec: `02-server/SERVICE_ACCOUNT_FOLLOW_SPEC` §3.1。
      */
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `followBot`(`botUserId`: kotlin.ULong): BotFollowResult
+    
+    /**
+     * 会话列表时间（今天 HH:mm / 昨天 / 周X / MM-dd），按实例配置时区，"现在" 取当前 UTC。
+     */
+        @Throws(PrivchatFfiException::class)fun `formatConversationTime`(`millis`: kotlin.Long): kotlin.String
+    
+    /**
+     * 消息气泡时间 `"HH:mm"`，按实例配置时区。`millis <= 0` 返回空串。
+     */
+        @Throws(PrivchatFfiException::class)fun `formatMessageTime`(`millis`: kotlin.Long): kotlin.String
+    
+    /**
+     * 消息时间分隔符（今天/昨天/MM月dd日/yyyy年MM月dd日 + HH:mm），按实例配置时区。
+     */
+        @Throws(PrivchatFfiException::class)fun `formatSeparatorTime`(`millis`: kotlin.Long): kotlin.String
     
         @Throws(PrivchatFfiException::class)fun `generateLocalMessageId`(): kotlin.ULong
     
@@ -324,6 +344,10 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getCurrentAccessToken`(): kotlin.String?
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getDevicePushStatus`(`deviceId`: kotlin.String?): DevicePushStatusView
+    
+    /**
+     * 获取当前显示时区 IANA ID。
+     */fun `getDisplayTimezone`(): kotlin.String
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `getEarliestId`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int): kotlin.ULong?
     
@@ -484,12 +508,12 @@ interface PrivchatClientInterface {
      * Read bytes from the current user's local KV store; no network is required.
      */
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `kvGetLocal`(`key`: kotlin.String): kotlin.ByteArray?
-
+    
     /**
      * Write bytes to the current user's local KV store after local initialization.
      */
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `kvPutLocal`(`key`: kotlin.String, `value`: kotlin.ByteArray)
-
+    
     /**
      * 读取最近一次 Terminal 认证错误快照。
      * `None` 表示当前没有未清的 ForcedLogout 记录（例如已成功 Connect 一次）。
@@ -747,6 +771,10 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `requireCurrentUserId`(): kotlin.ULong
     
     /**
+     * 重置显示时区为设备系统默认。
+     */fun `resetDisplayTimezone`()
+    
+    /**
      * 解析本地已存在的附件路径 (含 Legacy 兼容)
      */fun `resolveAttachmentPath`(`uid`: kotlin.ULong, `messageId`: kotlin.Long, `createdAtMs`: kotlin.Long, `filename`: kotlin.String?): kotlin.String?
     
@@ -834,6 +862,11 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setChannelNotificationMode`(`channelId`: kotlin.ULong, `channelType`: kotlin.Int, `mode`: kotlin.Int)
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `setCurrentUid`(`uid`: kotlin.String)
+    
+    /**
+     * 设置显示时区（IANA ID，如 `"Asia/Ho_Chi_Minh"`）。非法 ID 报错且保留原配置。
+     */
+        @Throws(PrivchatFfiException::class)fun `setDisplayTimezone`(`zoneId`: kotlin.String)
     
     /**
      * 记录某个本地账号的展示名，供切换账号列表渲染（见 SDK 同名方法）。
@@ -935,6 +968,10 @@ interface PrivchatClientInterface {
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `syncState`(): SyncStateSnapshot
     
         @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)suspend fun `syncSubmitRemote`(`payload`: SyncSubmitInput): SyncSubmitView
+    
+    /**
+     * 设备系统时区的 IANA ID（原子能力）。
+     */fun `systemDefaultTimezoneId`(): kotlin.String
     fun `timelineEventsSince`(`sequenceId`: kotlin.ULong, `limit`: kotlin.ULong): List<SequencedSdkEvent>
     fun `timezoneHours`(): kotlin.Int
     fun `timezoneLocal`(): kotlin.String
@@ -1355,6 +1392,12 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `entitySyncRemote`(`payload`: SyncEntitiesInput) : SyncEntitiesView
 
+    
+    /**
+     * UTC 毫秒 → 指定 IANA 时区的本地日期时间分量（原子能力，不依赖实例配置时区）。
+     */override fun `epochMillisToLocalDatetime`(`millis`: kotlin.Long, `zoneId`: kotlin.String): LocalDateTimeParts
+    
+
     override fun `eventConfig`(): EventConfigView
     
 
@@ -1396,6 +1439,24 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
      */
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `followBot`(`botUserId`: kotlin.ULong) : BotFollowResult
+
+    
+    /**
+     * 会话列表时间（今天 HH:mm / 昨天 / 周X / MM-dd），按实例配置时区，"现在" 取当前 UTC。
+     */override fun `formatConversationTime`(`millis`: kotlin.Long): kotlin.String
+    
+
+    
+    /**
+     * 消息气泡时间 `"HH:mm"`，按实例配置时区。`millis <= 0` 返回空串。
+     */override fun `formatMessageTime`(`millis`: kotlin.Long): kotlin.String
+    
+
+    
+    /**
+     * 消息时间分隔符（今天/昨天/MM月dd日/yyyy年MM月dd日 + HH:mm），按实例配置时区。
+     */override fun `formatSeparatorTime`(`millis`: kotlin.Long): kotlin.String
+    
 
     override fun `generateLocalMessageId`(): kotlin.ULong
     
@@ -1454,6 +1515,12 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `getDevicePushStatus`(`deviceId`: kotlin.String?) : DevicePushStatusView
+
+    
+    /**
+     * 获取当前显示时区 IANA ID。
+     */override fun `getDisplayTimezone`(): kotlin.String
+    
 
     
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
@@ -1724,14 +1791,14 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `kvGetLocal`(`key`: kotlin.String) : kotlin.ByteArray?
 
-
+    
     /**
      * Write bytes to the current user's local KV store after local initialization.
      */
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `kvPutLocal`(`key`: kotlin.String, `value`: kotlin.ByteArray)
 
-
+    
     /**
      * 读取最近一次 Terminal 认证错误快照。
      * `None` 表示当前没有未清的 ForcedLogout 记录（例如已成功 Connect 一次）。
@@ -2162,6 +2229,12 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
 
     
     /**
+     * 重置显示时区为设备系统默认。
+     */override fun `resetDisplayTimezone`()
+    
+
+    
+    /**
      * 解析本地已存在的附件路径 (含 Legacy 兼容)
      */override fun `resolveAttachmentPath`(`uid`: kotlin.ULong, `messageId`: kotlin.Long, `createdAtMs`: kotlin.Long, `filename`: kotlin.String?): kotlin.String?
     
@@ -2320,6 +2393,12 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `setCurrentUid`(`uid`: kotlin.String)
+
+    
+    /**
+     * 设置显示时区（IANA ID，如 `"Asia/Ho_Chi_Minh"`）。非法 ID 报错且保留原配置。
+     */override fun `setDisplayTimezone`(`zoneId`: kotlin.String)
+    
 
     
     /**
@@ -2485,6 +2564,12 @@ expect open class PrivchatClient: Disposable, PrivchatClientInterface {
     
     @Suppress("ASSIGNED_BUT_NEVER_ACCESSED_VARIABLE")
     override suspend fun `syncSubmitRemote`(`payload`: SyncSubmitInput) : SyncSubmitView
+
+    
+    /**
+     * 设备系统时区的 IANA ID（原子能力）。
+     */override fun `systemDefaultTimezoneId`(): kotlin.String
+    
 
     override fun `timelineEventsSince`(`sequenceId`: kotlin.ULong, `limit`: kotlin.ULong): List<SequencedSdkEvent>
     
@@ -3914,6 +3999,33 @@ data class LocalAttachmentMetadataInput (
          = null , 
     var `extensionJson`: kotlin.String?
          = null 
+) {
+    
+    
+    companion object
+}
+
+
+
+/**
+ * UTC 毫秒在指定 IANA 时区下的本地日期时间分量（原子能力，供上层本地化格式化）。
+ * `day_of_week` 采用 ISO 约定：周一=1 … 周日=7。
+ */
+data class LocalDateTimeParts (
+    var `year`: kotlin.Int
+        , 
+    var `month`: kotlin.UInt
+        , 
+    var `day`: kotlin.UInt
+        , 
+    var `hour`: kotlin.UInt
+        , 
+    var `minute`: kotlin.UInt
+        , 
+    var `second`: kotlin.UInt
+        , 
+    var `dayOfWeek`: kotlin.UInt
+        
 ) {
     
     
@@ -6794,13 +6906,13 @@ sealed class SdkEvent {
     
     data class RpcNotificationReceived(
         val `route`: kotlin.String
-        ,
+        , 
         val `body`: kotlin.ByteArray
         ) : SdkEvent() {
-
+        
     }
-
-
+    
+    
 }
 
 

@@ -765,6 +765,22 @@ import kotlinx.coroutines.withContext
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @Synchronized
 private fun findLibraryName(componentName: String): String {
     val libOverride = System.getProperty("uniffi.component.$componentName.libraryOverride")
@@ -931,6 +947,8 @@ internal interface UniffiLib : Library {
     ): Unit
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_entity_sync_remote(`ptr`: Long,`payload`: RustBufferByValue,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_epoch_millis_to_local_datetime(`ptr`: Long,`millis`: Long,`zoneId`: RustBufferByValue,uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_event_config(`ptr`: Long,uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_event_stream_cursor(`ptr`: Long,uniffiCallStatus: UniffiRustCallStatus, 
@@ -949,6 +967,12 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_follow_bot(`ptr`: Long,`botUserId`: Long,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_conversation_time(`ptr`: Long,`millis`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_message_time(`ptr`: Long,`millis`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_separator_time(`ptr`: Long,`millis`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_generate_local_message_id(`ptr`: Long,uniffiCallStatus: UniffiRustCallStatus, 
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_all_unread_mention_counts(`ptr`: Long,`userId`: Long,
@@ -977,6 +1001,8 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_device_push_status(`ptr`: Long,`deviceId`: RustBufferByValue,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_display_timezone(`ptr`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_earliest_id(`ptr`: Long,`channelId`: Long,`channelType`: Int,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_friend_pending_requests(`ptr`: Long,
@@ -1259,6 +1285,8 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_require_current_user_id(`ptr`: Long,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_reset_display_timezone(`ptr`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    ): Unit
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_attachment_path(`ptr`: Long,`uid`: Long,`messageId`: Long,`createdAtMs`: Long,`filename`: RustBufferByValue,uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_resolve_channel_id_by_server_message_id(`ptr`: Long,`serverMessageId`: Long,
@@ -1329,6 +1357,8 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_current_uid(`ptr`: Long,`uid`: RustBufferByValue,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_display_timezone(`ptr`: Long,`zoneId`: RustBufferByValue,uniffiCallStatus: UniffiRustCallStatus, 
+    ): Unit
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_local_account_display_name(`ptr`: Long,`uid`: RustBufferByValue,`displayName`: RustBufferByValue,`username`: RustBufferByValue,`loginMode`: RustBufferByValue,`loginIdentifier`: RustBufferByValue,
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_message_pinned(`ptr`: Long,`messageId`: Long,`isPinned`: Byte,
@@ -1395,6 +1425,8 @@ internal interface UniffiLib : Library {
     ): Long
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_sync_submit_remote(`ptr`: Long,`payload`: RustBufferByValue,
     ): Long
+    fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_system_default_timezone_id(`ptr`: Long,uniffiCallStatus: UniffiRustCallStatus, 
+    ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_timeline_events_since(`ptr`: Long,`sequenceId`: Long,`limit`: Long,uniffiCallStatus: UniffiRustCallStatus, 
     ): RustBufferByValue
     fun uniffi_privchat_sdk_ffi_fn_method_privchatclient_timezone_hours(`ptr`: Long,uniffiCallStatus: UniffiRustCallStatus, 
@@ -1711,6 +1743,8 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_entity_sync_remote(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_epoch_millis_to_local_datetime(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_event_config(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_event_stream_cursor(
@@ -1728,6 +1762,12 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_finalize_local_attachment(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_follow_bot(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_format_conversation_time(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_format_message_time(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_format_separator_time(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_generate_local_message_id(
     ): Short
@@ -1756,6 +1796,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_current_access_token(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_device_push_status(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_display_timezone(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_earliest_id(
     ): Short
@@ -2039,6 +2081,8 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_require_current_user_id(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_reset_display_timezone(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_attachment_path(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_channel_id_by_server_message_id(
@@ -2109,6 +2153,8 @@ internal interface UniffiLib : Library {
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_current_uid(
     ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_display_timezone(
+    ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_local_account_display_name(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_message_pinned(
@@ -2174,6 +2220,8 @@ internal interface UniffiLib : Library {
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_state(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_submit_remote(
+    ): Short
+    fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_system_default_timezone_id(
     ): Short
     fun uniffi_privchat_sdk_ffi_checksum_method_privchatclient_timeline_events_since(
     ): Short
@@ -2464,6 +2512,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_entity_sync_remote() != 3112.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_epoch_millis_to_local_datetime() != 55703.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_event_config() != 65492.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
@@ -2489,6 +2540,15 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_follow_bot() != 65263.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_format_conversation_time() != 21044.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_format_message_time() != 48863.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_format_separator_time() != 1769.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_generate_local_message_id() != 45789.toShort()) {
@@ -2531,6 +2591,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_device_push_status() != 55430.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_display_timezone() != 11424.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_get_earliest_id() != 54048.toShort()) {
@@ -2956,6 +3019,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_require_current_user_id() != 24350.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_reset_display_timezone() != 18600.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_resolve_attachment_path() != 13552.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
@@ -3061,6 +3127,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_current_uid() != 42144.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_display_timezone() != 27674.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_set_local_account_display_name() != 40283.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
@@ -3158,6 +3227,9 @@ private fun uniffiCheckApiChecksums(lib: UniffiLib) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_sync_submit_remote() != 32176.toShort()) {
+        throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
+    }
+    if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_system_default_timezone_id() != 59028.toShort()) {
         throw RuntimeException("UniFFI API checksum mismatch: try cleaning and rebuilding your project")
     }
     if (lib.uniffi_privchat_sdk_ffi_checksum_method_privchatclient_timeline_events_since() != 51099.toShort()) {
@@ -4766,6 +4838,23 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
+    
+    /**
+     * UTC 毫秒 → 指定 IANA 时区的本地日期时间分量（原子能力，不依赖实例配置时区）。
+     */
+    @Throws(PrivchatFfiException::class)actual override fun `epochMillisToLocalDatetime`(`millis`: kotlin.Long, `zoneId`: kotlin.String): LocalDateTimeParts {
+            return FfiConverterTypeLocalDateTimeParts.lift(
+    callWithHandle {
+    uniffiRustCallWithError(PrivchatFfiExceptionErrorHandler) { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_epoch_millis_to_local_datetime(
+        it,
+        FfiConverterLong.lower(`millis`),FfiConverterString.lower(`zoneId`),_status)
+}
+    }
+    )
+    }
+    
+
     actual override fun `eventConfig`(): EventConfigView {
             return FfiConverterTypeEventConfigView.lift(
     callWithHandle {
@@ -4947,6 +5036,57 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         PrivchatFfiExceptionErrorHandler,
     )
     }
+
+    
+    /**
+     * 会话列表时间（今天 HH:mm / 昨天 / 周X / MM-dd），按实例配置时区，"现在" 取当前 UTC。
+     */
+    @Throws(PrivchatFfiException::class)actual override fun `formatConversationTime`(`millis`: kotlin.Long): kotlin.String {
+            return FfiConverterString.lift(
+    callWithHandle {
+    uniffiRustCallWithError(PrivchatFfiExceptionErrorHandler) { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_conversation_time(
+        it,
+        FfiConverterLong.lower(`millis`),_status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * 消息气泡时间 `"HH:mm"`，按实例配置时区。`millis <= 0` 返回空串。
+     */
+    @Throws(PrivchatFfiException::class)actual override fun `formatMessageTime`(`millis`: kotlin.Long): kotlin.String {
+            return FfiConverterString.lift(
+    callWithHandle {
+    uniffiRustCallWithError(PrivchatFfiExceptionErrorHandler) { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_message_time(
+        it,
+        FfiConverterLong.lower(`millis`),_status)
+}
+    }
+    )
+    }
+    
+
+    
+    /**
+     * 消息时间分隔符（今天/昨天/MM月dd日/yyyy年MM月dd日 + HH:mm），按实例配置时区。
+     */
+    @Throws(PrivchatFfiException::class)actual override fun `formatSeparatorTime`(`millis`: kotlin.Long): kotlin.String {
+            return FfiConverterString.lift(
+    callWithHandle {
+    uniffiRustCallWithError(PrivchatFfiExceptionErrorHandler) { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_format_separator_time(
+        it,
+        FfiConverterLong.lower(`millis`),_status)
+}
+    }
+    )
+    }
+    
 
     
     @Throws(PrivchatFfiException::class)actual override fun `generateLocalMessageId`(): kotlin.ULong {
@@ -5243,6 +5383,22 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         PrivchatFfiExceptionErrorHandler,
     )
     }
+
+    
+    /**
+     * 获取当前显示时区 IANA ID。
+     */actual override fun `getDisplayTimezone`(): kotlin.String {
+            return FfiConverterString.lift(
+    callWithHandle {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_get_display_timezone(
+        it,
+        _status)
+}
+    }
+    )
+    }
+    
 
     
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -6452,7 +6608,7 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
     )
     }
 
-
+    
     /**
      * Write bytes to the current user's local KV store after local initialization.
      */
@@ -6472,13 +6628,13 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         { future -> UniffiLib.INSTANCE.ffi_privchat_sdk_ffi_rust_future_cancel_void(future) },
         // lift function
         { _ -> },
-
+        
         // Error FFI converter
         PrivchatFfiExceptionErrorHandler,
     )
     }
 
-
+    
     /**
      * 读取最近一次 Terminal 认证错误快照。
      * `None` 表示当前没有未清的 ForcedLogout 记录（例如已成功 Connect 一次）。
@@ -8346,6 +8502,21 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
 
     
     /**
+     * 重置显示时区为设备系统默认。
+     */actual override fun `resetDisplayTimezone`()
+        = 
+    callWithHandle {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_reset_display_timezone(
+        it,
+        _status)
+}
+    }
+    
+    
+
+    
+    /**
      * 解析本地已存在的附件路径 (含 Legacy 兼容)
      */actual override fun `resolveAttachmentPath`(`uid`: kotlin.ULong, `messageId`: kotlin.Long, `createdAtMs`: kotlin.Long, `filename`: kotlin.String?): kotlin.String? {
             return FfiConverterOptionalString.lift(
@@ -9104,6 +9275,22 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
 
     
     /**
+     * 设置显示时区（IANA ID，如 `"Asia/Ho_Chi_Minh"`）。非法 ID 报错且保留原配置。
+     */
+    @Throws(PrivchatFfiException::class)actual override fun `setDisplayTimezone`(`zoneId`: kotlin.String)
+        = 
+    callWithHandle {
+    uniffiRustCallWithError(PrivchatFfiExceptionErrorHandler) { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_set_display_timezone(
+        it,
+        FfiConverterString.lower(`zoneId`),_status)
+}
+    }
+    
+    
+
+    
+    /**
      * 记录某个本地账号的展示名，供切换账号列表渲染（见 SDK 同名方法）。
      */
     @Throws(PrivchatFfiException::class,kotlin.coroutines.cancellation.CancellationException::class)
@@ -9816,6 +10003,22 @@ actual open class PrivchatClient: Disposable, PrivchatClientInterface {
         PrivchatFfiExceptionErrorHandler,
     )
     }
+
+    
+    /**
+     * 设备系统时区的 IANA ID（原子能力）。
+     */actual override fun `systemDefaultTimezoneId`(): kotlin.String {
+            return FfiConverterString.lift(
+    callWithHandle {
+    uniffiRustCall() { _status ->
+    UniffiLib.INSTANCE.uniffi_privchat_sdk_ffi_fn_method_privchatclient_system_default_timezone_id(
+        it,
+        _status)
+}
+    }
+    )
+    }
+    
 
     actual override fun `timelineEventsSince`(`sequenceId`: kotlin.ULong, `limit`: kotlin.ULong): List<SequencedSdkEvent> {
             return FfiConverterSequenceTypeSequencedSdkEvent.lift(
@@ -12472,6 +12675,43 @@ object FfiConverterTypeLocalAttachmentMetadataInput: FfiConverterRustBuffer<Loca
             FfiConverterOptionalUInt.write(value.`thumbnailWidth`, buf)
             FfiConverterOptionalUInt.write(value.`thumbnailHeight`, buf)
             FfiConverterOptionalString.write(value.`extensionJson`, buf)
+    }
+}
+
+
+
+
+object FfiConverterTypeLocalDateTimeParts: FfiConverterRustBuffer<LocalDateTimeParts> {
+    override fun read(buf: ByteBuffer): LocalDateTimeParts {
+        return LocalDateTimeParts(
+            FfiConverterInt.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterUInt.read(buf),
+            FfiConverterUInt.read(buf),
+        )
+    }
+
+    override fun allocationSize(value: LocalDateTimeParts) = (
+            FfiConverterInt.allocationSize(value.`year`) +
+            FfiConverterUInt.allocationSize(value.`month`) +
+            FfiConverterUInt.allocationSize(value.`day`) +
+            FfiConverterUInt.allocationSize(value.`hour`) +
+            FfiConverterUInt.allocationSize(value.`minute`) +
+            FfiConverterUInt.allocationSize(value.`second`) +
+            FfiConverterUInt.allocationSize(value.`dayOfWeek`)
+    )
+
+    override fun write(value: LocalDateTimeParts, buf: ByteBuffer) {
+            FfiConverterInt.write(value.`year`, buf)
+            FfiConverterUInt.write(value.`month`, buf)
+            FfiConverterUInt.write(value.`day`, buf)
+            FfiConverterUInt.write(value.`hour`, buf)
+            FfiConverterUInt.write(value.`minute`, buf)
+            FfiConverterUInt.write(value.`second`, buf)
+            FfiConverterUInt.write(value.`dayOfWeek`, buf)
     }
 }
 
